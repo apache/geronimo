@@ -148,20 +148,25 @@ public class ConfigurationInstaller {
                 InputStream in = pluginXmlURL.openStream();
                 try {
                     PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
-                    PluginArtifactType pluginArtifactType = pluginType.getPluginArtifact().get(0);
-                    List<PropertyType> substitutions = pluginArtifactType.getConfigSubstitution();
-                    Map<String, String> subMap = new HashMap<String, String>();
-                    for (PropertyType propertyType: substitutions) {
-                        if (equals(propertyType.getServer(), pluginAttributeStore.getServerName())) {
-                            subMap.put(propertyType.getKey(), propertyType.getValue());
+                    //TODO this check should not really be necessary, identify which cars are missing the plugin artifact.
+                    if (!pluginType.getPluginArtifact().isEmpty()) {
+                        PluginArtifactType pluginArtifactType = pluginType.getPluginArtifact().get(0);
+                        List<PropertyType> substitutions = pluginArtifactType.getConfigSubstitution();
+                        Map<String, String> subMap = new HashMap<String, String>();
+                        for (PropertyType propertyType: substitutions) {
+                            if (equals(propertyType.getServer(), pluginAttributeStore.getServerName())) {
+                                subMap.put(propertyType.getKey(), propertyType.getValue());
+                            }
                         }
-                    }
-                    pluginAttributeStore.addConfigSubstitutions(subMap);
-                    List<ConfigXmlContentType> xmls = pluginArtifactType.getConfigXmlContent();
-                    for (ConfigXmlContentType xml: xmls) {
-                        if (equals(xml.getServer(), pluginAttributeStore.getServerName())) {
-                            pluginAttributeStore.setModuleGBeans(toArtifact(pluginArtifactType.getModuleId()), xml.getGbean(), xml.isLoad(), xml.getCondition());
+                        pluginAttributeStore.addConfigSubstitutions(subMap);
+                        List<ConfigXmlContentType> xmls = pluginArtifactType.getConfigXmlContent();
+                        for (ConfigXmlContentType xml: xmls) {
+                            if (equals(xml.getServer(), pluginAttributeStore.getServerName())) {
+                                pluginAttributeStore.setModuleGBeans(toArtifact(pluginArtifactType.getModuleId()), xml.getGbean(), xml.isLoad(), xml.getCondition());
+                            }
                         }
+                    } else {
+                        logger.warn("No PluginArtifact in plugin xml at " + pluginXmlURL);
                     }
                 } finally {
                     in.close();

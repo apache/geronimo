@@ -29,33 +29,33 @@
             openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true)
             openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
         </attribute>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>openjpa2</artifactId>
-                        <version>${version}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
+        <!--<xml-attribute name="defaultEnvironment">-->
+            <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">-->
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                        <!--<artifactId>openjpa2</artifactId>-->
+                        <!--<version>${version}</version>-->
+                        <!--<type>car</type>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
+            <!--</environment>-->
+        <!--</xml-attribute>-->
     </gbean>
     <!-- TODO possibly the ref builders only need a dependency on transaction -->
     <gbean name="PersistenceRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceRefBuilder">
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>openjpa2</artifactId>
-                        <version>${version}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
+        <!--<xml-attribute name="defaultEnvironment">-->
+            <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">-->
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                        <!--<artifactId>openjpa2</artifactId>-->
+                        <!--<version>${version}</version>-->
+                        <!--<type>car</type>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
+            <!--</environment>-->
+        <!--</xml-attribute>-->
     </gbean>
 
 

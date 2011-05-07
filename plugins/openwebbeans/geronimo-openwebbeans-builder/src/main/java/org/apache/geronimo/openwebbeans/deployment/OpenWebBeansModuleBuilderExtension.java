@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Set;
 import java.util.jar.JarFile;
 
 import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.Producer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -43,6 +41,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -58,7 +57,6 @@ import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -122,7 +120,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             return;
         }
 
-        WebModule webModule = (WebModule) module;
+        WebModule<JndiPlan> webModule = (WebModule<JndiPlan>) module;
 
 //        if (!hasBeansXml(bundle)) {
 //            return;
@@ -146,7 +144,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
 
         WebApp webApp = webModule.getSpecDD();
-        XmlObject jettyWebApp = webModule.getVendorDD();
+        JndiPlan jettyWebApp = webModule.getVendorDD();
 
         ClassFinder classFinder = createOpenWebBeansClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);

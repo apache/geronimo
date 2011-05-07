@@ -36,6 +36,41 @@
     <dependencies>
 
         <dependency>
+             <groupId>org.apache.geronimo.framework.feature</groupId>
+             <artifactId>j2ee-system</artifactId>
+             <version>${project.version}</version>
+             <type>xml</type>
+             <classifier>features</classifier>
+         </dependency>
+         <!--<dependency>-->
+             <!--<groupId>org.apache.geronimo.framework.feature</groupId>-->
+             <!--<artifactId>server-security-config</artifactId>-->
+             <!--<version>${project.version}</version>-->
+             <!--<type>kar</type>-->
+         <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.feature</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-naming</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <version>${project.version}</version>
@@ -65,6 +100,13 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <features>
+                        <feature>declarative-services</feature>
+                        <feature>org.apache.geronimo.jaxb-support</feature>
+                        <feature>org.apache.geronimo.javaee-specs</feature>
+                        <feature>j2ee-system</feature>
+                        <!--<feature>server-security-config</feature>-->
+                    </features>
                     <category>Geronimo Core</category>
                 </configuration>
             </plugin>

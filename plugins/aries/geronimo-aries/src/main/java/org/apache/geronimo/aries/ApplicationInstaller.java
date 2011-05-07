@@ -38,17 +38,14 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +61,6 @@ public class ApplicationInstaller implements GBeanLifecycle {
     private BundleContext bundleContext;
     private AbstractName abstractName;
     private ServiceRegistration registration;
-    private ConfigurationManager configurationManager;
     private Collection<ConfigurationStore> configurationStores;
     private Environment defaultEnvironment;
 
@@ -79,7 +75,6 @@ public class ApplicationInstaller implements GBeanLifecycle {
         this.bundleContext = bundleContext;
         this.abstractName = abstractName;
         this.configurationStores = configurationStores;
-        this.configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         this.defaultEnvironment = defaultEnvironment;
     }
 
@@ -95,10 +90,6 @@ public class ApplicationInstaller implements GBeanLifecycle {
 
     public void doFail() {
         doStop();
-    }
-
-    protected ConfigurationManager getConfigurationManager() {
-        return configurationManager;
     }
 
     public DeploymentContext startInstall(AriesApplication app, ConfigurationStore targetConfigurationStore)
@@ -124,7 +115,6 @@ public class ApplicationInstaller implements GBeanLifecycle {
                             moduleName,
                             ConfigurationModuleType.EBA,
                             naming,
-                            configurationManager,
                             null,
                             bundleContext);
 
@@ -173,8 +163,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
         ConfigurationData configurationData = finishInstall(context, store);
 
         try {
-            configurationManager.loadConfiguration(configurationData.getId());
-            configurationManager.startConfiguration(configurationData.getId());
+//            configurationManager.loadConfiguration(configurationData.getId());
+//            configurationManager.startConfiguration(configurationData.getId());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("", e);

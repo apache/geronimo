@@ -118,8 +118,8 @@
                     </xs:annotation>
                 </xs:element>
                 <xs:choice minOccurs="0">
-                <xs:element ref="sec:security"/>
-                <xs:element ref="sec:security-ref"/>
+                    <xs:element ref="sec:security"/>
+                    <xs:element ref="sec:security-ref"/>
                 </xs:choice>
             </xs:sequence>
 

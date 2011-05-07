@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceRefType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -55,11 +56,10 @@ import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.SingletonDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.openejb.deployment.model.GeronimoEjbJarType;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
@@ -398,7 +398,7 @@ public class EjbDeploymentBuilder {
             addEnc(gbean, bean, appName, deploymentId);
         }
 
-        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
+        GeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
         for (EnterpriseBean bean: ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName().trim();
             GBeanData gbean = getEjbGBean(ejbName);
@@ -446,7 +446,7 @@ public class EjbDeploymentBuilder {
         Module module = ejbModule.newEJb(finder, bean);
         bind(bean, appName, ejbModule.getName(), deploymentId, module.getJndiContext());
 
-        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
+        GeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
         namingBuilder.buildNaming(bean,
                 geronimoOpenejb,
                 module,
@@ -465,11 +465,11 @@ public class EjbDeploymentBuilder {
         //
     }
 
-    private void processResourceEnvironment(GBeanData gbean, Collection<ResourceRef> resourceRefs, OpenejbGeronimoEjbJarType geronimoOpenejb) throws DeploymentException {
-        GerResourceRefType[] gerResourceRefs = null;
+    private void processResourceEnvironment(GBeanData gbean, Collection<ResourceRef> resourceRefs, GeronimoEjbJarType geronimoOpenejb) throws DeploymentException {
+        List<ResourceRefType> gerResourceRefs = null;
 
         if (geronimoOpenejb != null) {
-            gerResourceRefs = geronimoOpenejb.getResourceRefArray();
+            gerResourceRefs = geronimoOpenejb.getResourceRef();
         }
 
         GBeanResourceEnvironmentBuilder refBuilder = new GBeanResourceEnvironmentBuilder(gbean);

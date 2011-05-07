@@ -27,29 +27,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbLocalRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PatternType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
 import org.apache.geronimo.openejb.GeronimoEjbInfo;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
@@ -58,8 +53,6 @@ import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,36 +62,19 @@ import org.slf4j.LoggerFactory;
 public class EjbRefBuilder extends AbstractNamingBuilder {
     private static final Logger log = LoggerFactory.getLogger(EjbRefBuilder.class);
 
-    private final QNameSet ejbRefQNameSet;
-    private final QNameSet ejbLocalRefQNameSet;
     private final URI uri;
 
-    public EjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, String host, int port) throws URISyntaxException {
-        super(defaultEnvironment);
+    public EjbRefBuilder(String host, int port) throws URISyntaxException {
+        super();
         if (host != null) {
             uri = new URI("ejbd", null, host, port, null, null, null);
         } else {
             uri = null;
         }
 
-        ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
-        ejbLocalRefQNameSet = buildQNameSet(eeNamespaces, "ejb-local-ref");
-        ejbRefQNameSet.union(ejbLocalRefQNameSet);
     }
 
-    public QNameSet getSpecQNameSet() {
-        return ejbRefQNameSet;
-    }
-
-    public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;
-    }
-
-    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
-        return !specDD.getEjbRef().isEmpty() || !specDD.getEjbLocalRef().isEmpty();
-    }
-
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         // skip ejb modules... they have alreayd been processed
 //        if (module.getType() == ConfigurationModuleType.EJB) {
 //            return;
@@ -106,8 +82,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         // map the refs declared in the vendor plan, so we can match them to the spec references
         //TODO how do we tell openejb about these?
-        Map<String, GerEjbRefType> refMap = mapEjbRefs(plan);
-        Map<String, GerEjbLocalRefType> localRefMap = mapEjbLocalRefs(plan);
+        Map<String, EjbRefType> refMap = mapEjbRefs(plan);
+        Map<String, EjbLocalRefType> localRefMap = mapEjbLocalRefs(plan);
 
         // Discover and process any @EJB annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -210,15 +186,15 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         return value;
     }
 
-    private void addRefs(JndiConsumer jndiConsumer, Map<String, GerEjbRefType> refMap,
-            Map<String, GerEjbLocalRefType> localRefMap, Map<EARContext.Key, Object> sharedContext) {
+    private void addRefs(JndiConsumer jndiConsumer, Map<String, EjbRefType> refMap,
+            Map<String, EjbLocalRefType> localRefMap, Map<EARContext.Key, Object> sharedContext) {
 
         for (EjbRef spec_ejbRef : jndiConsumer.getEjbRef()) {
 
-            String refName = getStringValue(spec_ejbRef.getEjbRefName());
+            String refName = spec_ejbRef.getEjbRefName();
 
             // skip corba refs
-            GerEjbRefType ejbRefType = refMap.get(refName);
+            EjbRefType ejbRefType = refMap.get(refName);
 
             // merge info in alt-DD to spec DD.
             if (ejbRefType != null) {
@@ -231,7 +207,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 spec_ejbRef.setEjbRefName(refName);
 
                 // ejb-ref-type
-                String refType = getStringValue(spec_ejbRef.getEjbRefType()==null?null:spec_ejbRef.getEjbRefType().name());
+                String refType = spec_ejbRef.getEjbRefType()==null?null:spec_ejbRef.getEjbRefType().name();
                 if ("SESSION".equalsIgnoreCase(refType)) {
                     spec_ejbRef.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
                 } else if ("ENTITY".equalsIgnoreCase(refType)) {
@@ -241,34 +217,37 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
 
                 // home
-                spec_ejbRef.setHome(getStringValue(spec_ejbRef.getHome()));
+                spec_ejbRef.setHome(spec_ejbRef.getHome());
 
                 // remote
-                spec_ejbRef.setRemote(getStringValue(spec_ejbRef.getRemote()));
+                spec_ejbRef.setRemote(spec_ejbRef.getRemote());
 
                 // ejb-link
-                spec_ejbRef.setEjbLink(getStringValue(spec_ejbRef.getEjbLink()));
+                spec_ejbRef.setEjbLink(spec_ejbRef.getEjbLink());
 
                 // mapped-name
-                spec_ejbRef.setMappedName(getStringValue(spec_ejbRef.getMappedName()));
+                spec_ejbRef.setMappedName(spec_ejbRef.getMappedName());
 
                 // handle external refs
                 
                 if (ejbRefType.getPattern() != null) {
                     // external ear ref
                     // set mapped name to the deploymentId of the external ref
-                    GerPatternType pattern = ejbRefType.getPattern();
+                    PatternType pattern = ejbRefType.getPattern();
                     String module = pattern.getModule();
+                    //TODO deal with filter
                     if (module == null) {
-                        module = pattern.getArtifactId();
+//                        module = pattern.get;
                     }
-                    String ejbName = pattern.getName();
-                    String deploymentId = module.trim() + "/" + ejbName;
-                    spec_ejbRef.setMappedName(deploymentId.trim());
+                    if (module != null) {
+                        String ejbName = pattern.getName();
+                        String deploymentId = module.trim() + "/" + ejbName;
+                        spec_ejbRef.setMappedName(deploymentId.trim());
+                    }
                 }
 
                 if (ejbRefType.getEjbLink() != null) {
-                    spec_ejbRef.setEjbLink(getStringValue(ejbRefType.getEjbLink()));
+                    spec_ejbRef.setEjbLink(ejbRefType.getEjbLink());
                 }
                     
 
@@ -279,10 +258,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
                     for (InjectionTarget injectionTargetType : spec_ejbRef.getInjectionTarget()) {
                         InjectionTarget newInjectionTarget = new InjectionTarget();
-                        newInjectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
-                                .getInjectionTargetClass()));
-                        newInjectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
-                                .getInjectionTargetName()));
+                        newInjectionTarget.setInjectionTargetClass(injectionTargetType
+                                .getInjectionTargetClass());
+                        newInjectionTarget.setInjectionTargetName(injectionTargetType
+                                .getInjectionTargetName());
                         injectionTargetsToAdd.add(newInjectionTarget);
                     }
                     spec_ejbRef.getInjectionTarget().addAll(injectionTargetsToAdd);
@@ -297,10 +276,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         for (EjbLocalRef localRefFromSpecDD : jndiConsumer.getEjbLocalRef()) {
 
-            String refName = getStringValue(localRefFromSpecDD.getEjbRefName());
+            String refName = localRefFromSpecDD.getEjbRefName();
 
             // skip corba refs
-            GerEjbLocalRefType ejbLocalRefType = localRefMap.get(refName);
+            EjbLocalRefType ejbLocalRefType = localRefMap.get(refName);
 
             // merge info in alt-DD to spec DD.
             if (ejbLocalRefType != null) {
@@ -309,7 +288,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 localRefFromSpecDD.setEjbRefName(refName);
 
                 // ejb-ref-type
-                String refType = getStringValue(localRefFromSpecDD.getType());
+                String refType = localRefFromSpecDD.getType();
                 if ("SESSION".equalsIgnoreCase(refType)) {
                     localRefFromSpecDD.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
                 } else if ("ENTITY".equalsIgnoreCase(refType)) {
@@ -317,29 +296,32 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
 
                 // home
-                localRefFromSpecDD.setLocalHome(getStringValue(localRefFromSpecDD.getLocalHome()));
+                localRefFromSpecDD.setLocalHome(localRefFromSpecDD.getLocalHome());
 
                 // remote
-                localRefFromSpecDD.setLocal(getStringValue(localRefFromSpecDD.getLocal()));
+                localRefFromSpecDD.setLocal(localRefFromSpecDD.getLocal());
 
                 // ejb-link
-                localRefFromSpecDD.setEjbLink(getStringValue(localRefFromSpecDD.getEjbLink()));
+                localRefFromSpecDD.setEjbLink(localRefFromSpecDD.getEjbLink());
 
                 // mapped-name
-                localRefFromSpecDD.setMappedName(getStringValue(localRefFromSpecDD.getMappedName()));
+                localRefFromSpecDD.setMappedName(localRefFromSpecDD.getMappedName());
 
                 // handle external refs
                 if (ejbLocalRefType.getPattern() != null) {
                     // external ear ref
                     // set mapped name to the deploymentId of the external ref
-                    GerPatternType pattern = ejbLocalRefType.getPattern();
+                    PatternType pattern = ejbLocalRefType.getPattern();
                     String module = pattern.getModule();
-                    if (module == null) {
-                        module = pattern.getArtifactId();
+                    //TODO deal with filter
+//                    if (module == null) {
+//                        module = pattern.getArtifactId();
+//                    }
+                    if (module != null) {
+                        String ejbName = pattern.getName();
+                        String deploymentId = module.trim() + "/" + ejbName;
+                        localRefFromSpecDD.setMappedName(deploymentId.trim());
                     }
-                    String ejbName = pattern.getName();
-                    String deploymentId = module.trim() + "/" + ejbName;
-                    localRefFromSpecDD.setMappedName(deploymentId.trim());
                 }
 
                 // openejb handling of injection-targets
@@ -348,10 +330,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     
                     for (InjectionTarget injectionTargetType : localRefFromSpecDD.getInjectionTarget()) {
                         InjectionTarget injectionTarget = new InjectionTarget();
-                        injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
-                                .getInjectionTargetClass()));
-                        injectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
-                                .getInjectionTargetName()));
+                        injectionTarget.setInjectionTargetClass(injectionTargetType
+                                .getInjectionTargetClass());
+                        injectionTarget.setInjectionTargetName(injectionTargetType
+                                .getInjectionTargetName());
                         injectionTargetsToAdd.add(injectionTarget);
                     }
                     
@@ -364,39 +346,29 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    private Map<String, GerEjbRefType> mapEjbRefs(XmlObject plan) {
-        Map<String, GerEjbRefType> refMap = new HashMap<String, GerEjbRefType>();
+    private Map<String, EjbRefType> mapEjbRefs(JndiPlan plan) {
+        Map<String, EjbRefType> refMap = new HashMap<String, EjbRefType>();
 
         if (plan == null) {
             return refMap;
         }
 
-        QNameSet qnameSet = QNameSet.singleton(GerEjbRefDocument.type.getDocumentElementName());
-        XmlObject[] xmlObjects = plan.selectChildren(qnameSet);
-        if (xmlObjects != null) {
-            for (XmlObject xmlObject : xmlObjects) {
-                GerEjbRefType ref = (GerEjbRefType) xmlObject.copy().changeType(GerEjbRefType.type);
+            for (EjbRefType ref: plan.getEjbRef()) {
                 refMap.put(ref.getRefName().trim(), ref);
             }
-        }
         return refMap;
     }
 
-    private Map<String, GerEjbLocalRefType> mapEjbLocalRefs(XmlObject plan) {
-        Map<String, GerEjbLocalRefType> refMap = new HashMap<String, GerEjbLocalRefType>();
+    private Map<String, EjbLocalRefType> mapEjbLocalRefs(JndiPlan plan) {
+        Map<String, EjbLocalRefType> refMap = new HashMap<String, EjbLocalRefType>();
 
         if (plan == null) {
             return refMap;
         }
 
-        QNameSet qnameSet = QNameSet.singleton(GerEjbLocalRefDocument.type.getDocumentElementName());
-        XmlObject[] xmlObjects = plan.selectChildren(qnameSet);
-        if (xmlObjects != null) {
-            for (XmlObject xmlObject : xmlObjects) {
-                GerEjbLocalRefType ref = (GerEjbLocalRefType) xmlObject.copy().changeType(GerEjbLocalRefType.type);
+            for (EjbLocalRefType ref: plan.getEjbLocalRef()) {
                 refMap.put(ref.getRefName().trim(), ref);
             }
-        }
         return refMap;
     }
 
@@ -428,12 +400,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbRefBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "host", "port"});
+        infoBuilder.setConstructor(new String[]{"host", "port"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

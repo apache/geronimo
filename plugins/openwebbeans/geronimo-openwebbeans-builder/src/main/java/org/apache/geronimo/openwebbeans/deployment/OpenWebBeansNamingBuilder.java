@@ -26,14 +26,13 @@ import java.util.Map;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openwebbeans.BeanManagerReference;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev:$ $Date:$
@@ -41,17 +40,8 @@ import org.apache.xmlbeans.XmlObject;
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class OpenWebBeansNamingBuilder extends AbstractNamingBuilder {
     @Override
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         put("java:comp/BeanManager", new BeanManagerReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
     }
 
-    @Override
-    public QNameSet getSpecQNameSet() {
-        return QNameSet.EMPTY;
-    }
-
-    @Override
-    public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;
-    }
 }

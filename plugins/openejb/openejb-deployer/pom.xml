@@ -37,18 +37,46 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.geronimo.feature</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework.feature</groupId>-->
+            <!--<artifactId>server-security-config</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>kar</type>-->
+        <!--</dependency>-->
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <artifactId>j2ee-server</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer-1_6</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>j2ee-deployer</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>connector-deployer-1_6</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -94,15 +122,21 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>EJB Container</category>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>openejb</artifactId>
-                            <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                    </dependencies>
+                    <features>
+                        <feature>declarative-services</feature>
+                        <feature>org.apache.geronimo.jaxb-support</feature>
+                        <feature>org.apache.geronimo.javaee-specs</feature>
+                        <feature>j2ee-system</feature>
+                        <!--<feature>server-security-config</feature>-->
+                    </features>
+                    <!--<dependencies>-->
+                        <!--<dependency>-->
+                            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                            <!--<artifactId>openejb</artifactId>-->
+                            <!--<type>car</type>-->
+                            <!--<import>classes</import>-->
+                        <!--</dependency>-->
+                    <!--</dependencies>-->
                     <instance>
                         <plugin-artifact>
                             <config-xml-content>
@@ -128,7 +162,7 @@
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
-                            <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
+                            <!--<copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>-->
                         </plugin-artifact>
                     </instance>
                 </configuration>

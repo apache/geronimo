@@ -24,14 +24,23 @@
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
+    xmlns:persistence="http://java.sun.com/xml/ns/persistence"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2" schemaLocation="geronimo-naming-1.2.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"/>
+    <xs:import namespace="http://java.sun.com/xml/ns/persistence"/>
+    <!-- these might not all be used -->
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/geronimo-jaspi"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/credentialstore-1.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/loginconfig-2.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-2.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/subject-info-1.0"/>
 
     <xs:element name="ejb-jar" type="openejb:geronimo-ejb-jarType"/>
 
@@ -61,13 +70,16 @@
             <xs:element name="web-service-binding" type="openejb:web-service-bindingType" minOccurs="0" maxOccurs="unbounded"/>
 
             <!-- Security -->
-            <xs:element ref="app:security" minOccurs="0"/>
+            <xs:choice minOccurs="0">
+                <xs:element ref="sec:security"/>
+                <xs:element ref="sec:security-ref"/>
+            </xs:choice>
 
             <!-- GBeans -->
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="sys:service"/>
-                <xs:any processContents="lax" namespace="http://java.sun.com/xml/ns/persistence"/>
-            </xs:choice>
+            <!--<xs:choice minOccurs="0" maxOccurs="unbounded">-->
+                <!--<xs:element ref="sys:service"/>-->
+                <xs:element ref="persistence:persistence" minOccurs="0" maxOccurs="unbounded"/>
+            <!--</xs:choice>-->
         </xs:sequence>
     </xs:complexType>
 

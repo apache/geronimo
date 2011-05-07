@@ -27,7 +27,7 @@ import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.GeronimoEjbInfo;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.openejb.deployment.model.GeronimoEjbJarType;
 import org.apache.openejb.ClassLoaderUtil;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.core.TempClassLoader;
@@ -35,12 +35,11 @@ import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
+public class EjbModule extends EJBModule<GeronimoEjbJarType> {
     private GeronimoEjbInfo ejbInfo;
     private EjbDeploymentBuilder ejbDeploymentBuilder;
     private final org.apache.openejb.config.EjbModule ejbModule;
@@ -56,7 +55,7 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
                      String targetPath,
                      String originalSpecDD,
                      EjbJar specDD,
-                     OpenejbGeronimoEjbJarType vendorDD,
+                     GeronimoEjbJarType vendorDD,
                      Map<JndiKey, Map<String, Object>> jndiContext,
                      Module parentModule,
                      boolean shareJndi) {
@@ -143,8 +142,8 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
         return ejb;
     }
 
-    class Ejb extends Module<EnterpriseBean, XmlObject> {
-        protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, EnterpriseBean specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
+    class Ejb extends Module<EnterpriseBean, GeronimoEjbJarType> {
+        protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, EnterpriseBean specDD, GeronimoEjbJarType vendorDD, String originalSpecDD, String namespace, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
             super(standAlone, moduleName, name, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, jndiContext, parentModule);
         }
 

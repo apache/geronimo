@@ -339,8 +339,8 @@ public class ApplicationGBean implements GBeanLifecycle {
    
     protected void applicationStart() throws BundleException {
         try {
-            installer.getConfigurationManager().loadConfiguration(configId);
-            installer.getConfigurationManager().startConfiguration(configId);
+//            installer.getConfigurationManager().loadConfiguration(configId);
+//            installer.getConfigurationManager().startConfiguration(configId);
         } catch (Exception e) {
             throw new BundleException("Failed to start application", e);            
         }
@@ -348,7 +348,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     
     protected void applicationStop() throws BundleException {
         try {
-            installer.getConfigurationManager().unloadConfiguration(configId);
+//            installer.getConfigurationManager().unloadConfiguration(configId);
         } catch (Exception e) {
             throw new BundleException("Failed to start application", e);            
         }
@@ -358,8 +358,8 @@ public class ApplicationGBean implements GBeanLifecycle {
         LOG.debug("Uninstalling {}", application.getApplicationMetadata().getApplicationScope());
 
         try {
-            installer.getConfigurationManager().unloadConfiguration(configId);
-            installer.getConfigurationManager().uninstallConfiguration(configId);
+//            installer.getConfigurationManager().unloadConfiguration(configId);
+//            installer.getConfigurationManager().uninstallConfiguration(configId);
         } catch (Exception e) {
             // ignore
         }

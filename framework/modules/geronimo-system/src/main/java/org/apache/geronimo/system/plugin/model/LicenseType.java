@@ -49,7 +49,7 @@ public class LicenseType
     @XmlValue
     protected String value;
     @XmlAttribute(name = "osi-approved", required = true)
-    protected boolean osiApproved;
+    protected Boolean osiApproved = Boolean.FALSE;
 
     /**
      * Gets the value of the value property.
@@ -79,7 +79,7 @@ public class LicenseType
      * Gets the value of the osiApproved property.
      * 
      */
-    public boolean isOsiApproved() {
+    public Boolean isOsiApproved() {
         return osiApproved;
     }
 
@@ -87,7 +87,7 @@ public class LicenseType
      * Sets the value of the osiApproved property.
      * 
      */
-    public void setOsiApproved(boolean value) {
+    public void setOsiApproved(Boolean value) {
         this.osiApproved = value;
     }
 

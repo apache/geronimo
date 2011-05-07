@@ -158,7 +158,6 @@ public class WebApplication implements Runnable {
             // send out a broadcast alert that we're going to do this
             deploying();
 
-            ConfigurationManager configurationManager = extender.getConfigurationManager();
 
             File configSer = bundle.getBundleContext().getDataFile("config.ser");
             if (configSer.exists() && configSer.lastModified() == bundle.getLastModified()) {
@@ -187,7 +186,6 @@ public class WebApplication implements Runnable {
                         webModule.getEnvironment(),
                         ConfigurationModuleType.WAB,
                         naming,
-                        configurationManager,
                         bundle.getBundleContext(),
                         extender.getServerName(),
                         webModule.getModuleName(),
@@ -234,8 +232,8 @@ public class WebApplication implements Runnable {
             configurationData.setUseEnvironment(true);
             configurationData.setBundle(bundle);
 
-            configurationManager.loadConfiguration(configurationData);
-            configurationManager.startConfiguration(configurationData.getId());
+//            configurationManager.loadConfiguration(configurationData);
+//            configurationManager.startConfiguration(configurationData.getId());
 
             deployedArtifact = configurationData.getId();
 

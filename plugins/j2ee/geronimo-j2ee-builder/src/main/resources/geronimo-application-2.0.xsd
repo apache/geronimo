@@ -115,7 +115,7 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element ref="geronimo:security" minOccurs="0">
+            <xs:element name="security" type="geronimo:abstract-securityType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         Reference to security element defined in this schema. If
@@ -229,16 +229,16 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:element name="security" type="geronimo:abstract-securityType">
-        <xs:annotation>
-            <xs:documentation>
-                If this optional element is present, all web and EJB modules
-                must make the appropriate access checks as outlined in the JACC
-                spec. This element groups the security role mapping settings for
-                the application.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:element>
+    <!--<xs:element name="security" type="geronimo:abstract-securityType">-->
+        <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+                <!--If this optional element is present, all web and EJB modules-->
+                <!--must make the appropriate access checks as outlined in the JACC-->
+                <!--spec. This element groups the security role mapping settings for-->
+                <!--the application.-->
+            <!--</xs:documentation>-->
+        <!--</xs:annotation>-->
+    <!--</xs:element>-->
 
     <xs:complexType name="abstract-securityType" abstract="true">
         <xs:annotation>

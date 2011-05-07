@@ -18,41 +18,45 @@
 package org.apache.geronimo.openejb.deployment;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.HashSet;
-import java.util.List;
+import java.io.InputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ClassLoadingRule;
-import org.apache.geronimo.kernel.repository.ClassLoadingRules;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.IOUtils;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
-import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.deployment.service.plan.ArtifactType;
+import org.apache.geronimo.deployment.service.plan.EnvironmentType;
+import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
+import org.apache.geronimo.openejb.deployment.model.GeronimoEjbJarType;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.oejb2.ArtifactType;
-import org.apache.openejb.jee.oejb2.DependencyType;
-import org.apache.openejb.jee.oejb2.EnvironmentType;
-import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
-import org.apache.openejb.jee.oejb2.ImportType;
-import org.apache.xmlbeans.XmlObject;
 
 public final class XmlUtil {
-    public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
-    private static final QName CMP_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "cmp-version");
+//    public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
 
     private XmlUtil() {
+    }
+
+    public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
+    private static  JAXBContext GERONIMO_OPENEJB_CONTEXT;
+    static {
+        try {
+            GERONIMO_OPENEJB_CONTEXT = JAXBContext.newInstance(GeronimoEjbJarType.class);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static GeronimoEjbJarType unmarshalGeronimoEjb(InputStream in, boolean validate) throws XMLStreamException, JAXBException {
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        Unmarshaller unmarshaller = GERONIMO_OPENEJB_CONTEXT.createUnmarshaller();
+        JAXBElement<GeronimoEjbJarType> element = unmarshaller.unmarshal(xmlStream, GeronimoEjbJarType.class);
+        GeronimoEjbJarType applicationType = element.getValue();
+        return applicationType;
     }
 
     public static <T> String marshal(T object) throws DeploymentException {
@@ -78,98 +82,56 @@ public final class XmlUtil {
     }
 
 
-    public static OpenejbGeronimoEjbJarType convertToXmlbeans(GeronimoEjbJarType geronimoEjbJarType) throws DeploymentException {
-        //
-        // it would be nice if Jaxb had a way to convert the object to a
-        // sax reader that could be fed directly into xmlbeans
-        //
-        JAXBElement root = new JAXBElement(new QName("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0","ejb-jar"), GeronimoEjbJarType.class, geronimoEjbJarType);
 
-        // marshal to xml
+//    public static Environment buildEnvironment(EnvironmentType environmentType, Environment defaultEnvironment) {
+//        Environment environment = new Environment();
+//        if (environmentType != null) {
+//            if (environmentType.getModuleId() != null) {
+//                environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
+//            }
+//
+//            if (environmentType.getDependencies() != null) {
+//                for (DependencyType dependencyType : environmentType.getDependencies().getDependency()) {
+//                    Dependency dependency = toDependency(dependencyType);
+//                    environment.addDependency(dependency);
+//                }
+//            }
+//
+//            environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
+//
+//            ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
+//            classLoadingRules.setInverseClassLoading(environmentType.isInverseClassloading());
+//
+//            if (environmentType.getHiddenClasses() != null) {
+//                ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
+//                List<String> filter = environmentType.getHiddenClasses().getFilter();
+//                hiddenRule.setClassPrefixes(new HashSet<String>(filter));
+//            }
+//
+//            if (environmentType.getNonOverridableClasses() != null) {
+//                ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
+//                List<String> filter = environmentType.getNonOverridableClasses().getFilter();
+//                nonOverrideableRule.setClassPrefixes(new HashSet<String>(filter));
+//            }
+//        }
+//        if (!environment.isSuppressDefaultEnvironment()) {
+//            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+//        }
+//
+//        return environment;
+//    }
 
-        String xml = marshal(root);
-        try {
-            XmlObject xmlObject = XmlBeansUtil.parse(xml);
-            OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
-            return geronimoOpenejb;
-        } catch (Throwable e) {
-            String filePath = "<error: could not be written>";
-            FileOutputStream out = null;
-            try {
-                File tempFile = File.createTempFile("openejb-jar-", ".xml");
-                out = new FileOutputStream(tempFile);
-                out.write(xml.getBytes());
-                filePath = tempFile.getAbsolutePath();
-            } catch (Exception notImportant) {
-            } finally {
-                IOUtils.close(out);
-            }
-            throw new DeploymentException("Error parsing geronimo-openejb.xml with xmlbeans.  For debug purposes, XML content written to: " + filePath, e);
-        }
-    }
 
-    public static Environment buildEnvironment(EnvironmentType environmentType, Environment defaultEnvironment) {
-        Environment environment = new Environment();
-        if (environmentType != null) {
-            if (environmentType.getModuleId() != null) {
-                environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
-            }
+//    private static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
+//        String groupId = artifactType.getGroupId();
+//        String type = artifactType.getType();
+//        if (type == null) type = defaultType;
+//        String artifactId = artifactType.getArtifactId();
+//        String version = artifactType.getVersion();
+//        return new Artifact(groupId, artifactId, version, type);
+//    }
 
-            if (environmentType.getDependencies() != null) {
-                for (DependencyType dependencyType : environmentType.getDependencies().getDependency()) {
-                    Dependency dependency = toDependency(dependencyType);
-                    environment.addDependency(dependency);
-                }
-            }
-
-            environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
-
-            ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
-            classLoadingRules.setInverseClassLoading(environmentType.isInverseClassloading());
-
-            if (environmentType.getHiddenClasses() != null) {
-                ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
-                List<String> filter = environmentType.getHiddenClasses().getFilter();
-                hiddenRule.setClassPrefixes(new HashSet<String>(filter));
-            }
-
-            if (environmentType.getNonOverridableClasses() != null) {
-                ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
-                List<String> filter = environmentType.getNonOverridableClasses().getFilter();
-                nonOverrideableRule.setClassPrefixes(new HashSet<String>(filter));
-            }
-        }
-        if (!environment.isSuppressDefaultEnvironment()) {
-            EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-        }
-
-        return environment;
-    }
-
-    private static Dependency toDependency(DependencyType dependencyType) {
-        Artifact artifact = toArtifact(dependencyType, null);
-        if (ImportType.CLASSES.equals(dependencyType.getImport())) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
-        } else if (ImportType.SERVICES.equals(dependencyType.getImport())) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
-        } else if (dependencyType.getImport() == null) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
-        } else {
-            throw new IllegalArgumentException("Unknown import type: " + dependencyType.getImport());
-        }
-    }
-
-    private static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
-        String groupId = artifactType.getGroupId();
-        String type = artifactType.getType();
-        if (type == null) type = defaultType;
-        String artifactId = artifactType.getArtifactId();
-        String version = artifactType.getVersion();
-        return new Artifact(groupId, artifactId, version, type);
-    }
-
-    public static GeronimoEjbJarType createDefaultPlan(String name, EjbJar ejbJar) {
-        String id = ejbJar.getId();
+    public static GeronimoEjbJarType createDefaultPlan(String name, String id) {
         if (id == null) {
             id = name;
             if (id.endsWith(".jar")) {
