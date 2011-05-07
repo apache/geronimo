@@ -87,9 +87,9 @@ public class AbstractFrameworkMojo extends AbstractMojo {
     /**
      * how long to wait for a service
      *
-     * @parameter default-value="20000"
+     * @parameter default-value="120000"
      */
-    private long timeout = 20000L;
+    private long timeout = 120000L;
 
     private Framework framework;
     private List<ServiceReference> services = new ArrayList<ServiceReference>();
