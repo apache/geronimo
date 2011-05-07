@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.DependencyManager;
+// import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
@@ -54,7 +54,7 @@ public class GBeanInstanceState
     /**
      * The dependency manager
      */
-    private final DependencyManager dependencyManager;
+//     private final DependencyManager dependencyManager;
 
     /**
      * The broadcaster of lifecycle events
@@ -65,10 +65,11 @@ public class GBeanInstanceState
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    GBeanInstanceState(AbstractName abstractName, Kernel kernel, DependencyManager dependencyManager, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
+//     GBeanInstanceState(AbstractName abstractName, Kernel kernel, DependencyManager dependencyManager, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
+    GBeanInstanceState(AbstractName abstractName, Kernel kernel, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
         this.abstractName = abstractName;
         this.kernel = kernel;
-        this.dependencyManager = dependencyManager;
+//         this.dependencyManager = dependencyManager;
         this.gbeanInstance = gbeanInstance;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
     }
@@ -127,17 +128,18 @@ public class GBeanInstanceState
         start();
 
         // startRecursive all of objects that depend on me
-        Set dependents = dependencyManager.getChildren(abstractName);
-        for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-            AbstractName dependent = (AbstractName) iterator.next();
-            try {
-                kernel.startRecursiveGBean(dependent);
-            } catch (GBeanNotFoundException e) {
-                // this is ok the gbean died before we could start it
-            } catch (Exception e) {
-                // there is something wrong with this gbean... skip it
-            }
-        }
+//         Set dependents = dependencyManager.getChildren(abstractName);
+        Set dependents = null;
+//         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
+//             AbstractName dependent = (AbstractName) iterator.next();
+//             try {
+//                 kernel.startRecursiveGBean(dependent);
+//             } catch (GBeanNotFoundException e) {
+//                 // this is ok the gbean died before we could start it
+//             } catch (Exception e) {
+//                 // there is something wrong with this gbean... skip it
+//             }
+//         }
     }
 
     /**
@@ -173,20 +175,21 @@ public class GBeanInstanceState
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
         // stop all of my dependent objects
-        Set dependents = dependencyManager.getChildren(abstractName);
-        for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-            AbstractName child = (AbstractName) iterator.next();
-            try {
-                log.trace("Checking if child is running: child={}", child);
-                if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {
-                    log.trace("Stopping child: child={}", child);
-                    kernel.stopGBean(child);
-                    log.trace("Stopped child: child={}", child);
-                }
-            } catch (Exception ignore) {
-                // not a big deal... did my best
-            }
-        }
+//         Set dependents = dependencyManager.getChildren(abstractName);
+        Set dependents = null;
+//         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
+//             AbstractName child = (AbstractName) iterator.next();
+//             try {
+//                 log.trace("Checking if child is running: child={}", child);
+//                 if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {
+//                     log.trace("Stopping child: child={}", child);
+//                     kernel.stopGBean(child);
+//                     log.trace("Stopped child: child={}", child);
+//                 }
+//             } catch (Exception ignore) {
+//                 // not a big deal... did my best
+//             }
+//         }
 
         attemptFullStop();
     }
@@ -240,30 +243,31 @@ public class GBeanInstanceState
             }
 
             // check if all of the gbeans we depend on are running
-            Set parents = dependencyManager.getParents(abstractName);
-            for (Iterator i = parents.iterator(); i.hasNext();) {
-                AbstractName parent = (AbstractName) i.next();
-                if (!kernel.isLoaded(parent)) {
-                    log.trace("Cannot run because parent is not registered: parent={}", parent);
-                    return;
-                }
-                try {
-                    log.trace("Checking if parent is running: parent={}", parent);
-                    if (kernel.getGBeanState(parent) != State.RUNNING_INDEX) {
-                        log.trace("Cannot run because parent is not running: parent={}", parent);
-                        return;
-                    }
-                    log.trace("Parent is running: parent={}", parent);
-                } catch (GBeanNotFoundException e) {
-                    // depended on instance was removed bewteen the register check and the invoke
-                    log.trace("Cannot run because parent is not registered: parent={}", parent);
-                    return;
-                } catch (Exception e) {
-                    // problem getting the attribute, parent has most likely failed
-                    log.trace("Cannot run because an error occurred while checking if parent is running: parent={}", parent);
-                    return;
-                }
-            }
+//             Set parents = dependencyManager.getParents(abstractName);
+            Set parents = null;
+//             for (Iterator i = parents.iterator(); i.hasNext();) {
+//                 AbstractName parent = (AbstractName) i.next();
+//                 if (!kernel.isLoaded(parent)) {
+//                     log.trace("Cannot run because parent is not registered: parent={}", parent);
+//                     return;
+//                 }
+//                 try {
+//                     log.trace("Checking if parent is running: parent={}", parent);
+//                     if (kernel.getGBeanState(parent) != State.RUNNING_INDEX) {
+//                         log.trace("Cannot run because parent is not running: parent={}", parent);
+//                         return;
+//                     }
+//                     log.trace("Parent is running: parent={}", parent);
+//                 } catch (GBeanNotFoundException e) {
+//                     // depended on instance was removed bewteen the register check and the invoke
+//                     log.trace("Cannot run because parent is not registered: parent={}", parent);
+//                     return;
+//                 } catch (Exception e) {
+//                     // problem getting the attribute, parent has most likely failed
+//                     log.trace("Cannot run because an error occurred while checking if parent is running: parent={}", parent);
+//                     return;
+//                 }
+//             }
         }
 
         try {
@@ -319,26 +323,27 @@ public class GBeanInstanceState
             }
 
             // check if all of the mbeans depending on us are stopped
-            Set children = dependencyManager.getChildren(abstractName);
-            for (Iterator i = children.iterator(); i.hasNext();) {
-                AbstractName child = (AbstractName) i.next();
-                if (kernel.isLoaded(child)) {
-                    try {
-                        log.trace("Checking if child is stopped: child={}", child);
-                        int state = kernel.getGBeanState(child);
-                        if (state == State.RUNNING_INDEX) {
-                            log.trace("Cannot stop because child is still running: child={}", child);
-                            return;
-                        }
-                    } catch (GBeanNotFoundException e) {
-                        // depended on instance was removed between the register check and the invoke
-                    } catch (Exception e) {
-                        // problem getting the attribute, depended on bean has most likely failed
-                        log.trace("Cannot run because an error occurred while checking if child is stopped: child={}", child);
-                        return;
-                    }
-                }
-            }
+//             Set children = dependencyManager.getChildren(abstractName);
+            Set children = null;
+//             for (Iterator i = children.iterator(); i.hasNext();) {
+//                 AbstractName child = (AbstractName) i.next();
+//                 if (kernel.isLoaded(child)) {
+//                     try {
+//                         log.trace("Checking if child is stopped: child={}", child);
+//                         int state = kernel.getGBeanState(child);
+//                         if (state == State.RUNNING_INDEX) {
+//                             log.trace("Cannot stop because child is still running: child={}", child);
+//                             return;
+//                         }
+//                     } catch (GBeanNotFoundException e) {
+//                         // depended on instance was removed between the register check and the invoke
+//                     } catch (Exception e) {
+//                         // problem getting the attribute, depended on bean has most likely failed
+//                         log.trace("Cannot run because an error occurred while checking if child is stopped: child={}", child);
+//                         return;
+//                     }
+//                 }
+//             }
         }
 
         // all is clear to stop... try to stop

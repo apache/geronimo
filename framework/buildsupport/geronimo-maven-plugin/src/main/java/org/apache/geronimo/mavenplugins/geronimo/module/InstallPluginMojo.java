@@ -31,7 +31,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+// import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
@@ -110,7 +110,8 @@ public class InstallPluginMojo
         pluginListType.getPlugin().add(pluginType);
         PluginArtifactType instance = new PluginArtifactType();
         pluginType.getPluginArtifact().add(instance);
-        ArtifactType artifactType = PluginInstallerGBean.toArtifactType(geronimoArtifact);
+//         ArtifactType artifactType = PluginInstallerGBean.toArtifactType(geronimoArtifact);
+        ArtifactType artifactType = null;
         instance.setModuleId(artifactType);
 
         GeronimoDeploymentManager mgr = getDeploymentManager2();

@@ -72,7 +72,8 @@ public class GeronimoSourceRepository implements SourceRepository {
                     File location = listableRepository.getLocation(artifact);
                     PluginType data = extractPluginMetadata(location);
                     if (data != null) {
-                        PluginType key = PluginInstallerGBean.toKey(data);
+//                         PluginType key = PluginInstallerGBean.toKey(data);
+                        PluginType key = null;
                         PluginType existing = pluginMap.get(key);
                         if (existing == null) {
                             pluginMap.put(key, data);

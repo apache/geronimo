@@ -31,7 +31,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -104,8 +103,10 @@ public abstract class AbstractEntryFactory<T, S> implements EntryFactory<T> {
     }
 
     public Configuration getConfiguration(Kernel kernel) throws GBeanNotFoundException {
-         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-         Configuration configuration =  configurationManager.getConfiguration(configId[0]);
+//          ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//          Configuration configuration =  configurationManager.getConfiguration(configId[0]);
+         ((Object)null).toString();
+         Configuration configuration = null;
          if (configuration == null) {
              throw new IllegalStateException("No configuration found for id: " + configId[0]);
          }

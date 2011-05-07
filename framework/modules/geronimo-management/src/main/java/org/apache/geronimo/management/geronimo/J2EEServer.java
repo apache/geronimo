@@ -22,7 +22,6 @@ import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 

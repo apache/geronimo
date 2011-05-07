@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.repository.Artifact;

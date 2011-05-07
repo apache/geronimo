@@ -79,11 +79,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -120,7 +118,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.2", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
     }
 
-    private final ConfigurationManager configurationManager;
     private final Collection<? extends Repository> repositories;
     private final SingleElementCollection ejbConfigBuilder;
     private final SingleElementCollection webConfigBuilder;
@@ -183,7 +180,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 corbaGBeanAbstractName,
                 globalContextAbstractName,
                 serverName,
-                ConfigurationUtil.getConfigurationManager(kernel),
                 repositories,
                 new SingleElementCollection<ModuleBuilder>(ejbConfigBuilder),
                 new SingleElementCollection<ModuleBuilder>(webConfigBuilder),
@@ -225,7 +221,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 corbaGBeanAbstractName,
                 globalContextAbstractName,
                 serverName,
-                null,
                 repositories,
                 new SingleElementCollection<ModuleBuilder>(ejbConfigBuilder),
                 new SingleElementCollection<ModuleBuilder>(webConfigBuilder),
@@ -248,7 +243,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              AbstractNameQuery corbaGBeanAbstractName,
                              AbstractNameQuery globalContextAbstractName,
                              AbstractNameQuery serverName,
-                             ConfigurationManager configurationManager,
                              Collection<? extends Repository> repositories,
                              SingleElementCollection ejbConfigBuilder,
                              SingleElementCollection webConfigBuilder,
@@ -262,7 +256,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              Naming naming,
                              Collection<? extends ArtifactResolver> artifactResolvers,
                              BundleContext bundleContext) {
-        this.configurationManager = configurationManager;
         this.repositories = repositories;
 //        this.defaultEnvironment = defaultEnvironment;
 
@@ -619,10 +612,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 throw new DeploymentException(e);
             }
 
-            ConfigurationManager configurationManager = this.configurationManager;
-            if (configurationManager == null) {
-                configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories, bundleContext);
-            }
+//             ConfigurationManager configurationManager = this.configurationManager;
+//             if (configurationManager == null) {
+//                 configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories, bundleContext);
+//             }
             //Use a temporary folder to hold the extracted files for analysis use
             File tempDirectory = FileUtils.createTempDir();
             // Create the output ear context

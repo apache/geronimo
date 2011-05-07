@@ -31,7 +31,6 @@ import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -89,8 +88,8 @@ public class RedeployCommand extends AbstractDeployCommand {
                                         configID.getVersion(), configID.getType());
             }
 
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            try {
+//             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
                     Artifact artifact = Artifact.create(module.getModuleID());
@@ -98,17 +97,18 @@ public class RedeployCommand extends AbstractDeployCommand {
                         if(configID.getGroupId().equals(artifact.getGroupId()) &&
                                 configID.getArtifactId().equals(artifact.getArtifactId()) &&
                                 configID.getVersion().equals(artifact.getVersion())) {
-                            redeploySameConfiguration(configurationManager, artifact, module.getTarget());
+                            redeploySameConfiguration(artifact, module.getTarget());
                         } else {
-                            redeployUpdatedConfiguration(configurationManager, artifact, module.getTarget());
+                            redeployUpdatedConfiguration(artifact, module.getTarget());
                         }
                     } else {
-                        redeployUpdatedConfiguration(configurationManager, artifact, module.getTarget());
+                        redeployUpdatedConfiguration(artifact, module.getTarget());
                     }
                 }
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-            }
+//             } 
+//             finally {
+//                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//             }
             addWebURLs(kernel);
             complete("Completed");
         } catch (Throwable e) {
@@ -125,7 +125,7 @@ public class RedeployCommand extends AbstractDeployCommand {
         }
     }
 
-    private void redeployUpdatedConfiguration(ConfigurationManager manager, Artifact previous, Target target) throws Exception, NoSuchConfigException {
+    private void redeployUpdatedConfiguration(Artifact previous, Target target) throws Exception, NoSuchConfigException {
         // Send the new configuration to the server
 
             // if the configuration is an in-place one, then redeploys
@@ -136,7 +136,8 @@ public class RedeployCommand extends AbstractDeployCommand {
         commandContext.setInPlace(inPlaceConfiguration.booleanValue());
         doDeploy(target, false);
         Artifact configID = Artifact.create(getResultTargetModuleIDs()[0].getModuleID());
-        LifecycleResults results = manager.reloadConfiguration(previous, configID.getVersion());
+//         LifecycleResults results = manager.reloadConfiguration(previous, configID.getVersion());
+        LifecycleResults results = null;
 
         // Activate it
         //todo: make this asynchronous
@@ -170,12 +171,12 @@ public class RedeployCommand extends AbstractDeployCommand {
         }
     }
 
-    private void redeploySameConfiguration(ConfigurationManager configurationManager, Artifact configID, Target target) throws Exception {
+    private void redeploySameConfiguration(Artifact configID, Target target) throws Exception {
         if(!configID.isResolved()) {
             throw new IllegalStateException("Cannot redeploy same module when module ID is not fully resolved ("+configID+")");
         }
         try {
-            configurationManager.stopConfiguration(configID);
+//             configurationManager.stopConfiguration(configID);
             updateStatus("Stopped "+configID);
         } catch (InternalKernelException e) {
             Exception cause = (Exception)e.getCause();
@@ -184,11 +185,11 @@ public class RedeployCommand extends AbstractDeployCommand {
             } else {
                 throw cause;
             }
-        } catch(NoSuchConfigException e) {
-            // The module isn't loaded -- that's OK
-        }
+        } // catch(NoSuchConfigException e) {
+//             // The module isn't loaded -- that's OK
+//         }
         try {
-            configurationManager.unloadConfiguration(configID);
+//             configurationManager.unloadConfiguration(configID);
             updateStatus("Unloaded "+configID);
         } catch(InternalKernelException e) {
             Exception cause = (Exception)e.getCause();
@@ -197,9 +198,9 @@ public class RedeployCommand extends AbstractDeployCommand {
             } else {
                 throw cause;
             }
-        } catch (NoSuchConfigException e) {
-            // The modules isn't loaded -- that's OK
-        }
+        } // catch (NoSuchConfigException e) {
+//             // The modules isn't loaded -- that's OK
+//         }
 
         // if the configuration is an in-place one, then redeploys
         // in in-place mode.
@@ -209,7 +210,8 @@ public class RedeployCommand extends AbstractDeployCommand {
         commandContext.setInPlace(inPlaceConfiguration.booleanValue());
 
         try {
-            configurationManager.uninstallConfiguration(configID);
+            ((Object)null).toString(); // to do...
+//             configurationManager.uninstallConfiguration(configID);
             updateStatus("Uninstalled "+configID);
         } catch(InternalKernelException e) {
             Exception cause = (Exception)e.getCause();
@@ -218,15 +220,15 @@ public class RedeployCommand extends AbstractDeployCommand {
             } else {
                 throw cause;
             }
-        } catch (NoSuchConfigException e) {
-            throw new IllegalStateException("Module "+configID+" is not installed!", e);
-        }
+        }//  catch (NoSuchConfigException e) {
+//             throw new IllegalStateException("Module "+configID+" is not installed!", e);
+//         }
 
         doDeploy(target, false);
         updateStatus("Deployed "+configID);
 
-        configurationManager.loadConfiguration(configID);
-        configurationManager.startConfiguration(configID);
+//         configurationManager.loadConfiguration(configID);
+//         configurationManager.startConfiguration(configID);
         updateStatus("Started " + configID);
     }
 }

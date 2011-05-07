@@ -33,7 +33,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -209,213 +208,6 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         }
     }
 
-    public static class DummyConfigurationManager implements ConfigurationManager {
-
-        @Override
-        public ArtifactResolver getArtifactResolver() {
-            return null;
-        }
-
-        @Override
-        public Bundle getBundle(Artifact id) {
-            return null;
-        }
-
-        @Override
-        public Configuration getConfiguration(Artifact configurationId) {
-            return null;
-        }
-
-        @Override
-        public Artifact[] getInstalled(Artifact query) {
-            return null;
-        }
-
-        @Override
-        public Artifact[] getLoaded(Artifact query) {
-            return null;
-        }
-
-        @Override
-        public Collection<? extends Repository> getRepositories() {
-            return Collections.<Repository>emptyList();
-        }
-
-        @Override
-        public Artifact[] getRunning(Artifact query) {
-            return null;
-        }
-
-        @Override
-        public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
-            return null;
-        }
-
-        @Override
-        public ConfigurationStore[] getStores() {
-            return new ConfigurationStore[0];
-        }
-
-        @Override
-        public boolean isConfiguration(Artifact artifact) {
-            return false;
-        }
-
-        @Override
-        public boolean isInstalled(Artifact configurationId) {
-            return false;
-        }
-
-        @Override
-        public boolean isLoaded(Artifact configurationId) {
-            return false;
-        }
-
-        @Override
-        public boolean isOnline() {
-            return false;
-        }
-
-        @Override
-        public boolean isRunning(Artifact configurationId) {
-            return false;
-        }
-
-        @Override
-        public List listConfigurations() {
-            return null;
-        }
-
-        @Override
-        public List listConfigurations(AbstractName store) throws NoSuchStoreException {
-            return null;
-        }
-
-        @Override
-        public List<AbstractName> listStores() {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public ConfigurationResolver newConfigurationResolver(ConfigurationData configurationData) {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LinkedHashSet<Artifact> resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults restartConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public void setOnline(boolean online) {
-        }
-
-        @Override
-        public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults startConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults startConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults stopConfiguration(Artifact configurationId) throws NoSuchConfigException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults stopConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            return null;
-        }
-
-        @Override
-        public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
-        }
-
-        @Override
-        public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
-            return null;
-        }
-
-        @Override
-        public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            return null;
-        }
-
-        @Override
-        public ConfigurationData getLoadedConfigurationData(Artifact arg0) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
     private static class DummyEARContext extends EARContext {
 
         /**
@@ -424,7 +216,6 @@ public class WebFragmentTest extends XmlBeansTestSupport {
          * Environment environment,
          * ConfigurationModuleType moduleType,
          * Naming naming,
-         * ConfigurationManager configurationManager,
          * BundleContext bundleContext,
          * AbstractNameQuery serverName,
          * AbstractName baseName,
@@ -432,7 +223,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
          * AbstractNameQuery connectionTrackerObjectName,
          * AbstractNameQuery corbaGBeanObjectName,
          * Map messageDestinations) throws DeploymentException {
-         * super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
+         * super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, bundleContext);
          * <p/>
          * this.serverName = serverName;
          * this.transactionManagerObjectName = transactionManagerObjectName;

@@ -28,7 +28,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
@@ -50,7 +49,6 @@ public class OfflineDeployerStarter {
     
     private final Kernel kernel;
     private  AbstractName onlineDeployerConfigurationManagerName;
-    private  ConfigurationManager onlineDeployerConfigurationManager;
     private final Set<AbstractName> onlineDeployerConfigStores;
 
     public OfflineDeployerStarter(Kernel kernel) throws GBeanNotFoundException {
@@ -75,12 +73,14 @@ public class OfflineDeployerStarter {
         } catch (Exception e) {
             throw new DeploymentException("Unexpected error. Cannot start offline-deployer", e);
         }
-        onlineDeployerConfigurationManager.setOnline(false);
+//         onlineDeployerConfigurationManager.setOnline(false);
     }
 
     protected Artifact resolveOfflineDeployer() throws MissingDependencyException {
-        ArtifactResolver artifactResolver = onlineDeployerConfigurationManager.getArtifactResolver();
-        return artifactResolver.resolveInClassLoader(OFFLINE_DEPLOYER_ARTIFACT);
+        ((Object)null).toString();
+//         ArtifactResolver artifactResolver = onlineDeployerConfigurationManager.getArtifactResolver();
+//         return artifactResolver.resolveInClassLoader(OFFLINE_DEPLOYER_ARTIFACT);
+        return null;
     }
     
     protected void enablePersistentConfigurationTracking() throws GBeanNotFoundException {
@@ -95,7 +95,8 @@ public class OfflineDeployerStarter {
     }
 
     protected void stopOfflineConfigurationManager() throws GBeanNotFoundException {
-        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
+//         Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
+        Set names = null;
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             AbstractName abstractName = (AbstractName) iterator.next();
             if (!onlineDeployerConfigurationManagerName.equals(abstractName)) {
@@ -116,15 +117,15 @@ public class OfflineDeployerStarter {
             configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
         }
         
-        for (Artifact config : configs) {
-            onlineDeployerConfigurationManager.loadConfiguration(config);
-            onlineDeployerConfigurationManager.startConfiguration(config);
-        }
+//         for (Artifact config : configs) {
+//             onlineDeployerConfigurationManager.loadConfiguration(config);
+//             onlineDeployerConfigurationManager.startConfiguration(config);
+//         }
     }
 
     protected void startOfflineConfiguration(Artifact offlineDeployerArtifact) throws NoSuchConfigException, LifecycleException {
-        onlineDeployerConfigurationManager.loadConfiguration(offlineDeployerArtifact);
-        onlineDeployerConfigurationManager.startConfiguration(offlineDeployerArtifact);
+//         onlineDeployerConfigurationManager.loadConfiguration(offlineDeployerArtifact);
+//         onlineDeployerConfigurationManager.startConfiguration(offlineDeployerArtifact);
     }
 
 }

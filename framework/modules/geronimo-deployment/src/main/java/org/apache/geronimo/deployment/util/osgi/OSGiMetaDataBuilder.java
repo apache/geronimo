@@ -29,7 +29,7 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.system.configuration.DependencyManager;
+// import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.apache.xbean.osgi.bundle.util.HeaderParser;
 import org.apache.xbean.osgi.bundle.util.HeaderParser.HeaderElement;
@@ -70,12 +70,12 @@ public class OSGiMetaDataBuilder {
         processClassloadingRules(environment);
         ServiceReference serviceReference = null;
         try {
-            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
-            DependencyManager dependencyManager = null;
-            if (serviceReference != null) {
-                dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            }
-            OSGiBuildContext context = createOSGiBuildContext(environment, dependencyManager, clientModule);
+//             serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+//             DependencyManager dependencyManager = null;
+//             if (serviceReference != null) {
+//                 dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+//             }
+            OSGiBuildContext context = createOSGiBuildContext(environment, clientModule);
             processImportPackages(context);
         } finally {
             if (serviceReference != null) {
@@ -95,7 +95,7 @@ public class OSGiMetaDataBuilder {
         }*/
     }
 
-    protected OSGiBuildContext createOSGiBuildContext(Environment environment, DependencyManager dependencyManager, boolean clientModule) throws IllegalConfigurationException {
+    protected OSGiBuildContext createOSGiBuildContext(Environment environment, boolean clientModule) throws IllegalConfigurationException {
         List<String> hiddenImportPackageNamePrefixes = new ArrayList<String>();
         Set<String> hiddenImportPackageNames = new HashSet<String>();
 
@@ -166,7 +166,7 @@ public class OSGiMetaDataBuilder {
         }
         environment.removeDynamicImportPackages(removedDynamicImportPackages);
 
-        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, false);
+        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, false);
         osgiBuildContext.setClientModule(clientModule);
         if (clientModule) {
             osgiBuildContext.setClientArtifactResolver(getClientArtifactResolver());

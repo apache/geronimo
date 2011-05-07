@@ -39,7 +39,6 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
-import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -52,7 +51,6 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
@@ -146,8 +144,7 @@ public abstract class EARConfigBuilderTestSupport
     protected void setUp() throws Exception {
         super.setUp();
         bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), locations);
-        ((MockBundleContext)bundleContext).setConfigurationManager(new MockConfigurationManager());
-        bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
+//         bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         Set<Artifact> repo = new HashSet<Artifact>();
         repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
         repository = new MockRepository(repo);
@@ -491,26 +488,26 @@ public abstract class EARConfigBuilderTestSupport
         }
     }
 
-    private class MockDependencyManager extends DependencyManager {
+//     private class MockDependencyManager extends DependencyManager {
 
-        public MockDependencyManager(BundleContext bundleContext, Collection<Repository> repositories, ArtifactResolver artifactResolver) {
-            super(bundleContext, repositories, artifactResolver);
-        }
+//         public MockDependencyManager(BundleContext bundleContext, Collection<Repository> repositories, ArtifactResolver artifactResolver) {
+//             super(bundleContext, repositories, artifactResolver);
+//         }
 
-        @Override
-        public synchronized Set<ExportPackage> getExportedPackages(Bundle bundle) {
-           return Collections.<ExportPackage>emptySet();
-        }
+//         @Override
+//         public synchronized Set<ExportPackage> getExportedPackages(Bundle bundle) {
+//            return Collections.<ExportPackage>emptySet();
+//         }
 
-        @Override
-        public List<Bundle> getDependentBundles(Bundle bundle) {
-            return Collections.<Bundle>emptyList();
-        }
+//         @Override
+//         public List<Bundle> getDependentBundles(Bundle bundle) {
+//             return Collections.<Bundle>emptyList();
+//         }
 
-        @Override
-        public Bundle getBundle(Artifact artifact) {
-            return null;
-        }
+//         @Override
+//         public Bundle getBundle(Artifact artifact) {
+//             return null;
+//         }
 
-    }
+//     }
 }

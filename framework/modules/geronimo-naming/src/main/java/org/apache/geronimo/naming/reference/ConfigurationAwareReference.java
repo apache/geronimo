@@ -20,7 +20,6 @@ package org.apache.geronimo.naming.reference;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Kernel;
@@ -57,8 +56,10 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
 
     public Configuration getConfiguration() throws GBeanNotFoundException {
         Kernel kernel = getKernel();
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration =  configurationManager.getConfiguration(configId[0]);
+//         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//         Configuration configuration =  configurationManager.getConfiguration(configId[0]);
+        ((Object)null).toString();
+        Configuration configuration = null;
         if (configuration == null) {
             throw new IllegalStateException("No configuration found for id: " + configId[0]);
         }

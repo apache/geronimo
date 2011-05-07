@@ -48,7 +48,10 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (rootFile == null) throw new NullPointerException("root is null");
 
         if (!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead()) {
-            throw new IllegalStateException("Maven2Repository must have a root that's a valid readable directory (not " + rootFile.getAbsolutePath() + ")");
+            if (!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead()) {
+                log.warn("rootfile (" + rootFile.getAbsolutePath() + ") does not exist or was not a readable directory");
+                throw new IllegalStateException("Maven2Repository must have a root that's a valid readable directory (not " + rootFile.getAbsolutePath() + ")");
+            }
         }
 
         this.rootFile = rootFile;

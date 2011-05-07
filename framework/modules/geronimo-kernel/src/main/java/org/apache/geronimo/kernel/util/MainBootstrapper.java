@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -39,25 +38,25 @@ public class MainBootstrapper extends MainConfigurationBootstrapper {
 //        System.exit(status);
 //    }
     
-    public void loadPersistentConfigurations() throws Exception {
-        List<Artifact> configs = new ArrayList<Artifact>();
+//     public void loadPersistentConfigurations() throws Exception {
+//         List<Artifact> configs = new ArrayList<Artifact>();
 
-        AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
-        Set configLists = kernel.listGBeans(query);
-        for (Iterator i = configLists.iterator(); i.hasNext();) {
-            AbstractName configListName = (AbstractName) i.next();
-            configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
-        }
+//         AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
+//         Set configLists = kernel.listGBeans(query);
+//         for (Iterator i = configLists.iterator(); i.hasNext();) {
+//             AbstractName configListName = (AbstractName) i.next();
+//             configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
+//         }
         
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        try {
-            for (Artifact config : configs) {
-                configurationManager.loadConfiguration(config);
-                configurationManager.startConfiguration(config);
-            }
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
-    }
+//         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//         try {
+//             for (Artifact config : configs) {
+//                 configurationManager.loadConfiguration(config);
+//                 configurationManager.startConfiguration(config);
+//             }
+//         } finally {
+//             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//         }
+//     }
 
 }

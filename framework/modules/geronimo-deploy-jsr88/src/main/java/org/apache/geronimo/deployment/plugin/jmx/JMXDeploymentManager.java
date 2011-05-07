@@ -49,7 +49,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -61,7 +60,6 @@ import org.apache.geronimo.kernel.management.State;
 public abstract class JMXDeploymentManager implements DeploymentManager {
 
     protected Kernel kernel;
-    protected ConfigurationManager configurationManager;
     protected CommandContext commandContext;
     private final Collection<ModuleConfigurer> moduleConfigurers;
 
@@ -74,12 +72,12 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     
     protected void initialize(Kernel kernel) throws IOException {
         this.kernel = kernel;
-        try {
-            configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        } catch (GBeanNotFoundException e) {
-            //TODO consider wrapping exception
-            throw new IOException(e.getMessage());
-        }
+//         try {
+//             configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//         } catch (GBeanNotFoundException e) {
+//             //TODO consider wrapping exception
+//             throw new IOException(e.getMessage());
+//         }
         commandContext = new CommandContext(true, true, null, null, false);
     }
 
@@ -89,21 +87,22 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     }
 
     public void release() {
-        if(kernel != null && configurationManager != null) {
-            try {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-            } finally {
-                configurationManager = null;
-                kernel = null;
-            }
-        }
+//         if(kernel != null && configurationManager != null) {
+//             try {
+//                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//             } finally {
+//                 configurationManager = null;
+//                 kernel = null;
+//             }
+//         }
     }
 
     public Target[] getTargets() {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        List stores = configurationManager.listStores();
+        List stores = null;
+//         List stores = configurationManager.listStores();
         if (stores.isEmpty()) {
             return null;
         }
@@ -161,7 +160,8 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
             for (Target aTargetList : targetList) {
                 TargetImpl target = (TargetImpl) aTargetList;
                 AbstractName storeName = target.getAbstractName();
-                List infos = configurationManager.listConfigurations(storeName);
+//                 List infos = configurationManager.listConfigurations(storeName);
+                List infos = null;
                 for (Object info1 : infos) {
                     ConfigurationInfo info = (ConfigurationInfo) info1;
                     if (filter.accept(info)) {

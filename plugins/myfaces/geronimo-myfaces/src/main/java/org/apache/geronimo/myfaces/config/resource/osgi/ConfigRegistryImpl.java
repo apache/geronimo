@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.myfaces.FacesConfigDigester;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.myfaces.config.element.FacesConfig;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

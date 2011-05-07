@@ -41,10 +41,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Filter;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
 
@@ -55,7 +53,6 @@ public class MockBundleContext implements BundleContext {
     protected static final Naming naming = new Jsr77Naming();
 
 
-    private ConfigurationManager configurationManager = new MockConfigurationManager();
     private final Bundle bundle;
     private final ClassLoader classLoader;
     private final Map<Artifact, ConfigurationData> configurationDatas;
@@ -82,10 +79,6 @@ public class MockBundleContext implements BundleContext {
         ((MockBundle)bundle).setBundleContext(this);
         this.configurationDatas = configurationDatas == null? new HashMap<Artifact, ConfigurationData>(): configurationDatas;
         this.locations = locationToArtifact == null? new HashMap<String, Artifact>(): locationToArtifact;
-    }
-
-    public void setConfigurationManager(ConfigurationManager configurationManager) {
-        this.configurationManager = configurationManager;
     }
 
     public String getProperty(String s) {
@@ -117,13 +110,13 @@ public class MockBundleContext implements BundleContext {
         BundleContext bundleContext = new WrappingBundleContext(bundle);
         bundle.setBundleContext(bundleContext);
         configurationData.setBundle(bundleContext.getBundle());
-        try {
-            configurationManager.loadConfiguration(configurationData);
-        } catch (NoSuchConfigException e) {
-            throw (BundleException)new BundleException("").initCause(e);
-        } catch (LifecycleException e) {
-            throw (BundleException)new BundleException("").initCause(e);
-        }
+//         try {
+//             configurationManager.loadConfiguration(configurationData);
+//         } catch (NoSuchConfigException e) {
+//             throw (BundleException)new BundleException("").initCause(e);
+//         } catch (LifecycleException e) {
+//             throw (BundleException)new BundleException("").initCause(e);
+//         }
         return bundle;
     }
 

@@ -31,7 +31,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
@@ -55,21 +54,19 @@ public class SingleFileHotDeployer {
     private final String[] watchPaths;
     private final Collection builders;
     private final ConfigurationStore store;
-    private final ConfigurationManager configurationManager;
     private final boolean forceDeploy;
     private final Artifact configurationId;
     private boolean wasDeployed;
 
-    public SingleFileHotDeployer(String path, ServerInfo serverInfo, String[] watchPaths, Collection builders, ConfigurationStore store, ConfigurationManager configurationManager, boolean forceDeploy) throws DeploymentException {
-        this(serverInfo.resolve(path), watchPaths, builders, store, configurationManager, forceDeploy);
+    public SingleFileHotDeployer(String path, ServerInfo serverInfo, String[] watchPaths, Collection builders, ConfigurationStore store, boolean forceDeploy) throws DeploymentException {
+        this(serverInfo.resolve(path), watchPaths, builders, store, forceDeploy);
     }
 
-    public SingleFileHotDeployer(File dir, String[] watchPaths, Collection builders, ConfigurationStore store, ConfigurationManager configurationManager, boolean forceDeploy) throws DeploymentException {
+    public SingleFileHotDeployer(File dir, String[] watchPaths, Collection builders, ConfigurationStore store, boolean forceDeploy) throws DeploymentException {
         this.dir = dir;
         this.watchPaths = watchPaths;
         this.builders = builders;
         this.store = store;
-        this.configurationManager = configurationManager;
         this.forceDeploy = forceDeploy;
 
         configurationId = start(dir);
@@ -93,7 +90,8 @@ public class SingleFileHotDeployer {
 
         // get the existing inplace configuration if there is one
         ConfigurationInfo existingConfiguration = null;
-        List<ConfigurationInfo> list = configurationManager.listConfigurations();
+//         List<ConfigurationInfo> list = configurationManager.listConfigurations();
+        List<ConfigurationInfo> list = null;
         for (Iterator<ConfigurationInfo> iterator = list.iterator(); iterator.hasNext();) {
             ConfigurationInfo configurationInfo = iterator.next();
             if (dir.equals(configurationInfo.getInPlaceLocation())) {
@@ -103,25 +101,25 @@ public class SingleFileHotDeployer {
         Artifact existingConfigurationId = (existingConfiguration == null) ? null : existingConfiguration.getConfigID();
 
         if (!forceDeploy && existingConfiguration != null && !isModifiedSince(existingConfiguration.getCreated())) {
-            try {
-                configurationManager.loadConfiguration(existingConfigurationId);
-                configurationManager.startConfiguration(existingConfigurationId);
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to load and start " + dir, e);
-            }
+//             try {
+//                 configurationManager.loadConfiguration(existingConfigurationId);
+//                 configurationManager.startConfiguration(existingConfigurationId);
+//             } catch (Exception e) {
+//                 throw new DeploymentException("Unable to load and start " + dir, e);
+//             }
             return existingConfigurationId;
         }
 
         // if the current id and the new id only differ by version, we can reload, otherwise we need to load and start
-        if (existingConfigurationId != null && configurationManager.isLoaded(existingConfigurationId)) {
-            try {
-                configurationManager.unloadConfiguration(existingConfigurationId);
-            } catch (NoSuchConfigException e) {
-                throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
-            } catch (LifecycleException e) {
-                throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
-            }
-        }
+//         if (existingConfigurationId != null && configurationManager.isLoaded(existingConfigurationId)) {
+//             try {
+//                 configurationManager.unloadConfiguration(existingConfigurationId);
+//             } catch (NoSuchConfigException e) {
+//                 throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
+//             } catch (LifecycleException e) {
+//                 throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
+//             }
+//         }
 
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
 
@@ -160,23 +158,23 @@ public class SingleFileHotDeployer {
             // see if one exists by the same configurationID.   This will catch situations where the target
             // path was renamed or moved such that the path associated with the previous configuration no longer
             // matches the patch associated with the new configuration.
-            if ((existingConfigurationId == null) && configurationManager.isInstalled(configurationId)) {
-                log.info("Existing Module found by moduleId");
-                existingConfigurationId = configurationId;
-            }
+//             if ((existingConfigurationId == null) && configurationManager.isInstalled(configurationId)) {
+//                 log.info("Existing Module found by moduleId");
+//                 existingConfigurationId = configurationId;
+//             }
 
             // if we are deploying over the exisitng version we need to uninstall first
-            if(configurationId.equals(existingConfigurationId)) {
-                log.info("Undeploying " + existingConfigurationId);
-                configurationManager.uninstallConfiguration(existingConfigurationId);
-            }
+//             if(configurationId.equals(existingConfigurationId)) {
+//                 log.info("Undeploying " + existingConfigurationId);
+//                 configurationManager.uninstallConfiguration(existingConfigurationId);
+//             }
 
             // deploy it
-            deployConfiguration(builder, store, configurationId, plan, module, Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver());
+//             deployConfiguration(builder, store, configurationId, plan, module, Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver());
             wasDeployed = true;
 
-            configurationManager.loadConfiguration(configurationId);
-            configurationManager.startConfiguration(configurationId);
+//             configurationManager.loadConfiguration(configurationId);
+//             configurationManager.startConfiguration(configurationId);
 
             log.info("Successfully deployed and started " + configurationId + " in location " + dir);
 
@@ -316,7 +314,6 @@ public class SingleFileHotDeployer {
         infoFactory.addAttribute("watchPaths", String[].class, true);
         infoFactory.addReference("Builders", ConfigurationBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
         infoFactory.addAttribute("forceDeploy", boolean.class, true);
 
         infoFactory.setConstructor(new String[]{"path", "ServerInfo", "watchPaths", "Builders", "Store", "ConfigurationManager", "forceDeploy"});

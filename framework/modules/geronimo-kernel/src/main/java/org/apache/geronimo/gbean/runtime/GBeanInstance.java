@@ -50,7 +50,7 @@ import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.kernel.DependencyManager;
+// import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
@@ -232,11 +232,13 @@ public final class GBeanInstance implements StateManageable {
      *          if the gbeanInfo is inconsistent with the actual java classes, such as
      *          mismatched attribute types or the intial data cannot be set
      */
-    public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, Bundle bundle) throws InvalidConfigurationException {
+//     public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, Bundle bundle) throws InvalidConfigurationException {
+    public GBeanInstance(GBeanData gbeanData, Kernel kernel, LifecycleBroadcaster lifecycleBroadcaster, Bundle bundle) throws InvalidConfigurationException {
         this.abstractName = gbeanData.getAbstractName();
         this.kernel = kernel;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
-        this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
+//         this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
+        this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, this, lifecycleBroadcaster);
         this.bundle = bundle;
         this.classLoader = new BundleClassLoader(bundle);
 

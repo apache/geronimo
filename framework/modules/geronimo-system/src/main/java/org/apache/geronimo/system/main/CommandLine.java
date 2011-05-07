@@ -32,7 +32,6 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.config.LifecycleException;
@@ -181,17 +180,17 @@ public class CommandLine {
 
     protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException, MissingDependencyException, GBeanNotFoundException {
         // load and start the configurations
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Collection<Artifact> resolvedModules = configurationManager.getArtifactResolver().resolveInClassLoader(configurations);
-        LifecycleMonitor lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
-        try {
-            for (Artifact moduleId : resolvedModules) {
-                configurationManager.loadConfiguration(moduleId, lifecycleMonitor);
-                configurationManager.startConfiguration(moduleId, lifecycleMonitor);
-            }
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
+//         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//         Collection<Artifact> resolvedModules = configurationManager.getArtifactResolver().resolveInClassLoader(configurations);
+//         LifecycleMonitor lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
+//         try {
+//             for (Artifact moduleId : resolvedModules) {
+//                 configurationManager.loadConfiguration(moduleId, lifecycleMonitor);
+//                 configurationManager.startConfiguration(moduleId, lifecycleMonitor);
+//             }
+//         } finally {
+//             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//         }
     }
 
     protected Kernel getKernel() {

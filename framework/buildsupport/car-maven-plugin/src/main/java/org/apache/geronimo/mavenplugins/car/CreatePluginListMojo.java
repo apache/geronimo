@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Maven2Repository;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+// import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
@@ -77,25 +77,26 @@ public class CreatePluginListMojo extends AbstractCarMojo {
     }
 
     public PluginListType createPluginListForRepositories(ListableRepository repository, String repoName) throws NoSuchStoreException {
-        Map<PluginType, PluginType> pluginMap = new HashMap<PluginType, PluginType>();
-        SortedSet<Artifact> configs = repository.list();
-        for (Artifact configId : configs) {
-            PluginType data = getPluginMetadata(repository, configId);
+//         Map<PluginType, PluginType> pluginMap = new HashMap<PluginType, PluginType>();
+//         SortedSet<Artifact> configs = repository.list();
+//         for (Artifact configId : configs) {
+//             PluginType data = getPluginMetadata(repository, configId);
 
-            if (data != null) {
-                PluginType key = PluginInstallerGBean.toKey(data);
-                PluginType existing = pluginMap.get(key);
-                if (existing == null) {
-                    pluginMap.put(key, data);
-                } else {
-                    existing.getPluginArtifact().addAll(data.getPluginArtifact());
-                }
-            }
-        }
-        PluginListType pluginList = new PluginListType();
-        pluginList.getPlugin().addAll(pluginMap.values());
-        pluginList.getDefaultRepository().add(repoName);
-        return pluginList;
+//             if (data != null) {
+//                 PluginType key = PluginInstallerGBean.toKey(data);
+//                 PluginType existing = pluginMap.get(key);
+//                 if (existing == null) {
+//                     pluginMap.put(key, data);
+//                 } else {
+//                     existing.getPluginArtifact().addAll(data.getPluginArtifact());
+//                 }
+//             }
+//         }
+//         PluginListType pluginList = new PluginListType();
+//         pluginList.getPlugin().addAll(pluginMap.values());
+//         pluginList.getDefaultRepository().add(repoName);
+//         return pluginList;
+        return null;
     }
 
     private PluginType getPluginMetadata(ListableRepository repository, Artifact configId) {

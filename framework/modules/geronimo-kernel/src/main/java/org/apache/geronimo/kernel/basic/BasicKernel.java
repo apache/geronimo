@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
-import org.apache.geronimo.kernel.DependencyManager;
+// import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -125,7 +125,7 @@ public class
     /**
      * This manager is used by the kernel to manage dependencies between gbeans
      */
-    private DependencyManager dependencyManager = new BasicDependencyManager(publicLifecycleMonitor);
+//     private DependencyManager dependencyManager = new BasicDependencyManager(publicLifecycleMonitor);
 
     /**
      * This factory gbean proxies, and tracks all proxies in the system
@@ -184,8 +184,8 @@ public class
 
         registry.stop();
 
-        dependencyManager.close();
-        dependencyManager = null;
+//         dependencyManager.close();
+//         dependencyManager = null;
 
         synchronized (this) {
             notify();
@@ -208,9 +208,9 @@ public class
     /**
      * @deprecated this will be removed as when we add generalized dependencies to gbeans... the only current user is Configuration
      */
-    public DependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
+//     public DependencyManager getDependencyManager() {
+//         return dependencyManager;
+//     }
 
     /**
      * Gets the lifecycle monitor.
@@ -419,7 +419,8 @@ public class
         AbstractName abstractName = gbeanData.getAbstractName();
         Set interfaces = gbeanData.getGBeanInfo().getInterfaces();
         LifecycleBroadcaster lifecycleBroadcaster = lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces);
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, bundle);
+//         GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, bundle);
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, lifecycleBroadcaster, bundle);
         registry.register(gbeanInstance);
         lifecycleBroadcaster.fireLoadedEvent();
     }

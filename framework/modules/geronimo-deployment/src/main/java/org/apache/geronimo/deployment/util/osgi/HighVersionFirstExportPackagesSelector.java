@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.system.configuration.DependencyManager;
+// import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -43,7 +43,7 @@ public class HighVersionFirstExportPackagesSelector implements ExportPackagesSel
     public Map<Long, Set<ExportPackage>> select(OSGiBuildContext context) {
         Map<Long, Set<ExportPackage>> bundleIdExportPackages = new HashMap<Long, Set<ExportPackage>>();
         Map<String, Version> packageNameVersionMap = new HashMap<String, Version>();
-        DependencyManager dependencyManager = context.getDependencyManager();
+//         DependencyManager dependencyManager = context.getDependencyManager();
 //        for (Dependency dependency : context.getEnvironment().getDependencies()) {
 //            Artifact resolvedArtifact = context.resolveArtifact(dependency.getArtifact());
 //            if(resolvedArtifact == null) {

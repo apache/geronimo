@@ -34,7 +34,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -195,45 +194,45 @@ public class EmbeddedDaemon implements Main {
             monitor.foundModules(configs.toArray(new Artifact[configs.size()]));
 
             // load the rest of the configurations
-            try {
-                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-                try {
-                    List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
-                    int unloadedConfigsCount;
-                    do {
-                        unloadedConfigsCount = unloadedConfigs.size();
-                        LinkedHashSet<Artifact> sorted = configurationManager.sort(unloadedConfigs, lifecycleMonitor);
-                        for (Artifact configID : sorted) {
-                            monitor.moduleLoading(configID);
-                            configurationManager.loadConfiguration(configID, lifecycleMonitor);
-                            unloadedConfigs.remove(configID);
-                            monitor.moduleLoaded(configID);
-                            monitor.moduleStarting(configID);
-                            configurationManager.startConfiguration(configID, lifecycleMonitor);
-                            monitor.moduleStarted(configID);
-                        }
-                    } while (unloadedConfigsCount > unloadedConfigs.size());
-                    if (!unloadedConfigs.isEmpty()) {
-                        throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
-                    }
-                    // the server has finished loading the persistent configuration so inform the gbean
-                    AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
-                    Set<AbstractName> statusBeans = kernel.listGBeans(startedQuery);
-                    for (AbstractName statusName : statusBeans) {
-                        ServerStatus status = (ServerStatus) kernel.getGBean(statusName);
-                        if (status != null) {
-                            status.setServerStarted(true);
-                        }
-                    }
-                } finally {
-                    ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-                }
-            } catch (Exception e) {
-                //Exception caught when starting configurations, starting kernel shutdown
-                monitor.serverStartFailed(e);
-                shutdownKernel();
-                return 1;
-            }
+//             try {
+//                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//                 try {
+//                     List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
+//                     int unloadedConfigsCount;
+//                     do {
+//                         unloadedConfigsCount = unloadedConfigs.size();
+//                         LinkedHashSet<Artifact> sorted = configurationManager.sort(unloadedConfigs, lifecycleMonitor);
+//                         for (Artifact configID : sorted) {
+//                             monitor.moduleLoading(configID);
+//                             configurationManager.loadConfiguration(configID, lifecycleMonitor);
+//                             unloadedConfigs.remove(configID);
+//                             monitor.moduleLoaded(configID);
+//                             monitor.moduleStarting(configID);
+//                             configurationManager.startConfiguration(configID, lifecycleMonitor);
+//                             monitor.moduleStarted(configID);
+//                         }
+//                     } while (unloadedConfigsCount > unloadedConfigs.size());
+//                     if (!unloadedConfigs.isEmpty()) {
+//                         throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+//                     }
+//                     // the server has finished loading the persistent configuration so inform the gbean
+//                     AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
+//                     Set<AbstractName> statusBeans = kernel.listGBeans(startedQuery);
+//                     for (AbstractName statusName : statusBeans) {
+//                         ServerStatus status = (ServerStatus) kernel.getGBean(statusName);
+//                         if (status != null) {
+//                             status.setServerStarted(true);
+//                         }
+//                     }
+//                 } finally {
+//                     ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//                 }
+//             } catch (Exception e) {
+//                 //Exception caught when starting configurations, starting kernel shutdown
+//                 monitor.serverStartFailed(e);
+//                 shutdownKernel();
+//                 return 1;
+//             }
 
             // Tell every persistent configuration list that the kernel is now fully started
             Set<AbstractName> configLists = kernel.listGBeans(query);

@@ -58,7 +58,7 @@ public interface Kernel {
      * Gets the dependency manager kernel service
      * @return the dependency manager or null if the kernel is not running
      */
-    DependencyManager getDependencyManager();
+//     DependencyManager getDependencyManager();
 
     /**
      * Gets the lifecycle monitor kernel service

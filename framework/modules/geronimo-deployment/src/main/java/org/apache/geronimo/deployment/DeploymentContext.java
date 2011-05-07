@@ -85,7 +85,6 @@ public class DeploymentContext {
     protected final File inPlaceConfigurationDir;
     protected final ResourceContext resourceContext;
     protected final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
-//    protected final ConfigurationManager configurationManager;
     protected final Naming naming;
     protected final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
     protected final AbstractName moduleName;
@@ -121,7 +120,6 @@ public class DeploymentContext {
                              BundleContext bundleContext) throws DeploymentException {
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
-//        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (!baseDir.exists() && !baseDir.mkdirs()) {
             throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
@@ -136,7 +134,6 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-//        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.bundleContext = bundleContext;
 
         if (null == inPlaceConfigurationDir) {
@@ -164,7 +161,6 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-//        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
@@ -265,10 +261,6 @@ public class DeploymentContext {
     private File getConfigurationDir() {
         return (inPlaceConfigurationDir == null) ? baseDir : inPlaceConfigurationDir;
     }
-
-//    public ConfigurationManager getConfigurationManager() {
-//        return configurationManager;
-//    }
 
     public Artifact getConfigID() {
         return environment.getConfigId();

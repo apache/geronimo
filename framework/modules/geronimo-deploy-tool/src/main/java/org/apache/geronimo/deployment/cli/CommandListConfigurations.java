@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+// import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -163,11 +163,12 @@ public class CommandListConfigurations extends AbstractCommand {
         // let's add framework plugin group manually so that users can choose it
         for (PluginType metadata : data.getPlugin()) {
             for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
-                if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().indexOf("plugingroups/framework") > 0) {
-                    PluginType plugin = PluginInstallerGBean.copy(metadata, testInstance);
-                    appPlugin.getPlugin().add(plugin);
-                    break;
-                }
+                ((Object)null).toString();
+//                 if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().indexOf("plugingroups/framework") > 0) {
+//                     PluginType plugin = PluginInstallerGBean.copy(metadata, testInstance);
+//                     appPlugin.getPlugin().add(plugin);
+//                     break;
+//                 }
             }
         }
 
@@ -257,10 +258,11 @@ public class CommandListConfigurations extends AbstractCommand {
             consoleReader.printNewline();
             for (PluginType metadata : items) {
                 for (PluginArtifactType instance : metadata.getPluginArtifact()) {
-                    PluginType copy = PluginInstallerGBean.copy(metadata, instance);
-                    available.add(copy);
-                    DeployUtils.printTo("  " + available.size() + ":  ", 10, consoleReader);
-                    DeployUtils.println(metadata.getName() + " (" + instance.getModuleId().getVersion() + ")", 0, consoleReader);
+                    ((Object)null).toString();
+//                     PluginType copy = PluginInstallerGBean.copy(metadata, instance);
+//                     available.add(copy);
+//                     DeployUtils.printTo("  " + available.size() + ":  ", 10, consoleReader);
+//                     DeployUtils.println(metadata.getName() + " (" + instance.getModuleId().getVersion() + ")", 0, consoleReader);
                 }
             }
         }
@@ -313,11 +315,11 @@ public class CommandListConfigurations extends AbstractCommand {
             PluginType plugin = null;
             for (PluginType metadata : list.getPlugin()) {
                 for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
-                    if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
-                        plugin = PluginInstallerGBean.copy(metadata, testInstance);
-                        installList.getPlugin().add(plugin);
-                        break;
-                    }
+//                     if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
+//                         plugin = PluginInstallerGBean.copy(metadata, testInstance);
+//                         installList.getPlugin().add(plugin);
+//                         break;
+//                     }
                 }
             }
             // if plugin value is null here, means the configId is not a geronimo plugin - ignore

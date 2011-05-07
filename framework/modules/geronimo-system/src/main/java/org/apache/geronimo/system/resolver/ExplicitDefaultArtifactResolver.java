@@ -37,7 +37,6 @@ import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -58,16 +57,15 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
                                            ArtifactManager artifactManager,
                                            Collection<ListableRepository> repositories,
                                            ServerInfo serverInfo) throws IOException {
-        this(versionMapLocation, artifactManager, repositories, null, serverInfo, Collections.<ConfigurationManager>emptyList());
+        this(versionMapLocation, artifactManager, repositories, null, serverInfo);
     }
 
     public ExplicitDefaultArtifactResolver(@ParamAttribute(name = "versionMapLocation") String versionMapLocation,
                                            @ParamReference(name = "ArtifactManager", namingType = "ArtifactManager") ArtifactManager artifactManager,
                                            @ParamReference(name = "Repositories", namingType = "Repository") Collection<ListableRepository> repositories,
                                            @ParamAttribute(name = "additionalAliases") Map<String, String> additionalAliases,
-                                           @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                                           @ParamReference(name = "ConfigurationManagers", namingType = "ConfigurationManager") Collection<ConfigurationManager> configurationManagers) throws IOException {
-        super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, additionalAliases, serverInfo), configurationManagers);
+                                           @ParamReference(name = "ServerInfo") ServerInfo serverInfo) throws IOException {
+        super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, additionalAliases, serverInfo));
         this.artifactAliasesFile = versionMapLocation;
         this.serverInfo = serverInfo;
     }

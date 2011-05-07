@@ -260,16 +260,17 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     }
     
     public Artifact[] getEBAConfigurationIds(){
-        List<AbstractName> stores = configurationManager.listStores();
+//         List<AbstractName> stores = configurationManager.listStores();
+        List<AbstractName> stores = null;
         if (stores.isEmpty()) {
             return null;
         }
         
         ArrayList<Artifact> result = new ArrayList<Artifact>();
         for (AbstractName store : stores) {
-            List infos;
-            try {
-                infos = configurationManager.listConfigurations(store);
+            List infos = null;
+//             try {
+//                 infos = configurationManager.listConfigurations(store);
                 for (Object info : infos) {
                     ConfigurationInfo configInfo = (ConfigurationInfo) info;
                     
@@ -277,9 +278,9 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
                         result.add(configInfo.getConfigID());
                     }
                 }
-            } catch (NoSuchStoreException e) {
-                e.printStackTrace();
-            }
+//             } catch (NoSuchStoreException e) {
+//                 e.printStackTrace();
+//             }
         }
 
         return result.size() == 0 ? null : result.toArray(new Artifact[result.size()]);

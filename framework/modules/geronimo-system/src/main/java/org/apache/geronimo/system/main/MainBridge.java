@@ -29,7 +29,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -77,15 +76,15 @@ public class MainBridge implements /*Main,*/ GBeanLifecycle {
             }
         }
 
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        try {
-            for (Artifact config : configs) {
-                configurationManager.loadConfiguration(config);
-                configurationManager.startConfiguration(config);
-            }
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
+//         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//         try {
+//             for (Artifact config : configs) {
+//                 configurationManager.loadConfiguration(config);
+//                 configurationManager.startConfiguration(config);
+//             }
+//         } finally {
+//             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//         }
     }
     
     protected org.apache.geronimo.kernel.util.Main getMain() throws Exception {

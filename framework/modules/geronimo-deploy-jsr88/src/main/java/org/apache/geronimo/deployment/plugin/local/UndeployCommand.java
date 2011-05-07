@@ -23,7 +23,6 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -44,42 +43,42 @@ public class UndeployCommand extends CommandSupport {
 
     public void run() {
         try {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            try {
+//             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
-                    	if(!configurationManager.isOnline()) {
-                    		//If an offline undeploy, need to load the configuration first, so that stopConfiguration()
-                    		//can resolve the configuration and successfully set load=false in attribute manager, otherwise
-                    		//starting the server will fail attempting to start an config that does not exist.
-                    		configurationManager.loadConfiguration(moduleID);
-                    	}
+//                     	if(!configurationManager.isOnline()) {
+//                     		//If an offline undeploy, need to load the configuration first, so that stopConfiguration()
+//                     		//can resolve the configuration and successfully set load=false in attribute manager, otherwise
+//                     		//starting the server will fail attempting to start an config that does not exist.
+//                     		configurationManager.loadConfiguration(moduleID);
+//                     	}
                     	
-                        configurationManager.stopConfiguration(moduleID);
+//                         configurationManager.stopConfiguration(moduleID);
 
 
-                        configurationManager.unloadConfiguration(moduleID);
+//                         configurationManager.unloadConfiguration(moduleID);
                         updateStatus("Module " + moduleID + " unloaded.");
                     } catch (InternalKernelException e) {
                         // this is cause by the kernel being already shutdown
-                    } catch (NoSuchConfigException e) {
-                        // module was already unloaded - just continue
-                    }
+                    } // catch (NoSuchConfigException e) {
+//                         // module was already unloaded - just continue
+//                     }
 
-                    try {
-                        configurationManager.uninstallConfiguration(moduleID);
+//                     try {
+//                         configurationManager.uninstallConfiguration(moduleID);
                         updateStatus("Module " + moduleID + " uninstalled.");
                         addModule(module);
-                    } catch (NoSuchConfigException e) {
-                        // module was already undeployed - just continue
-                    }
+//                     } catch (NoSuchConfigException e) {
+//                         // module was already undeployed - just continue
+//                     }
                 }
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-            }
+//             } finally {
+//                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//             }
 
             //todo: this will probably never happen because the command line args are compared to actual modules
             if (getModuleCount() < modules.length) {

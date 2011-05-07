@@ -25,7 +25,6 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
@@ -45,26 +44,27 @@ public class StartCommand extends CommandSupport {
 
     public void run() {
         try {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
 
                     // Check to see whether the module is already started
                     Artifact moduleID = Artifact.create(module.getModuleID());
-                    if (configurationManager.isRunning(moduleID)) {
-                        updateStatus("Module " + moduleID + " is already running");
-                        Thread.sleep(100);
-                        continue;
-                    }
+//                     if (configurationManager.isRunning(moduleID)) {
+//                         updateStatus("Module " + moduleID + " is already running");
+//                         Thread.sleep(100);
+//                         continue;
+//                     }
 
-                    // Load
-                    if(!configurationManager.isLoaded(moduleID)) {
-                        configurationManager.loadConfiguration(moduleID);
-                    }
+//                     // Load
+//                     if(!configurationManager.isLoaded(moduleID)) {
+//                         configurationManager.loadConfiguration(moduleID);
+//                     }
 
                     // Start
-                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(moduleID);
+//                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(moduleID);
+                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = null;
 
                     // Determine the child modules of the configuration
                     //TODO might be a hack
@@ -111,7 +111,7 @@ public class StartCommand extends CommandSupport {
                     }
                 }
             } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             addWebURLs(kernel);
             complete("Completed");

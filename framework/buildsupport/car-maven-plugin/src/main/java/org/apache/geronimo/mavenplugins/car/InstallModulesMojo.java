@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+// import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.geronimo.system.plugin.PluginRepositoryDownloader;
@@ -181,14 +181,14 @@ public class InstallModulesMojo extends AbstractCarMojo {
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
             kernel.boot(bundleContext);
-            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, bundleContext);
-            installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
-            if (overrides != null) {
-                for (Override override: this.overrides) {
-                    AttributesType attributes = override.getOverrides(overridesDir);
-                    installer.mergeOverrides(override.getServer(), attributes);
-                }
-            }
+//             PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, bundleContext);
+//             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
+//             if (overrides != null) {
+//                 for (Override override: this.overrides) {
+//                     AttributesType attributes = override.getOverrides(overridesDir);
+//                     installer.mergeOverrides(override.getServer(), attributes);
+//                 }
+//             }
         } catch (Exception e) {
             throw new MojoExecutionException("Could not use plugin installer bean", e);
         } finally {
@@ -215,12 +215,13 @@ public class InstallModulesMojo extends AbstractCarMojo {
 
 
     private PluginType toPluginType(Artifact artifact) {
-        PluginType plugin = new PluginType();
-        PluginArtifactType instance = new PluginArtifactType();
-        ArtifactType artifactType = PluginInstallerGBean.toArtifactType(artifact);
-        instance.setModuleId(artifactType);
-        plugin.getPluginArtifact().add(instance);
-        return plugin;
+        return null;
+//         PluginType plugin = new PluginType();
+//         PluginArtifactType instance = new PluginArtifactType();
+//         ArtifactType artifactType = PluginInstallerGBean.toArtifactType(artifact);
+//         instance.setModuleId(artifactType);
+//         plugin.getPluginArtifact().add(instance);
+//         return plugin;
     }
 
     /**

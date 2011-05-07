@@ -32,7 +32,6 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
@@ -49,18 +48,15 @@ public class NewServerInstanceGBean implements NewServerInstance {
 
     private final Set<String> defaultPlugins;
     private final Collection<PersistentConfigurationList> persistentConfigurationLists;
-    private final PluginInstallerGBean oldPluginInstallerGBean;
-    private final ConfigurationManager configManager;
+//     private final PluginInstallerGBean oldPluginInstallerGBean;
     private final BundleContext bundleContext;
 
     public NewServerInstanceGBean(@ParamAttribute(name = "defaultPlugins")Map<String, String> defaultPlugins,
                                   @ParamReference(name = "PersistentConfigurationList", namingType="PersistentConfigurationList.PERSISTENT_CONFIGURATION_LIST")Collection<PersistentConfigurationList> persistentConfigurationLists,
-                                  @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean pluginInstallerGBean,
-                                  @ParamReference(name = "ConfigManager", namingType = "ConfigurationManager")ConfigurationManager configManager,
+//                                   @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean pluginInstallerGBean,
                                   @ParamSpecial(type = SpecialAttributeType.bundleContext)BundleContext bundleContext) {
         this.persistentConfigurationLists = persistentConfigurationLists;
-        this.oldPluginInstallerGBean = pluginInstallerGBean;
-        this.configManager = configManager;
+//         this.oldPluginInstallerGBean = pluginInstallerGBean;
         this.defaultPlugins = defaultPlugins == null ? Collections.<String>emptySet() : defaultPlugins.keySet();
         this.bundleContext = bundleContext;
     }

@@ -41,9 +41,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.mock.MockRepository;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
@@ -112,8 +110,6 @@ public class ServiceConfigBuilderTest extends TestCase {
             ListableRepository mockRepository = new MockRepository(repo);
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
-            ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET, bundleContext);
-            bundleContext.setConfigurationManager(configurationManager);
             AbstractName moduleName = naming.createRootName(environment.getConfigId(), "foo", "bar");
             DeploymentContext context = new DeploymentContext(outFile, null, environment, moduleName, ConfigurationModuleType.CAR, naming, Collections.<Repository>singleton(mockRepository), bundleContext);
             context.initializeConfiguration();

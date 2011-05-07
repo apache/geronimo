@@ -48,9 +48,7 @@ import org.apache.geronimo.j2ee.deployment.model.app.JaxbUtil;
 import org.apache.geronimo.j2ee.deployment.model.naming.EnvEntryType;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -204,7 +202,6 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
         module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null);
-//        ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
             new Environment(artifact),

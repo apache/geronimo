@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -43,7 +42,7 @@ public class StopCommand extends CommandSupport {
 
     public void run() {
         try {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             int alreadyStopped = 0;
 
             try {
@@ -52,17 +51,18 @@ public class StopCommand extends CommandSupport {
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = null;
 
-                    if (configurationManager.isRunning(moduleID)) {
-                        lcresult = configurationManager.stopConfiguration(moduleID);
-                        addModule(module);
-                    } else {
-                        updateStatus("Module " + moduleID + " is already stopped");
-                        alreadyStopped++;
-                    }
+                    ((Object)null).toString();
+//                     if (configurationManager.isRunning(moduleID)) {
+//                         lcresult = configurationManager.stopConfiguration(moduleID);
+//                         addModule(module);
+//                     } else {
+//                         updateStatus("Module " + moduleID + " is already stopped");
+//                         alreadyStopped++;
+//                     }
 
-                    if (configurationManager.isLoaded(moduleID)) {
-                        configurationManager.unloadConfiguration(moduleID);
-                    }
+//                     if (configurationManager.isLoaded(moduleID)) {
+//                         configurationManager.unloadConfiguration(moduleID);
+//                     }
 
                     if (lcresult != null) {
                         java.util.Iterator iterator = lcresult.getStopped().iterator();
@@ -93,7 +93,7 @@ public class StopCommand extends CommandSupport {
                     }
                 }
             } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             if ((getModuleCount() + alreadyStopped) < modules.length) {
                 fail("Some modules could not be stopped");

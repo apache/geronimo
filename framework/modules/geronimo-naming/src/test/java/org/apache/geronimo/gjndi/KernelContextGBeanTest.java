@@ -35,9 +35,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -51,7 +49,6 @@ import org.apache.xbean.naming.context.ImmutableContext;
 public class KernelContextGBeanTest extends AbstractContextTest {
     private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
     private Kernel kernel;
-//    private ConfigurationManager configurationManager;
     private ConfigurationData configurationData;
     private GBeanInfo immutableContextGBeanInfo;
 

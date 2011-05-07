@@ -331,9 +331,9 @@ public final class ConfigurationUtil {
      * @return The ConfigurationManager
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
-    public static ConfigurationManager getConfigurationManager(Kernel kernel) throws GBeanNotFoundException {
-        return kernel.getGBean(ConfigurationManager.class);
-    }
+//     public static ConfigurationManager getConfigurationManager(Kernel kernel) throws GBeanNotFoundException {
+//         return kernel.getGBean(ConfigurationManager.class);
+//     }
 
     /**
      * Gets a reference or proxy to an EditableConfigurationManager running in the specified kernel, if there is one.
@@ -363,9 +363,9 @@ public final class ConfigurationUtil {
 //        }
 //    }
 
-    public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
+//     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
 //        kernel.getProxyManager().destroyProxy(configurationManager);
-    }
+//     }
 
     static void preprocessGBeanData(Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
         if (log.isDebugEnabled()) {

@@ -29,7 +29,7 @@ import java.util.Iterator;
 
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+// import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
@@ -93,41 +93,42 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
     }
 
     public void updatePluginList(PluginType plugin, PluginListType pluginList) throws NoSuchStoreException {
-        PluginType key = PluginInstallerGBean.toKey(plugin);
-        PluginArtifactType instance = plugin.getPluginArtifact().get(0);
-        Artifact id = PluginInstallerGBean.toArtifact(instance.getModuleId());
-        boolean foundKey = false;
-        boolean foundModule = false;
-        for (Iterator<PluginType> pit = pluginList.getPlugin().iterator(); pit.hasNext();) {
-            PluginType test = pit.next();
-            for (Iterator<PluginArtifactType> it = test.getPluginArtifact().iterator(); it.hasNext();) {
-                PluginArtifactType testInstance = it.next();
-                Artifact testId = PluginInstallerGBean.toArtifact(testInstance.getModuleId());
-                if (id.equals(testId)) {
-                    //if the module id appears anywhere, remove that instance
-                    //however, this would cause plugin without plugin artifact
-                    it.remove();
-                    foundModule = true;
-                }
-            }
-            PluginType testKey = PluginInstallerGBean.toKey(test);
-            if (key.equals(testKey)) {
-                foundKey = true;
-                //if the name, category, author, description, pluginGroup, licence, url match, then add this instance to current pluginType
-                test.getPluginArtifact().add(instance);
-            }
-            if(!foundKey && foundModule) {
-                //remove the old plugin off pluginList if it exists as we 'll add a new one
-                //otherwise we'll leave plugin without plugin artifact on the plugin catalog.
-                if (test.getPluginArtifact().size() == 0) {
-                    pit.remove();
-                }              
-            }
-        }
-        if (!foundKey) {
-            //did not find a matching key
-            pluginList.getPlugin().add(plugin);
-        }
+        ((Object)null).toString();
+//         PluginType key = PluginInstallerGBean.toKey(plugin);
+//         PluginArtifactType instance = plugin.getPluginArtifact().get(0);
+//         Artifact id = PluginInstallerGBean.toArtifact(instance.getModuleId());
+//         boolean foundKey = false;
+//         boolean foundModule = false;
+//         for (Iterator<PluginType> pit = pluginList.getPlugin().iterator(); pit.hasNext();) {
+//             PluginType test = pit.next();
+//             for (Iterator<PluginArtifactType> it = test.getPluginArtifact().iterator(); it.hasNext();) {
+//                 PluginArtifactType testInstance = it.next();
+//                 Artifact testId = PluginInstallerGBean.toArtifact(testInstance.getModuleId());
+//                 if (id.equals(testId)) {
+//                     //if the module id appears anywhere, remove that instance
+//                     //however, this would cause plugin without plugin artifact
+//                     it.remove();
+//                     foundModule = true;
+//                 }
+//             }
+//             PluginType testKey = PluginInstallerGBean.toKey(test);
+//             if (key.equals(testKey)) {
+//                 foundKey = true;
+//                 //if the name, category, author, description, pluginGroup, licence, url match, then add this instance to current pluginType
+//                 test.getPluginArtifact().add(instance);
+//             }
+//             if(!foundKey && foundModule) {
+//                 //remove the old plugin off pluginList if it exists as we 'll add a new one
+//                 //otherwise we'll leave plugin without plugin artifact on the plugin catalog.
+//                 if (test.getPluginArtifact().size() == 0) {
+//                     pit.remove();
+//                 }              
+//             }
+//         }
+//         if (!foundKey) {
+//             //did not find a matching key
+//             pluginList.getPlugin().add(plugin);
+//         }
     }
 
 }

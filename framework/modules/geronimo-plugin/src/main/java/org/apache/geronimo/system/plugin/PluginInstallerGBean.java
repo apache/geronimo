@@ -65,10 +65,10 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
+// import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+// import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
@@ -125,7 +125,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     private final String installedPluginsList;
     //all plugins that have ever been installed on this server.
     private final Set<Artifact> installedArtifacts = new HashSet<Artifact>();
-    private final ConfigurationManager configManager;
+//     private final ConfigurationManager configManager;
     private final GeronimoSourceRepository localSourceRepository;
     private final WritableListableRepository writeableRepo;
     private final ConfigurationStore configStore;
@@ -156,7 +156,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws java.io.IOException from bad ServerInstance
      */
     public PluginInstallerGBean(@ParamAttribute(name = "installedPluginsList") String installedPluginsList,
-                                @ParamReference(name = "ConfigManager", namingType = "ConfigurationManager") ConfigurationManager configManager,
+//                                 @ParamReference(name = "ConfigManager", namingType = "ConfigurationManager") ConfigurationManager configManager,
                                 @ParamReference(name = "Repository", namingType = "Repository") WritableListableRepository repository,
                                 @ParamReference(name = "ConfigStore", namingType = "ConfigurationStore") ConfigurationStore configStore,
                                 @ParamReference(name = "ServerInstances", namingType = "ServerInstanceData") Collection<ServerInstanceData> serverInstanceDatas,
@@ -166,11 +166,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                                 @ParamReference(name = "PersistentConfigurationLists", namingType = "AttributeStore") Collection<PersistentConfigurationList> persistentConfigurationLists,
                                 @ParamReference(name = "PluginRepositoryList") PluginRepositoryList pluginRepositoryList,
                                 @ParamSpecial(type = SpecialAttributeType.bundleContext) final BundleContext bundleContext) throws IOException {
-        this(installedPluginsList, configManager, repository, configStore, serverInstanceDatas, serverInfo, threadPool, artifactManager, persistentConfigurationLists, pluginRepositoryList, bundleContext, true);
+        this(installedPluginsList, repository, configStore, serverInstanceDatas, serverInfo, threadPool, artifactManager, persistentConfigurationLists, pluginRepositoryList, bundleContext, true);
     }
 
     private PluginInstallerGBean(String installedPluginsList,
-                                 ConfigurationManager configManager,
+//                                  ConfigurationManager configManager,
                                  WritableListableRepository repository,
                                  ConfigurationStore configStore,
                                  Collection<? extends ServerInstanceData> serverInstanceDatas,
@@ -191,11 +191,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, live);
         this.persistentConfigurationLists = persistentConfigurationLists == null ? Collections.<PersistentConfigurationList>emptyList() : persistentConfigurationLists;
         this.bundleContext = bundleContext;
-        if (configManager == null) {
-            throw new IllegalArgumentException("No default server instance set up");
-        }
-        this.configManager = configManager;
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+//         if (configManager == null) {
+//             throw new IllegalArgumentException("No default server instance set up");
+//         }
+//         this.configManager = configManager;
+//         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+        localSourceRepository = null;
         this.pluginRepositoryList = pluginRepositoryList;
         this.installedPluginsList = installedPluginsList;
         loadHistory();
@@ -234,8 +235,9 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.persistentConfigurationLists = Collections.emptyList();
         this.bundleContext = bundleContext;
         setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, false);
-        this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, bundleContext, servers);
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+//         this.configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, bundleContext, servers);
+//         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+        localSourceRepository = null;
         this.pluginRepositoryList = pluginRepositoryList;
         this.installedPluginsList = installedPluginsList;
         loadHistory();
@@ -244,7 +246,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     public PluginInstallerGBean pluginInstallerCopy(String serverName, Kernel kernel) throws Exception {
         ServerInfo newServerInfo = new BasicServerInfo(serverInfo.getCurrentBaseDirectory(), serverName);
         final ArtifactManager artifactManager = new DefaultArtifactManager();
-        ConfigurationManager configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, bundleContext, servers);
+//         ConfigurationManager configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, bundleContext, servers);
 //        ArrayList<ServerInstanceData> serverInstanceDatasCopy = new ArrayList<ServerInstanceData>(serverInstanceDatas.size());
 //        for (ServerInstanceData serverInstance: serverInstanceDatas) {
 //            if (serverInstance instanceof ReferenceServerInstanceData) {
@@ -254,7 +256,7 @@ public class PluginInstallerGBean implements PluginInstaller {
 //        }
         return new PluginInstallerGBean(
                 installedPluginsList,
-                configManager,
+//                 configManager,
                 writeableRepo,
                 configStore,
                 serverInstanceDatas,
@@ -321,39 +323,44 @@ public class PluginInstallerGBean implements PluginInstaller {
         servers.put(instance.getServerName(), instance);
     }
 
-    private static ConfigurationManager buildConfigurationManager(ArtifactManager artifactManager,
-                                                                  WritableListableRepository targetRepo,
-                                                                  Kernel kernel,
-                                                                  ConfigurationStore targetStore,
-                                                                  BundleContext bundleContext,
-                                                                  Map<String, org.apache.geronimo.system.plugin.ServerInstance> servers) throws IOException {
-        for (ServerInstance instance : servers.values()) {
-            if ("default".equals(instance.getServerName())) {
-                KernelConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
-                        Collections.singleton(targetStore),
-                        instance.getAttributeStore(),
-                        (PersistentConfigurationList) instance.getAttributeStore(),
-                        artifactManager,
-                        instance.getArtifactResolver(),
-                        Collections.<ListableRepository>singleton(targetRepo),
-                        null,
-                        bundleContext);
-                configurationManager.setOnline(false);
-                return configurationManager;
-            }
-        }
-        throw new IllegalStateException("No default server instance found: " + servers.keySet());
-    }
+//     private static ConfigurationManager buildConfigurationManager(ArtifactManager artifactManager,
+//                                                                   WritableListableRepository targetRepo,
+//                                                                   Kernel kernel,
+//                                                                   ConfigurationStore targetStore,
+//                                                                   BundleContext bundleContext,
+//                                                                   Map<String, org.apache.geronimo.system.plugin.ServerInstance> servers) throws IOException {
+//         for (ServerInstance instance : servers.values()) {
+// //             if ("default".equals(instance.getServerName())) {
+// //                 KernelConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
+// //                         Collections.singleton(targetStore),
+// //                         instance.getAttributeStore(),
+// //                         (PersistentConfigurationList) instance.getAttributeStore(),
+// //                         artifactManager,
+// //                         instance.getArtifactResolver(),
+// //                         Collections.<ListableRepository>singleton(targetRepo),
+// //                         null,
+// //                         bundleContext);
+// //                 configurationManager.setOnline(false);
+// //                 return configurationManager;
+// //             }
+//         }
+//         throw new IllegalStateException("No default server instance found: " + servers.keySet());
+//     }
 
     /* now for tests only */
-    PluginInstallerGBean(ConfigurationManager configManager,
-                         WritableListableRepository repository,
+//     PluginInstallerGBean(ConfigurationManager configManager,
+//                          WritableListableRepository repository,
+//                          ConfigurationStore configStore,
+//                          String installedPluginsList, ServerInfo serverInfo,
+//                          ThreadPool threadPool,
+//                          Collection<ServerInstance> servers, PluginRepositoryList pluginRepositoryList) {
+    PluginInstallerGBean(WritableListableRepository repository,                         
                          ConfigurationStore configStore,
                          String installedPluginsList, ServerInfo serverInfo,
                          ThreadPool threadPool,
                          Collection<ServerInstance> servers, PluginRepositoryList pluginRepositoryList) {
-        this.configManager = configManager;
-        localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+//         this.configManager = configManager;
+//         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
@@ -379,6 +386,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
             });
         }
+        localSourceRepository = null;
         this.pluginRepositoryList = pluginRepositoryList;
         this.installedPluginsList = installedPluginsList;
         loadHistory();
@@ -756,16 +764,16 @@ public class PluginInstallerGBean implements PluginInstaller {
                 List<Artifact> obsoletes = new ArrayList<Artifact>();
                 for (ArtifactType obs : instance.getObsoletes()) {
                     Artifact obsolete = toArtifact(obs);
-                    Artifact[] list = configManager.getArtifactResolver().queryArtifacts(obsolete);
-                    for (Artifact artifact : list) {
-                        if (configManager.isLoaded(artifact)) {
-                            if (configManager.isRunning(artifact)) {
-                                configManager.stopConfiguration(artifact);
-                            }
-                            configManager.unloadConfiguration(artifact);
-                            obsoletes.add(artifact);
-                        }
-                    }
+//                     Artifact[] list = configManager.getArtifactResolver().queryArtifacts(obsolete);
+//                     for (Artifact artifact : list) {
+//                         if (configManager.isLoaded(artifact)) {
+//                             if (configManager.isRunning(artifact)) {
+//                                 configManager.stopConfiguration(artifact);
+//                             }
+//                             configManager.unloadConfiguration(artifact);
+//                             obsoletes.add(artifact);
+//                         }
+//                     }
                 }
                 // 3. Download the artifact if necessary, and its dependencies
                 Set<Artifact> working = new HashSet<Artifact>();
@@ -788,36 +796,36 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
                 // 4. Uninstall obsolete configurations
                 for (Artifact artifact : obsoletes) {
-                    configManager.uninstallConfiguration(artifact);
+//                     configManager.uninstallConfiguration(artifact);
                 }
                 // 5. Installation of this configuration finished successfully
             }
 
             // Step 3: Start anything that's marked accordingly
-            if (configManager.isOnline()) {
-                poller.setCurrentFilePercent(-1);
-                for (PersistentConfigurationList persistentConfigurationList : persistentConfigurationLists) {
-                    List<Artifact> artifacts = persistentConfigurationList.restore();
-                    for (Artifact artifact : artifacts) {
-                        if (!configManager.isRunning(artifact)) {
-                            poller.setCurrentMessage("Starting " + artifact);
-                            if (!configManager.isLoaded(artifact)) {
-                                try {
-                                    configManager.loadConfiguration(artifact);
-                                } catch (Exception e) {
-                                    log.error("Unable to load configuration. ", e);
-                                    poller.setFailure(e);
-                                    configManager.uninstallConfiguration(artifact);
-                                }
-                            }
+//             if (configManager.isOnline()) {
+//                 poller.setCurrentFilePercent(-1);
+//                 for (PersistentConfigurationList persistentConfigurationList : persistentConfigurationLists) {
+//                     List<Artifact> artifacts = persistentConfigurationList.restore();
+//                     for (Artifact artifact : artifacts) {
+//                         if (!configManager.isRunning(artifact)) {
+//                             poller.setCurrentMessage("Starting " + artifact);
+//                             if (!configManager.isLoaded(artifact)) {
+//                                 try {
+//                                     configManager.loadConfiguration(artifact);
+//                                 } catch (Exception e) {
+//                                     log.error("Unable to load configuration. ", e);
+//                                     poller.setFailure(e);
+//                                     configManager.uninstallConfiguration(artifact);
+//                                 }
+//                             }
 
-                            if (configManager.isLoaded(artifact)) {
-                                configManager.startConfiguration(artifact);
-                            }
-                        }
-                    }
-                }
-            }
+//                             if (configManager.isLoaded(artifact)) {
+//                                 configManager.startConfiguration(artifact);
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
             //ensure config.xml is saved.
             for (org.apache.geronimo.system.plugin.ServerInstance serverInstance : servers.values()) {
                 serverInstance.getAttributeStore().save();
@@ -828,7 +836,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             //Attempt to cleanup a failed plugin installation
             for (Artifact artifact : downloadedArtifacts) {
                 try {
-                    configManager.uninstallConfiguration(artifact);
+//                     configManager.uninstallConfiguration(artifact);
                 } catch (Exception e2) {
                     log.warn(e2.toString(), e2);
                 }
@@ -1050,20 +1058,20 @@ public class PluginInstallerGBean implements PluginInstaller {
                     return false;
                 }
             } else {
-                if (configManager.isInstalled(artifact)) {
-                    boolean upgrade = false;
-                    for (ArtifactType obsolete : metadata.getObsoletes()) {
-                        Artifact test = toArtifact(obsolete);
-                        if (test.matches(artifact)) {
-                            upgrade = true;
-                            break;
-                        }
-                    }
-                    if (!upgrade && installedArtifacts.contains(artifact)) {
-                        log.debug("Configuration {} is already installed", artifact);
-                        return false;
-                    }
-                }
+//                 if (configManager.isInstalled(artifact)) {
+//                     boolean upgrade = false;
+//                     for (ArtifactType obsolete : metadata.getObsoletes()) {
+//                         Artifact test = toArtifact(obsolete);
+//                         if (test.matches(artifact)) {
+//                             upgrade = true;
+//                             break;
+//                         }
+//                     }
+//                     if (!upgrade && installedArtifacts.contains(artifact)) {
+//                         log.debug("Configuration {} is already installed", artifact);
+//                         return false;
+//                     }
+//                 }
             }
         }
 
@@ -1179,7 +1187,8 @@ public class PluginInstallerGBean implements PluginInstaller {
             soFar.add(configID);
         }
         // Download and install the main artifact
-        Artifact[] matches = configManager.getArtifactResolver().queryArtifacts(configID);
+//         Artifact[] matches = configManager.getArtifactResolver().queryArtifacts(configID);
+        Artifact[] matches = null;
         PluginArtifactType instance = null;
         if (matches.length == 0) {
             // not present, needs to be downloaded
@@ -1196,14 +1205,14 @@ public class PluginInstallerGBean implements PluginInstaller {
                 throw new IllegalArgumentException("Could not find " + configID + " in any repo: " + repos);
             }
             // Check if the result is already in server's repository (maybe the actual configId is not what was expected?)
-            if (configManager.getArtifactResolver().queryArtifacts(result.getArtifact()).length > 0) {
-                String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getArtifact()
-                        + " which is already available in server's repository.";
-                monitor.getResults().setCurrentMessage(msg);
-                log.info(msg);
-                result.close();
-                return;
-            }
+//             if (configManager.getArtifactResolver().queryArtifacts(result.getArtifact()).length > 0) {
+//                 String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getArtifact()
+//                         + " which is already available in server's repository.";
+//                 monitor.getResults().setCurrentMessage(msg);
+//                 log.info(msg);
+//                 result.close();
+//                 return;
+//             }
             try {
                 File tempFile = result.getFile();
                 if (tempFile == null) {
@@ -1268,21 +1277,21 @@ public class PluginInstallerGBean implements PluginInstaller {
                 // See if something's running
                 for (int i = matches.length - 1; i >= 0; i--) {
                     Artifact match = matches[i];
-                    if (configStore.containsConfiguration(match) && configManager.isRunning(match)) {
-                        log.debug("Found required configuration={} and it is running", match);
-                        return; // its dependencies must be OK
-                    } else {
-                        log.debug("Either required configuration={} is not installed or it is not running", match);
-                    }
+//                     if (configStore.containsConfiguration(match) && configManager.isRunning(match)) {
+//                         log.debug("Found required configuration={} and it is running", match);
+//                         return; // its dependencies must be OK
+//                     } else {
+//                         log.debug("Either required configuration={} is not installed or it is not running", match);
+//                     }
                 }
                 // Go with something that's installed
                 configID = matches[matches.length - 1];
             }
             ConfigurationData data = null;
             if (configStore.containsConfiguration(configID)) {
-                if (configManager.isRunning(configID)) {
-                    return; // its dependencies must be OK
-                }
+//                 if (configManager.isRunning(configID)) {
+//                     return; // its dependencies must be OK
+//                 }
                 log.debug("Loading configuration={}", configID);
                 data = configStore.loadConfiguration(configID);
             }
@@ -1538,15 +1547,15 @@ public class PluginInstallerGBean implements PluginInstaller {
      * in the server.
      */
     private PluginType createDefaultMetadata(Artifact moduleId) throws InvalidConfigException, IOException, NoSuchConfigException {
-        if (configManager != null) {
-            if (!configManager.isConfiguration(moduleId)) {
-                return null;
-            }
-        } else {
+//         if (configManager != null) {
+//             if (!configManager.isConfiguration(moduleId)) {
+//                 return null;
+//             }
+//         } else {
             if (!configStore.containsConfiguration(moduleId)) {
                 return null;
             }
-        }
+//         }
         ConfigurationData data = configStore.loadConfiguration(moduleId);
 
         PluginType meta = new PluginType();
@@ -1777,7 +1786,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @throws NoServerInstanceException if the plugin expects a server metadata that is not present
      */
     private void installConfigXMLData(Artifact configID, PluginArtifactType pluginData, Map<String, ServerInstance> servers, boolean loadOverride) throws InvalidGBeanException, IOException, NoServerInstanceException {
-        if (configManager.isConfiguration(configID)) {
+//         if (configManager.isConfiguration(configID)) {
             if (pluginData != null && !pluginData.getConfigXmlContent().isEmpty()) {
                 for (ConfigXmlContentType configXmlContent : pluginData.getConfigXmlContent()) {
                     String serverName = configXmlContent.getServer();
@@ -1788,7 +1797,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 ServerInstance serverInstance = getServerInstance("default", servers);
                 serverInstance.getAttributeStore().setModuleGBeans(configID, null, loadOverride, null);
             }
-        }
+//         }
         if (pluginData == null) {
             return;
         }

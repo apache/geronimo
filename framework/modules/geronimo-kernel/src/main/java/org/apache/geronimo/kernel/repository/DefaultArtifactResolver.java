@@ -28,7 +28,6 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 
 /**
  * @version $Rev$ $Date$
@@ -39,25 +38,21 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     private final ArtifactManager artifactManager;
     private final Collection<ListableRepository> repositories;
     private final Map<Artifact, Artifact> explicitResolution = new ConcurrentHashMap<Artifact, Artifact>();
-    private final Collection<ConfigurationManager> configurationManagers;
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
         this.artifactManager = artifactManager;
         this.repositories = Collections.singleton(repository);
-        configurationManagers = Collections.emptyList();
     }
 
     public DefaultArtifactResolver(
             @ParamReference(name="ArtifactManager", namingType = "ArtifactManager")ArtifactManager artifactManager,
             @ParamReference(name="Repositories", namingType = "Repository")Collection<ListableRepository> repositories,
-            @ParamAttribute(name="explicitResolution")Map<Artifact, Artifact> explicitResolution,
-            @ParamReference(name="ConfigurationManagers", namingType = "ConfigurationManager")Collection<ConfigurationManager> configurationManagers) {
+            @ParamAttribute(name="explicitResolution")Map<Artifact, Artifact> explicitResolution) {
         this.artifactManager = artifactManager;
         this.repositories = repositories;
         if (explicitResolution != null) {
             this.explicitResolution.putAll(explicitResolution);
         }
-        this.configurationManagers = configurationManagers;
     }
 
     protected Map<Artifact, Artifact> getExplicitResolution() {
@@ -242,12 +237,12 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return null;
     }
 
-    private Configuration getConfiguration(Artifact parentId) {
-        if (configurationManagers.size() != 1) {
-            throw new IllegalStateException("no configuration manager");
-        }
-        return configurationManagers.iterator().next().getConfiguration(parentId);
-    }
+//     private Configuration getConfiguration(Artifact parentId) {
+//         if (configurationManagers.size() != 1) {
+//             throw new IllegalStateException("no configuration manager");
+//         }
+//         return configurationManagers.iterator().next().getConfiguration(parentId);
+//     }
 
     private Artifact getArtifactVersion(Collection<Artifact> artifacts, Artifact query) {
         for (Artifact artifact : artifacts) {
