@@ -35,10 +35,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
@@ -51,11 +52,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Maven2Repository;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -326,16 +322,6 @@ public final class ConfigurationUtil {
 
 
     /**
-     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
-     *
-     * @return The ConfigurationManager
-     * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
-     */
-//     public static ConfigurationManager getConfigurationManager(Kernel kernel) throws GBeanNotFoundException {
-//         return kernel.getGBean(ConfigurationManager.class);
-//     }
-
-    /**
      * Gets a reference or proxy to an EditableConfigurationManager running in the specified kernel, if there is one.
      *
      * @return The EdtiableConfigurationManager, or none if there is not one available.
@@ -364,7 +350,7 @@ public final class ConfigurationUtil {
 //    }
 
 //     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
-//        kernel.getProxyManager().destroyProxy(configurationManager);
+//        kernel.getProxyManager().destroyProxy(configurationManager//     }
 //     }
 
     static void preprocessGBeanData(Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
@@ -429,7 +415,7 @@ public final class ConfigurationUtil {
 //        gbeanData.addDependency(configuration.getAbstractName());
     }
 
-    public static void loadConfigurationGBeans(Configuration configuration, Kernel kernel) throws InvalidConfigException {
+    public static void loadConfigurationGBeans(Configuration configuration, Kernel kernel, Map<String, Bundle> bundleMap) throws InvalidConfigException {
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
@@ -444,9 +430,16 @@ public final class ConfigurationUtil {
 
                 // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
                 preprocessGBeanData(configuration, gbeanData);
+                GBeanInfo info = gbeanData.getGBeanInfo();
+                String bundleSymbolicName = info.getBundleSymbolicName();
+                Bundle bundle = bundleMap.get(bundleSymbolicName);
+                if (bundle == null) {
+                    log.warn("No bundle with symbolic name " + bundleSymbolicName + " found for gbean " + gbeanData.getAbstractName());
+                    throw new InvalidConfigException("No bundle with symbolic name " + bundleSymbolicName + " found for gbean " + gbeanData.getAbstractName());
+                }
 
                 try {
-                    kernel.loadGBean(gbeanData, configuration.getBundle());
+                    kernel.loadGBean(gbeanData, bundle);
                     loaded.add(gbeanData.getAbstractName());
                 } catch (GBeanAlreadyExistsException e) {
                     throw new InvalidConfigException(e);
@@ -458,7 +451,7 @@ public final class ConfigurationUtil {
 
 
             for (Configuration childConfiguration : configuration.getChildren()) {
-                ConfigurationUtil.loadConfigurationGBeans(childConfiguration, kernel);
+                ConfigurationUtil.loadConfigurationGBeans(childConfiguration, kernel, bundleMap);
             }
         } catch (Throwable e) {
             for (AbstractName gbeanName : loaded) {

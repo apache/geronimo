@@ -51,6 +51,7 @@ public class ConfigurationExtender {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationExtender.class);
 
     private final Map<Long, GetConfiguration> configurationMap = new ConcurrentHashMap<Long, GetConfiguration>();
+    private final Map<String, Bundle> bundleMap = new ConcurrentHashMap<String, Bundle>();
 
     private final Executor executor = Executors.newCachedThreadPool();
 
@@ -104,12 +105,13 @@ public class ConfigurationExtender {
                     return null;
                 }
             }
+            bundleMap.put(bundle.getSymbolicName(), bundle);
             if (bundle.getState() == Bundle.RESOLVED) {
                 return loadConfiguration(bundle);
             } else if (bundle.getState() == Bundle.ACTIVE) {
                 return startConfiguration(bundle);
             }
-            return null;
+            return bundle;
         }
 
         @Override
@@ -118,11 +120,14 @@ public class ConfigurationExtender {
 
         @Override
         public void removedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
-            if (bundleEvent.getType() == BundleEvent.STOPPED) {
-                stopConfiguration(bundle, (GetConfiguration)o);
-            } else if (bundleEvent.getType() == BundleEvent.UNRESOLVED) {
-                unloadConfiguration(bundle, (GetConfiguration)o);
+            if (o instanceof GetConfiguration) {
+                if (bundleEvent.getType() == BundleEvent.STOPPED) {
+                    stopConfiguration(bundle, (GetConfiguration)o);
+                } else if (bundleEvent.getType() == BundleEvent.UNRESOLVED) {
+                    unloadConfiguration(bundle, (GetConfiguration)o);
+                }
             }
+            bundleMap.remove(bundle.getSymbolicName());
         }
     }
 
@@ -196,7 +201,7 @@ public class ConfigurationExtender {
                 ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
                 data.setBundle(bundle);
                 Configuration configuration = new Configuration(data, manageableAttributeStore);
-                ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+                ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, bundleMap);
                 this.configuration = configuration;
             } catch (IOException e) {
                 logger.error("Could not read the config.ser file from bundle " + bundle.getLocation(), e);

@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.kernel;
 
+import java.util.Collections;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -27,9 +29,8 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -47,7 +48,7 @@ public class ConfigTest extends TestCase {
 
         // load -- config should be running and gbean registered but not started
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
 //        assertNull(configuration);
 
         // start -- gbeans should now be started
@@ -104,7 +105,7 @@ public class ConfigTest extends TestCase {
 
         // load -- config should be running and gbean registered but not started
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
 //        assertNull(configuration);
 
 
@@ -137,7 +138,7 @@ public class ConfigTest extends TestCase {
         assertTrue(kernel.isLoaded(gbeanName1));
         assertTrue(kernel.isLoaded(gbeanName2));
         assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-//         assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
 
 
         // restart -- gbeans should now be started

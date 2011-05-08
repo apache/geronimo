@@ -300,7 +300,7 @@ public final class GBeanInstance implements StateManageable {
 
         // rebuild the gbean info based on the current attributes, operations, and references because
         // the above code add new attributes and operations
-        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor(), gbeanInfo.getJ2eeType(), gbeanInfo.getPriority(), gbeanInfo.isOsgiService(), gbeanInfo.getServiceInterfaces());
+        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor(), gbeanInfo.getJ2eeType(), gbeanInfo.getPriority(), gbeanInfo.getBundleSymbolicName(), gbeanInfo.isOsgiService(), gbeanInfo.getServiceInterfaces());
 
         objectRecipe = newObjectRecipe(gbeanData);
 
@@ -1258,6 +1258,7 @@ public final class GBeanInstance implements StateManageable {
     private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor,
                                        String j2eeType,
                                        int priority,
+                                       String bundleSymbolicName,
                                        boolean osgiService,
                                        String[] serviceInterfaces) {
         Set<GAttributeInfo> attributeInfos = new HashSet<GAttributeInfo>();
@@ -1290,6 +1291,7 @@ public final class GBeanInstance implements StateManageable {
                 referenceInfos,
                 interfaceInfos,
                 priority,
+                bundleSymbolicName,
                 osgiService,
                 serviceInterfaces);
     }

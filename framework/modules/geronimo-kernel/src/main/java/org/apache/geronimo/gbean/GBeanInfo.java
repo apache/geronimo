@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.gbean;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,39 +76,40 @@ public final class GBeanInfo implements Serializable {
     private final Map<String, GReferenceInfo> referencesByName;
     private final Set<String> interfaces;
     private final int priority;
+    private final String bundleSymbolicName;
     private final boolean osgiService;
     private final String[] serviceInterfaces;
 
-    /**
-     * @deprecated use GBeanInfoBuilder
-     */
-    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, false, null);
-    }
+//    /**
+//     * @deprecated use GBeanInfoBuilder
+//     */
+//    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+//        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, null, false, null);
+//    }
+//
+//    /**
+//     * @deprecated use GBeanInfoBuilder
+//     */
+//    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+//        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, null, false, null);
+//    }
+//
+//    /**
+//     * @deprecated use GBeanInfoBuilder
+//     */
+//    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+//        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, null, false, null);
+//    }
+//
+//    /**
+//     * @deprecated use GBeanInfoBuilder
+//     */
+//    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+//        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, null, false, null);
+//    }
 
-    /**
-     * @deprecated use GBeanInfoBuilder
-     */
-    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, false, null);
-    }
-
-    /**
-     * @deprecated use GBeanInfoBuilder
-     */
-    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, false, null);
-    }
-
-    /**
-     * @deprecated use GBeanInfoBuilder
-     */
-    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, false, null);
-    }
-
-    public GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, int priority, boolean osgiService, String[] serviceInterfaces) {
-        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, priority, osgiService, serviceInterfaces);
+    public GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, int priority, String bundleSymbolicName, boolean osgiService, String[] serviceInterfaces) {
+        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, priority, bundleSymbolicName, osgiService, serviceInterfaces);
     }
 
     GBeanInfo(String sourceClass,
@@ -124,6 +123,7 @@ public final class GBeanInfo implements Serializable {
               Set<String> interfaces,
               Set<String> notifications,
               int priority,
+              String bundleSymbolicName,
               boolean osgiService,
               String[] serviceInterfaces) {
         this.sourceClass = sourceClass;
@@ -175,6 +175,7 @@ public final class GBeanInfo implements Serializable {
             this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
         }
         this.priority = priority;
+        this.bundleSymbolicName = bundleSymbolicName;
         this.osgiService = osgiService;
         this.serviceInterfaces = serviceInterfaces == null? new String[0]: serviceInterfaces;
     }
@@ -271,6 +272,10 @@ public final class GBeanInfo implements Serializable {
 
     public int getPriority() {
         return priority;
+    }
+
+    public String getBundleSymbolicName() {
+        return bundleSymbolicName;
     }
 
     public boolean isOsgiService() {

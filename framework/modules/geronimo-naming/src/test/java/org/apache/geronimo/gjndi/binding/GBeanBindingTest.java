@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -29,15 +28,13 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gjndi.AbstractContextTest;
 import org.apache.geronimo.gjndi.GlobalContextGBean;
 import org.apache.geronimo.gjndi.WritableContextGBean;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -148,7 +145,7 @@ public class GBeanBindingTest extends AbstractContextTest {
                 DataSource.class.getName()));
 
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
         ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
 
         DataSource ds1 = (DataSource) kernel.getGBean(ds1Name);

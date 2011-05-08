@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean;
 import java.beans.Introspector;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,11 +32,13 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.Kernel;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleReference;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanInfoBuilder {
+
     public static GBeanInfoBuilder createStatic(Class gbeanType) {
         if (gbeanType == null) throw new NullPointerException("gbeanType is null");
         return createStatic(gbeanType, gbeanType.getName(), gbeanType, null, null);
@@ -135,6 +136,8 @@ public class GBeanInfoBuilder {
 
     private int priority = GBeanInfo.PRIORITY_NORMAL;
 
+    private String bundleSymbolicName;
+
     private boolean osgiService;
 
     private Set<String> serviceInterfaces = new HashSet<String>();
@@ -177,6 +180,11 @@ public class GBeanInfoBuilder {
         this.name = name;
         this.gbeanType = gbeanType;
         this.sourceClass = sourceClass;
+        ClassLoader cl = gbeanType.getClassLoader();
+        if (cl instanceof BundleReference) {
+            Bundle bundle = ((BundleReference)cl).getBundle();
+            this.bundleSymbolicName = bundle.getSymbolicName();
+        }
 
         if (source != null) {
             for (Iterator i = source.getAttributes().iterator(); i.hasNext();) {
@@ -523,7 +531,7 @@ public class GBeanInfoBuilder {
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
         }
 
-        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces, priority, osgiService, serviceInterfaces.toArray(new String[serviceInterfaces.size()]));
+        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces, priority, bundleSymbolicName, osgiService, serviceInterfaces.toArray(new String[serviceInterfaces.size()]));
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel;
 
+import java.util.Collections;
+
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -27,7 +29,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import junit.framework.TestCase;
-import org.osgi.framework.BundleEvent;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -57,7 +59,7 @@ public class SimpleGBeanTest extends TestCase {
         mockBean1.setAttribute("value", "1234");
         Configuration configuration = new Configuration(configurationData, null);
         // load and start the configuration
-        ConfigurationUtil.loadConfigurationGBeans(configuration,  kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration,  kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
         ConfigurationUtil.startConfigurationGBeans(configuration,  kernel);
 //        bundleContext.bundleEvent(BundleEvent.RESOLVED, bundleContext.getBundle());
 //        bundleContext.bundleEvent(BundleEvent.STARTED, bundleContext.getBundle());

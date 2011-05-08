@@ -552,9 +552,11 @@ public class DeploymentContext {
 //                environment.addDynamicImportPackage("*");
 //            }
 //        }// else {
-            LinkedHashSet<String> imports = getImports(gbeans);
-            environment.addImportPackages(imports);
-            environment.addDynamicImportPackage("*");
+//        if (addGBeanImports()) {
+//            LinkedHashSet<String> imports = getImports(gbeans);
+//            environment.addImportPackages(imports);
+//        }
+//            environment.addDynamicImportPackage("*");
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
 //        }
 

@@ -23,13 +23,11 @@ import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.sql.DataSource;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
 import org.apache.geronimo.gjndi.binding.ResourceBinding;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
@@ -38,10 +36,9 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.xbean.naming.context.ImmutableContext;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -79,7 +76,7 @@ public class KernelContextGBeanTest extends AbstractContextTest {
         test.setAttribute("bindings", testBindings);
 
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
         ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
 
         InitialContext ctx = new InitialContext();
@@ -118,7 +115,7 @@ public class KernelContextGBeanTest extends AbstractContextTest {
     public void testGBeanFormatBinding() throws Exception {
         setUpJcaContext();
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
         ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
 
         InitialContext ctx = new InitialContext();

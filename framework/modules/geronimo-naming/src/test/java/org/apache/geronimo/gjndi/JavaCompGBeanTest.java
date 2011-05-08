@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.gjndi;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,19 +24,16 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.NotContextException;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ImmutableContext;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -109,7 +107,7 @@ public class JavaCompGBeanTest extends AbstractContextTest {
         configurationData.addGBean("JavaComp", JavaCompContextGBean.class);
 
         Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel, Collections.<String, Bundle>singletonMap(null, bundleContext.getBundle()));
         ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
 
     }
