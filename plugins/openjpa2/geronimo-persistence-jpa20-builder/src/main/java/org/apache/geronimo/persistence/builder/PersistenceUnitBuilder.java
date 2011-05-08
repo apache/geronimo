@@ -151,7 +151,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
                 @Override
                 public boolean directoryDiscoveryRequired(String s) {
-                    return manifestcp.contains(s);
+                    
+                    boolean found = false;
+                    if (manifestcp.contains(s)){
+                        found=true;
+                    } else if(s.endsWith("/") && manifestcp.contains(s.substring(0,s.length()-1))){
+                        found=true;
+                    }
+                    
+                    return found;
                 }
             });
             final Map<URL, String> persistenceURLs = new HashMap<URL, String>();
