@@ -78,7 +78,7 @@ public final class GBeanDependency
     public synchronized boolean start() {
         if (targetRunning && !dependencyRegistered) {
             AbstractName abstractName = gbeanInstance.getAbstractName();
-//             kernel.getDependencyManager().addDependency(abstractName, targetName);
+            kernel.getDependencyManager().addDependency(abstractName, targetName);
             dependencyRegistered = true;
         }
         return targetRunning;
@@ -88,7 +88,7 @@ public final class GBeanDependency
     public synchronized void stop() {
         if (dependencyRegistered) {
             AbstractName abstractName = gbeanInstance.getAbstractName();
-//             kernel.getDependencyManager().removeDependency(abstractName, targetName);
+            kernel.getDependencyManager().removeDependency(abstractName, targetName);
             dependencyRegistered = false;
         }
     }

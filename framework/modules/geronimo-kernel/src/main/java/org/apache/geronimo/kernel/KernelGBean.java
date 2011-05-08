@@ -48,9 +48,9 @@ public class KernelGBean implements Kernel{
         return kernel.getNaming();
     }
 
-//     public DependencyManager getDependencyManager() {
-//         return kernel.getDependencyManager();
-//     }
+    public DependencyManager getDependencyManager() {
+        return kernel.getDependencyManager();
+    }
 
     public LifecycleMonitor getLifecycleMonitor() {
         return kernel.getLifecycleMonitor();

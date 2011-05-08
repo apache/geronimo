@@ -341,7 +341,7 @@ public class GBeanAttributeTest extends TestCase {
         AbstractName name = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         gbeanInstance = new GBeanInstance(new GBeanData(name, MockGBean.getGBeanInfo()),
                 kernel,
-//                 kernel.getDependencyManager(),
+                kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
                 bundleContext.getBundle());
 

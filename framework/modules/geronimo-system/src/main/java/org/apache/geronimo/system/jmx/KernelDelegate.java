@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-// import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -864,9 +864,9 @@ public class KernelDelegate implements Kernel {
     /**
      * Throws UnsupportedOperationException.  The dependency manager is not accesable over a remote connection.
      */
-//     public DependencyManager getDependencyManager() {
-//         throw new UnsupportedOperationException("Dependency manager is not accessable by way of a remote connection");
-//     }
+     public DependencyManager getDependencyManager() {
+         throw new UnsupportedOperationException("Dependency manager is not accessable by way of a remote connection");
+     }
 
     /**
      * Throws UnsupportedOperationException.  The lifecycle monitor is not accesable over a remote connection.
