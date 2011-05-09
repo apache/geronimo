@@ -61,19 +61,13 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     protected FailOverService failoverService;
 
     /**Manages the container lifecycle*/
+    protected ContainerLifecycle lifeCycle = null;
     protected WebBeansContext webBeansContext;
+
     /**
      * Default constructor
      */
     public WebBeansConfigurationListener()
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void contextInitialized(ServletContextEvent event)
     {
         this.webBeansContext = WebBeansContext.getInstance();
         this.failoverService = webBeansContext.getService(FailOverService.class);     
@@ -83,9 +77,34 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     /**
      * {@inheritDoc}
      */
+    public void contextInitialized(ServletContextEvent event)
+    {
+        try
+        {
+            this.lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
+            if (lifeCycle instanceof org.apache.webbeans.web.lifecycle.WebContainerLifecycle) {
+            	this.lifeCycle.startApplication(event);
+            } else {
+            	this.lifeCycle = null;
+            }
+        }
+        catch (Exception e)
+        {
+             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+             WebBeansUtil.throwRuntimeExceptions(e);
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void contextDestroyed(ServletContextEvent event)
     {
-        this.webBeansContext.getService(ContainerLifecycle.class).stopApplication(event);
+        if (this.lifeCycle != null) {
+            this.lifeCycle.stopApplication(event);
+            this.lifeCycle = null;
+        }
         this.webBeansContext = null;
     }
 
@@ -100,7 +119,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
         }
 
         if (failoverService != null &&
-                failoverService.isSupportFailOver())
+            failoverService.isSupportFailOver())
         {
             Object request = event.getServletRequest();
             if(request instanceof HttpServletRequest)
@@ -121,7 +140,9 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
             elStore.destroyELContextStore();
         }
 
-        this.webBeansContext.getContextsService().endContext(RequestScoped.class, event);
+        if (this.lifeCycle != null) {
+        	this.lifeCycle.getContextService().endContext(RequestScoped.class, event);
+        }
 
         this.cleanupRequestThreadLocals();
     }
