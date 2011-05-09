@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
+import org.apache.geronimo.jaxws.builder.JAXWSBuilderUtils;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -63,7 +64,7 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         wsdlURI = builder.getWsdlURI();
 
         //TODO For non standalone web application, it is embbed of directory style in the EAR package
-        if (isWSDLNormalizedRequired(module, wsdlURI)) {
+        if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlURI.toString())) {
             wsdlURI = module.getTargetPathURI().resolve(wsdlURI);
         }
         serviceQName = builder.getServiceQName();
@@ -80,21 +81,6 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
 
         return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName, wsdlURI, serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
-    }
-
-    private boolean isURL(URI name) {
-        try {
-            name.toURL();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean isWSDLNormalizedRequired(Module module, URI wsdlLocation) {
-        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
-                .equals(ConfigurationModuleType.WAR)))
-                && !isURL(wsdlLocation);
     }
 
     public static final GBeanInfo GBEAN_INFO;

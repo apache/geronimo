@@ -43,6 +43,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.JAXWSBuilderUtils;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
@@ -217,14 +218,14 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                 log.debug("Service " + serviceName + " has WSDL. " + portInfo.getWsdlFile());
             }
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (isWSDLNormalizedRequired(module, wsdlFile)) {
+            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
                 portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             return;
         } else if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
             wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (isWSDLNormalizedRequired(module, wsdlFile)) {
+            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
                 portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             if(log.isDebugEnabled()) {
@@ -279,18 +280,5 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
     }
 
-    private boolean isURL(String name) {
-        try {
-            new URL(name);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean isWSDLNormalizedRequired(Module module, String wsdlLocation) {
-        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
-                .equals(ConfigurationModuleType.WAR)))
-                && !isURL(wsdlLocation);
-    }
+    
 }

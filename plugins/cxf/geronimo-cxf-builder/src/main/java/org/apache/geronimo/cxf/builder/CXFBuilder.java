@@ -48,6 +48,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.JAXWSBuilderUtils;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
@@ -199,21 +200,6 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         return in;
     }
 
-    private boolean isURL(String name) {
-        try {
-            new URL(name);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean isWSDLNormalizedRequired(Module module, String wsdlLocation) {
-        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
-                .equals(ConfigurationModuleType.WAR)))
-                && !isURL(wsdlLocation);
-    }
-
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         if (Boolean.getBoolean(USE_WSGEN_PROPERTY)) {
@@ -237,7 +223,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Service " + serviceName + " has WSDL.");
             }
-            if (isWSDLNormalizedRequired(module, wsdlFile)) {
+            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
                 portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             return;
