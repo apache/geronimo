@@ -71,6 +71,8 @@ import org.apache.openejb.jee.Tag;
 import org.apache.openejb.jee.Taglib;
 import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.LoginConfig;
+import org.apache.openejb.jee.SessionConfig;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -194,6 +196,20 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     WebAppInfoBuilder.normalizeUrlPatterns(propertyGroup.getUrlPattern(), jspMappings);
                 }
             }
+
+            
+            //login-config element
+            List<LoginConfig> loginConfigs = webApp.getLoginConfig();
+            if (loginConfigs.size() > 1) {
+                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigs.size() + " login-config elements.");
+            }
+            
+           //session-config element
+            List<SessionConfig> sessionConfigs = webApp.getSessionConfig();
+            if (sessionConfigs.size() > 1) {
+                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one sesion-config element.  Currently has " + sessionConfigs.size() + " session-config elements.");
+            }            
+            
             jspServlet.servletMappings.addAll(jspMappings);
             for (ServletInfo servletInfo: webAppInfo.servlets) {
                 servletInfo.servletMappings.removeAll(jspMappings);
