@@ -706,6 +706,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         // (or not)
                         appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
                     }
+                    
+                    if (appClient.getMainClass() == null) {
+                        //LifecycleMethodBuilder.buildNaming() need the main class info in appClient specDD.
+                        appClient.setMainClass(appClientModule.getMainClassName());
+                    }
+                    
                     appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
