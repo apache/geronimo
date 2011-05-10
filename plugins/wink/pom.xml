@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <winkVersion>1.1.3</winkVersion>
+        <winkVersion>1.1.3-incubating</winkVersion>
     </properties>
     
     <modules>
