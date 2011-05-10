@@ -66,6 +66,7 @@ import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
+import org.apache.axis2.transport.TransportUtils;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
@@ -334,24 +335,25 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
 
-        // Finalize response
-        OperationContext operationContext = msgContext.getOperationContext();
-        Object contextWritten = null;
-        Object isTwoChannel = null;
-        if (operationContext != null) {
-            contextWritten = operationContext.getProperty(Constants.RESPONSE_WRITTEN);
-            isTwoChannel = operationContext.getProperty(Constants.DIFFERENT_EPR);
-        }
-
-        if ((contextWritten != null) && Constants.VALUE_TRUE.equals(contextWritten)) {
+        // Finalize response        
+        if (TransportUtils.isResponseWritten(msgContext)) {
+            OperationContext operationContext = msgContext.getOperationContext();
+            Object isTwoChannel = null;
+            if (operationContext != null) {
+                isTwoChannel = operationContext.getProperty(Constants.DIFFERENT_EPR);
+            }
             if ((isTwoChannel != null) && Constants.VALUE_TRUE.equals(isTwoChannel)) {
                 response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
                 return;
             }
-            response.setStatusCode(HttpURLConnection.HTTP_OK);
         } else {
-            response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
+            RequestResponseTransport requestResponseTransport = (RequestResponseTransport) msgContext.getProperty(RequestResponseTransport.TRANSPORT_CONTROL);
+            if (requestResponseTransport != null && requestResponseTransport.getStatus() != RequestResponseTransport.RequestResponseTransportStatus.SIGNALLED) {
+                response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
+                return;
+            }
         }
+        response.setStatusCode(HttpURLConnection.HTTP_OK);
     }
 
     public void destroy() {
