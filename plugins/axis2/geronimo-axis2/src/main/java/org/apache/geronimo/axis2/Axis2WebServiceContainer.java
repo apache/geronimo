@@ -98,7 +98,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";    
     
-    private static final Boolean SOAP_1_1_FAULT_DETAIL_COMPATIBLE_WHEN_ADDRESSING_FAULTS = Boolean.getBoolean("org.apache.geronimo.axis2.soap_1_1FaultDetailCompatibleWhenAddressingFaults");
+    private static final boolean SOAP_1_1_FAULT_DETAIL_COMPATIBLE_WHEN_ADDRESSING_FAULTS = Boolean.getBoolean("org.apache.geronimo.axis2.soap_1_1FaultDetailCompatibleWhenAddressingFaults");
     
     private transient final Bundle bundle;
 
