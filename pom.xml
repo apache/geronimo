@@ -1389,6 +1389,12 @@
                 <artifactId>yoko-rmi-spec</artifactId>
                 <version>${yokoVersion}</version>
             </dependency>
+            
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-rmi-impl</artifactId>
+                <version>${yokoVersion}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>

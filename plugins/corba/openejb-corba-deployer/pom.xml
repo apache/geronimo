@@ -65,6 +65,30 @@
             <artifactId>geronimo-corba-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- We need this dependency to pass the car-maven-plugin build after adding dependency in geronimo-corba module -->
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi-impl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-spec-corba</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-rmi-spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-osgi</artifactId>
+                </exclusion>
+                <!--<exclusion>
+                    <groupId>org.apache.servicemix.bundles</groupId>
+                    <artifactId>org.apache.servicemix.bundles.bcel</artifactId>
+                </exclusion>-->                    
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>

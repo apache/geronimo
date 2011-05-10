@@ -65,6 +65,30 @@
             <artifactId>yoko-spec-corba</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi-impl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-spec-corba</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-rmi-spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-osgi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.servicemix.bundles</groupId>
+                    <artifactId>org.apache.servicemix.bundles.bcel</artifactId>
+                </exclusion>                    
+            </exclusions>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
