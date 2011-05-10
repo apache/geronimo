@@ -17,13 +17,14 @@
 
 package org.apache.geronimo.jaxws.builder;
 
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 public class JAXWSBuilderUtils {    
-    public static boolean isURL(String name) {
+    private static boolean isURL(String name) {
         try {
             new URL(name);
             return true;
@@ -32,9 +33,52 @@ public class JAXWSBuilderUtils {
         }
     }
 
-    public static boolean isWSDLNormalizedRequired(Module module, String wsdlLocation) {
-        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
-                .equals(ConfigurationModuleType.WAR)))
-                && !isURL(wsdlLocation);
+    public static String normalizeWsdlPath(Module module, String wsdlLocation){
+        // is Absolute URL path
+        if (isURL(wsdlLocation)) return wsdlLocation;
+        
+        // EAR
+        //   L WAR
+        if (module.getType().equals(ConfigurationModuleType.WAR) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.EAR))
+            return module.getTargetPathURI().resolve(wsdlLocation).toString();
+        
+        // EAR 
+        //   L WAR
+        //       L EJB
+        if (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.WAR)
+                && module.getParentModule().getParentModule() != null && module.getParentModule().getParentModule().getType().equals(ConfigurationModuleType.EAR))
+            return module.getParentModule().getTargetPathURI().resolve(wsdlLocation).toString();
+        
+            
+        return wsdlLocation;
+    }
+    
+    private static boolean isURL(URI name) {
+        try {
+            name.toURL();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static URI normalizeWsdlPath(Module module, URI wsdlUri){
+        // is Absolute URL path
+        if (isURL(wsdlUri)) return wsdlUri;
+        
+        // EAR
+        //   L WAR
+        if (module.getType().equals(ConfigurationModuleType.WAR) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.EAR))
+            return module.getTargetPathURI().resolve(wsdlUri);
+        
+        // EAR 
+        //   L WAR
+        //       L EJB
+        if (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.WAR)
+                && module.getParentModule().getParentModule() != null && module.getParentModule().getParentModule().getType().equals(ConfigurationModuleType.EAR))
+            return module.getParentModule().getTargetPathURI().resolve(wsdlUri);
+        
+            
+        return wsdlUri;
     }
 }

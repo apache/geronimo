@@ -220,11 +220,11 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         String wsdlFile = portInfo.getWsdlFile();
         if (isWsdlSet(portInfo, serviceClass, bundle)) {
+
+            portInfo.setWsdlFile(JAXWSBuilderUtils.normalizeWsdlPath(module, wsdlFile));
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Service " + serviceName + " has WSDL.");
-            }
-            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
-                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             return;
         }

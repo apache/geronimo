@@ -214,20 +214,20 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         String wsdlFile = portInfo.getWsdlFile();
         if(wsdlFile != null && wsdlFile.trim().length() > 0) {
+            //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
+            portInfo.setWsdlFile(JAXWSBuilderUtils.normalizeWsdlPath(module, wsdlFile));
+            
             if (log.isDebugEnabled()) {
                 log.debug("Service " + serviceName + " has WSDL. " + portInfo.getWsdlFile());
             }
-            //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
-                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
-            }
             return;
-        } else if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
+        } 
+        
+        if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
             wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlFile)) {
-                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
-            }
+            portInfo.setWsdlFile(JAXWSBuilderUtils.normalizeWsdlPath(module, wsdlFile));
+            
             if(log.isDebugEnabled()) {
                 log.debug("Service "  + serviceName + " has WSDL configured in annotation " + wsdlFile + " and is resolved as " + portInfo.getWsdlFile());
             }

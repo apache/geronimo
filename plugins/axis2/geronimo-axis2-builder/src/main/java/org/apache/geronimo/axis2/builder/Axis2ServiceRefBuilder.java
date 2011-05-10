@@ -71,9 +71,8 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
         wsdlURI = builder.getWsdlURI();
         //TODO For non standalone web application, it is embbed of directory style in the EAR package
-        if (JAXWSBuilderUtils.isWSDLNormalizedRequired(module, wsdlURI.toString())) {
-            wsdlURI = module.getTargetPathURI().resolve(wsdlURI);
-        }
+        wsdlURI = JAXWSBuilderUtils.normalizeWsdlPath(module, wsdlURI);
+
         serviceQName = builder.getServiceQName();
         Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
 
