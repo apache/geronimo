@@ -97,8 +97,10 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.LoginConfig;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.SessionConfig;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.ClassFinder;
@@ -442,6 +444,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (hasSecurityRealmName) {
             earContext.setHasSecurity(true);
         }
+        
+      //Inform errors if login-config element contains more than one
+        List<LoginConfig> loginConfigs = webApp.getLoginConfig();
+        if (loginConfigs.size() > 1) {
+            throw new DeploymentException("Web app " + webApp.getDisplayName() + " cannot have more than one login-config element.  Currently has " + loginConfigs.size() + " login-config elements.");
+        }
+        
+       //Inform errors if session-config element contains more than one
+        List<SessionConfig> sessionConfigs = webApp.getSessionConfig();
+        if (sessionConfigs.size() > 1) {
+            throw new DeploymentException("Web app " + webApp.getDisplayName() + " cannot have more than one sesion-config element.  Currently has " + sessionConfigs.size() + " session-config elements.");
+        }
+        
         //TODO think about how to provide a default security realm name
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
