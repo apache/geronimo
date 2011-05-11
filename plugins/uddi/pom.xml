@@ -32,7 +32,7 @@
         UDDI plugin
     </description>
         <properties>    
-        <juddiv3.version>3.0.5-SNAPSHOT</juddiv3.version>
+        <juddiv3.version>3.1.0-SNAPSHOT</juddiv3.version>
     </properties>    
     <modules>
         <module>uddi-db</module>
