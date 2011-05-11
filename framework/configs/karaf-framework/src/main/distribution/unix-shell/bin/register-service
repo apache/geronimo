@@ -20,7 +20,7 @@
 # start/stop/restart/ server and check server status, also make server autostart
 # at os boot time.
 # Usage:
-#  $server_install_path/bin/gserviceReg.sh add/delete/list <service_name>
+#  $server_install_path/bin/register-service add/delete/list <service_name>
 #  [service_name] start/stop/restart/status
 #--------------------------------------------------------------------
 
@@ -311,7 +311,7 @@ else
 fi
 ;;
 *)
-echo "Usage: ./gserviceReg.sh add|delete|list <service name>"
+echo "Usage: ./register-service add|delete|list <service name>"
 exit 1
 ;;
 esac
