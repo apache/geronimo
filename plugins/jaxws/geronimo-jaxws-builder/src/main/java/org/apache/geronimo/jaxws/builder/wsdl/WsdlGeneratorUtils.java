@@ -55,8 +55,13 @@ public class WsdlGeneratorUtils {
 
     public static void getModuleClasspath(DeploymentContext deploymentContext, LinkedHashSet<URL> classpath) throws Exception {
         File configurationBaseDir = deploymentContext.getBaseDir();
-        for (String bundleClassPath : deploymentContext.getBundleClassPath()) {
-            classpath.add(new File(configurationBaseDir, bundleClassPath).toURI().toURL());
+        if (deploymentContext.getBundleClassPath() == null || deploymentContext.getBundleClassPath().isEmpty()){
+            // the default bundle class path is the root of the bundle if no bundle-classpath specified.
+            classpath.add(configurationBaseDir.toURI().toURL());
+        } else {
+            for (String bundleClassPath : deploymentContext.getBundleClassPath()) {
+                classpath.add(new File(configurationBaseDir, bundleClassPath).toURI().toURL());
+            }
         }
     }
 
