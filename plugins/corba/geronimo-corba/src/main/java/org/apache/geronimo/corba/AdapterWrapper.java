@@ -28,7 +28,7 @@ import org.apache.openejb.ContainerType;
  * @version $Revision: 477657 $ $Date: 2006-11-21 04:54:49 -0800 (Tue, 21 Nov 2006) $
  */
 public final class AdapterWrapper {
-    private final static Map adapters = new HashMap();
+    private final static Map<String,Adapter> adapters = new HashMap<String,Adapter>();
     private final TSSLink tssLink;
     private Adapter generator;
 
@@ -38,6 +38,13 @@ public final class AdapterWrapper {
     }
 
     public void start(ORB orb, POA poa, Policy securityPolicy) throws CORBAException {
+        
+        if (tssLink.getDeployment() == null || tssLink.getDeployment().getDeploymentInfo() == null) {
+            
+            throw new CORBAException("tssLink's ejb deployment info is not ready");
+
+        }
+        
         ContainerType containerType = tssLink.getDeployment().getContainer().getContainerType();
         switch (containerType) {
             case STATELESS:
@@ -57,7 +64,10 @@ public final class AdapterWrapper {
     }
 
     public void stop() throws CORBAException {
-        generator.stop();
+        
+        if (generator != null) {
+            generator.stop();
+        }
         adapters.remove(tssLink.getContainerId());
     }
 
