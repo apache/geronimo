@@ -117,8 +117,8 @@ public class WsdlGenerator {
         File baseDir;
 
         try {
-            //Create the WSDL file in the directory of the target web application, not in the root directory if it is in a EAR package
-            baseDir = WsdlGeneratorUtils.createTempDirectory(new File(moduleBaseDir.toURI().resolve(module.getTargetPathURI())));
+            
+            baseDir = WsdlGeneratorUtils.createTempDirectory(moduleBaseDir);
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
