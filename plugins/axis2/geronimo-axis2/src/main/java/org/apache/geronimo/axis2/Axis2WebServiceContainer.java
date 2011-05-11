@@ -283,12 +283,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             if (SOAP_1_1_FAULT_DETAIL_COMPATIBLE_WHEN_ADDRESSING_FAULTS && faultContext.isSOAP11()) {
                 Map faultInfo = (Map) faultContext.getLocalProperty(Constants.FAULT_INFORMATION_FOR_HEADERS);
                 if (faultInfo != null) {
-                    String faultHeaderQName = (String) faultInfo.get(Final.FAULT_HEADER_PROB_HEADER_QNAME);
-                    if (faultHeaderQName != null) {
-                        SOAPFault soapFault = faultContext.getEnvelope().getBody().getFault();
-                        if (soapFault != null && soapFault.getDetail() != null) {
-                            soapFault.getDetail().detach();
-                        }
+                    SOAPFault soapFault = faultContext.getEnvelope().getBody().getFault();
+                    if (soapFault != null && soapFault.getDetail() != null) {
+                        soapFault.getDetail().detach();
                     }
                 }
             }
