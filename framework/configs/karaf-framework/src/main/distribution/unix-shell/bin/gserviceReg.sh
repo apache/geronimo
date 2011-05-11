@@ -20,7 +20,7 @@
 # start/stop/restart/ server and check server status, also make server autostart
 # at os boot time.
 # Usage:
-#  $server_install_path/bin/gserviceReg.sh add/del/list [service_name] 
+#  $server_install_path/bin/gserviceReg.sh add/delete/list <service_name>
 #  [service_name] start/stop/restart/status
 #--------------------------------------------------------------------
 
@@ -91,13 +91,8 @@ if $os400; then
   # this will not work if the user belongs in secondary groups
   eval
 else
-  if [ ! -x "${GERONIMO_HOME}/bin/startup" ]; then
-    echo "Cannot find ${GERONIMO_HOME}/bin/startup"
-    echo "This file is needed to run this program"
-    exit 1
-  fi
-  if [ ! -x "${GERONIMO_HOME}/bin/shutdown" ]; then
-    echo "Cannot find ${GERONIMO_HOME}/bin/shutdown"
+  if [ ! -x "${GERONIMO_HOME}/bin/geronimo" ]; then
+    echo "Cannot find ${GERONIMO_HOME}/bin/geronimo"
     echo "This file is needed to run this program"
     exit 1
   fi
@@ -109,114 +104,103 @@ if [ "$#" -lt "2" ]; then
  echo "Please input service name to be added"
  exit 1
 fi
-echo '#! /bin/bash'>"$GSERVICE_NAME"
-echo '# chkconfig: 235 99 01'>>"$GSERVICE_NAME"
-echo "# description: $2 service dameon">>"$GSERVICE_NAME"
-echo "# /etc/init.d/$2">>"$GSERVICE_NAME"
-echo '### BEGIN INIT INFO'>>"$GSERVICE_NAME"
-echo "# Provides:          $2">>"$GSERVICE_NAME"
-echo '# Required-Start:    $ALL'>>"$GSERVICE_NAME"
-echo '# Required-Stop:     '>>"$GSERVICE_NAME"
-echo '# Default-Start:     2 3 5'>>"$GSERVICE_NAME"
-echo '# Default-Stop:      0 1 2 6'>>"$GSERVICE_NAME"
-echo "# Short-Description: $2 daemon">>"$GSERVICE_NAME"
-echo '### END INIT INFO'>>"$GSERVICE_NAME"
-if $osUbuntu; then
- echo ". /lib/lsb/init-functions" >>"$GSERVICE_NAME"
- echo "user=$USER" >>"$GSERVICE_NAME"
-else
- echo "user=$USER" >>"$GSERVICE_NAME"
-fi
-echo "JAVA_HOME=$JAVA_HOME">>"$GSERVICE_NAME"
-echo "export JAVA_HOME">>"$GSERVICE_NAME"
-echo "GERONIMO_HOME=$GERONIMO_HOME">>"$GSERVICE_NAME"
-echo 'Port_Off_Set=`grep "^PortOffset=" "$GERONIMO_HOME"/var/config/config-substitutions.properties |awk -F= '\'{print \$2}\'\`>>"$GSERVICE_NAME"
-echo 'RMI_PORT=`expr $Port_Off_Set \+ 1099`'>>"$GSERVICE_NAME"
-echo 'ADMIN_USER=system'>>"$GSERVICE_NAME"
-echo 'ADMIN_PASS=manager'>>"$GSERVICE_NAME"
+echo '#! /bin/bash' > "$GSERVICE_NAME"
+echo '# chkconfig: 235 99 01' >> "$GSERVICE_NAME"
+echo "# description: $2 service dameon" >> "$GSERVICE_NAME"
+echo "# /etc/init.d/$2" >> "$GSERVICE_NAME"
+echo '### BEGIN INIT INFO' >> "$GSERVICE_NAME"
+echo "# Provides:          $2" >> "$GSERVICE_NAME"
+echo '# Required-Start:    $ALL' >> "$GSERVICE_NAME"
+echo '# Required-Stop:     ' >> "$GSERVICE_NAME"
+echo '# Default-Start:     2 3 5' >> "$GSERVICE_NAME"
+echo '# Default-Stop:      0 1 2 6' >> "$GSERVICE_NAME"
+echo "# Short-Description: $2 daemon" >> "$GSERVICE_NAME"
+echo '### END INIT INFO' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
+echo "user=$USER" >> "$GSERVICE_NAME"
+echo "JAVA_HOME=$JAVA_HOME" >> "$GSERVICE_NAME"
+echo "export JAVA_HOME" >> "$GSERVICE_NAME"
+echo "GERONIMO_HOME=$GERONIMO_HOME" >> "$GSERVICE_NAME"
+echo 'Port_Off_Set=`grep "^PortOffset=" "$GERONIMO_HOME"/var/config/config-substitutions.properties |awk -F= '\'{print \$2}\'\`>> "$GSERVICE_NAME"
+echo 'RMI_PORT=`expr $Port_Off_Set \+ 1099`'>> "$GSERVICE_NAME"
+echo 'ADMIN_USER=system'>> "$GSERVICE_NAME"
+echo 'ADMIN_PASS=manager'>> "$GSERVICE_NAME"
+echo "GERONIMO_PID="$GERONIMO_HOME"/var/log/geronimo.pid" >> "$GSERVICE_NAME"
+echo "export GERONIMO_PID" >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo 'start() {'>>"$GSERVICE_NAME"
-echo 'PID_Count=`ps -ef|grep -i "$GERONIMO_HOME"|awk -FS '\'{print \$2}\'\|wc -l\`>>"$GSERVICE_NAME"
-echo 'if [ $PID_Count -eq 2 ] '>>"$GSERVICE_NAME"        
-echo 'then'>>"$GSERVICE_NAME"
-echo '{'>>"$GSERVICE_NAME"
-echo 'echo "Server is started already"'>>"$GSERVICE_NAME"
-echo '}'>>"$GSERVICE_NAME"
-echo 'else  '>>"$GSERVICE_NAME"
-echo '{'>>"$GSERVICE_NAME"
-if $osUbuntu; then 
-echo 'log_daemon_msg "Starting Server"'>>"$GSERVICE_NAME"
-#karaf shell in geronimo 3.0 make this fail so comment it
-#echo 'JAVA_HOME="$JAVA_HOME" start-stop-daemon --make-pidfile --pidfile /var/run/geronimo-server.pid --background --user $user --exec "$GERONIMO_HOME"/bin/geronimo --start -- run'>>"$GSERVICE_NAME"
-echo 'su $user -s /bin/bash -c "$GERONIMO_HOME/bin/startup"'>>"$GSERVICE_NAME"
-else
-echo 'echo "Start Server on port $RMI_PORT"'>>"$GSERVICE_NAME"
-echo 'su $user -s /bin/bash -c "$GERONIMO_HOME/bin/startup"'>>"$GSERVICE_NAME"
-fi
-echo '}'>>"$GSERVICE_NAME"
-echo 'fi'>>"$GSERVICE_NAME"
-echo '}'>>"$GSERVICE_NAME"
+echo 'isRunning() {' >> "$GSERVICE_NAME"
+echo '  if [ -r "$GERONIMO_PID" ]; then' >> "$GSERVICE_NAME"
+echo '    pid=`cat $GERONIMO_PID`' >> "$GSERVICE_NAME"
+echo '    if [ -n "${pid}" ]; then' >> "$GSERVICE_NAME"
+echo '      if kill -0 $pid > /dev/null 2>&1; then' >> "$GSERVICE_NAME"
+echo '        return 0 # running' >> "$GSERVICE_NAME"
+echo '      elif ps $pid >/dev/null 2>&1; then' >> "$GSERVICE_NAME"
+echo '        return 0 # running but not owned by this user' >> "$GSERVICE_NAME"
+echo '      fi' >> "$GSERVICE_NAME"
+echo '    fi' >> "$GSERVICE_NAME"
+echo '  fi' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
+echo '  return 4 # cannot tell if server is running' >> "$GSERVICE_NAME"
+echo '}' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo 'stop() {'>>"$GSERVICE_NAME"
-if $osUbuntu; then
- echo 'log_daemon_msg "Stopping Server"'>>"$GSERVICE_NAME"
- #karaf shell in geronimo 3.0 make this fail
- #echo 'killproc -p /var/run/geronimo-server.pid || true'>>"$GSERVICE_NAME"
- echo '"$GERONIMO_HOME"/bin/shutdown --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT"'>>"$GSERVICE_NAME"
-else
-echo 'echo "Shutting down server on port ${RMI_PORT}"'>>"$GSERVICE_NAME"
-echo '"$GERONIMO_HOME"/bin/shutdown --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT"'>>"$GSERVICE_NAME"
-fi
-echo '}'>>"$GSERVICE_NAME"
+echo 'start() {' >> "$GSERVICE_NAME"
+echo '  if isRunning; then ' >> "$GSERVICE_NAME"        
+echo '    echo "Server is already started."' >> "$GSERVICE_NAME"
+echo '  else  '>> "$GSERVICE_NAME"
+echo '    echo "Starting server on port $RMI_PORT."' >> "$GSERVICE_NAME"
+echo '    su $user -s /bin/bash -c "$GERONIMO_HOME/bin/geronimo start"' >> "$GSERVICE_NAME"
+echo '  fi' >> "$GSERVICE_NAME"
+echo '}' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo 'restart() {'>>"$GSERVICE_NAME"
-echo 'echo "Restart server on port ${RMI_PORT}"'>>"$GSERVICE_NAME"
-echo 'PID_Count=`ps -ef|grep -i "$GERONIMO_HOME"|awk -FS '\'{print \$2}\'\|wc -l\`>>"$GSERVICE_NAME"
-echo 'if [ $PID_Count -eq 2 ] '>>"$GSERVICE_NAME"        
-echo 'then'>>"$GSERVICE_NAME"
-echo '{'>>"$GSERVICE_NAME"
-echo '  echo -n -e "\nRestart server.\n"'>>"$GSERVICE_NAME"
-echo '  stop'>>"$GSERVICE_NAME"
-echo '  sleep 30'>>"$GSERVICE_NAME"
-echo '  start'>>"$GSERVICE_NAME"
-echo '}'>>"$GSERVICE_NAME"
-echo 'else  '>>"$GSERVICE_NAME"
-echo '{'>>"$GSERVICE_NAME"
-echo '  echo -n -e "\nServer is down.Can not restart.\n"'>>"$GSERVICE_NAME"
-echo '}'>>"$GSERVICE_NAME"
-echo 'fi'>>"$GSERVICE_NAME"
+echo 'stop() {' >> "$GSERVICE_NAME"
+echo '  echo "Shutting down server on port ${RMI_PORT}"' >> "$GSERVICE_NAME"
+echo '  "$GERONIMO_HOME"/bin/geronimo stop --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT"' >> "$GSERVICE_NAME"
+echo '}' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo '}'>>"$GSERVICE_NAME"
+echo 'restart() {' >> "$GSERVICE_NAME"
+echo '  if isRunning; then ' >> "$GSERVICE_NAME"        
+echo '    echo "Restarting server on port ${RMI_PORT}."' >> "$GSERVICE_NAME"
+echo '    stop' >> "$GSERVICE_NAME"
+echo '    sleep 30' >> "$GSERVICE_NAME"
+echo '    start' >> "$GSERVICE_NAME"
+echo '  else  ' >> "$GSERVICE_NAME"
+echo '    echo "Server is not running. Starting it."' >> "$GSERVICE_NAME"
+echo '    start' >> "$GSERVICE_NAME"
+echo '  fi' >> "$GSERVICE_NAME"
+echo '}' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo 'status() {'>>"$GSERVICE_NAME"
-echo 'echo -n "Check server status on port ${RMI_PORT}"'>>"$GSERVICE_NAME"
-echo 'PID_Count=`ps -ef|grep -i "$GERONIMO_HOME"|awk -FS '\'{print \$2}\'\|wc -l\`>>"$GSERVICE_NAME"
-echo 'if [ $PID_Count -eq 2 ] '>>"$GSERVICE_NAME"      
-echo 'then'>>"$GSERVICE_NAME"
-echo 'echo -n -e "\nServer is started.\n"'>>"$GSERVICE_NAME"
-echo 'else'>>"$GSERVICE_NAME"
-echo '  echo -n -e "\nServer is down.\n"'>>"$GSERVICE_NAME"
-echo 'fi'>>"$GSERVICE_NAME"
-echo '}'>>"$GSERVICE_NAME"
+echo 'status() {' >> "$GSERVICE_NAME"
+echo '  if isRunning; then ' >> "$GSERVICE_NAME"      
+echo '    echo "Server on port ${RMI_PORT} is running."' >> "$GSERVICE_NAME"
+echo '  else' >> "$GSERVICE_NAME"
+echo '    echo "Server on port ${RMI_PORT} is not running."' >> "$GSERVICE_NAME"
+echo '  fi' >> "$GSERVICE_NAME"
+echo '}' >> "$GSERVICE_NAME"
+echo "" >> "$GSERVICE_NAME"
 
-echo 'case "$1" in'>>"$GSERVICE_NAME"
-echo 'start)'>>"$GSERVICE_NAME"
-echo 'start'>>"$GSERVICE_NAME"
-echo ';;'>>"$GSERVICE_NAME"
-echo 'stop)'>>"$GSERVICE_NAME"
-echo 'stop'>>"$GSERVICE_NAME"
-echo ';;'>>"$GSERVICE_NAME"
-echo 'restart)'>>"$GSERVICE_NAME"
-echo 'restart'>>"$GSERVICE_NAME"
-echo ';;'>>"$GSERVICE_NAME"
-echo 'status)'>>"$GSERVICE_NAME"
-echo 'status'>>"$GSERVICE_NAME"
-echo ';;'>>"$GSERVICE_NAME"
-echo '*)'>>"$GSERVICE_NAME"
-echo "echo \"Usage: $2 {start|stop|restart|status}\"">>"$GSERVICE_NAME"
-echo 'exit 1'>>"$GSERVICE_NAME"
-echo 'esac'>>"$GSERVICE_NAME"
+echo 'case "$1" in' >> "$GSERVICE_NAME"
+echo '  start)' >> "$GSERVICE_NAME"
+echo '    start' >> "$GSERVICE_NAME"
+echo '    ;;' >> "$GSERVICE_NAME"
+echo '  stop)' >> "$GSERVICE_NAME"
+echo '    stop' >> "$GSERVICE_NAME"
+echo '    ;;' >> "$GSERVICE_NAME"
+echo '  restart)' >> "$GSERVICE_NAME"
+echo '    restart' >> "$GSERVICE_NAME"
+echo '    ;;' >> "$GSERVICE_NAME"
+echo '  status)' >> "$GSERVICE_NAME"
+echo '    status' >> "$GSERVICE_NAME"
+echo '    ;;' >> "$GSERVICE_NAME"
+echo '  *)' >> "$GSERVICE_NAME"
+echo "    echo \"Usage: $2 {start|stop|restart|status}\"" >> "$GSERVICE_NAME"
+echo '    exit 1' >> "$GSERVICE_NAME"
+echo 'esac' >> "$GSERVICE_NAME"
 
 chmod +x "$GSERVICE_NAME"
 if [ ! -x /usr/sbin/$2 ]; then
@@ -261,7 +245,7 @@ if [ ! -x /usr/sbin/$2 ]; then
    fi
  fi
  if $osAix; then    
-   echo "$2:2:once:/usr/sbin/$2 start">>/etc/inittab
+   echo "$2:2:once:/usr/sbin/$2 start" >>/etc/inittab
  fi 
  if $osUbuntu; then    
    sudo ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
@@ -272,7 +256,7 @@ echo "$2 already exists"
 exit 1
 fi
 ;;
-del)
+delete)
 if [ "$#" -lt "2" ]; then
  echo "Please input service name to be deleted"
  exit 1
@@ -327,7 +311,7 @@ else
 fi
 ;;
 *)
-echo "Usage: ./gserviceReg.sh add|del|list [required:service name]"
+echo "Usage: ./gserviceReg.sh add|delete|list <service name>"
 exit 1
 ;;
 esac
