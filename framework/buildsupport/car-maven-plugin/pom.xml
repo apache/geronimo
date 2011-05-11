@@ -407,6 +407,7 @@
                                   <include name="resources/etc/**"/>
                                   <exclude name="resources/etc/startup.properties"/>
                                   <exclude name="resources/etc/custom.properties"/>
+                                  <exclude name="resources/etc/org.apache.karaf.features.cfg"/>
                               </patternset>
                           </unzip>
 

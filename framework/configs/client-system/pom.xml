@@ -33,6 +33,28 @@
     <packaging>car</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -68,30 +90,30 @@
         </dependency>
 
         <!-- used by plugin installer -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaxb_2.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>woodstox</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
@@ -121,88 +143,16 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <!--<boot>true</boot>-->
-                    <!--
-                    <archive>
-                        <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
-                        </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.cli.client.ClientCLI</mainClass>
-                        </manifest>
-                    </archive>
-                    -->
-                    <!--
-                    NOTE: This list of dependencies is non-transitive.
-                    -->
-                    <!--<classpath>-->
-                        <!--<element>-->
-                            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                            <!--<artifactId>geronimo-cli</artifactId>-->
-                            <!--<version>${project.version}</version>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                            <!--<artifactId>geronimo-crypto</artifactId>-->
-                            <!--<version>${project.version}</version>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                            <!--<artifactId>geronimo-kernel</artifactId>-->
-                            <!--<version>${project.version}</version>-->
-                        <!--</element>-->
-                        <!--&lt;!&ndash;-->
-                        <!--NOTE: geronimo-transformer is on the system classpath to avoid a potential deadlock. See GERONIMO-3141.-->
-                        <!--&ndash;&gt;-->
-                        <!--&lt;!&ndash;<element>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<groupId>org.apache.geronimo.framework</groupId>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<artifactId>geronimo-transformer</artifactId>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<version>${project.version}</version>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</element>&ndash;&gt;-->
-                        <!--<element>-->
-                            <!--<groupId>asm</groupId>-->
-                            <!--<artifactId>asm-all</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>commons-cli</groupId>-->
-                            <!--<artifactId>commons-cli</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>cglib</groupId>-->
-                            <!--<artifactId>cglib-nodep</artifactId>-->
-                        <!--</element>-->
-                        <!--&lt;!&ndash;<element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<groupId>org.slf4j</groupId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<artifactId>slf4j-api</artifactId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<groupId>org.slf4j</groupId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<artifactId>slf4j-log4j12</artifactId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<groupId>org.slf4j</groupId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<artifactId>jcl-over-slf4j</artifactId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<element>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<groupId>log4j</groupId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<artifactId>log4j</artifactId>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</element>&ndash;&gt;-->
-                        <!--<element>-->
-                            <!--<groupId>xpp3</groupId>-->
-                            <!--<artifactId>xpp3_min</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>org.apache.xbean</groupId>-->
-                            <!--<artifactId>xbean-reflect</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>com.thoughtworks.xstream</groupId>-->
-                            <!--<artifactId>xstream</artifactId>-->
-                        <!--</element>-->
-                    <!--</classpath>-->
-                    <!--<classpathPrefix>../lib</classpathPrefix>-->
-
+                    <features>
+                        <feature>management</feature>
+                        <feature>standard</feature>
+                        <!--<feature>kar</feature>-->
+                        <feature>obr</feature>
+                        <feature>config</feature>
+                        <feature>jndi</feature>
+                        <feature>declarative-services</feature>
+                        <feature>core</feature>
+                    </features>
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>

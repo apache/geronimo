@@ -39,6 +39,7 @@
         <!--<module>client-system</module>-->
         <!--<module>j2ee-security</module>-->
         <module>declarative-services</module>
+        <module>core</module>
         <module>j2ee-system</module>
         <!--<module>jsr88-cli</module>-->
         <!--<module>jsr88-deploymentfactory</module>-->

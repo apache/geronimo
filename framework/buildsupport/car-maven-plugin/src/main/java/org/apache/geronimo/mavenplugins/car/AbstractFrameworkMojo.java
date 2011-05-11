@@ -30,6 +30,7 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.Deployer;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.tooling.features.DependencyHelper;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -87,9 +88,9 @@ public class AbstractFrameworkMojo extends AbstractMojo {
     /**
      * how long to wait for a service
      *
-     * @parameter default-value="120000"
+     * @parameter default-value="20000"
      */
-    private long timeout = 120000L;
+    private long timeout = 20000L;
 
     private Framework framework;
     private List<ServiceReference> services = new ArrayList<ServiceReference>();
@@ -177,7 +178,7 @@ public class AbstractFrameworkMojo extends AbstractMojo {
     }
 
     protected Map<Artifact, String> getTransitiveDependencies(MavenProject project) throws MojoExecutionException {
-        DependencyHelper dependencyHelper = new DependencyHelper(remoteRepos, remoteRepos, repoSession, repoSystem);
+        DependencyHelper dependencyHelper = new DependencyHelper(remoteRepos, remoteRepos, repoSession, repoSystem, true);
         dependencyHelper.getDependencies(project, true);
         return dependencyHelper.getLocalDependencies();
     }

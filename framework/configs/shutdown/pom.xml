@@ -33,6 +33,28 @@
     <packaging>car</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -98,40 +120,17 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
-                        </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.kernel.util.MainBootstrapper</mainClass>
-                        </manifest>
-                    </archive>
+                    <features>
+                        <feature>management</feature>
+                        <feature>standard</feature>
+                        <!--<feature>kar</feature>-->
+                        <feature>obr</feature>
+                        <feature>config</feature>
+                        <feature>jndi</feature>
+                        <feature>declarative-services</feature>
+                        <feature>core</feature>
+                    </features>
 
-                    <!--
-                    NOTE: This list of dependencies is non-transitive.
-                    -->
-                    <classpath>
-                        <element>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-crypto</artifactId>
-                            <version>${project.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-kernel</artifactId>
-                            <version>${project.version}</version>
-                        </element>
-                        <element>
-                            <groupId>cglib</groupId>
-                            <artifactId>cglib-nodep</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.apache.xbean</groupId>
-                            <artifactId>xbean-reflect</artifactId>
-                        </element>
-                    </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>

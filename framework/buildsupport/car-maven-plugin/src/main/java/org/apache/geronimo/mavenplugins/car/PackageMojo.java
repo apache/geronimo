@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.fileinstall.ArtifactInstaller;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.Deployer;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -149,7 +150,6 @@ public class PackageMojo extends AbstractFrameworkMojo {
     public void doExecute() throws MojoExecutionException {
         try {
             try {
-                super.doExecute();
                 // We need to make sure to clean up any previous work first or this operation will fail
                 FileUtils.forceDelete(targetRepository);
                 FileUtils.forceMkdir(targetRepository);
@@ -204,10 +204,24 @@ public class PackageMojo extends AbstractFrameworkMojo {
                         }
                     }
                 }
-                if (features != null) {
-                    for (String featureName: features) {
-                        featuresInstallFeatureMethod.invoke(featuresService, featureName, org.apache.karaf.features.internal.model.Feature.DEFAULT_VERSION, options);
-                    }
+                if (features == null) {
+                    features = new ArrayList<String>();
+                }
+                if (!features.contains("standard")) {
+                    features.add("standard");
+                }
+                if (!features.contains("obr")) {
+                    features.add("obr");
+                }
+                if (!features.contains("declarative-services")) {
+                    features.add("declarative-services");
+                }
+                if (!features.contains("core")) {
+                    features.add("core");
+                }
+
+                for (String featureName: features) {
+                    featuresInstallFeatureMethod.invoke(featuresService, featureName, org.apache.karaf.features.internal.model.Feature.DEFAULT_VERSION, options);
                 }
                 for (Long id : ids) {
                     try {
@@ -218,6 +232,7 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 }
                 listBundles();
                 Object deployer = getService(Deployer.class);
+                getService(ConfigurationBuilder.class);
                 invokeDeployer(deployer, null);
             } catch (Exception e) {
                 getLog().info("Exception, use console to investigate ", e);

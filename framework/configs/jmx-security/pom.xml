@@ -36,13 +36,29 @@
 
     <dependencies>
 
-        <!-- parent -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework.config</groupId>-->
-            <!--<artifactId>server-security-config</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-jmx-remoting</artifactId>
@@ -90,6 +106,16 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <features>
+                        <feature>management</feature>
+                        <feature>standard</feature>
+                        <!--<feature>kar</feature>-->
+                        <feature>obr</feature>
+                        <feature>config</feature>
+                        <feature>jndi</feature>
+                        <feature>declarative-services</feature>
+                        <feature>core</feature>
+                    </features>
                     <category>Security</category>
                     <instance>
                         <plugin-artifact>
