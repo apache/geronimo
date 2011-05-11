@@ -108,7 +108,7 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
     }
 
     protected JavabeanType getJavabeanType(Object javaBean) {
-        JavabeanType javabeanType = new ObjectFactory().createJavabeanType();
+        JavabeanType javabeanType = new JavabeanType();
 
         javabeanType.setClazz(javaBean.getClass().getName());
         
@@ -146,7 +146,7 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
         }
         
         if (isPrimitive(value)) {
-            PropertyType propertyType = new ObjectFactory().createPropertyType();
+            PropertyType propertyType = new PropertyType();
             propertyType.setName(propertyDescriptor.getName());
             
             String valueAsString = value.toString();
@@ -159,7 +159,7 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
         } else {
             JavabeanType nestedJavabeanType = getJavabeanType(value);
             
-            BeanPropertyType propertyType = new ObjectFactory().createBeanPropertyType();
+            BeanPropertyType propertyType = new BeanPropertyType();
             propertyType.setName(propertyDescriptor.getName());
             propertyType.setJavabean(nestedJavabeanType);
             javabeanType.getBeanProperty().add(propertyType);

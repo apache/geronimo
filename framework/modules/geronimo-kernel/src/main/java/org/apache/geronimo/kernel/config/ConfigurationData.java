@@ -176,7 +176,7 @@ public class ConfigurationData implements Serializable {
         return moduleType;
     }
 
-    public Manifest getManifest() throws ManifestException {
+    public java.util.jar.Manifest getManifest() throws ManifestException {
         return environment.getManifest();
     }
 

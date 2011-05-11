@@ -33,12 +33,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import aQute.lib.osgi.Analyzer;
+import aQute.lib.osgi.Jar;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.IllegalConfigurationException;
 import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
@@ -57,8 +61,8 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.Manifest;
-import org.apache.geronimo.kernel.config.ManifestException;
+//import org.apache.geronimo.kernel.config.Manifest;
+//import org.apache.geronimo.kernel.config.ManifestException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -71,6 +75,7 @@ import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,7 +187,6 @@ public class DeploymentContext {
     }
 
     private Configuration createTempConfiguration() throws DeploymentException {
-        LinkedHashSet<Artifact> resolvedParentIds = null;
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
             tempBundleFile = FileUtils.createTempFile();
@@ -201,7 +205,7 @@ public class DeploymentContext {
 //            configurationManager.startConfiguration(environment.getConfigId());
 //            return configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
-            throw new DeploymentException("Unable to create configuration for deployment: dependencies: " + resolvedParentIds, e);
+            throw new DeploymentException("Unable to create configuration for deployment: " + environment.getConfigId(), e);
         }
     }
 
@@ -239,21 +243,57 @@ public class DeploymentContext {
         } catch (IllegalConfigurationException e) {
             throw new DeploymentException(e);
         }
-        Manifest manifest;
-        try {
-            manifest = env.getManifest();
-        } catch (ManifestException e) {
-            throw new DeploymentException(e);
-        }
+        //TODO what manifest to use here??
+        Manifest manifest = calculateManifest();
+//        try {
+//            manifest = env.getManifest();
+//        } catch (ManifestException e) {
+//            throw new DeploymentException(e);
+//        }
 
+//        Artifact configId = environment.getConfigId();
+//        manifest = new Manifest();
+//        manifest.getMainAttributes().put(Constants.BUNDLE_MANIFESTVERSION, "2");
+//        manifest.getMainAttributes().put(Constants.BUNDLE_SYMBOLICNAME, configId.getGroupId() + "." + configId.getArtifactId());
+//        String versionString = "" + configId.getVersion().getMajorVersion() + "." + configId.getVersion().getMinorVersion() + "." + configId.getVersion().getIncrementalVersion();
+//        if (configId.getVersion().getQualifier() != null) {
+//            versionString += "." + configId.getVersion().getQualifier().replaceAll("[^-_\\w]{1}", "_");
+//        }
+//
+//        manifest.getMainAttributes().put(Constants.BUNDLE_VERSION, versionString);
+//
+//        if (bundleActivator != null) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_ACTIVATOR, bundleActivator));
+//        }
+//
+//        if (!imports.isEmpty()) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.IMPORT_PACKAGE, imports));
+//        }
+//
+//        if (!exports.isEmpty()) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
+//        }
+//
+//        if (!dynamicImports.isEmpty()) {
+            manifest.getMainAttributes().put(new Attributes.Name(Constants.DYNAMICIMPORT_PACKAGE), "*");
+//        }
+//
+//        if (!bundleClassPath.isEmpty()) {
+//            Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);
+//            manifest.addConfiguredAttribute(bundleClassPath);
+//        }
+//
+//        if (!requireBundles.isEmpty()) {
+//            Manifest.Attribute requireBundle = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.REQUIRE_BUNDLE, this.requireBundles);
+//            manifest.addConfiguredAttribute(requireBundle);
+//        }
+//        return manifest;
         File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();
-        FileWriter fw = new FileWriter(new File(metaInf, "MANIFEST.MF"));
-        PrintWriter pw = new PrintWriter(fw);
+        OutputStream fw = new FileOutputStream(new File(metaInf, "MANIFEST.MF"));
         try {
-            manifest.write(pw);
+            manifest.write(fw);
         } finally {
-            pw.close();
             fw.close();
         }
     }
@@ -537,13 +577,14 @@ public class DeploymentContext {
 //            throw new DeploymentException(message.toString());
 //        }
 
-        // TODO OSGI figure out exports
-        environment.addToBundleClassPath(bundleClassPath);
-
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
-        OSGiMetaDataBuilder osgiMetaDataBuilder = null;
+        // TODO OSGI figure out exports
+        environment.addToBundleClassPath(bundleClassPath);
+        environment.setManifest(calculateManifest());
+
+//        OSGiMetaDataBuilder osgiMetaDataBuilder = null;
         //TODO Import package calculation is only used for deployed applications, should be use the same way for car package later
 //        if (System.getProperty("geronimo.build.car") == null) {
 //            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
@@ -557,7 +598,7 @@ public class DeploymentContext {
 //            environment.addImportPackages(imports);
 //        }
 //            environment.addDynamicImportPackage("*");
-            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
+//            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
 //        }
 
 //        try {
@@ -588,6 +629,27 @@ public class DeploymentContext {
         }
 
         return configurationData;
+    }
+
+    private java.util.jar.Manifest calculateManifest() {
+        try {
+            Jar dot = new Jar("dot", getBaseDir());
+            Analyzer analyzer = new Analyzer();
+            analyzer.setJar(dot);
+            Properties properties = new Properties();
+            properties.put(Constants.BUNDLE_SYMBOLICNAME, environment.getConfigId().getGroupId() + "." + environment.getConfigId().getArtifactId());
+            properties.put(Constants.BUNDLE_VERSION, environment.getConfigId().getVersion());
+            properties.put(Constants.BUNDLE_NAME, environment.getConfigId().getArtifactId());
+            properties.putAll(environment.getProperties());
+            analyzer.setProperties(properties);
+            analyzer.analyze();
+            return analyzer.calcManifest();
+        } catch (IOException e) {
+
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 
     public static LinkedHashSet<String> getImports(List<GBeanData> gbeans) {

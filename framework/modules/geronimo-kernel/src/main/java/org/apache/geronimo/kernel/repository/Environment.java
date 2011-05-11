@@ -23,11 +23,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
+import java.util.jar.Manifest;
 
-import org.apache.geronimo.kernel.config.Manifest;
-import org.apache.geronimo.kernel.config.ManifestException;
-import org.osgi.framework.Constants;
-import sun.tools.tree.ThisExpression;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
@@ -39,13 +37,14 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = -7664363036619171222L;
 
     private Artifact configId;
+    private transient Manifest manifest;
     private final LinkedHashSet<String> bundleClassPath = new LinkedHashSet<String>();
     private final LinkedHashSet<String> imports = new LinkedHashSet<String>();
     private final LinkedHashSet<String> exports = new LinkedHashSet<String>();
     private final LinkedHashSet<String> requireBundles = new LinkedHashSet<String>();
     private final LinkedHashSet<String> dynamicImports = new LinkedHashSet<String>();
-    private final LinkedHashSet<String> bundleFilters = new LinkedHashSet<String>();
     private String bundleActivator;
+    private final Properties properties = new Properties();
 
     public Environment() {
     }
@@ -57,13 +56,14 @@ public class Environment implements Serializable {
 
     public Environment(Environment environment) {
         configId = environment.getConfigId();
-        bundleFilters.addAll(environment.bundleFilters);
+        manifest = environment.getManifest();
         bundleClassPath.addAll(environment.bundleClassPath);
         imports.addAll(environment.imports);
         exports.addAll(environment.exports);
         requireBundles.addAll(environment.requireBundles);
         dynamicImports.addAll(environment.dynamicImports);
         bundleActivator = environment.bundleActivator;
+        properties.putAll(environment.getProperties());
     }
 
     public Artifact getConfigId() {
@@ -72,14 +72,6 @@ public class Environment implements Serializable {
 
     public void setConfigId(Artifact configId) {
         this.configId = configId;
-    }
-
-    public List<String> getBundleFilters() {
-        return Collections.unmodifiableList(new ArrayList<String>(bundleFilters));
-    }
-
-    public void addBundleFilter(String bundleFilter){
-        this.bundleFilters.add(bundleFilter);
     }
 
     public void addToBundleClassPath(Collection<String> bundleClassPath) {
@@ -190,43 +182,52 @@ public class Environment implements Serializable {
         this.imports.removeAll(importPackages);
     }
 
-    public Manifest getManifest() throws ManifestException {
-        Manifest manifest = new Manifest();
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, configId.getGroupId() + "." + configId.getArtifactId()));
-        String versionString = "" + configId.getVersion().getMajorVersion() + "." + configId.getVersion().getMinorVersion() + "." + configId.getVersion().getIncrementalVersion();
-        if (configId.getVersion().getQualifier() != null) {
-            versionString += "." + configId.getVersion().getQualifier().replaceAll("[^-_\\w]{1}", "_");
-        }
+    public Properties getProperties() {
+        return properties;
+    }
 
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, versionString));
+    public void setManifest(Manifest manifest) {
+        this.manifest = manifest;
+    }
 
-        if (bundleActivator != null) {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_ACTIVATOR, bundleActivator));
-        }
-
-        if (!imports.isEmpty()) {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.IMPORT_PACKAGE, imports));
-        }
-
-        if (!exports.isEmpty()) {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
-        }
-
-        if (!dynamicImports.isEmpty()) {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, dynamicImports));
-        }
-
-        if (!bundleClassPath.isEmpty()) {
-            Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);
-            manifest.addConfiguredAttribute(bundleClassPath);
-        }
-
-        if (!requireBundles.isEmpty()) {
-            Manifest.Attribute requireBundle = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.REQUIRE_BUNDLE, this.requireBundles);
-            manifest.addConfiguredAttribute(requireBundle);
-        }
+    public Manifest getManifest() {
         return manifest;
+//        Manifest manifest = new Manifest();
+//        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
+//        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, configId.getGroupId() + "." + configId.getArtifactId()));
+//        String versionString = "" + configId.getVersion().getMajorVersion() + "." + configId.getVersion().getMinorVersion() + "." + configId.getVersion().getIncrementalVersion();
+//        if (configId.getVersion().getQualifier() != null) {
+//            versionString += "." + configId.getVersion().getQualifier().replaceAll("[^-_\\w]{1}", "_");
+//        }
+//
+//        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, versionString));
+//
+//        if (bundleActivator != null) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_ACTIVATOR, bundleActivator));
+//        }
+//
+//        if (!imports.isEmpty()) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.IMPORT_PACKAGE, imports));
+//        }
+//
+//        if (!exports.isEmpty()) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
+//        }
+//
+//        if (!dynamicImports.isEmpty()) {
+//            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, dynamicImports));
+//        }
+//
+//        if (!bundleClassPath.isEmpty()) {
+//            Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);
+//            manifest.addConfiguredAttribute(bundleClassPath);
+//        }
+//
+//        if (!requireBundles.isEmpty()) {
+//            Manifest.Attribute requireBundle = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.REQUIRE_BUNDLE, this.requireBundles);
+//            manifest.addConfiguredAttribute(requireBundle);
+//        }
+//        return manifest;
     }
 
 
@@ -237,4 +238,5 @@ public class Environment implements Serializable {
         buf.append("]\n");
         return buf.toString();
     }
+
 }

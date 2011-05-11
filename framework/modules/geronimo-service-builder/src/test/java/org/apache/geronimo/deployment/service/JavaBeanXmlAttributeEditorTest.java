@@ -66,7 +66,7 @@ public class JavaBeanXmlAttributeEditorTest extends RMockTestCase {
         editor.setValue(bean);
         String result = editor.getAsText();
 
-        JavabeanType javabeanType = new ObjectFactory().createJavabeanType();
+        JavabeanType javabeanType = new JavabeanType();
         assertPrimitive(javabeanType, "booleanValue", "true");
         assertPrimitive(javabeanType, "byteValue", "1");
         assertPrimitive(javabeanType, "charValue", "a");

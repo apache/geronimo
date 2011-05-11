@@ -19,33 +19,26 @@ package org.apache.geronimo.system.configuration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.FileWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManifestException;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,9 +124,7 @@ public final class ExecutableConfigurationUtil {
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
         out.putNextEntry(new ZipEntry(META_INF_MANIFEST));
         try {
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
-            configurationData.getManifest().write(writer);
-            writer.flush();
+            configurationData.getManifest().write(out);
         } catch (ManifestException e) {
             throw new IOException("Could not write manifest", e);
         } finally {
@@ -176,21 +167,19 @@ public final class ExecutableConfigurationUtil {
         File metaInf = new File(source, META_INF);
         metaInf.mkdirs();
 
-        PrintWriter writer = null;
-
-        writer = new PrintWriter(new FileWriter(new File(metaInf, MANIFEST_MF)));
+        OutputStream out = new FileOutputStream(new File(metaInf, MANIFEST_MF));
         try {
-            configurationData.getManifest().write(writer);
-            writer.flush();
+            configurationData.getManifest().write(out);
+            out.flush();
         } catch (ManifestException e) {
             throw new IOException("Could not write manifest", e);
         } finally {
-            writer.close();
+            out.close();
         }
         
         File configSer = new File(metaInf, CONFIG_SER);
 
-        OutputStream out = new FileOutputStream(configSer);
+        out = new FileOutputStream(configSer);
         try {
             ConfigurationUtil.writeConfigurationData(configurationData, out);
         } finally {
@@ -202,6 +191,7 @@ public final class ExecutableConfigurationUtil {
         ConfigurationStoreUtil.writeChecksumFor(configSer);
 
         // write the info file
+        PrintWriter writer = null;
         try {
             writer = new PrintWriter(new FileWriter(new File(metaInf, CONFIG_INFO)));
             ConfigurationUtil.writeConfigInfo(writer, configurationData);

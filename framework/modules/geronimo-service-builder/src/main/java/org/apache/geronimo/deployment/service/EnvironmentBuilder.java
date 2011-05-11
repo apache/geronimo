@@ -19,12 +19,14 @@ package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditorSupport;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import org.apache.geronimo.deployment.service.plan.ArtifactType;
 import org.apache.geronimo.deployment.service.plan.EnvironmentType;
 import org.apache.geronimo.deployment.service.plan.ObjectFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.w3c.dom.Element;
 
 /**
  * @version $Rev$ $Date$
@@ -37,21 +39,29 @@ public class EnvironmentBuilder extends PropertyEditorSupport /*implements XmlAt
         Environment environment = new Environment();
         if (environmentType != null) {
                 environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
+            if (environmentType.getInstructions() != null) {
+                for (Element any: environmentType.getInstructions().getAny()) {
+                    String name = any.getLocalName();
+                    String value = any.getTextContent();
 
-                environment.setBundleActivator(trim(environmentType.getBundleActivator()));
-            for (String importPackage: environmentType.getImportPackage()) {
-                environment.addImportPackage(trim(importPackage));
+                    //From felix MavenBundlePlugin  BundlePlugin.transformDirectives
+                    if ( name.startsWith( "_" ) )
+                    {
+                        name = "-" + name.substring( 1 );
+                    }
+
+                    if ( null == value )
+                    {
+                        value = "";
+                    }
+                    else
+                    {
+                        value = value.replaceAll( "\\p{Blank}*[\r\n]\\p{Blank}*", "" );
+                    }
+
+                    environment.getProperties().setProperty(name, value);
+                }
             }
-            for (String exportPackage: environmentType.getExportPackage()) {
-                environment.addExportPackage(trim(exportPackage));
-            }
-            for (String requireBundle : environmentType.getRequireBundle()) {
-                environment.addRequireBundle(requireBundle);
-            }
-            for (String dynamicImportPackage: environmentType.getDynamicImportPackage()) {
-                environment.addDynamicImportPackage(trim(dynamicImportPackage));
-            }
-                        
         }
 
         return environment;
@@ -80,21 +90,21 @@ public class EnvironmentBuilder extends PropertyEditorSupport /*implements XmlAt
         return environment;
     }
 
-    public static EnvironmentType buildEnvironmentType(Environment environment) {
-        EnvironmentType environmentType = new ObjectFactory().createEnvironmentType();
-        if (environment.getConfigId() != null) {
-            ArtifactType configId = toArtifactType(environment.getConfigId());
-            environmentType.setModuleId(configId);
-        }
-
-            environmentType.setBundleActivator(environment.getBundleActivator());
-            environmentType.getBundleClassPath().addAll(environment.getBundleClassPath());
-            environmentType.getImportPackage().addAll(environment.getImportPackages());
-            environmentType.getExportPackage().addAll(environment.getExportPackages());
-            environmentType.getRequireBundle().addAll(environment.getRequireBundles());
-            environmentType.getDynamicImportPackage().addAll(environment.getDynamicImportPackages());
-                return environmentType;
-    }
+//    public static EnvironmentType buildEnvironmentType(Environment environment) {
+//        EnvironmentType environmentType = new ObjectFactory().createEnvironmentType();
+//        if (environment.getConfigId() != null) {
+//            ArtifactType configId = toArtifactType(environment.getConfigId());
+//            environmentType.setModuleId(configId);
+//        }
+//
+//            environmentType.setBundleActivator(environment.getBundleActivator());
+//            environmentType.getBundleClassPath().addAll(environment.getBundleClassPath());
+//            environmentType.getImportPackage().addAll(environment.getImportPackages());
+//            environmentType.getExportPackage().addAll(environment.getExportPackages());
+//            environmentType.getRequireBundle().addAll(environment.getRequireBundles());
+//            environmentType.getDynamicImportPackage().addAll(environment.getDynamicImportPackages());
+//                return environmentType;
+//    }
 
     private static ArtifactType toArtifactType(Artifact artifact) {
         ArtifactType artifactType = new ObjectFactory().createArtifactType();

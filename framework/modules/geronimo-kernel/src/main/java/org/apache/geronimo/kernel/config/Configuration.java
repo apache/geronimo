@@ -185,14 +185,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.abstractName = getConfigurationAbstractName(configurationData.getId());
         this.bundle = configurationData.getBundle();
 
-        if (!configurationData.getEnvironment().getBundleFilters().isEmpty()) {
-            try {
-                List<Bundle> bundles = getParentBundles(configurationData);
-                this.bundle = new DelegatingBundle(bundles);
-            } catch (Exception e) {
-                log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
-            }
-        }
+//        if (!configurationData.getEnvironment().getBundleFilters().isEmpty()) {
+//            try {
+//                List<Bundle> bundles = getParentBundles(configurationData);
+//                this.bundle = new DelegatingBundle(bundles);
+//            } catch (Exception e) {
+//                log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
+//            }
+//        }
 
         try {
             // Deserialize the GBeans in the configurationData
@@ -216,20 +216,20 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private List<Bundle> getParentBundles(ConfigurationData configurationData)
-                                          throws MissingDependencyException, InvalidConfigException {
-        List<Bundle> bundles = new ArrayList<Bundle>();
-        bundles.add(configurationData.getBundle());
-        BundleContext bundleContext = configurationData.getBundle().getBundleContext();
-        List<String> bundleFilters = configurationData.getEnvironment().getBundleFilters();
-        for (String bundleFilter: bundleFilters) {
-            ServiceReference sr = bundleContext.getServiceReference(bundleFilter);
-            bundleReferences.add(sr);
-            Bundle bundle = (Bundle) bundleContext.getService(sr);
-            bundles.add(bundle);
-        }
-        return bundles;
-    }
+//    private List<Bundle> getParentBundles(ConfigurationData configurationData)
+//                                          throws MissingDependencyException, InvalidConfigException {
+//        List<Bundle> bundles = new ArrayList<Bundle>();
+//        bundles.add(configurationData.getBundle());
+//        BundleContext bundleContext = configurationData.getBundle().getBundleContext();
+//        List<String> bundleFilters = configurationData.getEnvironment().getBundleFilters();
+//        for (String bundleFilter: bundleFilters) {
+//            ServiceReference sr = bundleContext.getServiceReference(bundleFilter);
+//            bundleReferences.add(sr);
+//            Bundle bundle = (Bundle) bundleContext.getService(sr);
+//            bundles.add(bundle);
+//        }
+//        return bundles;
+//    }
 
     private static String getBundleLocation(ConfigurationResolver configurationResolver, Artifact configurationId) {
         if (System.getProperty("geronimo.build.car") == null) {
