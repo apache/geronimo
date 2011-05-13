@@ -102,6 +102,7 @@
            javax.xml.soap.SOAPFactory=org.apache.geronimo.webservices.saaj.GeronimoSOAPFactory
            javax.xml.soap.SOAPConnectionFactory=org.apache.geronimo.webservices.saaj.GeronimoSOAPConnectionFactory
            javax.xml.soap.MetaFactory=org.apache.geronimo.webservices.saaj.GeronimoMetaFactory
+           saaj.soapmessage.getsoapheader.strict=true
            java.net.preferIPv4Stack=true
          </attribute>
          <attribute name="sunSystemProperties">
