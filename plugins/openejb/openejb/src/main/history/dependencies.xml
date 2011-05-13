@@ -137,13 +137,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder</artifactId>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-spec-corba</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
+        <groupId>org.beanshell</groupId>
+        <artifactId>bsh</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

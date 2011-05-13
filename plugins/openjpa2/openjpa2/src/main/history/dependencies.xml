@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-pool</groupId>
         <artifactId>commons-pool</artifactId>
         <type>jar</type>

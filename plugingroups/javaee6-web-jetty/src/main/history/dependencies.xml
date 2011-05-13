@@ -51,4 +51,9 @@
         <artifactId>ejb</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plancreator-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>

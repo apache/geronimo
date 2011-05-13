@@ -17,6 +17,16 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-pool</groupId>
+        <artifactId>commons-pool</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -379,6 +389,11 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.beanshell</groupId>
+        <artifactId>bsh</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

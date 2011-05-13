@@ -13,6 +13,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>activemq-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>console-jetty</artifactId>
         <type>car</type>
     </dependency>

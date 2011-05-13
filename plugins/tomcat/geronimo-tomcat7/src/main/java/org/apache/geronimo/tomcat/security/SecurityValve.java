@@ -158,6 +158,7 @@ public class SecurityValve extends ValveBase implements org.apache.catalina.Auth
     @Override
     public void logout(Request request) throws ServletException {
         authenticator.logout(request);
+        request.setUserPrincipal(null);
         Session session = request.getSessionInternal(false);
         if (session != null) {
             session.removeNote(CACHED_IDENTITY_KEY);
