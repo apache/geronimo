@@ -194,7 +194,7 @@ public class AxisServiceGenerator
             dbc.setIsMTOMEnabled(portInfo.isMTOMEnabled().booleanValue());
         }
         
-        AxisService service = getService(dbcMap);       
+        AxisService service = getService(dbcMap, endpointClassName);       
         
         service.setName(serviceQName.getLocalPart());
         service.setEndpointName(portQName.getLocalPart());
@@ -264,21 +264,24 @@ public class AxisServiceGenerator
         }
     }
 
-    private AxisService getService(HashMap<String, DescriptionBuilderComposite> dbcMap) {
-        return getEndpointDescription(dbcMap).getAxisService();
+    private AxisService getService(HashMap<String, DescriptionBuilderComposite> dbcMap, String endpointClassName) {
+        return getEndpointDescription(dbcMap, endpointClassName).getAxisService();
     }
         
-    private EndpointDescription getEndpointDescription(HashMap<String, DescriptionBuilderComposite> dbcMap) {
+    private EndpointDescription getEndpointDescription(HashMap<String, DescriptionBuilderComposite> dbcMap, String endpointClassName) {
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap, this.configurationContext);
         if (serviceDescList == null || serviceDescList.isEmpty()) {
-            throw new RuntimeException("No service");
-        }
-        ServiceDescription serviceDescription = serviceDescList.get(0);
-        EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();  
-        if (edArray == null || edArray.length == 0) {
-            throw new RuntimeException("No endpoint");
-        }
-        return edArray[0];
+            throw new RuntimeException("No service found for SEI class " + endpointClassName);
+        }        
+        for(ServiceDescription serviceDescription : serviceDescList) {
+            for(EndpointDescription endpointDescription : serviceDescription.getEndpointDescriptions()) {
+                DescriptionBuilderComposite dbc = endpointDescription.getDescriptionBuilderComposite();
+                if(endpointClassName.equals(dbc.getClassName())) {
+                    return endpointDescription;
+                }
+            }
+        }  
+        throw new RuntimeException("No endpoint found for SEI class " + endpointClassName);     
     }
 
     private static class WSDLGeneratorImpl implements WsdlGenerator {
