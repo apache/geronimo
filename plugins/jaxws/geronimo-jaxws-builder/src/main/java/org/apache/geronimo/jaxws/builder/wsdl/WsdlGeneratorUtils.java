@@ -240,10 +240,10 @@ public class WsdlGeneratorUtils {
             try {
                 int errorCode = process.exitValue();
                 if (errorCode == 0) {
-                    LOG.debug("Process output: {}", outputThread.getOutput());
+                    System.err.println("Process output: {}" +outputThread.getOutput() );
                     return true;
                 } else {
-                    LOG.error("Process failed: {}", outputThread.getOutput());
+                    System.err.println("Process output: {}" +outputThread.getOutput() );
                     return false;
                 }
             } catch (IllegalThreadStateException e) {

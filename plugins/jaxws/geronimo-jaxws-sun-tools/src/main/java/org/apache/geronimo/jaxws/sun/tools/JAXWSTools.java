@@ -65,7 +65,9 @@ public class JAXWSTools {
         { "org.apache.geronimo.specs",    "geronimo-j2ee-management_1.1_spec"},
         { "org.apache.geronimo.bundles",        "woodstox" },
         { "org.apache.geronimo.modules",  "geronimo-webservices" },
-        { "org.ops4j.pax.logging", "pax-logging-api" }
+        { "org.ops4j.pax.logging", "pax-logging-api" },
+        { "commons-lang", "commons-lang" },
+        { "org.apache.openjpa", "openjpa"}
     };
 
     private final static String[] HIDDEN_CLASSES =

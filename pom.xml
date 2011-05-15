@@ -109,7 +109,8 @@
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${project.version}/car</jpaDeployer>
         <myfacesDeployer>org.apache.geronimo.configs/myfaces-deployer/${project.version}/car</myfacesDeployer>
         <openwebbeansDeployer>org.apache.geronimo.configs/openwebbeans-deployer/${project.version}/car</openwebbeansDeployer>
-
+        
+        <jaxwsSunTools>org.apache.geronimo.configs/jaxws-sun-tools/${project.version}/car</jaxwsSunTools>
 
         <!-- Common plan properties -->
         <planServerHostname>0.0.0.0</planServerHostname>

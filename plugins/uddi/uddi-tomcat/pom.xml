@@ -49,6 +49,14 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jaxws-sun-tools</artifactId>  
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>            
+        </dependency>           
 	
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -97,11 +105,27 @@
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
+        </dependency>
         
         <dependency>
     	    <groupId>org.apache.geronimo.specs</groupId>
     	    <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-        </dependency>              
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+        </dependency>                        
         
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
@@ -132,6 +156,11 @@
     	    <groupId>commons-beanutils</groupId>
     	    <artifactId>commons-beanutils</artifactId>
     	</dependency>
+        
+        <dependency>         
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,7 +173,8 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
-                        <!--deploymentConfig>${axis2Deployer}</deploymentConfig-->
+                        <deploymentConfig>${jaxwsSunTools}</deploymentConfig>
+                        <deploymentConfig>${axis2Deployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>
