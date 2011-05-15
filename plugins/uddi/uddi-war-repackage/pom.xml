@@ -52,7 +52,6 @@
         <dependency>
             <groupId>org.apache.juddi</groupId>
             <artifactId>uddi-ws</artifactId>
-            <version>${juddiv3.version}</version>
             <scope>provided</scope>
         </dependency>        
         

@@ -49,27 +49,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-        <dependency>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>axis</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>org.apache.juddi</groupId>
                 <artifactId>juddiv3-war</artifactId>
                 <version>${juddiv3.version}</version>
                 <type>war</type>
                 <scope>provided</scope>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.apache.juddi</groupId>
-                <artifactId>uddi-ws</artifactId>
-                <version>${juddiv3.version}</version>
-                <type>jar</type>            
-            </dependency>            
+            </dependency>         
         </dependencies>
     </dependencyManagement>
 
