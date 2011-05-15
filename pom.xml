@@ -141,8 +141,10 @@
         
         <!-- OSGI properties -->
         <felix.bundlerepository.version>1.6.4</felix.bundlerepository.version>
-        <karaf.version>2.2.1-SNAPSHOT</karaf.version>
-        <karaf.osgi.version>2.2.1.SNAPSHOT</karaf.osgi.version>
+        <!--karaf.version>2.2.1-SNAPSHOT</karaf.version>
+        <karaf.osgi.version>2.2.1.SNAPSHOT</karaf.osgi.version-->
+        <karaf.version>2.2.1</karaf.version>
+        <karaf.osgi.version>2.2.1</karaf.osgi.version>        
         <aries.blueprint.version>0.3</aries.blueprint.version>
         <aries.jmx.version>0.3</aries.jmx.version>
         <aries.util.version>0.3</aries.util.version>
