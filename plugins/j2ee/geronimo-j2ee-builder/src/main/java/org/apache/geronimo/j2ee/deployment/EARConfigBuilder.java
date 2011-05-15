@@ -444,7 +444,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         String applicationName = null;
-        if (application.getApplicationName() != null) {
+        if (application!=null && application.getApplicationName() != null) {
             applicationName = application.getApplicationName().trim();
         } else if (earFile != null) {
             applicationName = FileUtils.removeExtension(new File(earFile.getName()).getName(), ".ear");
@@ -458,14 +458,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 earFile,
                 application,
                 gerApplication,
-                application.toString()
+                application==null ? null : application.toString()
         );
         try {
             addModules(earFile, application, gerApplication, environment, applicationInfo, idBuilder);
             if (applicationInfo.getModules().isEmpty()) {
                 //if no application.xml and no modules detected, return null for stand-alone module processing
                 return null;
-            } else {
+            } else if (application!=null){
                 addModulesToDefaultPlan(application, applicationInfo.getModules());
             }
         } catch (Throwable e) {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,17 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.openejb.jee.DataSource;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.EnvEntry;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.PersistenceUnitRef;
+import org.apache.openejb.jee.ResourceEnvRef;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -47,18 +58,35 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
     }
 
     public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
+        if(specDD == null){
+            // java ee 5 and 6 might not have spec DD, adding this to avoid the NPE.
+            specDD = new JndiConsumerNonNull();
+        }
+        
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildEnvironment(specDD, plan, environment);
         }
     }
 
     public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
+        
+        if(specDD == null){
+            // java ee 5 and 6 might not have spec DD, adding this to avoid the NPE.
+            specDD = new JndiConsumerNonNull();
+        }
+        
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.initContext(specDD, plan, module);
         }
     }
 
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        
+        if(specDD == null){
+            // java ee 5 and 6 might not have spec DD, adding this to avoid the NPE.
+            specDD = new JndiConsumerNonNull();
+        }
+        
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
                 try {
@@ -78,6 +106,113 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
         return list;        
     }
     
+    private final class JndiConsumerNonNull implements JndiConsumer {
+        @Override
+        public String getJndiConsumerName() {
+            return null;
+        }
+
+        @Override
+        public Collection<EnvEntry> getEnvEntry() {
+            return new ArrayList<EnvEntry>();
+        }
+
+        @Override
+        public Map<String, EnvEntry> getEnvEntryMap() {
+            return new HashMap<String, EnvEntry>();
+        }
+
+        @Override
+        public Collection<EjbRef> getEjbRef() {
+            return new ArrayList<EjbRef>();
+        }
+
+        @Override
+        public Map<String, EjbRef> getEjbRefMap() {
+             return new HashMap<String, EjbRef>();
+        }
+
+        @Override
+        public Collection<EjbLocalRef> getEjbLocalRef() {
+            return new ArrayList<EjbLocalRef>();
+        }
+
+        @Override
+        public Map<String, EjbLocalRef> getEjbLocalRefMap() {
+            return new HashMap<String, EjbLocalRef>();
+        }
+
+        @Override
+        public Collection<ServiceRef> getServiceRef() {
+            return new ArrayList<ServiceRef>();
+        }
+
+        @Override
+        public Map<String, ServiceRef> getServiceRefMap() {
+            return new HashMap<String, ServiceRef>();
+        }
+
+        @Override
+        public Collection<ResourceRef> getResourceRef() {
+            return new ArrayList<ResourceRef>();
+        }
+
+        @Override
+        public Map<String, ResourceRef> getResourceRefMap() {
+            return new HashMap<String, ResourceRef>();
+        }
+
+        @Override
+        public Collection<ResourceEnvRef> getResourceEnvRef() {
+            return new ArrayList<ResourceEnvRef>();
+        }
+
+        @Override
+        public Map<String, ResourceEnvRef> getResourceEnvRefMap() {
+            return new HashMap<String, ResourceEnvRef>();
+        }
+
+        @Override
+        public Collection<MessageDestinationRef> getMessageDestinationRef() {
+            return new ArrayList<MessageDestinationRef>();
+        }
+
+        @Override
+        public Map<String, MessageDestinationRef> getMessageDestinationRefMap() {
+            return new HashMap<String, MessageDestinationRef>();
+        }
+
+        @Override
+        public Collection<PersistenceContextRef> getPersistenceContextRef() {
+            return new ArrayList<PersistenceContextRef>();
+        }
+
+        @Override
+        public Map<String, PersistenceContextRef> getPersistenceContextRefMap() {
+            return new HashMap<String, PersistenceContextRef>();
+        }
+
+        @Override
+        public Collection<PersistenceUnitRef> getPersistenceUnitRef() {
+            return new ArrayList<PersistenceUnitRef>();
+        }
+
+        @Override
+        public Map<String, PersistenceUnitRef> getPersistenceUnitRefMap() {
+            return new HashMap<String, PersistenceUnitRef>();
+        }
+
+        @Override
+        public Collection<DataSource> getDataSource() {
+            return new ArrayList<DataSource>();
+        }
+
+        @Override
+        public Map<String, DataSource> getDataSourceMap() {
+            return new HashMap<String, DataSource>();
+        }
+    }
+
     private static class NamingBuilderComparator implements Comparator<NamingBuilder> {
         public int compare(NamingBuilder o1, NamingBuilder o2) {
             return o1.getPriority() - o2.getPriority();
