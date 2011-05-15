@@ -20,15 +20,26 @@
 
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2">
 
+    <environment>
+        <import-package>org.apache.juddi.api_v3</import-package>
+        <import-package>org.apache.juddi.jaxb</import-package>
+        <import-package>org.apache.juddi.v3_service</import-package>
+        <import-package>org.uddi</import-package>
+        <import-package>org.uddi.api_v3</import-package>
+        <import-package>org.uddi.custody_v3</import-package>
+        <import-package>org.uddi.policy_v3</import-package>
+        <import-package>org.uddi.policy_v3_instanceparms</import-package>
+        <import-package>org.uddi.repl_v3</import-package>
+        <import-package>org.uddi.sub_v3</import-package>
+        <import-package>org.uddi.subr_v3</import-package>
+        <import-package>org.uddi.v3_service</import-package>
+        <import-package>org.uddi.vs_v3</import-package>
+        <import-package>org.uddi.vscache_v3</import-package>
+        <import-package>org.w3._2000._09.xmldsig_,org.w3c.dom</import-package> 
+    </environment>    
+
   <context-root>/juddi</context-root>
-  <!--<gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">-->
-    <!-- copies uddi derby db files into specified location -->
-    <!--<attribute name="prefix">META-INF/geronimo-uddi-db</attribute>-->
-    <!--<attribute name="path">var/derby</attribute>-->
-    <!--<reference name="ServerInfo">-->
-      <!--<name>ServerInfo</name>-->
-    <!--</reference>-->
-  <!--</gbean>-->
+  
   <naming:resource-ref>
         <naming:ref-name>jdbc/juddiDB</naming:ref-name>
         <naming:resource-link>jdbc/juddiDB</naming:resource-link>

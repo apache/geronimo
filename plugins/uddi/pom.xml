@@ -31,12 +31,10 @@
     <description>
         UDDI plugin
     </description>
-        <properties>    
-        <juddiv3.version>3.1.0-SNAPSHOT</juddiv3.version>
-    </properties>    
+
     <modules>
         <module>uddi-db</module>
-    <module>uddi-war-repackage</module>
+        <module>uddi-war-repackage</module>
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
   </modules>
@@ -65,7 +63,13 @@
                 <type>war</type>
                 <scope>provided</scope>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.apache.juddi</groupId>
+                <artifactId>uddi-ws</artifactId>
+                <version>${juddiv3.version}</version>
+                <type>jar</type>            
+            </dependency>            
         </dependencies>
     </dependencyManagement>
 

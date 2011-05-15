@@ -29,10 +29,37 @@
     <artifactId>uddi-war-repackage</artifactId>
     <packaging>jar</packaging>
     <name>Geronimo Plugins, UDDI :: uddi-war-repackage</name>
+    
+     <dependencies>   
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${project.version}</version>
+        </dependency>         
+        
+        <dependency>
+            <groupId>org.apache.juddi</groupId>
+            <artifactId>uddi-ws</artifactId>
+            <version>${juddiv3.version}</version>
+            <scope>provided</scope>
+        </dependency>        
+        
+     </dependencies>   
+     
+     
     <build>
-      
-	
         <plugins>
           <plugin>
          <groupId>org.apache.maven.plugins</groupId>
@@ -47,14 +74,14 @@
              <configuration>
                <artifactItems>
                  <artifactItem>
-		    <groupId>org.apache.juddi</groupId>
-		    <artifactId>juddiv3-war</artifactId>
-		    <type>war</type>
-		    <version>${juddiv3.version}</version>
+                    <groupId>org.apache.juddi</groupId>
+                    <artifactId>juddiv3-war</artifactId>
+                    <type>war</type>
+                    <version>${juddiv3.version}</version>
                  </artifactItem>
                </artifactItems>
                <includes>**/*</includes>
-               <excludes>**/persistence.xml,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar</excludes>
+               <excludes>**/persistence.xml,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar,**/geronimo-jaxws_2.2_spec*.jar,**/uddi-ws*.jar</excludes>
                <outputDirectory>${project.build.directory}/classes</outputDirectory>
                <overWriteReleases>false</overWriteReleases>
                <overWriteSnapshots>true</overWriteSnapshots>
@@ -69,10 +96,10 @@
              <configuration>
                <artifactItems>
                  <artifactItem>
-		    <groupId>org.apache.juddi</groupId>
-		    <artifactId>juddi-core-openjpa</artifactId>
-		    <type>jar</type>
-		    <version>${juddiv3.version}</version>
+                    <groupId>org.apache.juddi</groupId>
+                    <artifactId>juddi-core-openjpa</artifactId>
+                    <type>jar</type>
+                    <version>${juddiv3.version}</version>
                  </artifactItem>
                </artifactItems>
                <includes>**/*</includes>
@@ -82,10 +109,85 @@
                <overWriteSnapshots>true</overWriteSnapshots>
              </configuration>
            </execution>
+           
+	    <execution>
+             <id>unpack-v3services_in_uddi-ws</id>
+             <phase>generate-resources</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <artifactItems>
+                 <artifactItem>
+                    <groupId>org.apache.juddi</groupId>
+                    <artifactId>uddi-ws</artifactId>
+                    <type>jar</type>
+                    <version>${juddiv3.version}</version>
+                 </artifactItem>   
+               </artifactItems>
+               <excludes>**/*.wsdl,**/*.xsd</excludes>           
+               <outputDirectory>${project.build.directory}/classes/WEB-INF/classes</outputDirectory>
+               <overWriteReleases>false</overWriteReleases>
+               <overWriteSnapshots>true</overWriteSnapshots>
+             </configuration>
+           </execution>           
+            <!--execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.ws.scout</groupId>
+                  <artifactId>scout</artifactId>
+                  <version>1.2.2</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/classes/WEB-INF/lib</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution-->           
          </executions>
        </plugin>
-     
-          
+       
+       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <!-- here the phase you need -->
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes/WEB-INF/classes/org</outputDirectory>
+              <resources>          
+                <resource>
+                  <directory>${project.build.directory}/classes/org</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>              
+            </configuration>            
+          </execution>
+        </executions>
+      </plugin>
+      
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/WEB-INF/**/**</include>
+            <include>**/META-INF/**/*</include>
+            <include>**/*.jsp</include>     
+            <include>**/*.css</include>              
+          </includes>
+        </configuration>
+      </plugin>
+
         </plugins>
     </build>
 

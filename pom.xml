@@ -89,6 +89,7 @@
         <woodstoxVersion>3.2.9_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.2-SNAPSHOT</yokoVersion>
+        <juddiv3.version>3.1.0-SNAPSHOT</juddiv3.version>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -741,7 +742,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>scout</artifactId>
-                <version>1.2.2_1</version>
+                <version>1.2.2_2-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
