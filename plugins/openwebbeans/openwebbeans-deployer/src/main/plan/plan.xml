@@ -45,18 +45,10 @@
                     </dependency>
                     <dependency>
                         <groupId>org.apache.openwebbeans</groupId>
-                        <artifactId>openwebbeans-jsf</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.openwebbeans</groupId>
                         <artifactId>openwebbeans-web</artifactId>
                         <type>jar</type>
                     </dependency>
                 </dependencies>
-                <!-- Import added so that MyFaces can discover 
-                     META-INF/faces-config.xml in openwebbeans-jsf bundle -->
-                <import-package>org.apache.webbeans.jsf</import-package>
                 <import-package>javassist</import-package>
                 <import-package>javassist.bytecode</import-package>
                 <import-package>javassist.bytecode.annotation</import-package>
@@ -73,6 +65,19 @@
                 <import-package>javassist.tools.web</import-package>
                 <import-package>javassist.util</import-package>
                 <import-package>javassist.util.proxy</import-package>
+            </environment>
+        </xml-attribute>
+        <xml-attribute name="jsfPluginEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.openwebbeans</groupId>
+                        <artifactId>openwebbeans-jsf</artifactId>
+                    </dependency>
+                </dependencies>
+               <!-- Import added so that MyFaces can discover 
+                     META-INF/faces-config.xml in openwebbeans-jsf bundle -->
+                <import-package>org.apache.webbeans.jsf</import-package>                
             </environment>
         </xml-attribute>
     </gbean>
