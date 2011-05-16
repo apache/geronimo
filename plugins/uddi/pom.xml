@@ -55,7 +55,13 @@
                 <version>${juddiv3.version}</version>
                 <type>war</type>
                 <scope>provided</scope>
-            </dependency>         
+            </dependency>
+            <dependency>
+                <groupId>org.apache.juddi</groupId>
+                <artifactId>juddi-core</artifactId>
+                <version>${juddiv3.version}</version>
+                <scope>provided</scope>
+            </dependency>             
         </dependencies>
     </dependencyManagement>
 

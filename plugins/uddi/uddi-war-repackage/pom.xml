@@ -53,8 +53,13 @@
             <groupId>org.apache.juddi</groupId>
             <artifactId>uddi-ws</artifactId>
             <scope>provided</scope>
-        </dependency>        
+        </dependency>
         
+        <dependency>
+            <groupId>org.apache.juddi</groupId>
+            <artifactId>juddi-core</artifactId>     
+            <scope>provided</scope>
+        </dependency>        
      </dependencies>   
      
      
