@@ -20,20 +20,25 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -44,6 +49,8 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
@@ -297,6 +304,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
     }
+    
 
     private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder,
             String ddDir, boolean subModule) throws DeploymentException {
@@ -307,7 +315,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (targetPath.endsWith("/"))
             throw new IllegalArgumentException("targetPath must not end with a '/'");
 
-        ClassLoader classLoader = null;
+        ClassLoader detectTempClassLoader = null;
+        
+        ClassLoader ejbModuleTempClassLoader = null;
+        
+        List<File> tempFileList = new ArrayList<File>();
+        
         try {
             // verify we have a valid file
             String jarPath = moduleFile.getName();
@@ -319,10 +332,38 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             File jarFile = new File(moduleFile.getName());
 
             baseUrl = jarFile.toURI().toURL();
+            
+            List<URL> libURLs = new ArrayList<URL>();
+            
+            libURLs.add(baseUrl);
+        
+           if (parentModule instanceof WebModule)  {
+              
+               Deployable deployable = parentModule.getDeployable();
+               if (!(deployable instanceof DeployableJarFile)) {
+                   throw new IllegalArgumentException("Expected DeployableJarFile");
+               }
+               
+                JarFile war = ((DeployableJarFile) deployable).getJarFile();
+                
+                Enumeration<JarEntry> entries = war.entries();
+            
+                while (entries.hasMoreElements()) {
+                    String jarEntryName = entries.nextElement().getName();
+                   if (jarEntryName.startsWith("WEB-INF/lib/") && jarEntryName.endsWith(".jar")) {
+                       File libJar = JarUtils.toTempFile(war, jarEntryName);
+                       tempFileList.add(libJar);
+                       libURLs.add(libJar.toURI().toURL());
+                       libJar.deleteOnExit();
+                    }
+                }  
+            }
+            
 
-            classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
+            
+            detectTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, (URL[])libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
 
-            ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
+            ResourceFinder finder = new ResourceFinder("", detectTempClassLoader, baseUrl);
 
             descriptors = finder.getResourcesMap(ddDir);
 
@@ -346,13 +387,20 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
 
 
-            if (!isEjbModule(baseUrl, classLoader, descriptors)) {
-                releaseTempClassLoader(classLoader);
+            if (!isEjbModule(baseUrl,libURLs, detectTempClassLoader, descriptors)) {
+               
                 return null;
             }
+            
+            
+            libURLs.clear();
+            libURLs.add(baseUrl);
+            
+            ejbModuleTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, (URL[])libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
+            
 
             // create the EJB Module
-            org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(classLoader, null, jarPath, null, null);
+            org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(ejbModuleTempClassLoader, null, jarPath, null, null);
             ejbModule.getAltDDs().putAll(descriptors);
 
             if (specDDUrl != null) {
@@ -471,11 +519,21 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
             return module;
         } catch (DeploymentException e) {
-            releaseTempClassLoader(classLoader);
+            
             throw e;
+            
         } catch (Exception e) {
-            releaseTempClassLoader(classLoader);
+
             throw new DeploymentException(e);
+            
+        }  finally {
+            
+            releaseTempClassLoader(detectTempClassLoader);
+            releaseTempClassLoader(ejbModuleTempClassLoader);
+            
+            for (File file:tempFileList){
+                FileUtils.recursiveDelete(file);
+            }
         }
     }
 
@@ -1194,7 +1252,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         return new AbstractNameQuery(artifact, nameMap, (Set) null);
     }
 
-    private boolean isEjbModule(URL baseUrl, ClassLoader classLoader, Map<String, URL> descriptors) {
+    private boolean isEjbModule(URL baseUrl,List<URL> urls, ClassLoader classLoader, Map<String, URL> descriptors) {
         try {
 
             String path = baseUrl.getPath();
@@ -1228,7 +1286,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 }
             }
 
-            AnnotationFinder classFinder = new AnnotationFinder(classLoader, Arrays.asList(baseUrl));
+            AnnotationFinder classFinder = new AnnotationFinder(classLoader, urls);
 
             AnnotationFinder.Filter filter = new AnnotationFinder.Filter() {
                 public boolean accept(String annotationName) {
