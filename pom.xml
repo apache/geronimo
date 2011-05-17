@@ -2326,6 +2326,17 @@ only found in cxf
 
             <repositories>            
                 <repository>
+                    <id>geronimo-svn-repo</id>
+                    <name>Geronimo 3rd Party libraries</name>
+                    <url>http://svn.apache.org/repos/asf/geronimo/repo/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
                     <name>Jetty Repository</name>
