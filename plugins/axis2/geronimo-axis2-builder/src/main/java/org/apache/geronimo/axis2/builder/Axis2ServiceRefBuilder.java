@@ -43,9 +43,9 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.PortComponentRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -66,6 +66,11 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
     protected Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef, Module module, Bundle bundle, Class serviceInterfaceClass, QName serviceQName, URI wsdlURI,
             Class serviceReferenceType, Map<Class<?>, PortComponentRef> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
+
+        if(serviceRef.getLookupName() != null && !serviceRef.getLookupName().isEmpty()) {
+            return new JndiReference(serviceRef.getLookupName());
+        }
+
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass, gerServiceRef, portComponentRefMap, module, bundle, wsdlURI, serviceQName);
         builder.build();
 

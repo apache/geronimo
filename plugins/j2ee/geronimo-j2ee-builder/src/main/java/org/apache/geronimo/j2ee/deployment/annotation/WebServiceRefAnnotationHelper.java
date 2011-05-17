@@ -291,6 +291,11 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // <service-ref> optional elements:
         //------------------------------------------------------------------------------
 
+        // Look-up
+        if (serviceRef.getLookupName() == null && !annotation.lookup().trim().isEmpty()) {
+            serviceRef.setLookupName(annotation.lookup().trim());
+        }
+
         // service-ref-type
         if (serviceRef.getServiceRefType() == null && !webServiceRefType.equals(Object.class)) {
             serviceRef.setServiceRefType(webServiceRefType.getName());
@@ -411,7 +416,9 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
                         } else if (webServiceFeatureAnnotationType == RespectBinding.class) {
                             RespectBinding respectBinding = (RespectBinding) webServiceFeatureAnnotation;
                             if (portComponentRef.getRespectBinding() == null) {
-                                portComponentRef.setRespectBinding(respectBinding.enabled());
+                                org.apache.openejb.jee.RespectBinding respectBindingValue = new org.apache.openejb.jee.RespectBinding();
+                                respectBindingValue.setEnabled(respectBinding.enabled());
+                                portComponentRef.setRespectBinding(respectBindingValue);
                             }
                         } else {
                             log.warn("Unsupport web service feature annotation " + webServiceFeatureAnnotation + " on " + webServiceRefName);

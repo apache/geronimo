@@ -54,6 +54,7 @@ import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConver
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.jaxws.util.WSDL4JWrapper;
 import org.apache.axis2.wsdl.WSDLUtil;
+import org.apache.geronimo.axis2.feature.ServerFeaturesConfigurator;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
@@ -68,6 +69,8 @@ import org.slf4j.LoggerFactory;
 public class AxisServiceGenerator
 {
     private static final Logger log = LoggerFactory.getLogger(AxisServiceGenerator.class);
+
+    private static final ServerFeaturesConfigurator SERVER_FEATURES_CONFIGURATOR = new ServerFeaturesConfigurator();
 
     private MessageReceiver messageReceiver;
     private ConfigurationContext configurationContext;
@@ -89,18 +92,26 @@ public class AxisServiceGenerator
         this.catalogName = catalogName;
     }
 
-    public AxisService getServiceFromClass(Class endpointClass) throws Exception {
-        ServiceDescription serviceDescription =
-            DescriptionFactory.createServiceDescription(endpointClass);
-        EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();
-        AxisService service = edArray[0].getAxisService();
+    public AxisService getServiceFromClass(Class endpointClass, PortInfo portInfo) throws Exception {
+        ServiceDescription serviceDescription = DescriptionFactory.createServiceDescription(endpointClass);
+        EndpointDescription targetEndpointDescription = null;
+        for (EndpointDescription endpointDescription : serviceDescription.getEndpointDescriptions()) {
+            DescriptionBuilderComposite dbc = endpointDescription.getDescriptionBuilderComposite();
+            if (endpointClass.getName().equals(dbc.getClassName())) {
+                targetEndpointDescription = endpointDescription;
+                break;
+            }
+        }
+        if (targetEndpointDescription == null) {
+            throw new RuntimeException("No endpoint found for SEI class " + endpointClass.getName());
+        }
+        configureWebServiceFeatures(targetEndpointDescription, portInfo);
+        AxisService service = targetEndpointDescription.getAxisService();
 
         if (service.getNamespaceMap() == null) {
             NamespaceMap map = new NamespaceMap();
-            map.put(Java2WSDLConstants.AXIS2_NAMESPACE_PREFIX,
-                    Java2WSDLConstants.AXIS2_XSD);
-            map.put(Java2WSDLConstants.DEFAULT_SCHEMA_NAMESPACE_PREFIX,
-                    Java2WSDLConstants.URI_2001_SCHEMA_XSD);
+            map.put(Java2WSDLConstants.AXIS2_NAMESPACE_PREFIX, Java2WSDLConstants.AXIS2_XSD);
+            map.put(Java2WSDLConstants.DEFAULT_SCHEMA_NAMESPACE_PREFIX, Java2WSDLConstants.URI_2001_SCHEMA_XSD);
             service.setNamespaceMap(map);
         }
 
@@ -115,8 +126,7 @@ public class AxisServiceGenerator
             operation.setMessageReceiver(this.messageReceiver);
         }
 
-        Parameter serviceDescriptionParam =
-            new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, edArray[0]);
+        Parameter serviceDescriptionParam = new Parameter(EndpointDescription.AXIS_SERVICE_PARAMETER, targetEndpointDescription);
         service.addParameter(serviceDescriptionParam);
 
         return service;
@@ -167,7 +177,7 @@ public class AxisServiceGenerator
             protocolBinding = getBindingFromWSDL(port);
         }
 
-        Class endPointClass = classLoader.loadClass(endpointClassName);
+        Class<?> endPointClass = classLoader.loadClass(endpointClassName);
         JavaClassToDBCConverter converter = new JavaClassToDBCConverter(endPointClass);
         HashMap<String, DescriptionBuilderComposite> dbcMap = converter.produceDBC();
 
@@ -192,11 +202,11 @@ public class AxisServiceGenerator
             processServiceBinding(dbc, protocolBinding);
         }
 
-        if (portInfo.isMTOMEnabled() != null) {
-            dbc.setIsMTOMEnabled(portInfo.isMTOMEnabled().booleanValue());
-        }
-
-        AxisService service = getService(dbcMap, endpointClassName);
+        EndpointDescription endpointDescription = getEndpointDescription(dbcMap, endpointClassName);
+        //The portInfo is a mixed content of the annotations and webservices.xml file, currently, we have no way to pass the final portInfo
+        //to Axis2, so reconfigure those web service features in the endpoint description here.
+        configureWebServiceFeatures(endpointDescription, portInfo);
+        AxisService service = endpointDescription.getAxisService();
 
         service.setName(serviceQName.getLocalPart());
         service.setEndpointName(portQName.getLocalPart());
@@ -266,15 +276,11 @@ public class AxisServiceGenerator
         }
     }
 
-    private AxisService getService(HashMap<String, DescriptionBuilderComposite> dbcMap, String endpointClassName) {
-        return getEndpointDescription(dbcMap, endpointClassName).getAxisService();
-    }
-
     private EndpointDescription getEndpointDescription(HashMap<String, DescriptionBuilderComposite> dbcMap, String endpointClassName) {
         List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap, this.configurationContext);
         if (serviceDescList == null || serviceDescList.isEmpty()) {
             throw new RuntimeException("No service found for SEI class " + endpointClassName);
-        }        
+        }
         for(ServiceDescription serviceDescription : serviceDescList) {
             for(EndpointDescription endpointDescription : serviceDescription.getEndpointDescriptions()) {
                 DescriptionBuilderComposite dbc = endpointDescription.getDescriptionBuilderComposite();
@@ -282,8 +288,20 @@ public class AxisServiceGenerator
                     return endpointDescription;
                 }
             }
-        }  
-        throw new RuntimeException("No endpoint found for SEI class " + endpointClassName);        
+        }
+        throw new RuntimeException("No endpoint found for SEI class " + endpointClassName);
+    }
+
+    private void configureWebServiceFeatures(EndpointDescription endpointDescription, PortInfo portInfo) {
+        if (portInfo.getAddressingFeatureInfo() != null) {
+            SERVER_FEATURES_CONFIGURATOR.configure(endpointDescription, portInfo.getAddressingFeatureInfo());
+        }
+        if (portInfo.getMtomFeatureInfo() != null) {
+            SERVER_FEATURES_CONFIGURATOR.configure(endpointDescription, portInfo.getMtomFeatureInfo());
+        }
+        if (portInfo.getRespectBindingFeatureInfo() != null) {
+            SERVER_FEATURES_CONFIGURATOR.configure(endpointDescription, portInfo.getRespectBindingFeatureInfo());
+        }
     }
 
     private static class WSDLGeneratorImpl implements WsdlGenerator {

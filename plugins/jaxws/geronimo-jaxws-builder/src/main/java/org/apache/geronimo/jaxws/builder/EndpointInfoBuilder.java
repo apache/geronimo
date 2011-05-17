@@ -378,8 +378,8 @@ public class EndpointInfoBuilder {
         if (portComponentRef.getEnableMtom() != null) {
             webServiceFeatureInfos.add(new MTOMFeatureInfo(portComponentRef.isEnableMtom(), portComponentRef.getMtomThreshold() == null ? 0 : portComponentRef.getMtomThreshold()));
         }
-        if (portComponentRef.getRespectBinding() != null) {
-            webServiceFeatureInfos.add(new RespectBindingFeatureInfo(portComponentRef.getRespectBinding()));
+        if (portComponentRef.getRespectBinding() != null && portComponentRef.getRespectBinding().getEnabled() != null) {
+            webServiceFeatureInfos.add(new RespectBindingFeatureInfo(portComponentRef.getRespectBinding().getEnabled()));
         }
         return webServiceFeatureInfos;
     }

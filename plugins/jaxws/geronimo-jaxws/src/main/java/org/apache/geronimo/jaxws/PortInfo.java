@@ -24,6 +24,10 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
+import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
+import org.apache.geronimo.jaxws.feature.RespectBindingFeatureInfo;
+
 public class PortInfo implements Serializable {
 
     private String serviceName;
@@ -38,8 +42,6 @@ public class PortInfo implements Serializable {
 
     private String handlersAsXML;
 
-    private Boolean mtomEnabled;
-
     private String binding;
 
     private QName wsdlPort;
@@ -47,6 +49,12 @@ public class PortInfo implements Serializable {
     private QName wsdlService;
 
     private String location;
+
+    private MTOMFeatureInfo mtomFeatureInfo;
+
+    private AddressingFeatureInfo addressingFeatureInfo;
+
+    private RespectBindingFeatureInfo respectBindingFeatureInfo;
 
     public String getPortName() {
         return portName;
@@ -86,14 +94,6 @@ public class PortInfo implements Serializable {
 
     public void setServiceName(String sn) {
         serviceName = sn;
-    }
-
-    public void setEnableMTOM(Boolean mtomEnabled) {
-        this.mtomEnabled = mtomEnabled;
-    }
-
-    public Boolean isMTOMEnabled() {
-        return this.mtomEnabled;
     }
 
     public void setProtocolBinding(String binding) {
@@ -155,11 +155,28 @@ public class PortInfo implements Serializable {
         this.location = location;
     }
 
-    @Override
-    public String toString() {
-        return "PortInfo [serviceName=" + serviceName + ", portName=" + portName + ", seiInterfaceName=" + seiInterfaceName + ", wsdlFile=" + wsdlFile + ", servletLink=" + servletLink
-                + ", handlersAsXML=" + handlersAsXML + ", mtomEnabled=" + mtomEnabled + ", binding=" + binding + ", wsdlPort=" + wsdlPort + ", wsdlService=" + wsdlService + ", location=" + location
-                + "]";
+    public MTOMFeatureInfo getMtomFeatureInfo() {
+        return mtomFeatureInfo;
+    }
+
+    public void setMtomFeatureInfo(MTOMFeatureInfo mtomFeatureInfo) {
+        this.mtomFeatureInfo = mtomFeatureInfo;
+    }
+
+    public AddressingFeatureInfo getAddressingFeatureInfo() {
+        return addressingFeatureInfo;
+    }
+
+    public void setAddressingFeatureInfo(AddressingFeatureInfo addressingFeatureInfo) {
+        this.addressingFeatureInfo = addressingFeatureInfo;
+    }
+
+    public RespectBindingFeatureInfo getRespectBindingFeatureInfo() {
+        return respectBindingFeatureInfo;
+    }
+
+    public void setRespectBindingFeatureInfo(RespectBindingFeatureInfo respectBindingFeatureInfo) {
+        this.respectBindingFeatureInfo = respectBindingFeatureInfo;
     }
 
     public String getHandlersAsXML() {
@@ -169,4 +186,12 @@ public class PortInfo implements Serializable {
     public void setHandlersAsXML(String handlersAsXML) {
         this.handlersAsXML = handlersAsXML;
     }
+
+    @Override
+    public String toString() {
+        return "PortInfo [serviceName=" + serviceName + ", portName=" + portName + ", seiInterfaceName=" + seiInterfaceName + ", wsdlFile=" + wsdlFile + ", servletLink=" + servletLink
+                + ", handlersAsXML=" + handlersAsXML + ", binding=" + binding + ", wsdlPort=" + wsdlPort + ", wsdlService=" + wsdlService + ", location=" + location + ", mtomFeatureInfo="
+                + mtomFeatureInfo + ", addressingFeatureInfo=" + addressingFeatureInfo + ", respectBindingFeatureInfo=" + respectBindingFeatureInfo + "]";
+    }
+
 }

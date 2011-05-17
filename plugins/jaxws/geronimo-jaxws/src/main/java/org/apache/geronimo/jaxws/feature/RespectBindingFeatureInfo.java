@@ -28,6 +28,10 @@ public class RespectBindingFeatureInfo implements WebServiceFeatureInfo {
 
     private boolean enabled;
 
+    public RespectBindingFeatureInfo() {
+        enabled = false;
+    }
+
     public RespectBindingFeatureInfo(RespectBinding respectBinding) {
         this(respectBinding.enabled());
     }
@@ -39,6 +43,41 @@ public class RespectBindingFeatureInfo implements WebServiceFeatureInfo {
     @Override
     public WebServiceFeature getWebServiceFeature() {
         return new RespectBindingFeature(enabled);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public String toString() {
+        return "RespectBindingFeatureInfo [enabled=" + enabled + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (enabled ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RespectBindingFeatureInfo other = (RespectBindingFeatureInfo) obj;
+        if (enabled != other.enabled)
+            return false;
+        return true;
     }
 
 }

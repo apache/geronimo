@@ -32,6 +32,12 @@ public class AddressingFeatureInfo implements WebServiceFeatureInfo {
 
     private AddressingFeature.Responses responses;
 
+    public AddressingFeatureInfo() {
+        enabled = true;
+        required = false;
+        responses = AddressingFeature.Responses.ALL;
+    }
+
     public AddressingFeatureInfo(Addressing addressing) {
         this(addressing.enabled(), addressing.required(), addressing.responses());
     }
@@ -46,4 +52,62 @@ public class AddressingFeatureInfo implements WebServiceFeatureInfo {
     public WebServiceFeature getWebServiceFeature() {
         return new AddressingFeature(enabled, required, responses);
     }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    public void setResponses(AddressingFeature.Responses responses) {
+        this.responses = responses;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public AddressingFeature.Responses getResponses() {
+        return responses;
+    }
+
+    @Override
+    public String toString() {
+        return "AddressingFeatureInfo [enabled=" + enabled + ", required=" + required + ", responses=" + responses + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (enabled ? 1231 : 1237);
+        result = prime * result + (required ? 1231 : 1237);
+        result = prime * result + ((responses == null) ? 0 : responses.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AddressingFeatureInfo other = (AddressingFeatureInfo) obj;
+        if (enabled != other.enabled)
+            return false;
+        if (required != other.required)
+            return false;
+        if (responses != other.responses)
+            return false;
+        return true;
+    }
+
 }

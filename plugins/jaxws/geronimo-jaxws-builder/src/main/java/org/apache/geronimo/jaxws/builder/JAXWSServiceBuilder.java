@@ -17,11 +17,13 @@
 
 package org.apache.geronimo.jaxws.builder;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.http.HTTPBinding;
+import javax.xml.ws.soap.AddressingFeature;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
@@ -39,10 +41,20 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
+import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
+import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
+import org.apache.geronimo.jaxws.feature.RespectBindingFeatureInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.openejb.jee.Addressing;
+import org.apache.openejb.jee.HandlerChains;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.PortComponent;
+import org.apache.openejb.jee.ServiceImplBean;
+import org.apache.openejb.jee.WebserviceDescription;
+import org.apache.openejb.jee.Webservices;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +78,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
     }
 
     @Override
-    public void findWebServices(Module module,
-                                boolean isEJB,
-                                Map<String, String> servletLocations,
-                                Environment environment,
-                                Map sharedContext) throws DeploymentException {
-        Map<String, PortInfo> portMap = null;
+    public void findWebServices(Module module, boolean isEJB, Map<String, String> servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
+        Map<String, PortInfo> serviceLinkPortInfoMap = discoverWebServices(module, isEJB, servletLocations);
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         Deployable deployable = module.getDeployable();
         URL wsDDUrl = deployable.getResource(path);
@@ -79,22 +87,132 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             InputStream in = null;
             try {
                 in = wsDDUrl.openStream();
-                portMap = parseWebServiceDescriptor(in, wsDDUrl, deployable, isEJB, servletLocations);
-            } catch (IOException e) {
+
+                Webservices wst = (Webservices) JaxbJavaee.unmarshalJavaee(Webservices.class, in);
+                for (WebserviceDescription desc : wst.getWebserviceDescription()) {
+                    String wsdlFile = null;
+                    if (desc.getWsdlFile() != null) {
+                        wsdlFile = getString(desc.getWsdlFile());
+                    }
+                    String serviceName = desc.getWebserviceDescriptionName();
+                    for (PortComponent port : desc.getPortComponent()) {
+
+                        String serviceLink = null;
+                        ServiceImplBean beanType = port.getServiceImplBean();
+                        if (beanType.getEjbLink() != null) {
+                            serviceLink = beanType.getEjbLink();
+                        } else if (beanType.getServletLink() != null) {
+                            serviceLink = beanType.getServletLink();
+                        }
+
+                        PortInfo portInfo = serviceLinkPortInfoMap.get(serviceLink);
+                        if (portInfo == null) {
+                            portInfo = new PortInfo();
+                            portInfo.setServiceLink(serviceLink);
+                            serviceLinkPortInfoMap.put(serviceLink, portInfo);
+                        }
+
+                        if (port.getServiceEndpointInterface() != null) {
+                            String sei = port.getServiceEndpointInterface();
+                            portInfo.setServiceEndpointInterfaceName(sei);
+                        }
+
+                        if (port.getPortComponentName() != null) {
+                            portInfo.setPortName(port.getPortComponentName());
+                        }
+
+                        if (port.getProtocolBinding() != null) {
+                            portInfo.setProtocolBinding(port.getProtocolBinding());
+                        }
+
+                        portInfo.setServiceName(serviceName);
+
+                        if (wsdlFile != null) {
+                            portInfo.setWsdlFile(wsdlFile);
+                        }
+
+                        if (port.getHandlerChains() != null) {
+                            String handlerChains = JaxbJavaee.marshal(HandlerChains.class, port.getHandlerChains());
+                            portInfo.setHandlersAsXML(handlerChains);
+                        }
+
+                        if (port.getWsdlPort() != null) {
+                            portInfo.setWsdlPort(port.getWsdlPort());
+                        }
+
+                        if (port.getWsdlService() != null) {
+                            portInfo.setWsdlService(port.getWsdlService());
+                        }
+
+                        String location = servletLocations.get(serviceLink);
+                        portInfo.setLocation(location);
+
+                        Addressing addressing = port.getAddressing();
+                        if (addressing != null) {
+                            AddressingFeatureInfo addressingFeatureInfo = portInfo.getAddressingFeatureInfo();
+                            if (addressingFeatureInfo == null) {
+                                addressingFeatureInfo = new AddressingFeatureInfo();
+                                portInfo.setAddressingFeatureInfo(addressingFeatureInfo);
+                            }
+                            if (addressing.getEnabled() != null) {
+                                addressingFeatureInfo.setEnabled(addressing.getEnabled());
+                            }
+                            if (addressing.getRequired() != null) {
+                                addressingFeatureInfo.setRequired(addressing.getRequired());
+                            }
+                            if (addressing.getResponses() != null) {
+                                addressingFeatureInfo.setResponses(AddressingFeature.Responses.valueOf(addressing.getResponses().name()));
+                            }
+                        }
+
+                        if (port.getEnableMtom() != null || port.getMtomThreshold() != null) {
+                            MTOMFeatureInfo mtomFeatureInfo = portInfo.getMtomFeatureInfo();
+                            if (mtomFeatureInfo == null) {
+                                mtomFeatureInfo = new MTOMFeatureInfo();
+                                portInfo.setMtomFeatureInfo(mtomFeatureInfo);
+                            }
+                            if (port.getEnableMtom() != null) {
+                                mtomFeatureInfo.setEnabled(port.getEnableMtom());
+                            }
+                            if (port.getMtomThreshold() != null) {
+                                mtomFeatureInfo.setThreshold(port.getMtomThreshold());
+                            }
+                        }
+
+                        if (port.getRespectBinding() != null && port.getRespectBinding().getEnabled() != null) {
+                            RespectBindingFeatureInfo respectBindingFeatureInfo = portInfo.getRespectBindingFeatureInfo();
+                            if (respectBindingFeatureInfo == null) {
+                                respectBindingFeatureInfo = new RespectBindingFeatureInfo();
+                                portInfo.setRespectBindingFeatureInfo(respectBindingFeatureInfo);
+                            }
+                            respectBindingFeatureInfo.setEnabled(port.getRespectBinding().getEnabled());
+                        }
+                    }
+                }
+            } catch (JAXBException e) {
+                //we hope it's jax-rpc
+                LOG.debug("Descriptor ignored (not a Java EE 5 descriptor)");
+            } catch (Exception e) {
                 throw new DeploymentException("Failed to parse " + path, e);
             } finally {
                 IOUtils.close(in);
             }
-        } else {
-            // webservices.xml does not exist
-            portMap = discoverWebServices(module, isEJB, servletLocations);
         }
 
-        if (portMap != null && !portMap.isEmpty()) {
+        if (serviceLinkPortInfoMap != null && !serviceLinkPortInfoMap.isEmpty()) {
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
-            sharedContext.put(getKey(), portMap);
+            sharedContext.put(getKey(), serviceLinkPortInfoMap);
         }
+    }
 
+    private String getString(String in) {
+        if (in != null) {
+            in = in.trim();
+            if (in.length() == 0) {
+                return null;
+            }
+        }
+        return in;
     }
 
     private Map<String, PortInfo> discoverWebServices(Module module,
@@ -106,13 +224,6 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
         return webServiceFinder.discoverWebServices(module, correctedPortLocations);
     }
-
-    protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
-                                                                       URL wsDDUrl,
-                                                                       Deployable deployable,
-                                                                       boolean isEJB,
-                                                                       Map<String, String> correctedPortLocations)
-            throws DeploymentException;
 
     @Override
     public boolean configurePOJO(GBeanData targetGBean,

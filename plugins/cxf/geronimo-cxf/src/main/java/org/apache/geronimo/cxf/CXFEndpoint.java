@@ -167,10 +167,10 @@ public abstract class CXFEndpoint {
 
         init();
 
-        org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
+        //org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
 
-        if (getBinding() instanceof SOAPBinding && this.portInfo.isMTOMEnabled() != null) {
-            ((SOAPBinding)getBinding()).setMTOMEnabled(this.portInfo.isMTOMEnabled());
+        if (getBinding() instanceof SOAPBinding && this.portInfo.getMtomFeatureInfo() != null) {
+            ((SOAPBinding) getBinding()).setMTOMEnabled(this.portInfo.getMtomFeatureInfo().isEnabled());
         }
 
         server.start();

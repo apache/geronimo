@@ -38,7 +38,6 @@ import org.apache.axiom.soap.SOAPFault;
 import org.apache.axiom.util.UIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
-import org.apache.axis2.addressing.AddressingConstants.Final;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.context.ConfigurationContext;
@@ -92,15 +91,15 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public abstract class Axis2WebServiceContainer implements WebServiceContainer {
-     
+
     private static final Logger LOG = LoggerFactory.getLogger(Axis2WebServiceContainer.class);
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
 
-    public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";    
-    
+    public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";
+
     private static final boolean SOAP_1_1_FAULT_DETAIL_COMPATIBLE_WHEN_ADDRESSING_FAULTS = Boolean.getBoolean("org.apache.geronimo.axis2.soap_1_1FaultDetailCompatibleWhenAddressingFaults");
-    
+
     private transient final Bundle bundle;
 
     protected String endpointClassName;
@@ -144,8 +143,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         Axis2ConfigGBean.registerClientConfigurationFactory(axis2ModuleRegistry);
 
         GeronimoConfigurator configurator = new GeronimoConfigurator("META-INF/geronimo-axis2.xml");
-        configurationContext = ConfigurationContextFactory.createConfigurationContext(configurator);        
-        
+        configurationContext = ConfigurationContextFactory.createConfigurationContext(configurator);
+
         axis2ModuleRegistry.configureModules(configurationContext);
         // check to see if the wsdlLocation property is set in portInfo,
         // if not checking if wsdlLocation exists in annotation
@@ -164,7 +163,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, bundle);
         } else {
             // No WSDL, let Axis2 handle it.
-            service = serviceGen.getServiceFromClass(this.endpointClass);
+            service = serviceGen.getServiceFromClass(this.endpointClass, portInfo);
         }
 
         service.setScope(Constants.SCOPE_APPLICATION);
@@ -332,7 +331,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             throw new UnsupportedOperationException("[" + request.getMethod() + " ] method not supported");
         }
 
-        // Finalize response        
+        // Finalize response
         if (TransportUtils.isResponseWritten(msgContext)) {
             OperationContext operationContext = msgContext.getOperationContext();
             Object isTwoChannel = null;

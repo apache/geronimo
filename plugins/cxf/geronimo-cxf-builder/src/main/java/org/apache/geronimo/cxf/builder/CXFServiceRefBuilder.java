@@ -33,9 +33,9 @@ import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSBuilderUtils;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.PortComponentRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -57,6 +57,11 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 Module module, Bundle bundle, Class serviceInterface,
                                 QName serviceQName, URI wsdlURI, Class serviceReference,
                                 Map<Class<?>, PortComponentRef> portComponentRefMap) throws DeploymentException {
+
+        if(serviceRef.getLookupName() != null && !serviceRef.getLookupName().isEmpty()) {
+            return new JndiReference(serviceRef.getLookupName());
+        }
+
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
                 gerServiceRef, portComponentRefMap, module, bundle,
                 wsdlURI, serviceQName);
