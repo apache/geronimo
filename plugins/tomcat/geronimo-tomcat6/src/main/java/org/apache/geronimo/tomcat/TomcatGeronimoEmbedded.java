@@ -53,7 +53,6 @@ public class TomcatGeronimoEmbedded extends Embedded{
         if (cl != null)
             context.setParentClassLoader(cl);
         
-        // Add WAS CE specific authenticators
         InputStream is=this.getClass().getClassLoader().getResourceAsStream("org/apache/geronimo/tomcat/GeronimoCustomAuthenticator.properties");
         Properties props= new Properties();
         try {
