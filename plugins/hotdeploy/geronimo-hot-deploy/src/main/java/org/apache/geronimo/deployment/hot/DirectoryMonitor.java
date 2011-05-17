@@ -231,7 +231,7 @@ public class DirectoryMonitor implements Runnable {
         if (monitorFile == null) {
             return;
         }
-    
+        
         log.info("Persisting directory monitor state to " + monitorFile.getName());
         ObjectOutputStream outputStream = null;
         try {
@@ -244,7 +244,7 @@ public class DirectoryMonitor implements Runnable {
                 try {
                     outputStream.close();
                 } catch (IOException ioe) {
-
+                    
                 }
             }
         }    
@@ -252,30 +252,30 @@ public class DirectoryMonitor implements Runnable {
     
     @SuppressWarnings("unchecked")
     private Map<String,FileInfo> readState() {
-    	Map<String,FileInfo> newFiles = null;
-    	if (monitorFile != null) {
-    		ObjectInputStream inputStream = null;
-    		try {
-    			inputStream = new ObjectInputStream(new FileInputStream(monitorFile));
-    			newFiles = (Map<String,FileInfo>) inputStream.readObject();
-    		} catch (IOException ex) {
-    			log.info("No directory monitor state to be read. This is to be expected on initial start of a new server");
-    		} catch (ClassNotFoundException cnfe) {
-    			log.warn("ClassNotFoundException reading directory monitor state from " + monitorFile.getName(), cnfe);
-    		} finally {
-    			try {
-    				if (inputStream != null) {
-    					inputStream.close();
-    				}
-    			} catch (IOException ioe) {
-    				// ignore
-    			}
-    		}
-    	}
-		if (newFiles == null) {
-			newFiles = new HashMap<String,FileInfo>();
-		}
-		return newFiles;
+        Map<String,FileInfo> newFiles = null;
+        if (monitorFile != null) {
+                ObjectInputStream inputStream = null;
+                try {
+                    inputStream = new ObjectInputStream(new FileInputStream(monitorFile));
+                    newFiles = (Map<String,FileInfo>) inputStream.readObject();
+                } catch (IOException ex) {
+                    log.info("No directory monitor state to be read. This is to be expected on initial start of a new server");
+                } catch (ClassNotFoundException cnfe) {
+                    log.warn("ClassNotFoundException reading directory monitor state from " + monitorFile.getName(), cnfe);
+                } finally {
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    } catch (IOException ioe) {
+                        // ignore
+                    }
+                }
+        }
+        if (newFiles == null) {
+            newFiles = new HashMap<String,FileInfo>();
+        }
+        return newFiles;
     }
     
     public void run() {
@@ -592,7 +592,7 @@ public class DirectoryMonitor implements Runnable {
     }
 
     private static class FileInfo implements Serializable {
-		private String path;
+        private String path;
         private long size;
         private long modified;
         private boolean newFile;
