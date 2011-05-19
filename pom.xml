@@ -110,6 +110,7 @@
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${project.version}/car</jpaDeployer>
         <myfacesDeployer>org.apache.geronimo.configs/myfaces-deployer/${project.version}/car</myfacesDeployer>
         <openwebbeansDeployer>org.apache.geronimo.configs/openwebbeans-deployer/${project.version}/car</openwebbeansDeployer>
+        <winkDeployer>org.apache.geronimo.configs/wink-deployer/${project.version}/car</winkDeployer>
         
         <jaxwsSunTools>org.apache.geronimo.configs/jaxws-sun-tools/${project.version}/car</jaxwsSunTools>
 
