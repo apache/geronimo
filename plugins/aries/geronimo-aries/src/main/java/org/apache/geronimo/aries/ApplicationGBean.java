@@ -222,7 +222,7 @@ public class ApplicationGBean implements GBeanLifecycle {
 
         public void waitForRefresh(int timeout) {
             try {
-                latch.await(timeout, TimeUnit.MICROSECONDS);
+                latch.await(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // ignore
             }
