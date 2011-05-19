@@ -44,6 +44,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.BundleContext;
@@ -65,11 +66,12 @@ public class ApplicationInstaller implements GBeanLifecycle {
     private AbstractName abstractName;
     private ServiceRegistration registration;
     private ConfigurationManager configurationManager;
+    private Collection<? extends Repository> repositories;
     private Collection<ConfigurationStore> configurationStores;
     private Environment defaultEnvironment;
 
-    public ApplicationInstaller(
-                                @ParamReference(name="Store", namingType = "ConfigurationStore") Collection<ConfigurationStore> configurationStores,
+    public ApplicationInstaller(@ParamReference(name = "Store", namingType = "ConfigurationStore") Collection<ConfigurationStore> configurationStores,
+                                @ParamReference(name = "Repositories", namingType = "Repository") Collection<? extends Repository> repositories,
                                 @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                                 @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                                 @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
@@ -78,6 +80,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
         this.kernel = kernel;
         this.bundleContext = bundleContext;
         this.abstractName = abstractName;
+        this.repositories = repositories;
         this.configurationStores = configurationStores;
         this.configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         this.defaultEnvironment = defaultEnvironment;
@@ -185,5 +188,13 @@ public class ApplicationInstaller implements GBeanLifecycle {
         return BundleUtil.createArtifact(BundleUtil.EBA_GROUP_ID, metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
     }
 
+    protected File getApplicationLocation(Artifact artifactId) {
+        for (Repository repository : repositories) {
+            if (repository.contains(artifactId)) {
+                return repository.getLocation(artifactId);
+            }
+        }
+        return null;
+    }
 
 }

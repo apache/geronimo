@@ -18,11 +18,20 @@ package org.apache.geronimo.aries;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.aries.application.ApplicationMetadataFactory;
 import org.apache.aries.application.DeploymentContent;
@@ -47,6 +56,8 @@ import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
@@ -142,21 +153,53 @@ public class ApplicationGBean implements GBeanLifecycle {
                 break;
             }
         }
-        
-        if (targetBundle != null) {
+
+        if (targetBundle == null) {
+            throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
+        }
+
+        BundleContext context = bundle.getBundleContext();
+
+        RefreshListener refreshListener = null;
+        try {
+            // stop the bundle
+            targetBundle.stop();
+
+            // update the bundle
             FileInputStream fi = null;
             try {
                 fi = new FileInputStream(bundleFile);
-                // update bundle
                 targetBundle.update(fi);
             } finally {
                 IOUtils.close(fi);
             }
-            
-            // refresh bundle
-            refreshPackages(bundle.getBundleContext(), new Bundle[] { targetBundle });
-        } else {
-            throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
+
+            // install listener for package refresh
+            refreshListener = new RefreshListener();
+            context.addFrameworkListener(refreshListener);
+
+            // refresh the bundle - this happens asynchronously
+            refreshPackages(context, new Bundle[] { targetBundle });
+
+            // update application archive
+            try {
+                updateArchive(targetBundle, bundleFile);
+            } catch (Exception e) {
+                LOG.warn("Error updating application archive with the new contents. " +
+                         "Changes made might be gone next time the application or server is restarted.", e.getMessage());
+            }
+
+            // wait for package refresh to finish
+            refreshListener.waitForRefresh(10 * 1000);
+
+            // start the bundle
+            if (BundleUtils.canStart(targetBundle)) {
+                targetBundle.start(Bundle.START_TRANSIENT);
+            }
+        } finally {
+            if (refreshListener != null) {
+                context.removeFrameworkListener(refreshListener);
+            }
         }
     }
     
@@ -166,7 +209,96 @@ public class ApplicationGBean implements GBeanLifecycle {
         packageAdmin.refreshPackages(bundles);
         context.ungetService(reference);
     }
-    
+
+    private class RefreshListener implements FrameworkListener {
+
+        public CountDownLatch latch = new CountDownLatch(1);
+
+        public void frameworkEvent(FrameworkEvent event) {
+            if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
+                latch.countDown();
+            }
+        }
+
+        public void waitForRefresh(int timeout) {
+            try {
+                latch.await(timeout, TimeUnit.MICROSECONDS);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+    }
+
+    private void updateArchive(Bundle bundle, File bundleFile) throws IOException {
+        File ebaArchive = installer.getApplicationLocation(configId);
+        if (ebaArchive == null || !ebaArchive.exists()) {
+            throw new IOException("Cannot locate application archive for " + configId);
+        }
+
+        File newEbaArchive = new File(ebaArchive.getAbsoluteFile() + ".new");
+
+        URI bundleLocation = URI.create(bundle.getLocation());
+        String bundleNameInApp = bundleLocation.getPath();
+        if (bundleNameInApp.startsWith("/")) {
+            bundleNameInApp = bundleNameInApp.substring(1);
+        }
+
+        LOG.debug("Updating {} application archive with new contents for {}", ebaArchive, bundleNameInApp);
+
+        ZipFile oldZipFile = null;
+        ZipOutputStream newZipFile = null;
+        try {
+            newZipFile = new ZipOutputStream(new FileOutputStream(newEbaArchive));
+            oldZipFile = new ZipFile(ebaArchive);
+            Enumeration<? extends ZipEntry> entries = oldZipFile.entries();
+            byte[] buffer = new byte[4096];
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+
+                InputStream in = null;
+                if (entry.getName().equals(bundleNameInApp)) {
+                    in = new FileInputStream(bundleFile);
+                    LOG.debug("Updating contents of {} with {}", bundleNameInApp, bundleFile.getAbsolutePath());
+                } else {
+                    in = oldZipFile.getInputStream(entry);
+                }
+                try {
+                    newZipFile.putNextEntry(new ZipEntry(entry.getName()));
+                    try {
+                        int count;
+                        while ((count = in.read(buffer)) > 0) {
+                            newZipFile.write(buffer, 0, count);
+                        }
+                    } finally {
+                        newZipFile.closeEntry();
+                    }
+                } finally {
+                    IOUtils.close(in);
+                }
+            }
+        } catch (IOException e) {
+            LOG.debug("Error updating application archive", e);
+        } finally {
+            if (oldZipFile != null) {
+                try {
+                    oldZipFile.close();
+                } catch (IOException ignore) {
+                }
+            }
+            IOUtils.close(newZipFile);
+        }
+
+        if (ebaArchive.delete()) {
+            if (!newEbaArchive.renameTo(ebaArchive)) {
+                throw new IOException("Error renaming application archive");
+            } else {
+                LOG.debug("Application archive was successfully updated.");
+            }
+        } else {
+            throw new IOException("Error deleting existing application archive");
+        }
+    }
+
     protected Bundle getBundle() {
         return bundle;
     }
