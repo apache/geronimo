@@ -33,6 +33,8 @@
     <!--wrapped by different levels. Due to this the initial exception message can be lost. If this flag-->
     <!--is set then, Axis2 tries to get the first exception and set its message as the faultreason/Reason.-->
     <parameter name="DrillDownToRootCauseForFaultReason">false</parameter>
+    
+    <parameter name="jaxws.endpoint.publish.disable">true</parameter>
 
     <!--This is the user name and password of admin console-->
     <parameter name="userName">admin</parameter>
