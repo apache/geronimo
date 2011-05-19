@@ -504,13 +504,16 @@ public class DirectoryMonitor implements Runnable {
             }
         }
     }
-
+    
     private void resolveFile(FileAction action) {
         if (action.action == FileAction.REMOVED_FILE) {
             files.remove(action.child.getPath());
-        } else {
+        } 
+        
+        /* we don't need this, because the setChanging(false) has been called after the NEW_FILE/UPDATED_FILE action object was created.
+          else {
             action.info.setChanging(false);
-        }
+        }*/
     }
 
     private String calculateModuleId(File module) {
