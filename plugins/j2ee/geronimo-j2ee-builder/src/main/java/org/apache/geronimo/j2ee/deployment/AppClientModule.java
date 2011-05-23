@@ -56,6 +56,7 @@ public class AppClientModule extends Module<ApplicationClient, XmlObject> {
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;
+        super.priority = 9;
     }
 
     public ConfigurationModuleType getType() {

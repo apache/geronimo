@@ -42,6 +42,7 @@ public class ConnectorModule<T, U> extends Module<T, U> {
                            Module parentModule) {
         super(standAlone, moduleName, name, environment, moduleFile, 
               targetPath, specDD, vendorDD, originalSpecDD, null, jndiContext, parentModule);
+        super.priority = 3;
     }
 
     public ConfigurationModuleType getType() {

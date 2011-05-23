@@ -620,7 +620,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
-            for (Module module : applicationInfo.getModules()) {
+            
+            List<Module<?,?>> modules = new ArrayList<Module<?,?>>();
+            modules.addAll(applicationInfo.getModules());
+            Collections.sort(modules, new Module.ModulePriorityComparator());
+                
+            for (Module<?,?> module : modules) {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
             //push the module classpaths into the appropriate ear context
@@ -629,7 +634,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             earContext.flush();
             earContext.initializeConfiguration();
 
-            for (Module module : applicationInfo.getModules()) {
+            for (Module<?,?> module : modules) {
                 if (earContext != module.getEarContext()) {
                     module.getEarContext().initializeConfiguration();
                 }
@@ -642,7 +647,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             if (ConfigurationModuleType.EAR == applicationType) {
                 namingBuilders.initContext(applicationInfo.getSpecDD(), applicationInfo.getVendorDD(), applicationInfo);
             }
-            for (Module module : applicationInfo.getModules()) {
+            for (Module<?,?> module : modules) {
                 if (createPlanMode.get()) {
                     try {
                         getBuilder(module).initContext(earContext, module, bundle);
@@ -712,7 +717,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             AbstractName appJndiName = naming.createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
             earContext.getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
             // each module can now add it's GBeans
-            for (Module module : applicationInfo.getModules()) {
+            for (Module<?,?> module : modules) {
                 if (createPlanMode.get()) {
                     try {
                         getBuilder(module).addGBeans(earContext, module, bundle, repositories);
@@ -754,8 +759,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             cleanupContext(earContext);
             throw e;
         } finally {
-            for (Object module1 : applicationInfo.getModules()) {
-                Module module = (Module) module1;
+            for (Module<?,?> module : applicationInfo.getModules()) {
                 module.close();
             }
         }

@@ -44,6 +44,7 @@ public class EJBModule<U> extends Module<EjbJar, U> {
                      Module parentModule) {
         super(standAlone, moduleName, name, environment, moduleFile, 
               targetPath, specDD, vendorDD, originalSpecDD, null, jndiContext, parentModule);
+        super.priority = 5;
     }
 
     public ConfigurationModuleType getType() {

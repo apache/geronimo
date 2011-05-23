@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -64,6 +65,16 @@ public abstract class Module<T, U> {
 
     private final Map<JndiKey, Map<String, Object>> jndiContext;
     private final Module<?, ?> parentModule;
+    
+    /*
+     * The Modules should be sorted with following sequence:
+     * 
+     * 1, ConnectorModule
+     * 2, EJBModule
+     * 3, WebModule
+     * 4, AppClientModule
+     */
+    protected int priority = 5;
 
     protected Module(boolean standAlone,
                      AbstractName moduleName,
@@ -332,5 +343,13 @@ public abstract class Module<T, U> {
             }
         }
         return jndiContext;
+    }
+    
+
+    public static class ModulePriorityComparator implements Comparator<Module<?,?>> {
+
+        public int compare(Module<?,?> m1, Module<?,?> m2) {
+            return m1.priority - m2.priority;
+        }
     }
 }

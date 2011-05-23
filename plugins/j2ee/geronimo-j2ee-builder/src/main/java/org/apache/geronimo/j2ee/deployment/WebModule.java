@@ -51,6 +51,7 @@ public class WebModule extends Module<WebApp, XmlObject> {
                      Module parentModule) {
         this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile),
              targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, jndiContext, parentModule);
+        super.priority = 7;
     }
     
     public WebModule(boolean standAlone,
