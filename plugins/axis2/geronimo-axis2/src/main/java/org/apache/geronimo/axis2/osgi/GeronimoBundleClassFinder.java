@@ -18,12 +18,11 @@
 package org.apache.geronimo.axis2.osgi;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.axis2.jaxws.message.databinding.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.osgi.framework.Bundle;
@@ -41,11 +40,11 @@ public class GeronimoBundleClassFinder implements ClassFinder {
     }
 
     @Override
-    public ArrayList<Class> getClassesFromJarFile(final String packageName, ClassLoader cl) throws ClassNotFoundException {
-        if (!(cl instanceof BundleClassLoader)) {
-            return new ArrayList<Class>(0);
+    public ArrayList<Class> getClassesFromJarFile(final String packageName, ClassLoader cl) throws ClassNotFoundException {        
+        Bundle bundle = BundleUtils.getBundle(cl, true);
+        if(bundle == null) {
+            return new ArrayList<Class>();
         }
-        Bundle bundle = ((BundleClassLoader) cl).getBundle(true);
         //TODO Do we need to limit the scanning scope in the target application ? As we share one bundle for all the sub modules except for car
         BundleClassFinder bundleClassFinder = new BundleClassFinder(packageAdmin, bundle, new ClassDiscoveryFilter() {
 
