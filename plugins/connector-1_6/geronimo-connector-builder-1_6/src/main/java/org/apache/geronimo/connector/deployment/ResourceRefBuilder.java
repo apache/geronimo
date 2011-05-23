@@ -282,7 +282,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         Set<AbstractNameQuery> applicationManagedSecurityResources = new HashSet<AbstractNameQuery>();
         for (ResourceRef resourceRef : resourceRefList) {
 
-            String type = resourceRef.getResType().trim();
+            String type = resourceRef.getResType();
+            if(type == null){
+                continue;
+            }else {
+                type = type.trim();
+            }
 
             if (!URL.class.getName().equals(type)
                     && !"javax.mail.Session".equals(type)
