@@ -18,6 +18,7 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.beans.Introspector;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -360,18 +362,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 Class<?> clazz = bundle.loadClass(className);
                 String fieldName = getStringValue(injectionTarget.getInjectionTargetName());
                 Class<?> fieldType = getField(clazz, fieldName);
-                fieldType = deprimitivize(fieldType);
-                if (type == null) {
-                    type = fieldType;
-                } else if (!fieldType.equals(type)) {
-                    if (fieldType.isAssignableFrom(type)) {
-                        //type is subclass
-                    } else if (type.isAssignableFrom(fieldType)) {
-                        type = fieldType;
-                    } else {
-                        throw new DeploymentException("Mismatched types in env-entry named: " + name + " type: " + type + " injections " + injectionTargets);
-                    }
-                }
+                type = fieldType;
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load injection target class for env entry named: " + name + " in class: " + className, e);
             } catch (NoSuchFieldException e) {
@@ -382,6 +373,25 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             throw new DeploymentException("No way to determine type of env-entry " + name + " in component " + module.toString());
         }
         return type.getName();
+    }
+    
+    private static Class<?> chooseType(String name, Class<?> originalType, Class<?> alternativeType) throws DeploymentException{
+        alternativeType = deprimitivize(alternativeType);
+        if (originalType == null) {
+            return alternativeType;
+        } else if (!alternativeType.equals(originalType)) {
+            if (alternativeType.isAssignableFrom(originalType)) {
+                //originalType is subclass
+                return originalType;
+            } else if (originalType.isAssignableFrom(alternativeType)) {
+                //alternativeType is subclass
+                return alternativeType;
+            } else {
+                throw new DeploymentException("Mismatched types in named: " + name + " type: " + originalType );
+            }
+        } 
+        
+        return originalType;
     }
 
     //duplicated in ResourceAnnotationHelper
@@ -402,10 +412,20 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         primitives.put(short.class, Short.class);
     }
 
-    private Class<?> getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+    private Class<?> getField(Class<?> clazz, String fieldName) throws NoSuchFieldException, DeploymentException {
+        
+        Class<?> type = null;
+        
         do {
             try {
-                return clazz.getDeclaredField(fieldName).getType();
+                Field field = clazz.getDeclaredField(fieldName);
+                Resource resource = field.getAnnotation(Resource.class);
+                if (resource != null) {
+                    type = chooseType(fieldName, field.getType(), resource.type());
+                } else {
+                    type = field.getType();
+                }
+                
             } catch (NoSuchFieldException e) {
                 //look at superclass
             }
@@ -413,15 +433,25 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 if (method.getReturnType() == void.class && method.getParameterTypes().length == 1) {
                     String methodName = method.getName();
                     if (methodName.startsWith("set")) {
-                        String type = Introspector.decapitalize(methodName.substring(3));
-                        if (fieldName.equals(type)) {
-                            return method.getParameterTypes()[0];
+                        String setName = Introspector.decapitalize(methodName.substring(3));
+                        if (fieldName.equals(setName)) {
+                            Resource resource = method.getAnnotation(Resource.class);
+                            if (resource != null) {
+                                type = chooseType(fieldName, method.getParameterTypes()[0], resource.type());
+                            } else {
+                                type = method.getParameterTypes()[0];
+                            }
                         }
                     }
                 }
             }
             clazz = clazz.getSuperclass();
         } while (clazz != null);
+        
+        if (type != null) {
+            return type;
+        }
+        
         throw new NoSuchFieldException(fieldName);
     }
 }
