@@ -388,8 +388,7 @@ public class EjbDeploymentBuilder {
             // classFinder in the module will convey whether metadata-complete is set (or not)
 //            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
-        //TODO well, what is the appName?
-        String appName = null;
+        String appName = (String)ejbModule.getJndiScope(JndiScope.app).get("app/AppName");
         EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
         for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName();
