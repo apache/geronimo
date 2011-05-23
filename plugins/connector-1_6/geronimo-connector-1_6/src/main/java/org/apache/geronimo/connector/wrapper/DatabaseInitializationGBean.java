@@ -125,22 +125,29 @@ public class DatabaseInitializationGBean {
 
     }
 
-    private Reader getSQLInput(String sqlString, String path, Bundle bundle) throws Exception {
-        if (sqlString != null) {
-            return new StringReader(sqlString);
-        } else if (path != null) {
-            URL resource = bundle.getResource(path);
-            if (resource == null) {
-                File file = new File(path);
-                if (!file.exists()) {
-                    throw new Exception("SQL resource file not found: " + path);
-                }
-                return new InputStreamReader(new FileInputStream(file));
-            } else {
-                return new InputStreamReader(resource.openStream());
-            }            
-        } else {
-            throw new Exception("SQL resource file or string not specified");
-        }
-    }
+	private Reader getSQLInput(String sqlString, String path, Bundle bundle)
+			throws Exception {
+		if (sqlString != null) {
+			return new StringReader(sqlString);
+		} else if (path != null) {
+			URL resource = bundle.getResource(path);
+			if (resource == null) {
+				resource = bundle.getEntry(path);
+				if (resource != null) {
+					return new InputStreamReader(resource.openStream());
+				} else {
+					File file = new File(path);
+					if (!file.exists()) {
+						throw new Exception("SQL resource file not found: "
+								+ path);
+					}
+					return new InputStreamReader(new FileInputStream(file));
+				}
+			} else {
+				return new InputStreamReader(resource.openStream());
+			}
+		} else {
+			throw new Exception("SQL resource file or string not specified");
+		}
+	}
 }
