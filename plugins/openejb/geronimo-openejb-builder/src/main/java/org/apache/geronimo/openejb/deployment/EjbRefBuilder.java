@@ -38,6 +38,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
@@ -54,6 +56,7 @@ import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
 import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
+import org.apache.openejb.core.ivm.naming.JndiUrlReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.InjectionTarget;
@@ -165,6 +168,11 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
         }
+        
+
+        
+        Map<JndiKey,Map<String,Object>> moduleJndiContext = module.getJndiContext();
+        
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String name = entry.getKey();
@@ -176,7 +184,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     name.startsWith("module/") ||
                     name.startsWith("comp/")) {
                 if (uri != null) {
+                    //handle ejb ref for application client module
                     value = createClientRef(value);
+                    handleJndiUrlReference(value, moduleJndiContext, injectionsMap, sharedContext);
                 }
                 name = "java:" + name;
                 if (value instanceof Serializable) {
@@ -190,6 +200,62 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             }
         }
     }
+    
+    /*
+     * In following cases,
+     * 
+     * <application-client>
+     * ...
+     * <ejb-ref>
+     *   ...
+     *   <lookup-name>java:app/xxxx</lookup-name>
+     * </ejb-ref>
+     * <ejb-ref>
+     *   ...
+     *   <lookup-name>java:global/xxxx</lookup-name>
+     * </ejb-ref>
+     * ...
+     * </application-client>
+     * 
+     * we need to convert the corresponding app and global ejb ref into ClientEjbReference
+     * so that they could be used in application client.
+     * 
+     */
+    private void handleJndiUrlReference(Object value, Map<JndiKey, Map<String, Object>> moduleJndiContext,
+            Map<String, List<InjectionTarget>> injectionsMap, Map<EARContext.Key, Object> sharedContext) {
+
+        if (!(value instanceof JndiUrlReference)) {
+            return;
+        }
+
+        String name = ((JndiUrlReference) value).getJndiName();
+
+        if (name.startsWith("java:")) {
+            name = name.charAt(5) == '/' ? name.substring("java:/".length()) : name.substring("java:".length());
+        }
+
+        Object valueToConvert = null;
+
+        if (moduleJndiContext.get(JndiScope.app).containsKey(name)) {
+            valueToConvert = moduleJndiContext.get(JndiScope.app).get(name);
+        } else if (moduleJndiContext.get(JndiScope.global).containsKey(name)) {
+            valueToConvert = moduleJndiContext.get(JndiScope.global).get(name);
+        } else {
+            return;
+        }
+
+        valueToConvert = createClientRef(valueToConvert);
+
+        name = "java:" + name;
+        if (value instanceof Serializable) {
+            List<InjectionTarget> injections = injectionsMap.get(name);
+            if (injections == null) {
+                injections = Collections.emptyList();
+            }
+            put(name, valueToConvert, moduleJndiContext, injections, sharedContext);
+        }
+    }
+        
 
     private Object createClientRef(Object value) {
         if (value instanceof IntraVmJndiReference) {
