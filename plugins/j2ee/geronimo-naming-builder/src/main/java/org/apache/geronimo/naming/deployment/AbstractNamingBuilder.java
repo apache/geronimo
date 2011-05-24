@@ -377,6 +377,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     
     private static Class<?> chooseType(String name, Class<?> originalType, Class<?> alternativeType) throws DeploymentException{
         alternativeType = deprimitivize(alternativeType);
+        originalType = deprimitivize(originalType);
         if (originalType == null) {
             return alternativeType;
         } else if (!alternativeType.equals(originalType)) {
@@ -449,7 +450,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         } while (clazz != null);
         
         if (type != null) {
-            return type;
+            return deprimitivize(type);
         }
         
         throw new NoSuchFieldException(fieldName);
