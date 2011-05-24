@@ -34,6 +34,7 @@ import org.apache.geronimo.myfaces.FacesConfigDigester;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.myfaces.config.element.FacesConfig;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -130,7 +131,8 @@ public class ConfigRegistryImpl implements ConfigRegistry {
                 return Collections.<FacesConfig> emptyList();
             }
             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            List<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
+            Set<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
+            addWiredBundles(bundleId, dependentBundles);
             List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
             for (Bundle dependentBundle : dependentBundles) {
                 List<FacesConfig> facesConfigs = bundleIdFacesConfigsMap.get(dependentBundle.getBundleId());
@@ -156,7 +158,8 @@ public class ConfigRegistryImpl implements ConfigRegistry {
                 return Collections.<URL> emptyList();
             }
             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            List<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
+            Set<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
+            addWiredBundles(bundleId, dependentBundles);
             List<URL> faceletsConfigResources = new ArrayList<URL>();
             for (Bundle dependentBundle : dependentBundles) {
                 List<URL> faceletConfigResources = bundleIdFaceletsConfigResourcesMap.get(dependentBundle.getBundleId());
@@ -169,6 +172,19 @@ public class ConfigRegistryImpl implements ConfigRegistry {
             if (serviceReference != null) {
                 bundleContext.ungetService(serviceReference);
             }
+        }
+    }
+
+    /*
+     * Add any wired bundles if the bundle is a Web Application Bundle.
+     */
+    private void addWiredBundles(Long bundleId, Set<Bundle> dependentBundles) {
+        BundleContext bundleContext = activator.getBundleContext();
+        Bundle bundle = bundleContext.getBundle(bundleId);
+        String contextPath = (String) bundle.getHeaders().get("Web-ContextPath");
+        if (contextPath != null) {
+            Set<Bundle> wiredBundles = BundleUtils.getWiredBundles(bundle);
+            dependentBundles.addAll(wiredBundles);
         }
     }
 

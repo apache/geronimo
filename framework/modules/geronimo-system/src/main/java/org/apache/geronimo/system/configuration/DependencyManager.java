@@ -151,16 +151,16 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         return dependentBundleIds == null ? Collections.<Long> emptySet() : new HashSet<Long>(dependentBundleIds);
     }
 
-    public List<Bundle> getFullDependentBundles(Bundle bundle) {
+    public Set<Bundle> getFullDependentBundles(Bundle bundle) {
         return getFullDependentBundles(bundle.getBundleId());
     }
 
-    public List<Bundle> getFullDependentBundles(Long bundleId) {
+    public Set<Bundle> getFullDependentBundles(Long bundleId) {
         Set<Long> fullDependentBundleIds = getFullDependentBundleIds(bundleId);
         if (fullDependentBundleIds.size() == 0) {
-            return Collections.<Bundle> emptyList();
+            return Collections.<Bundle> emptySet();
         }
-        List<Bundle> dependentBundles = new ArrayList<Bundle>(fullDependentBundleIds.size());
+        Set<Bundle> dependentBundles = new HashSet<Bundle>(fullDependentBundleIds.size());
         for (Long dependentBundleId : fullDependentBundleIds) {
             dependentBundles.add(bundleContext.getBundle(dependentBundleId));
         }
