@@ -38,11 +38,12 @@
         <module>simple</module>
         <module>jpa</module>
         <module>require-bundle-test</module>    
-    <module>ds-jndi</module>
-    <module>ejb-osgi-service</module>
-    <module>osgi-service-custom</module>
-    <module>mail-osgi-service</module>
-  </modules>
+        <module>ds-jndi</module>
+        <module>ejb-osgi-service</module>
+        <module>osgi-service-custom</module>
+        <module>mail-osgi-service</module>
+        <module>jsf</module>
+    </modules>
 
     <build>
         <pluginManagement>
