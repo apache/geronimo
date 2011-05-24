@@ -22,8 +22,8 @@ package org.apache.geronimo.myfaces.config.resource.osgi;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,72 +122,60 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         bundleIdFaceletsConfigResourcesMap.remove(removeBundleId);
     }
 
-    public List<FacesConfig> getDependentFacesConfigs(Long bundleId) {
+    private Set<Bundle> getDependentBundles(Long bundleId) {
         BundleContext bundleContext = activator.getBundleContext();
-        ServiceReference serviceReference = null;
-        try {
-            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
-            if (serviceReference == null) {
-                return Collections.<FacesConfig> emptyList();
-            }
+        
+        Set<Bundle> dependentBundles = null;
+        
+        // add in bundles from dependency manager
+        ServiceReference serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+        if (serviceReference != null) {
             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            Set<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
-            addWiredBundles(bundleId, dependentBundles);
-            List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
-            for (Bundle dependentBundle : dependentBundles) {
-                List<FacesConfig> facesConfigs = bundleIdFacesConfigsMap.get(dependentBundle.getBundleId());
-                if (facesConfigs != null) {
-                    dependentFacesConfigs.addAll(facesConfigs);
-                }
-            }
-            return dependentFacesConfigs;
-        } finally {
-            if (serviceReference != null) {
+            try {
+                dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
+            } finally {
                 bundleContext.ungetService(serviceReference);
             }
+        } else {
+            dependentBundles = new HashSet<Bundle>();
         }
-    }
-
-    @Override
-    public List<URL> getDependentFaceletsConfigResources(Long bundleId) {
-        BundleContext bundleContext = activator.getBundleContext();
-        ServiceReference serviceReference = null;
-        try {
-            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
-            if (serviceReference == null) {
-                return Collections.<URL> emptyList();
-            }
-            DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            Set<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundleId);
-            addWiredBundles(bundleId, dependentBundles);
-            List<URL> faceletsConfigResources = new ArrayList<URL>();
-            for (Bundle dependentBundle : dependentBundles) {
-                List<URL> faceletConfigResources = bundleIdFaceletsConfigResourcesMap.get(dependentBundle.getBundleId());
-                if (faceletConfigResources != null) {
-                    faceletsConfigResources.addAll(faceletConfigResources);
-                }
-            }
-            return faceletsConfigResources;
-        } finally {
-            if (serviceReference != null) {
-                bundleContext.ungetService(serviceReference);
-            }
-        }
-    }
-
-    /*
-     * Add any wired bundles if the bundle is a Web Application Bundle.
-     */
-    private void addWiredBundles(Long bundleId, Set<Bundle> dependentBundles) {
-        BundleContext bundleContext = activator.getBundleContext();
+        
+        // add in wired bundles if WAB        
         Bundle bundle = bundleContext.getBundle(bundleId);
         String contextPath = (String) bundle.getHeaders().get("Web-ContextPath");
         if (contextPath != null) {
             Set<Bundle> wiredBundles = BundleUtils.getWiredBundles(bundle);
             dependentBundles.addAll(wiredBundles);
         }
+
+        return dependentBundles;
+    }
+    
+    public List<FacesConfig> getDependentFacesConfigs(Long bundleId) {
+        Set<Bundle> dependentBundles = getDependentBundles(bundleId);
+        List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
+        for (Bundle dependentBundle : dependentBundles) {
+            List<FacesConfig> facesConfigs = bundleIdFacesConfigsMap.get(dependentBundle.getBundleId());
+            if (facesConfigs != null) {
+                dependentFacesConfigs.addAll(facesConfigs);
+            }
+        }
+        return dependentFacesConfigs;
     }
 
+    @Override
+    public List<URL> getDependentFaceletsConfigResources(Long bundleId) {
+        Set<Bundle> dependentBundles = getDependentBundles(bundleId);
+        List<URL> faceletsConfigResources = new ArrayList<URL>();
+        for (Bundle dependentBundle : dependentBundles) {
+            List<URL> faceletConfigResources = bundleIdFaceletsConfigResourcesMap.get(dependentBundle.getBundleId());
+            if (faceletConfigResources != null) {
+                faceletsConfigResources.addAll(faceletConfigResources);
+            }
+        }
+        return faceletsConfigResources;
+    }
+    
     @Override
     public Set<Long> getFacesConfigsBundleIds() {
         return bundleIdFacesConfigsMap.keySet();
