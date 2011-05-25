@@ -109,22 +109,12 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
     @Override
     public Object addingBundle(Bundle bundle, BundleEvent event) {
         Collection<TldProvider.TldEntry> tlds = scanBundle(bundle);
-        if (tlds.isEmpty()) {
-            return null;
-        } else {
-            map.put(bundle, tlds);
-            return bundle;
-        }
+        map.put(bundle, tlds);        
+        return bundle;        
     }
 
     @Override
     public void modifiedBundle(Bundle bundle, BundleEvent event, Object object) {
-        Collection<TldProvider.TldEntry> tlds = scanBundle(bundle);
-        if (tlds.isEmpty()) {
-            map.remove(bundle);
-        } else {
-            map.put(bundle, tlds);
-        }
     }
 
     @Override
@@ -134,7 +124,7 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
 
     private Collection<TldProvider.TldEntry> scanBundle(Bundle bundle) {
         ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
-        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+        PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
         try {
             BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", ".tld");        
             TldResourceFinderCallback callback = new TldResourceFinderCallback();

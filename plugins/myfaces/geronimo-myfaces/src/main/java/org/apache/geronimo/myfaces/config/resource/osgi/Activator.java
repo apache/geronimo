@@ -62,7 +62,7 @@ public class Activator implements BundleActivator {
         // register this as a service
         registryRegistration = context.registerService(ConfigRegistry.class.getName(), registry, null);
 
-	    bt = new BundleTracker(context, Bundle.ACTIVE, new ConfigBundleTrackerCustomizer(this, context.getBundle(), registry));
+	    bt = new BundleTracker(context, Bundle.STARTING | Bundle.ACTIVE, new ConfigBundleTrackerCustomizer(this, context.getBundle(), registry));
 	    bt.open();
 	}
 

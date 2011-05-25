@@ -55,7 +55,8 @@ public class ConfigBundleTrackerCustomizer implements BundleTrackerCustomizer {
         if (bundle.equals(registryBundle)) {
             return null;
         }
-        return registry.addBundle(bundle) ? Boolean.TRUE : null;
+        registry.addBundle(bundle);
+        return bundle;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class ConfigBundleTrackerCustomizer implements BundleTrackerCustomizer {
     }
 
     @Override
-    public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
+    public void removedBundle(Bundle bundle, BundleEvent event, Object object) {        
         // have the registry process this
         registry.removeBundle(bundle, object);
     }

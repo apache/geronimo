@@ -33,7 +33,7 @@ public class Activator implements BundleActivator {
         TldRegistryImpl tldRegistry = new TldRegistryImpl(context);
         tldRegistryRegistration = context.registerService(TldRegistry.class.getName(), tldRegistry, null);
         
-        tldBundleTracker = new BundleTracker(context, Bundle.ACTIVE, tldRegistry);  
+        tldBundleTracker = new BundleTracker(context, Bundle.STARTING | Bundle.ACTIVE, tldRegistry);  
         tldBundleTracker.open();
     }
 
