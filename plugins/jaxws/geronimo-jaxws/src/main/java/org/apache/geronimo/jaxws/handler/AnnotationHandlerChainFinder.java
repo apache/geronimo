@@ -19,15 +19,13 @@ package org.apache.geronimo.jaxws.handler;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
-import javax.xml.ws.handler.LogicalHandler;
 
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.slf4j.Logger;
@@ -36,60 +34,60 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class AnnotationHandlerChainBuilder
+public class AnnotationHandlerChainFinder
 {
-    private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerChainBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerChainFinder.class);
 
-    public AnnotationHandlerChainBuilder() {
-    }
+    private HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
 
     /**
      * @param clz
      * @param existingHandlers
      * @return
      */
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
-        log.debug("building handler chain");
+    public HandlerChainsInfo buildHandlerChainFromClass(Class<?> clz, HandlerChainsInfo existingHandlerChainsInfo) {
+        if (log.isDebugEnabled()) {
+            log.debug("building handler chain on class " + clz.getName());
+        }
+        HandlerChainsInfo handlerChainsInfo = null;
         HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
-        List<Handler> chain = null;
         if (hcAnn == null) {
-            log.debug("no HandlerChain annotation on " + clz);
-            chain = new ArrayList<Handler>();
+            if (log.isDebugEnabled()) {
+                log.debug("no HandlerChain annotation on " + clz);
+            }
+            handlerChainsInfo = new HandlerChainsInfo();
         } else {
             hcAnn.validate();
 
             try {
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
-                InputStream in = handlerFileURL.openStream();
                 HandlerChains handlerChainsType;
+                InputStream in = null;
                 try {
-                    handlerChainsType = (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, in);
+                    in = handlerFileURL.openStream();
+                    handlerChainsType = (HandlerChains) JaxbJavaee.unmarshalHandlerChains(HandlerChains.class, in);
                 } finally {
-                    in.close();
+                    IOUtils.close(in);
                 }
 
                 if (null == handlerChainsType || handlerChainsType.getHandlerChain().isEmpty()) {
-                    throw new WebServiceException("Chain not specified");
+                    throw new WebServiceException("Chain not specified for class " + clz.getName());
                 }
 
-                chain = new ArrayList<Handler>();
-                for (org.apache.openejb.jee.HandlerChain hc : handlerChainsType.getHandlerChain()) {
-                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
-                }
+                handlerChainsInfo = handlerChainsInfoBuilder.build(handlerChainsType);
 
             } catch (Exception e) {
                 throw new WebServiceException("Chain not specified", e);
             }
         }
 
-        assert chain != null;
-        if (existingHandlers != null) {
-            chain.addAll(existingHandlers);
+        if (existingHandlerChainsInfo != null) {
+            handlerChainsInfo.handleChains.addAll(existingHandlerChainsInfo.handleChains);
         }
-        return sortHandlers(chain);
+        return handlerChainsInfo;
     }
 
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
+    public HandlerChainsInfo buildHandlerChainFromClass(Class<?> clz) {
         return buildHandlerChainFromClass(clz, null);
     }
 
@@ -140,56 +138,6 @@ public class AnnotationHandlerChainBuilder
         return hcAnn;
     }
 
-    protected List<Handler> buildHandlerChain(org.apache.openejb.jee.HandlerChain hc, ClassLoader classLoader) {
-        List<Handler> handlerChain = new ArrayList<Handler>();
-        for (org.apache.openejb.jee.Handler ht : hc.getHandler()) {
-            try {
-                log.debug("loading handler :" + trimString(ht.getHandlerName()));
-
-                Class<? extends Handler> handlerClass = Class.forName(
-                        trimString(ht.getHandlerClass()), true, classLoader)
-                        .asSubclass(Handler.class);
-
-                Handler handler = handlerClass.newInstance();
-                log.debug("adding handler to chain: " + handler);
-                handlerChain.add(handler);
-            } catch (Exception e) {
-                throw new WebServiceException("Failed to instantiate handler", e);
-            }
-        }
-        return handlerChain;
-    }
-
-    private String trimString(String str) {
-        return str != null ? str.trim() : null;
-    }
-
-    /**
-     * sorts the handlers into correct order. All of the logical handlers first
-     * followed by the protocol handlers
-     *
-     * @param handlers
-     * @return sorted list of handlers
-     */
-    public List<Handler> sortHandlers(List<Handler> handlers) {
-
-        List<LogicalHandler> logicalHandlers = new ArrayList<LogicalHandler>();
-        List<Handler> protocolHandlers = new ArrayList<Handler>();
-
-        for (Handler handler : handlers) {
-            if (handler instanceof LogicalHandler) {
-                logicalHandlers.add((LogicalHandler) handler);
-            } else {
-                protocolHandlers.add(handler);
-            }
-        }
-
-        List<Handler> sortedHandlers = new ArrayList<Handler>();
-        sortedHandlers.addAll(logicalHandlers);
-        sortedHandlers.addAll(protocolHandlers);
-        return sortedHandlers;
-    }
-
     private static class HandlerChainAnnotation {
         private final Class<?> declaringClass;
         private final HandlerChain ann;
@@ -208,7 +156,7 @@ public class AnnotationHandlerChainBuilder
         }
 
         public void validate() {
-            if (null == ann.file() || "".equals(ann.file())) {
+            if (null == ann.file() || ann.file().isEmpty()) {
                 throw new WebServiceException("@HandlerChain annotation does not contain a file name or url.");
             }
         }

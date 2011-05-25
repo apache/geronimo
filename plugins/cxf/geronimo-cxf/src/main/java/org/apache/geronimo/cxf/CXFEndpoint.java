@@ -39,12 +39,10 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
-import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
-import org.apache.openejb.jee.HandlerChains;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
@@ -195,16 +193,11 @@ public abstract class CXFEndpoint {
      * Set appropriate handlers for the port/service/bindings.
      */
     protected void initHandlers() throws Exception {
-        HandlerChains handlerChains =
-            HandlerChainsUtils.toHandlerChains(this.portInfo.getHandlersAsXML(), HandlerChains.class);
-        GeronimoHandlerResolver handlerResolver = new GeronimoHandlerResolver(bundle, getImplementorClass(), handlerChains, null);
-
+        GeronimoHandlerResolver handlerResolver = new GeronimoHandlerResolver(bundle, getImplementorClass(), portInfo.getHandlerChainsInfo(), null);
         PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(),
                                                  serviceFactory.getEndpointName(),
                                                  service.getName());
-
         List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
-
         getBinding().setHandlerChain(chain);
     }
 

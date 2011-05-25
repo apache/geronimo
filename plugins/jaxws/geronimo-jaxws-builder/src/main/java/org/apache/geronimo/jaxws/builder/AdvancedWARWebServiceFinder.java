@@ -18,20 +18,15 @@
 package org.apache.geronimo.jaxws.builder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
@@ -116,12 +111,13 @@ public class AdvancedWARWebServiceFinder extends AbstractWARWebServiceFinder {
                     } else {
                         // weird, there was no servlet entry for this class but
                         // servlet-mapping exists
-                        LOG.warn("Found <servlet-mapping> but corresponding <servlet> was not defined");
+                        LOG.warn("Found <servlet-mapping> {} but corresponding <servlet> {}  was not defined", location, service.getName());
                     }
 
                     // map service
                     PortInfo portInfo = new PortInfo();
                     portInfo.setLocation(contextRoot + location);
+                    portInfo.setHandlerChainsInfo(annotationHandlerChainFinder.buildHandlerChainFromClass(service));
                     servletNamePortInfoMap.put(service.getName(), portInfo);
                 } else {
                     // found at least one mapped <servlet/> entry
@@ -161,6 +157,7 @@ public class AdvancedWARWebServiceFinder extends AbstractWARWebServiceFinder {
                 if (JAXWSUtils.isWebService(servletClass)) {
                     String servletName = servletType.getServletName().trim();
                     portInfo = createPortInfo(servletName, portLocations);
+                    portInfo.setHandlerChainsInfo(annotationHandlerChainFinder.buildHandlerChainFromClass(servletClass));
                 }
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Failed to load servlet class " + servletClassName, e);

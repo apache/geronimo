@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
 import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
 import org.apache.geronimo.jaxws.feature.RespectBindingFeatureInfo;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 
 public class PortInfo implements Serializable {
 
@@ -40,7 +41,7 @@ public class PortInfo implements Serializable {
 
     private String servletLink;
 
-    private String handlersAsXML;
+    private HandlerChainsInfo handlerChainsInfo;
 
     private String binding;
 
@@ -104,33 +105,6 @@ public class PortInfo implements Serializable {
         return binding;
     }
 
-    /*
-     * This is a bit tricky here since JAXB generated classes are not serializable,
-     * so serialize the handler chain to XML and pass it as a String.
-     */
-
-    public void setHandlers(Class type, Object handlerChain) throws Exception {
-        if (handlerChain == null) {
-            return;
-        }
-
-        JAXBContext ctx = JAXBContext.newInstance(type);
-        Marshaller m = ctx.createMarshaller();
-        StringWriter writer = new StringWriter();
-        /*
-         * Since HandlerChainsType is a type, have to wrap it into some element
-         */
-        JAXBElement element =
-            new JAXBElement(HandlerChainsUtils.HANDLER_CHAINS_QNAME, type, handlerChain);
-        m.marshal(element, writer);
-
-        this.handlersAsXML = writer.toString();
-    }
-
-    public <T>T getHandlers(Class<T> type) throws Exception {
-        return HandlerChainsUtils.toHandlerChains(this.handlersAsXML, type);
-    }
-
     public QName getWsdlPort() {
         return wsdlPort;
     }
@@ -179,18 +153,18 @@ public class PortInfo implements Serializable {
         this.respectBindingFeatureInfo = respectBindingFeatureInfo;
     }
 
-    public String getHandlersAsXML() {
-        return handlersAsXML;
+    public HandlerChainsInfo getHandlerChainsInfo() {
+        return handlerChainsInfo;
     }
 
-    public void setHandlersAsXML(String handlersAsXML) {
-        this.handlersAsXML = handlersAsXML;
+    public void setHandlerChainsInfo(HandlerChainsInfo handlerChainsInfo) {
+        this.handlerChainsInfo = handlerChainsInfo;
     }
 
     @Override
     public String toString() {
         return "PortInfo [serviceName=" + serviceName + ", portName=" + portName + ", seiInterfaceName=" + seiInterfaceName + ", wsdlFile=" + wsdlFile + ", servletLink=" + servletLink
-                + ", handlersAsXML=" + handlersAsXML + ", binding=" + binding + ", wsdlPort=" + wsdlPort + ", wsdlService=" + wsdlService + ", location=" + location + ", mtomFeatureInfo="
+                +  ", binding=" + binding + ", wsdlPort=" + wsdlPort + ", wsdlService=" + wsdlService + ", location=" + location + ", mtomFeatureInfo="
                 + mtomFeatureInfo + ", addressingFeatureInfo=" + addressingFeatureInfo + ", respectBindingFeatureInfo=" + respectBindingFeatureInfo + "]";
     }
 

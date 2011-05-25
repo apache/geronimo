@@ -31,14 +31,13 @@ import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
-import org.apache.openejb.jee.HandlerChains;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +50,9 @@ public class CXFServiceReference extends JAXWSServiceReference {
                                URI wsdlURI,
                                QName serviceQName,
                                AbstractName name,
-                               String handlerChainsXML,
+                               HandlerChainsInfo handlerChainsInfo,
                                Map<Object, EndpointInfo> seiInfoMap) {
-        super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
+        super(handlerChainsInfo, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
     }
 
     @Override
@@ -77,21 +76,11 @@ public class CXFServiceReference extends JAXWSServiceReference {
         }
     }
 
-    protected HandlerChains getHandlerChains() {
-        HandlerChains types = null;
-        try {
-            types = HandlerChainsUtils.toHandlerChains(this.handlerChainsXML, HandlerChains.class);
-        } catch (Exception e) {
-            LOG.warn("Failed to deserialize handler chains", e);
-        }
-        return types;
-    }
-
     protected HandlerResolver getHandlerResolver(Class serviceClass) {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
         GeronimoHandlerResolver handlerResolver =
-                new GeronimoHandlerResolver(bundle, serviceClass, getHandlerChains(), annotationProcessor);
+                new GeronimoHandlerResolver(bundle, serviceClass, handlerChainsInfo, annotationProcessor);
         return handlerResolver;
     }
 

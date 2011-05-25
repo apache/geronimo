@@ -44,12 +44,12 @@ import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
 import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
 import org.apache.geronimo.jaxws.feature.RespectBindingFeatureInfo;
+import org.apache.geronimo.jaxws.handler.HandlerChainsInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.openejb.jee.Addressing;
-import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.PortComponent;
 import org.apache.openejb.jee.ServiceImplBean;
@@ -60,7 +60,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
+
     private static final Logger LOG = LoggerFactory.getLogger(JAXWSServiceBuilder.class);
+
+    private HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
 
     protected final Environment defaultEnvironment;
     protected WebServiceFinder webServiceFinder;
@@ -132,8 +135,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                         }
 
                         if (port.getHandlerChains() != null) {
-                            String handlerChains = JaxbJavaee.marshal(HandlerChains.class, port.getHandlerChains());
-                            portInfo.setHandlersAsXML(handlerChains);
+                            portInfo.setHandlerChainsInfo(handlerChainsInfoBuilder.build(port.getHandlerChains()));
                         }
 
                         if (port.getWsdlPort() != null) {

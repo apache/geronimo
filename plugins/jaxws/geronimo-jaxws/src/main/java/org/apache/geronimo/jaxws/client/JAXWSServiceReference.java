@@ -40,6 +40,7 @@ import net.sf.cglib.reflect.FastConstructor;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.feature.WebServiceFeatureInfo;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 import org.apache.geronimo.naming.reference.BundleAwareReference;
 import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
@@ -59,7 +60,7 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
     protected AbstractName moduleName;
     protected URI wsdlURI;
     protected QName serviceQName;
-    protected String handlerChainsXML;
+    protected HandlerChainsInfo handlerChainsInfo;
     protected Map<Object, EndpointInfo> seiInfoMap;
     protected String referenceClassName;
 
@@ -68,8 +69,8 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
     protected FastConstructor serviceConstructor;
 
 
-    public JAXWSServiceReference(String handlerChainsXML, Map<Object, EndpointInfo> seiInfoMap, AbstractName name, QName serviceQName, URI wsdlURI, String referenceClassName, String serviceClassName) {
-        this.handlerChainsXML = handlerChainsXML;
+    public JAXWSServiceReference(HandlerChainsInfo handlerChainsInfo, Map<Object, EndpointInfo> seiInfoMap, AbstractName name, QName serviceQName, URI wsdlURI, String referenceClassName, String serviceClassName) {
+        this.handlerChainsInfo = handlerChainsInfo;
         this.seiInfoMap = seiInfoMap;
         this.moduleName = name;
         this.serviceQName = serviceQName;

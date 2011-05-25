@@ -18,6 +18,7 @@
 package org.apache.geronimo.jaxws.handler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.ws.WebServiceException;
@@ -26,8 +27,8 @@ import javax.xml.ws.handler.HandlerResolver;
 
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
-import org.apache.openejb.jee.HandlerChain;
-import org.apache.openejb.jee.HandlerChains;
+import org.apache.geronimo.jaxws.info.HandlerChainInfo;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 import org.osgi.framework.Bundle;
 
 /**
@@ -35,7 +36,7 @@ import org.osgi.framework.Bundle;
  */
 public class GeronimoHandlerResolver implements HandlerResolver {
 
-    private HandlerChains handlerChains;
+    private HandlerChainsInfo handlerChainsInfo;
 
     private Bundle bundle;
 
@@ -45,11 +46,11 @@ public class GeronimoHandlerResolver implements HandlerResolver {
 
     public GeronimoHandlerResolver(Bundle bundle,
                                    Class serviceClass,
-                                   HandlerChains handlerChains,
+                                   HandlerChainsInfo handlerChainsInfo,
                                    AnnotationProcessor annotationProcessor) {
         this.bundle = bundle;
         this.serviceClass = serviceClass;
-        this.handlerChains = handlerChains;
+        this.handlerChainsInfo = handlerChainsInfo;
         this.annotationProcessor = annotationProcessor;
     }
 
@@ -58,17 +59,24 @@ public class GeronimoHandlerResolver implements HandlerResolver {
         GeronimoHandlerChainBuilder builder =
                 new GeronimoHandlerChainBuilder(bundle, portInfo);
 
-        List<Handler> handlers = null;
-        if (this.handlerChains == null) {
-            handlers = builder.buildHandlerChainFromClass(this.serviceClass);
-        } else {
-            handlers = new ArrayList<Handler>();
-            for (HandlerChain handlerChain : this.handlerChains.getHandlerChain()) {
-                handlers.addAll(builder.buildHandlerChainFromConfiguration(handlerChain));
-            }
-            handlers = builder.sortHandlers(handlers);
+        if (this.handlerChainsInfo == null) {
+            /*handlers = builder.buildHandlerChainFromClass(this.serviceClass);*/
+            /* Since we run here, the HandlerChain from the class annotation should have been considered in the WebServiceRefBuilder (client side)
+             * or WebServiceFinder (server side)
+             * */
+            AnnotationHandlerChainFinder annotationHandlerChainFinder = new AnnotationHandlerChainFinder();
+            handlerChainsInfo = annotationHandlerChainFinder.buildHandlerChainFromClass(serviceClass);
         }
 
+        if (handlerChainsInfo == null || handlerChainsInfo.handleChains.size() == 0) {
+            return Collections.<Handler> emptyList();
+        }
+
+        List<Handler> handlers = new ArrayList<Handler>();
+        for (HandlerChainInfo handlerChain : handlerChainsInfo.handleChains) {
+            handlers.addAll(builder.buildHandlerChainFromConfiguration(handlerChain));
+        }
+        handlers = builder.sortHandlers(handlers);
         if (this.annotationProcessor != null) {
             try {
                 for (Handler handler : handlers) {

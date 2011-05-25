@@ -20,7 +20,6 @@ package org.apache.geronimo.cxf.builder;
 import java.net.URI;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -33,6 +32,7 @@ import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSBuilderUtils;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.naming.reference.JndiReference;
@@ -74,17 +74,12 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         serviceQName = builder.getServiceQName();
         Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
 
-        String handlerChainsXML = null;
-        try {
-            handlerChainsXML = getHandlerChainAsString(serviceRef.getHandlerChains());
-        } catch (JAXBException e) {
-            // this should not happen
-            LOG.warn("Failed to serialize handler chains", e);
+        HandlerChainsInfo handlerChainsInfo = null;
+        if(serviceRef.getHandlerChains() != null) {
+            handlerChainsInfo = handlerChainsInfoBuilder.build(serviceRef.getHandlerChains());
         }
-
         String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
-
-        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName, wsdlURI, serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
+        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName, wsdlURI, serviceQName, module.getModuleName(), handlerChainsInfo, seiInfoMap);
     }
 
     public static final GBeanInfo GBEAN_INFO;

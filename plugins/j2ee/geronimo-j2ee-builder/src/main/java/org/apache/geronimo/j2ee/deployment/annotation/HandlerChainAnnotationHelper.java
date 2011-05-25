@@ -90,8 +90,9 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @throws DeploymentException if parsing or validation error
      */
     private static void processHandlerChain(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
-        log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
-
+        if (log.isDebugEnabled()) {
+            log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
+        }
         List<Method> methodswithHandlerChain = classFinder.findAnnotatedMethods(HandlerChain.class);
         List<Field> fieldswithHandlerChain = classFinder.findAnnotatedFields(HandlerChain.class);
 
@@ -114,8 +115,9 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
 
         // Validate deployment descriptor to ensure it's still okay
 //        validateDD(annotatedApp);
-
-        log.debug("processHandlerChain(): Exit: AnnotatedApp: " + annotatedApp.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("processHandlerChain(): Exit: AnnotatedApp: " + annotatedApp.toString());
+        }
     }
 
 
@@ -142,12 +144,13 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @HandlerChain annotation
      */
     private static void addHandlerChain(JndiConsumer annotatedApp, final HandlerChain annotation, Class cls, Method method, Field field) {
-        log.debug("addHandlerChain( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
-                "[annotation] " + annotation.toString() + "," + '\n' +
-                "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
-                "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
-                "[field] " + (field != null ? field.getName() : null) + " ): Entry");
-
+        if(log.isDebugEnabled()) {
+            log.debug("addHandlerChain( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                    "[annotation] " + annotation.toString() + "," + '\n' +
+                    "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                    "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                    "[field] " + (field != null ? field.getName() : null) + " ): Entry");
+        }
         //------------------------------------------------------------------------------------------
         // HandlerChain members:
         // -- name: Deprecated -- must be empty string
@@ -155,8 +158,9 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         //          from the class file. Cannot be emptry string.
         //------------------------------------------------------------------------------------------
         String handlerChainFile = annotation.file();
-        log.debug("addHandlerChain(): handlerChainFile: " + handlerChainFile);
-
+        if (log.isDebugEnabled()) {
+            log.debug("addHandlerChain(): handlerChainFile: " + handlerChainFile);
+        }
         // Determine ServiceRef name
         String serviceRefName;
         WebServiceRef webServiceRef = null;
@@ -176,8 +180,10 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         if ( serviceRefName.equals("") ) {
             serviceRefName = getInjectionJavaType(method, field);
         }
-        log.debug("addHandlerChain().serviceRefName : " + serviceRefName);
 
+        if (log.isDebugEnabled()) {
+            log.debug("addHandlerChain().serviceRefName : " + serviceRefName);
+        }
         if (!serviceRefName.equals("") && !handlerChainFile.equals("")) {
             try {
                 // Locate the handler chain XML file
@@ -187,8 +193,9 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
                     url = new URL(handlerChainFile);
                 }
                 catch (MalformedURLException mfe) {
-                    log.debug("addHandlerChain().MalformedURLException" );
-
+                    if (log.isDebugEnabled()) {
+                        log.debug("addHandlerChain().MalformedURLException", mfe);
+                    }
                     // Not URL format -- see if it's relative to the annotated class
                     if (cls != null) {
                         url = getURL(cls.getClass(), handlerChainFile);
@@ -213,27 +220,38 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
                         }
                     }
                     if (exists) {
-                        log.debug("HandlerChainAnnotationHelper: <service-ref> entry found: " + serviceRefName);
+                        if (log.isDebugEnabled()) {
+                            log.debug("HandlerChainAnnotationHelper: <service-ref> entry found: " + serviceRefName);
+                        }
                     }
                     else {
-                        log.debug("HandlerChainAnnotationHelper: <service-ref> entry NOT found: " + serviceRefName);
+                        if (log.isDebugEnabled()) {
+                            log.debug("HandlerChainAnnotationHelper: <service-ref> entry NOT found: " + serviceRefName);
+                        }
                     }
                 }
                 else {
-                    log.debug("HandlerChainAnnotationHelper: Handler chain file NOT found: " + handlerChainFile );
+                    if (log.isDebugEnabled()) {
+                        log.debug("HandlerChainAnnotationHelper: Handler chain file NOT found: " + handlerChainFile);
+                    }
                 }
             }
             catch ( Exception anyException ) {
-                log.debug("HandlerChainAnnotationHelper: Exception caught while processing <handler-chain>");
+                if(log.isDebugEnabled()) {
+                    log.debug("HandlerChainAnnotationHelper: Exception caught while processing <handler-chain>", anyException);
+                }
             }
         }
-        log.debug("addHandlerChain(): Exit");
+        if (log.isDebugEnabled()) {
+            log.debug("addHandlerChain(): Exit");
+        }
     }
 
 
     private static URL getURL(Class clazz, String file) {
-        log.debug("getURL( " + clazz.getName() + ", " + file + " ): Entry");
-
+        if (log.isDebugEnabled()) {
+            log.debug("getURL( " + clazz.getName() + ", " + file + " ): Entry");
+        }
         URL url = clazz.getResource(file);
         if (url == null) {
             url = Thread.currentThread().getContextClassLoader().getResource(file);
@@ -242,14 +260,17 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
             String loc= clazz.getPackage().getName().replace('.', '/') + "/" + file;
             url = Thread.currentThread().getContextClassLoader().getResource(loc);
         }
-
-        log.debug("getURL(): Exit: url: " + (url != null ? url.toString() : null) );
+        if (log.isDebugEnabled()) {
+            log.debug("getURL(): Exit: url: " + (url != null ? url.toString() : null));
+        }
         return url;
     }
-    
+
     public static void insertHandlers(ServiceRef serviceRef, HandlerChain annotation, Class clazz) {
         String handlerChainFile = annotation.file();
-        log.debug("handlerChainFile: " + handlerChainFile);
+        if (log.isDebugEnabled()) {
+            log.debug("handlerChainFile: " + handlerChainFile);
+        }
         if (handlerChainFile == null || handlerChainFile.trim().length() == 0) {
             return;
         }
@@ -265,16 +286,18 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
             try {
                 insertHandlers(serviceRef, url);
             } catch (Exception e) {
-                log.debug("Error while processing <handler-chain>", e);
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while processing <handler-chain>", e);
+                }
             }
         }
     }
-    
+
     public static void insertHandlers(ServiceRef serviceRef, URL url) throws Exception {
         HandlerChains handlerChains;
         InputStream in = url.openStream();
         try {
-            handlerChains = (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, in);
+            handlerChains = (HandlerChains) JaxbJavaee.unmarshalHandlerChains(HandlerChains.class, in);
          } finally {
             in.close();
         }

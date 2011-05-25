@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
 
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
 import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.openejb.jee.HandlerChains;
@@ -30,11 +31,13 @@ import org.apache.openejb.jee.JaxbJavaee;
 
 public class GeronimoHandlerResolverTest extends TestSupport {
 
+    private HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
+
     public void testBasic() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers.xml");
         assertTrue(in != null);
-        HandlerChains handlerChains = toHandlerChains(in);
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        HandlerChainsInfo handlerChains = toHandlerChains(in);
+        assertEquals(3, handlerChains.handleChains.size());
 
         GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
 
@@ -47,8 +50,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
     public void testServiceMatching() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers_service.xml");
         assertTrue(in != null);
-        HandlerChains handlerChains = toHandlerChains(in);
-        assertEquals(4, handlerChains.getHandlerChain().size());
+        HandlerChainsInfo handlerChains = toHandlerChains(in);
+        assertEquals(4, handlerChains.handleChains.size());
 
         GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
 
@@ -81,8 +84,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
     public void testBindingMatching() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers_bindings.xml");
         assertTrue(in != null);
-        HandlerChains handlerChains = toHandlerChains(in);
-        assertEquals(4, handlerChains.getHandlerChain().size());
+        HandlerChainsInfo handlerChains = toHandlerChains(in);
+        assertEquals(4, handlerChains.handleChains.size());
 
         GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
         List<Handler> handlers = null;
@@ -112,8 +115,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
     public void testPortMatching() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers_port.xml");
         assertTrue(in != null);
-        HandlerChains handlerChains = toHandlerChains(in);
-        assertEquals(4, handlerChains.getHandlerChain().size());
+        HandlerChainsInfo handlerChains = toHandlerChains(in);
+        assertEquals(4, handlerChains.handleChains.size());
 
         GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
 
@@ -146,8 +149,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
     public void testMixedMatching() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers_mixed.xml");
         assertTrue(in != null);
-        HandlerChains handlerChains = toHandlerChains(in);
-        assertEquals(3, handlerChains.getHandlerChain().size());
+        HandlerChainsInfo handlerChains = toHandlerChains(in);
+        assertEquals(3, handlerChains.handleChains.size());
 
         GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
 
@@ -172,8 +175,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         assertEquals(1, handlers.size());
     }
 
-    private static HandlerChains toHandlerChains(InputStream input) throws Exception {
-        return (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, input);
+    private HandlerChainsInfo toHandlerChains(InputStream input) throws Exception {
+        return handlerChainsInfoBuilder.build((HandlerChains) JaxbJavaee.unmarshalHandlerChains(HandlerChains.class, input));
     }
 
     private static class TestPortInfo implements PortInfo {

@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -56,6 +55,7 @@ import org.apache.axis2.jaxws.addressing.util.EndpointKey;
 import org.apache.axis2.jaxws.binding.BindingUtils;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
+import org.apache.axis2.jaxws.description.xml.handler.FullyQualifiedClassType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerChainsType;
 import org.apache.axis2.jaxws.description.xml.handler.HandlerType;
@@ -80,6 +80,9 @@ import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
+import org.apache.geronimo.jaxws.info.HandlerChainInfo;
+import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
+import org.apache.geronimo.jaxws.info.HandlerInfo;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
@@ -487,13 +490,9 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
      */
     protected void configureHandlers() throws Exception {
         EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
-
-        String xml = this.portInfo.getHandlersAsXML();
-        HandlerChainsType handlerChains = null;
-        if (xml != null) {
-            ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"));
-            handlerChains = DescriptionUtils.loadHandlerChains(in, null);
-            desc.setHandlerChain(handlerChains);
+        
+        if(portInfo.getHandlerChainsInfo() != null) {
+            desc.setHandlerChain(toAxis2HandlerChainsType(portInfo.getHandlerChainsInfo()));
         }
 
         if (LOG.isDebugEnabled()) {
@@ -504,7 +503,29 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());
     }
-
+    
+    private HandlerChainsType toAxis2HandlerChainsType(HandlerChainsInfo handlerChainsInfo) {
+        HandlerChainsType handlerChains = new HandlerChainsType();
+        for (HandlerChainInfo handlerChainInfo : handlerChainsInfo.handleChains) {
+            HandlerChainType handlerChain = new HandlerChainType();
+            handlerChain.setPortNamePattern(handlerChainInfo.portNamePattern);
+            handlerChain.setServiceNamePattern(handlerChainInfo.serviceNamePattern);
+            handlerChain.getProtocolBindings().addAll(handlerChainInfo.protocolBindings);
+            for (HandlerInfo handlerInfo : handlerChainInfo.handlers) {
+                HandlerType handler = new HandlerType();
+                FullyQualifiedClassType classType = new FullyQualifiedClassType();
+                classType.setValue(handlerInfo.handlerClass);
+                handler.setHandlerClass(classType);
+                org.apache.axis2.jaxws.description.xml.handler.String nameType = new org.apache.axis2.jaxws.description.xml.handler.String();
+                nameType.setValue(handlerInfo.handlerName);
+                handler.setHandlerName(nameType);
+                handlerChain.getHandler().add(handler);
+            }
+            handlerChains.getHandlerChain().add(handlerChain);
+        }
+        return handlerChains;
+    }
+    
     private void logHandlers(HandlerChainsType handlerChains) {
         if (handlerChains == null || handlerChains.getHandlerChain() == null || handlerChains.getHandlerChain().isEmpty()) {
             LOG.debug("No handlers");

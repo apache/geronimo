@@ -40,6 +40,7 @@ import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.jaxws.handler.AnnotationHandlerChainFinder;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -60,6 +61,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractWARWebServiceFinder implements WebServiceFinder<WebModule> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractWARWebServiceFinder.class);
+
+    protected AnnotationHandlerChainFinder annotationHandlerChainFinder = new AnnotationHandlerChainFinder();
 
     protected Set<String> getEJBWebServiceClassNames(Module module) {
         if (module.getModules().size() == 0) {

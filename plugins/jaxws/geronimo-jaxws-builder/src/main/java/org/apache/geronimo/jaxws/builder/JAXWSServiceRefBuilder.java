@@ -22,13 +22,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.jaxws.handler.HandlerChainsInfoBuilder;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
@@ -36,7 +36,6 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.HandlerChain;
 import org.apache.openejb.jee.HandlerChains;
-import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.PortComponentRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -56,6 +55,8 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         QNameSet.singleton(GER_SERVICE_REF_QNAME);
 
     private final QNameSet serviceRefQNameSet;
+
+    protected HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
 
     public JAXWSServiceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
@@ -178,12 +179,5 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
 
     public QNameSet getPlanQNameSet() {
         return GER_SERVICE_REF_QNAME_SET;
-    }
-
-    public static String getHandlerChainAsString(HandlerChains handlerChains) throws JAXBException {
-        if (handlerChains != null) {
-            return JaxbJavaee.marshal(HandlerChains.class, handlerChains);
-        }
-        return null;
     }
 }
