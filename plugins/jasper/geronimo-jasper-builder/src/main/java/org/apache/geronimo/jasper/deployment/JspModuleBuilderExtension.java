@@ -54,6 +54,7 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jasper.JasperServletContextCustomizer;
 import org.apache.geronimo.jasper.TldProvider;
+import org.apache.geronimo.jasper.TldRegistry;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -75,7 +76,6 @@ import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -299,23 +299,15 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private List<URL> scanGlobalTlds(Bundle bundle) throws DeploymentException {
         BundleContext bundleContext = bundle.getBundleContext();
-        ServiceReference[] references;
-        try {
-            references = bundleContext.getServiceReferences(TldProvider.class.getName(), null);
-        } catch (InvalidSyntaxException e) {
-            // this should not happen
-            throw new DeploymentException("Invalid filter expression", e);
-        }
+        ServiceReference reference = bundleContext.getServiceReference(TldRegistry.class.getName());
         List<URL> tldURLs = new ArrayList<URL>();
-        if (references != null) {
-            for (ServiceReference reference : references) {
-                TldProvider provider = (TldProvider) bundleContext.getService(reference);
-                for (TldProvider.TldEntry entry : provider.getTlds()) {
-                    URL url = entry.getURL();
-                    tldURLs.add(url);
-                }
-                bundleContext.ungetService(reference);
+        if (reference != null) {            
+            TldRegistry tldRegistry = (TldRegistry) bundleContext.getService(reference);
+            for (TldProvider.TldEntry entry : tldRegistry.getDependentTlds(bundle)) {
+                URL url = entry.getURL();
+                tldURLs.add(url);
             }
+            bundleContext.ungetService(reference);           
         }
         return tldURLs;
     }

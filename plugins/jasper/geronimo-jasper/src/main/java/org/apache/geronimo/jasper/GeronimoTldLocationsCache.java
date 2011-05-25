@@ -287,20 +287,18 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
    
     private void tldScanGlobal(Bundle bundle) throws JasperException, IOException, InvalidSyntaxException {
         BundleContext bundleContext = bundle.getBundleContext();
-        ServiceReference[] references = bundleContext.getServiceReferences(TldProvider.class.getName(), null);
-        if (references != null) {
-            for (ServiceReference reference : references) {
-                TldProvider provider = (TldProvider) bundleContext.getService(reference);
-                for (TldProvider.TldEntry entry : provider.getTlds()) {
-                    URL url = entry.getURL();
-                    if (entry.getJarUrl() != null) { 
-                        tldScanStream(url, new TldLocation(entry.getName(), entry.getJarUrl().toExternalForm()));
-                    } else {
-                        tldScanStream(url, new TldLocation(entry.getName(), new BundleJarResource(entry.getBundle())));
-                    }
+        ServiceReference reference = bundleContext.getServiceReference(TldRegistry.class.getName());
+        if (reference != null) {
+            TldRegistry tldRegistry = (TldRegistry) bundleContext.getService(reference);
+            for (TldProvider.TldEntry entry : tldRegistry.getDependentTlds(bundle)) {
+                URL url = entry.getURL();
+                if (entry.getJarUrl() != null) { 
+                    tldScanStream(url, new TldLocation(entry.getName(), entry.getJarUrl().toExternalForm()));
+                } else {
+                    tldScanStream(url, new TldLocation(entry.getName(), new BundleJarResource(entry.getBundle())));
                 }
-                bundleContext.ungetService(reference);
             }
+            bundleContext.ungetService(reference);            
         }
     }
     
