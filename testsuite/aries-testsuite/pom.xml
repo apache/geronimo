@@ -43,6 +43,7 @@
         <module>osgi-service-custom</module>
         <module>mail-osgi-service</module>
         <module>jsf</module>
+        <module>jsp</module>
     </modules>
 
     <build>
