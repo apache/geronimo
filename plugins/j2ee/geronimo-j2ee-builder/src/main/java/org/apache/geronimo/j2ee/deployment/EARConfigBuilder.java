@@ -607,7 +607,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
-                    if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar")) {
+                    //   EAR/lib/sub-dir/*.jar should not be added into lib classpath.
+                    if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar") && entry.getName().substring(libDir.length()+1).indexOf("/") == -1) {
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
