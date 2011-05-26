@@ -38,9 +38,11 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -388,7 +390,20 @@ public class EjbDeploymentBuilder {
             // classFinder in the module will convey whether metadata-complete is set (or not)
 //            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
-        String appName = (String)ejbModule.getJndiScope(JndiScope.app).get("app/AppName");
+        
+        String appName = null;
+        
+        Module parentModule = ejbModule.getParentModule();
+
+        while (parentModule != null) {
+            // only when the ejb module is part of ear, add the AppName in the ejb's global JNDI name.
+            if (parentModule instanceof ApplicationInfo) {
+                appName = (String) ejbModule.getJndiScope(JndiScope.app).get("app/AppName");
+                break;
+            }
+            parentModule = parentModule.getParentModule();
+        }
+        
         EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
         for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName();
