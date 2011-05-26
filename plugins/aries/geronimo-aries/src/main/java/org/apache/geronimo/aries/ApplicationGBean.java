@@ -428,19 +428,29 @@ public class ApplicationGBean implements GBeanLifecycle {
         return type.cast(service);
     }
     
+    private static boolean getFailOnStartError() {
+        String property = System.getProperty("org.apache.geronimo.aries.failApplicationOnStartError", "false");
+        return Boolean.parseBoolean(property);
+    }
+    
     public void doStart() throws Exception {
-        LOG.debug("Starting {}", application.getApplicationMetadata().getApplicationScope());
+        LOG.debug("Starting {} application.", application.getApplicationMetadata().getApplicationScope());
         
         applicationState = ApplicationState.STARTING;
 
         List<Bundle> bundlesWeStarted = new ArrayList<Bundle>();
+        Bundle currentBundle = null;
         try {
             for (Bundle b : applicationBundles) {
+                currentBundle = b;
                 if (BundleUtils.canStart(b)) {
+                    LOG.debug("Starting {} application bundle.", b);
                     b.start(Bundle.START_TRANSIENT);
                     bundlesWeStarted.add(b);
                 }
             }
+            applicationState = ApplicationState.ACTIVE;
+            LOG.debug("Application {} started successfully.", application.getApplicationMetadata().getApplicationScope());
         } catch (BundleException be) {
             for (Bundle b : bundlesWeStarted) {
                 try {
@@ -456,13 +466,17 @@ public class ApplicationGBean implements GBeanLifecycle {
             }
 
             applicationState = ApplicationState.INSTALLED;
-            throw be;
-        }
-        applicationState = ApplicationState.ACTIVE;
+            if (getFailOnStartError()) {
+                throw be;
+            } else {
+                LOG.error("Error starting {} application. Bundle {} failed to start: {}", 
+                           new Object[] { application.getApplicationMetadata().getApplicationScope(), currentBundle, be });
+            }
+        }        
     }    
 
     public void doStop() {
-        LOG.debug("Stopping {}", application.getApplicationMetadata().getApplicationScope());
+        LOG.debug("Stopping {} application.", application.getApplicationMetadata().getApplicationScope());
         
         for (Bundle bundle : applicationBundles) {
             try {
@@ -498,7 +512,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     }
     
     protected void applicationUninstall() {
-        LOG.debug("Uninstalling {}", application.getApplicationMetadata().getApplicationScope());
+        LOG.debug("Uninstalling {} application.", application.getApplicationMetadata().getApplicationScope());
 
         try {
             installer.getConfigurationManager().unloadConfiguration(configId);
