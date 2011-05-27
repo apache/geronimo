@@ -90,6 +90,17 @@ function refreshPrompt(target, bundleId, bundleName) {
                 }
             </script>
         </td>
+        <td align="right">
+            <form id="packageForm" method="POST" action="<portlet:actionURL><portlet:param name='page' value='find_packages'/></portlet:actionURL>">
+                Find (
+                <input type="radio" name="packageType" value="import" />Import
+                /
+                <input type="radio" name="packageType" value="export" checked="true" />Export
+                ) Packages:
+                <input type="text" id="packageString" name="packageString" value=""/>&nbsp;
+                <input type="submit" value="Go" />
+            </form>
+        </td>
     </tr>
 </table>
 

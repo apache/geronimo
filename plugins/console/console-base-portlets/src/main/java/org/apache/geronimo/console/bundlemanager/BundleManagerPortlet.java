@@ -69,6 +69,28 @@ public class BundleManagerPortlet extends BasePortlet {
 
     private static final Logger logger = LoggerFactory.getLogger(BundleManagerPortlet.class);
     
+    
+
+    private PortletRequestDispatcher helpView;
+    
+    private PortletRequestDispatcher bundleManagerView;
+
+    private PortletRequestDispatcher showManifestView;
+    
+    private PortletRequestDispatcher showWiredBundlesView;
+    
+    private PortletRequestDispatcher showServicesView;
+    
+    private PortletRequestDispatcher findPackagesView;
+    
+    private static final String VIEW_MANIFEST_PAGE = "view_manifest";
+    
+    private static final String VIEW_WIRED_BUNDLES_PAGE = "view_wired_bundles";
+    
+    private static final String VIEW_SERVICES_PAGE = "view_services";
+    
+    private static final String FIND_PACKAGES_PAGE = "find_packages";
+    
     private static final String SERACH_ACTION = "search";
     
     private static final String LIST_ACTION = "list";
@@ -86,22 +108,6 @@ public class BundleManagerPortlet extends BasePortlet {
     private static final String REFRESH_OPERATION = "refresh";
     
     private static final String UNINSTALL_OPERATION = "uninstall";
-
-    private PortletRequestDispatcher helpView;
-    
-    private PortletRequestDispatcher bundleManagerView;
-
-    private PortletRequestDispatcher showManifestView;
-    
-    private PortletRequestDispatcher showWiredBundlesView;
-    
-    private PortletRequestDispatcher showServicesView;
-    
-    private static final String VIEW_MANIFEST_PAGE = "view_manifest";
-    
-    private static final String VIEW_WIRED_BUNDLES_PAGE = "view_wired_bundles";
-    
-    private static final String VIEW_SERVICES_PAGE = "view_services";
     
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
@@ -114,7 +120,7 @@ public class BundleManagerPortlet extends BasePortlet {
         showManifestView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowManifest.jsp");
         showWiredBundlesView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowWiredBundles.jsp");
         showServicesView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowServices.jsp");
-
+        findPackagesView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/FindPackages.jsp");
     }
 
     public void destroy() {
@@ -132,15 +138,23 @@ public class BundleManagerPortlet extends BasePortlet {
             // no actions in this page
             actionResponse.setRenderParameter("page", VIEW_MANIFEST_PAGE);
             
-        }else if (VIEW_WIRED_BUNDLES_PAGE.equals(page)){
-            String id = actionRequest.getParameter("bundleId");;
+        } else if (VIEW_WIRED_BUNDLES_PAGE.equals(page)){
+            String id = actionRequest.getParameter("bundleId");
             String perspectiveType = actionRequest.getParameter("perspectiveType");
             //set render params
             actionResponse.setRenderParameter("page", VIEW_WIRED_BUNDLES_PAGE);
             actionResponse.setRenderParameter("bundleId", id);
             actionResponse.setRenderParameter("perspectiveTypeValue", perspectiveType);
             
-        }else { //main page
+        } else if (FIND_PACKAGES_PAGE.equals(page)) {
+            String packageString = actionRequest.getParameter("packageString");
+            String packageType = actionRequest.getParameter("packageType");
+            //set render params
+            actionResponse.setRenderParameter("page", FIND_PACKAGES_PAGE);
+            actionResponse.setRenderParameter("packageStringValue", packageString);
+            actionResponse.setRenderParameter("packageTypeValue", packageType);
+            
+        } else { //main page
             
             //we use session to control the listType and searchString for filtering list so that
             //user can easily turn back to the page that he just jumped out.
@@ -241,7 +255,68 @@ public class BundleManagerPortlet extends BasePortlet {
             
             String page = renderRequest.getParameter("page");
             
-            if (VIEW_MANIFEST_PAGE.equals(page)){
+            if (FIND_PACKAGES_PAGE.equals(page)){
+                BundleContext bundleContext = getBundleContext(renderRequest);
+                
+                ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
+                PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
+                
+                
+                String packageString = renderRequest.getParameter("packageStringValue");
+                String packageType = renderRequest.getParameter("packageTypeValue");
+                 
+                Map<PackageInfo,List<BundleInfo>> pbs = new HashMap<PackageInfo,List<BundleInfo>>();
+
+                for (Bundle bundle : bundleContext.getBundles()) {
+                    if (packageType.equals("export")){ //export pakcages
+                        BundleDescription description = new BundleDescription(bundle.getHeaders());
+                        List<BundleDescription.ExportPackage> exports = description.getExportPackage();
+                        for (BundleDescription.ExportPackage exportPkg :exports){
+                            if (exportPkg.getName().indexOf(packageString)!= -1){
+                                PackageInfo packageInfo = new PackageInfo(exportPkg.getName(), exportPkg.getVersion().toString());
+                                BundleInfo bundleInfo = new SimpleBundleInfo(bundle);
+                                fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
+                                
+                            }
+                        }
+                    } else {    //import packages, we get this by travel all exported packages
+                        ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
+                        if (exportedPackages != null) {
+                            for (ExportedPackage exportedPackage : exportedPackages) {
+                                if (exportedPackage.getName().indexOf(packageString)!= -1) {
+                                    Bundle[] importingBundles = exportedPackage.getImportingBundles();
+                                    if (importingBundles != null) {
+                                        
+                                        PackageInfo packageInfo = new PackageInfo(exportedPackage.getName(), exportedPackage.getVersion().toString());
+                                        for (Bundle importingBundle : importingBundles) {
+                                            BundleInfo bundleInfo = new SimpleBundleInfo(importingBundle);
+                                            fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
+                                        } 
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                List<PackagePerspective> packagePerspectives = new ArrayList<PackagePerspective>();
+                BundleSymbolicComparator bsc = new BundleSymbolicComparator();
+                for(Entry<PackageInfo,List<BundleInfo>> entry : pbs.entrySet()){
+                    PackagePerspective pp = new PackagePerspective(entry.getKey(),entry.getValue());
+                    pp.sortBundleInfos(bsc);
+                    packagePerspectives.add(pp);
+                }
+                
+                Collections.sort(packagePerspectives);
+                
+                renderRequest.setAttribute("packagePerspectives", packagePerspectives);
+                
+                renderRequest.setAttribute("packageTypeValue", packageType);
+                renderRequest.setAttribute("packageStringValue", packageString);
+                findPackagesView.include(renderRequest, renderResponse);
+                
+            } else if (VIEW_MANIFEST_PAGE.equals(page)){
                 BundleContext bundleContext = getBundleContext(renderRequest);
                 
                 long id = Long.valueOf(renderRequest.getParameter("bundleId"));
@@ -367,7 +442,7 @@ public class BundleManagerPortlet extends BasePortlet {
                 StartLevel startLevelService = (StartLevel) bundleContext.getService(startLevelRef);
                 
                 // get configured bundle Ids
-                Set<Long> configedBundleIds = getConfigedBundleIds();
+                Set<Long> configurationBundleIds = getConfigurationBundleIds();
                 
                 Bundle[] bundles = bundleContext.getBundles();
                 for (Bundle bundle : bundles) {
@@ -379,13 +454,13 @@ public class BundleManagerPortlet extends BasePortlet {
                     // construct the result bundleInfos by listType
                     if ("wab".equals(listType)){
                         if (checkWABBundle(bundle)){
-                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configurationBundleIds);
                             info.addContextPath(getContextPath(bundle));
                             bundleInfos.add(info);
                         }
                     }else if ("blueprint".equals(listType)){
                         if (checkBlueprintBundle(bundle)){
-                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configurationBundleIds);
                             
                             // currently, we try get the the blueprintContainer service to determine if a blueprint bundle is created
                             // TODO A better way is using a BlueprintListener to track all blueprint bundle events
@@ -405,16 +480,16 @@ public class BundleManagerPortlet extends BasePortlet {
                         }
                     }else if ("system".equals(listType)){
                         if (checkSysBundle(bundle,startLevelService)){
-                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configurationBundleIds);
                             bundleInfos.add(info);
                         }
                     }else if ("configuration".equals(listType)){
-                        if (checkConfigedBundle(bundle,configedBundleIds)){
-                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                        if (checkConfigurationBundle(bundle,configurationBundleIds)){
+                            ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configurationBundleIds);
                             bundleInfos.add(info);
                         }
                     }else{
-                        ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                        ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configurationBundleIds);
                         bundleInfos.add(info);
                     }
                 }
@@ -438,7 +513,7 @@ public class BundleManagerPortlet extends BasePortlet {
         }
     }
     
-    private ExtendedBundleInfo createExtendedBundleInfo(Bundle bundle, StartLevel startLevelService, Set<Long> configedBundleIds){
+    private ExtendedBundleInfo createExtendedBundleInfo(Bundle bundle, StartLevel startLevelService, Set<Long> configurationBundleIds){
         ExtendedBundleInfo info = new ExtendedBundleInfo(bundle);
       
         if (checkWABBundle(bundle)){
@@ -453,7 +528,7 @@ public class BundleManagerPortlet extends BasePortlet {
             info.addType(BundleType.SYSTEM);
         }
         
-        if (checkConfigedBundle(bundle,configedBundleIds)){
+        if (checkConfigurationBundle(bundle,configurationBundleIds)){
             info.addType(BundleType.CONFIGURATION);
         }
         
@@ -509,30 +584,30 @@ public class BundleManagerPortlet extends BasePortlet {
         return false;
     }
         
-    private static boolean checkConfigedBundle(Bundle bundle, Set<Long> configedBundleIds){
+    private static boolean checkConfigurationBundle(Bundle bundle, Set<Long> configurationBundleIds){
         // check configuration bundle
-        if (configedBundleIds.contains(bundle.getBundleId())){
+        if (configurationBundleIds.contains(bundle.getBundleId())){
             return true;
         }
         return false;
     }
     
-    private Set<Long> getConfigedBundleIds(){
-        Set<Long> configedBundleIds = new HashSet<Long> ();
+    private Set<Long> getConfigurationBundleIds(){
+        Set<Long> configurationBundleIds = new HashSet<Long> ();
         
         ConfigurationManager configManager = PortletManager.getConfigurationManager();
         List<ConfigurationInfo> infos = configManager.listConfigurations();
         
         for (ConfigurationInfo info : infos) {
-            Bundle configedBundle = configManager.getBundle(info.getConfigID());
-            if (configedBundle!=null){
-                configedBundleIds.add(configedBundle.getBundleId());
+            Bundle configurationBundle = configManager.getBundle(info.getConfigID());
+            if (configurationBundle!=null){
+                configurationBundleIds.add(configurationBundle.getBundleId());
             }else{
                 logger.info("Can not find the bundle for configuration: " +info.getConfigID()+ " in configuration manager");
             }
         }
         
-        return configedBundleIds;
+        return configurationBundleIds;
     }
     
     
@@ -884,19 +959,11 @@ public class BundleManagerPortlet extends BasePortlet {
             PackageInfo packageInfo = new PackageInfo(pair.exportedPackage.getName(), pair.exportedPackage.getVersion().toString());
             BundleInfo bundleInfo = new SimpleBundleInfo(pair.bundle);
             
-            if (pbs.keySet().contains(packageInfo)){
-                if (!pbs.get(packageInfo).contains(bundleInfo)) {
-                    pbs.get(packageInfo).add(bundleInfo);
-                }
-            } else {
-                List<BundleInfo> bundleInfos = new ArrayList<BundleInfo>();
-                bundleInfos.add(bundleInfo);
-                pbs.put(packageInfo, bundleInfos);
-            }
+            fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
             
         }
         
-        List<PackagePerspective>packagePerspectives = new ArrayList<PackagePerspective>();
+        List<PackagePerspective> packagePerspectives = new ArrayList<PackagePerspective>();
         BundleSymbolicComparator bsc = new BundleSymbolicComparator();
         for(Entry<PackageInfo,List<BundleInfo>> entry : pbs.entrySet()){
             PackagePerspective pp = new PackagePerspective(entry.getKey(),entry.getValue());
@@ -908,33 +975,49 @@ public class BundleManagerPortlet extends BasePortlet {
     }
     
     private List<BundlePerspective> getBundlePerspectives(Set<PackageBundlePair> pairs){
-        Map<BundleInfo,List<PackageInfo>> pbs = new HashMap<BundleInfo,List<PackageInfo>>();
+        Map<BundleInfo,List<PackageInfo>> bps = new HashMap<BundleInfo,List<PackageInfo>>();
         
         for (PackageBundlePair pair : pairs) {
             
             BundleInfo bundleInfo = new SimpleBundleInfo(pair.bundle);
             PackageInfo packageInfo = new PackageInfo(pair.exportedPackage.getName(), pair.exportedPackage.getVersion().toString());
             
-            if (pbs.keySet().contains(bundleInfo)){
-                if (!pbs.get(bundleInfo).contains(packageInfo)) {
-                    pbs.get(bundleInfo).add(packageInfo);
-                }
-            } else {
-                List<PackageInfo> packageInfos = new ArrayList<PackageInfo>();
-                packageInfos.add(packageInfo);
-                pbs.put(bundleInfo, packageInfos);
-            }
+            fillBundlePackagesMap(bps, bundleInfo, packageInfo);
             
         }
         
         List<BundlePerspective> bundlePerspectives = new ArrayList<BundlePerspective>();
-        for(Entry<BundleInfo,List<PackageInfo>> entry : pbs.entrySet()){
+        for(Entry<BundleInfo,List<PackageInfo>> entry : bps.entrySet()){
             BundlePerspective bp = new BundlePerspective(entry.getKey(),entry.getValue());
             bp.sortPackageInfos();
             bundlePerspectives.add(bp);
         }
         
         return bundlePerspectives;
+    }
+    
+    private void fillPackageBundlesMap(Map<PackageInfo,List<BundleInfo>> pbmap, PackageInfo packageInfo, BundleInfo bundleInfo){
+        if (pbmap.keySet().contains(packageInfo)){
+            if (!pbmap.get(packageInfo).contains(bundleInfo)) {
+                pbmap.get(packageInfo).add(bundleInfo);
+            }
+        } else {
+            List<BundleInfo> bundleInfos = new ArrayList<BundleInfo>();
+            bundleInfos.add(bundleInfo);
+            pbmap.put(packageInfo, bundleInfos);
+        }
+    }
+    
+    private void fillBundlePackagesMap(Map<BundleInfo,List<PackageInfo>> bpmap, BundleInfo bundleInfo, PackageInfo packageInfo){
+        if (bpmap.keySet().contains(bundleInfo)){
+            if (!bpmap.get(bundleInfo).contains(packageInfo)) {
+                bpmap.get(bundleInfo).add(packageInfo);
+            }
+        } else {
+            List<PackageInfo> packageInfos = new ArrayList<PackageInfo>();
+            packageInfos.add(packageInfo);
+            bpmap.put(bundleInfo, packageInfos);
+        }
     }
     
     /******************************
