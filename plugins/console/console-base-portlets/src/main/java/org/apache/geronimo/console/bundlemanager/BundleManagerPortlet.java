@@ -148,11 +148,9 @@ public class BundleManagerPortlet extends BasePortlet {
             
         } else if (FIND_PACKAGES_PAGE.equals(page)) {
             String packageString = actionRequest.getParameter("packageString");
-            String packageType = actionRequest.getParameter("packageType");
             //set render params
             actionResponse.setRenderParameter("page", FIND_PACKAGES_PAGE);
             actionResponse.setRenderParameter("packageStringValue", packageString);
-            actionResponse.setRenderParameter("packageTypeValue", packageType);
             
         } else { //main page
             
@@ -263,56 +261,60 @@ public class BundleManagerPortlet extends BasePortlet {
                 
                 
                 String packageString = renderRequest.getParameter("packageStringValue");
-                String packageType = renderRequest.getParameter("packageTypeValue");
                  
-                Map<PackageInfo,List<BundleInfo>> pbs = new HashMap<PackageInfo,List<BundleInfo>>();
-
+               
+                Map<PackageInfo,List<BundleInfo>> packageExportBundles = new HashMap<PackageInfo,List<BundleInfo>>();
+                Map<PackageInfo,List<BundleInfo>> packageImportBundles = new HashMap<PackageInfo,List<BundleInfo>>();
+                
+                
                 for (Bundle bundle : bundleContext.getBundles()) {
-                    if (packageType.equals("export")){ //export pakcages
-                        BundleDescription description = new BundleDescription(bundle.getHeaders());
-                        List<BundleDescription.ExportPackage> exports = description.getExportPackage();
-                        for (BundleDescription.ExportPackage exportPkg :exports){
-                            if (exportPkg.getName().indexOf(packageString)!= -1){
-                                PackageInfo packageInfo = new PackageInfo(exportPkg.getName(), exportPkg.getVersion().toString());
-                                BundleInfo bundleInfo = new SimpleBundleInfo(bundle);
-                                fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
+                    ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
+                    if (exportedPackages != null) {
+                        
+                        // construct the export bundle info
+                        BundleInfo exportBundleInfo = new SimpleBundleInfo(bundle);
+                        
+                        for (ExportedPackage exportedPackage : exportedPackages) {
+                            if (exportedPackage.getName().toLowerCase().indexOf(packageString.trim().toLowerCase())!= -1) { // filter by keyword and ignore case 
                                 
-                            }
-                        }
-                    } else {    //import packages, we get this by travel all exported packages
-                        ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
-                        if (exportedPackages != null) {
-                            for (ExportedPackage exportedPackage : exportedPackages) {
-                                if (exportedPackage.getName().indexOf(packageString)!= -1) {
-                                    Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                                    if (importingBundles != null) {
+                                // construct the package info
+                                // fill in its export bundle
+                                PackageInfo packageInfo = new PackageInfo(exportedPackage.getName(), exportedPackage.getVersion().toString());
+                                fillPackageBundlesMap(packageExportBundles, packageInfo, exportBundleInfo);
+                                
+                                Bundle[] importingBundles = exportedPackage.getImportingBundles();
+                                if (importingBundles != null) {                                    
+                                    for (Bundle importingBundle : importingBundles) {
                                         
-                                        PackageInfo packageInfo = new PackageInfo(exportedPackage.getName(), exportedPackage.getVersion().toString());
-                                        for (Bundle importingBundle : importingBundles) {
-                                            BundleInfo bundleInfo = new SimpleBundleInfo(importingBundle);
-                                            fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
-                                        } 
+                                        // construct the import bundle info
+                                        // fill in its import bundle
+                                        BundleInfo importBundleInfo = new SimpleBundleInfo(importingBundle);
+                                        fillPackageBundlesMap(packageImportBundles, packageInfo, importBundleInfo);
                                         
-                                    }
+                                    } 
+                                    
                                 }
                             }
                         }
                     }
                 }
                 
-                List<PackagePerspective> packagePerspectives = new ArrayList<PackagePerspective>();
+                
+                List<PackageWiredBundles> packageWiredBundlesList = new ArrayList<PackageWiredBundles>();
                 BundleSymbolicComparator bsc = new BundleSymbolicComparator();
-                for(Entry<PackageInfo,List<BundleInfo>> entry : pbs.entrySet()){
-                    PackagePerspective pp = new PackagePerspective(entry.getKey(),entry.getValue());
-                    pp.sortBundleInfos(bsc);
-                    packagePerspectives.add(pp);
+                for(Entry<PackageInfo,List<BundleInfo>> entry : packageExportBundles.entrySet()){
+                    PackageInfo pkg = entry.getKey();
+                    List<BundleInfo> exportBundles = entry.getValue();
+                    List<BundleInfo> importBundles = packageImportBundles.get(pkg) == null? new ArrayList<BundleInfo>():packageImportBundles.get(pkg);
+                    
+                    PackageWiredBundles pwb = new PackageWiredBundles(pkg, exportBundles, importBundles);
+                    pwb.sortBundleInfos(bsc);
+                    packageWiredBundlesList.add(pwb);
                 }
                 
-                Collections.sort(packagePerspectives);
+                Collections.sort(packageWiredBundlesList);
                 
-                renderRequest.setAttribute("packagePerspectives", packagePerspectives);
-                
-                renderRequest.setAttribute("packageTypeValue", packageType);
+                renderRequest.setAttribute("packageWiredBundlesList", packageWiredBundlesList);
                 renderRequest.setAttribute("packageStringValue", packageString);
                 findPackagesView.include(renderRequest, renderResponse);
                 
@@ -1212,4 +1214,62 @@ public class BundleManagerPortlet extends BasePortlet {
         return registeredServicePerspectives;
     }
     
+    
+    /*************************************************************
+     * definitions for find packages page
+     *************************************************************/
+    public static class PackageWiredBundles implements Comparable<PackageWiredBundles>{
+
+        private PackageInfo packageInfo;
+        private List<BundleInfo> importBundleInfos = new ArrayList<BundleInfo>();
+        private List<BundleInfo> exportBundleInfos = new ArrayList<BundleInfo>();
+                
+        public PackageWiredBundles(String packageName, String packageVersion) {
+            this.packageInfo = new PackageInfo(packageName, packageVersion);
+        }
+        
+        public PackageWiredBundles(PackageInfo packageInfo) {
+            this.packageInfo = packageInfo;
+        }
+        
+        public PackageWiredBundles(PackageInfo packageInfo, List<BundleInfo> exportBundleInfos, List<BundleInfo> importBundleInfos) {
+            this.packageInfo = packageInfo;
+            this.importBundleInfos = importBundleInfos;
+            this.exportBundleInfos = exportBundleInfos;
+        }
+        
+        @Override
+        public int compareTo(PackageWiredBundles another) {
+            if (another != null) {
+                return packageInfo.compareTo(another.packageInfo);
+            } else {
+                return -1;
+            } 
+        }
+        
+        public PackageInfo getPackageInfo() {
+            return packageInfo;
+        }
+
+        public List<BundleInfo> getImportBundleInfos() {
+            return importBundleInfos;
+        }
+        
+        public void addImportBundleInfo(BundleInfo info){
+            this.importBundleInfos.add(info);
+        }
+        
+        public List<BundleInfo> getExportBundleInfos() {
+            return exportBundleInfos;
+        }
+        
+        public void addExportBundleInfo(BundleInfo info){
+            this.exportBundleInfos.add(info);
+        }
+        
+        public void sortBundleInfos(Comparator<BundleInfo> comparator){
+            Collections.sort(importBundleInfos, comparator);
+            Collections.sort(exportBundleInfos, comparator);
+        }
+    }
 }

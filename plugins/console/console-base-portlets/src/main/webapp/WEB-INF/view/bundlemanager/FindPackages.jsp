@@ -23,18 +23,14 @@
 
 <a href="<portlet:actionURL/>" >OSGi Manager</a> > Find Packages 
 <br/><br/>
-<table width="100%" class="TableLine" summary="OSGi install">
+<table width="100%" class="TableLine" summary="Find Packages">
     <tr>
         <td>
-            The <b>${packageTypeValue}</b> packages with keyword "<b>${packageStringValue}</b>"
+            The Packages with Keyword: "<b>${packageStringValue}</b>"
         </td>
         <form id="packageForm" method="POST" action="<portlet:actionURL><portlet:param name='page' value='find_packages'/></portlet:actionURL>">
         <td align="right">
-                Find (
-                <input type="radio" name="packageType" value="import" />Import
-                /
-                <input type="radio" name="packageType" value="export" checked="true" />Export
-                ) Packages:
+                Find Packages:
                 <input type="text" id="packageString" name="packageString" value=""/>&nbsp;
                 <input type="submit" value="Go" />
         </td>
@@ -42,19 +38,32 @@
     </tr>
 </table>
 <br/>
-<table width="100%" class="TableLine" summary="Wired Bundles">
+<script language="javascript">
+function showHideById(id) {
+    document.getElementById(id).style.display = (document.getElementById(id).style.display=='none')?'block':'none';
+}
+
+function showHideTr(num) {
+    showHideById("exportTr-"+num);
+    showHideById("importTr-"+num);
+}      
+</script>
+<script language="javascript"> 
+var oldcolor;
+function highlightTr(theTr){
+    oldcolor = theTr.style.backgroundColor;
+    theTr.style.backgroundColor = '#e2ebfe';
+}
+function recoverTr(theTr){
+    theTr.style.backgroundColor = oldcolor;
+}
+</script> 
+<table width="100%" class="TableLine" cellpadding="3" cellspacing="0" summary="Find Packages Result">
     <tr class="DarkBackground">
-        <c:if test="${packageTypeValue == 'import'}" >          
-            <th scope="col" width="40%">Import Packages</th>   
-            <th scope="col" width="60%">Imported by Bundles</th> 
-        </c:if>
-        <c:if test="${packageTypeValue == 'export'}" >   
-            <th scope="col" width="40%">Export Packages</th>   
-            <th scope="col" width="60%">Exported by Bundles</th> 
-        </c:if>
+        <th scope="col" colspan="2">Search Result (Click to see package's exporter and importer)</th>   
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="pp" items="${packagePerspectives}">
+    <c:forEach var="pwb" items="${packageWiredBundlesList}" varStatus="status">
         <c:choose>
             <c:when test="${backgroundClass == 'MediumBackground'}" >
                 <c:set var="backgroundClass" value='LightBackground'/>
@@ -63,12 +72,31 @@
                 <c:set var="backgroundClass" value='MediumBackground'/>
             </c:otherwise>
         </c:choose>
-        <tr>
-            <td class="${backgroundClass}">
-                ${pp.packageInfo.packageName} (version=${pp.packageInfo.packageVersion})
+        <tr class="${backgroundClass}" style="cursor:pointer" onmouseover="highlightTr(this)" onmouseout="recoverTr(this)">
+            <td colspan="2" onclick="showHideTr(${status.index})">
+                ${pwb.packageInfo.packageName} (version=${pwb.packageInfo.packageVersion})
             </td>
-            <td class="${backgroundClass}">
-                <c:forEach var="info" items="${pp.bundleInfos}">
+        </tr>
+        <tr class="${backgroundClass}" id="exportTr-${status.index}" style="display:none">
+            <td valign="top">
+                - exporting by bundles:
+            </td>
+            <td>
+                <c:forEach var="info" items="${pwb.exportBundleInfos}">
+                    ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services" style="vertical-align:middle"/></a>
+                    <br/>
+                </c:forEach>
+            </td>
+        </tr>
+        <tr class="${backgroundClass}" id="importTr-${status.index}" style="display:none">
+            <td valign="top">
+                - importing by bundles:
+            </td>
+            <td>
+                <c:forEach var="info" items="${pwb.importBundleInfos}">
                     ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
                     <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
                     <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>

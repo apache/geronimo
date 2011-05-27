@@ -92,11 +92,7 @@ function refreshPrompt(target, bundleId, bundleName) {
         </td>
         <td align="right">
             <form id="packageForm" method="POST" action="<portlet:actionURL><portlet:param name='page' value='find_packages'/></portlet:actionURL>">
-                Find (
-                <input type="radio" name="packageType" value="import" />Import
-                /
-                <input type="radio" name="packageType" value="export" checked="true" />Export
-                ) Packages:
+                Find Packages:
                 <input type="text" id="packageString" name="packageString" value=""/>&nbsp;
                 <input type="submit" value="Go" />
             </form>
@@ -181,8 +177,8 @@ function refreshPrompt(target, bundleId, bundleName) {
             theTr.style.backgroundColor = oldcolor;
         }
     </script> 
-      <c:set var="backgroundClass" value='MediumBackground'/>
-      <c:forEach var="bundleInfo" items="${extendedBundleInfos}">
+    <c:set var="backgroundClass" value='MediumBackground'/>
+    <c:forEach var="bundleInfo" items="${extendedBundleInfos}">
       <c:choose>
           <c:when test="${backgroundClass == 'MediumBackground'}" >
               <c:set var="backgroundClass" value='LightBackground'/>
@@ -277,7 +273,7 @@ function refreshPrompt(target, bundleId, bundleName) {
         </td>
 
       </tr>
-      </c:forEach>
+    </c:forEach>
 </table>
 
 
