@@ -51,7 +51,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
         setUpAppContext(null, null, "policyContextID", null, "war1/", webAppInfo);
 
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(hostURL + "/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());
@@ -66,7 +66,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
 
         setUpAppContext(null, null, "policyContextID", null, "war1/", webAppInfo);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(hostURL + "/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());

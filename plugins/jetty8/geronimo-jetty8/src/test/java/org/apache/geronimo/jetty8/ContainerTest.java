@@ -31,7 +31,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
     public void testHTTPConnector() throws Exception {
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(hostURL).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -48,7 +48,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
         container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, cl);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(hostURL + contextPath).openConnection();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
@@ -57,7 +57,7 @@ public class ContainerTest extends AbstractWebModuleTest {
             connection.disconnect();
         }
         container.removeWebService(contextPath);
-        connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL(hostURL + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -77,7 +77,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         MockWebServiceContainer webServiceInvoker2 = new MockWebServiceContainer();
         container.addWebService(contextPath2, null, webServiceInvoker2, null, null, null, null, null, cl);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(hostURL + contextPath).openConnection();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
@@ -86,7 +86,7 @@ public class ContainerTest extends AbstractWebModuleTest {
             connection.disconnect();
         }
         container.removeWebService(contextPath);
-        connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL(hostURL + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();

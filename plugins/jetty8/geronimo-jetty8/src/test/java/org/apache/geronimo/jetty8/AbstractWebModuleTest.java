@@ -95,6 +95,8 @@ public class AbstractWebModuleTest extends TestSupport {
     protected SessionHandlerFactory sessionHandlerFactory = null;
     private Bundle bundle;
     protected String appPath;
+    protected int connectorPort = 1234;
+    protected String hostURL = "http://localhost:" + connectorPort;
 
     protected void setUpStaticContentServlet(WebAppInfo webAppInfo) throws Exception {
         ServletInfo servletInfo = new ServletInfo();
@@ -261,7 +263,7 @@ public class AbstractWebModuleTest extends TestSupport {
             null, new File(BASEDIR, "target/var/jetty").toString(), serverInfo);
         container.doStart();
         connector = new HTTPSocketConnector(container, null);
-        connector.setPort(5678);
+        connector.setPort(connectorPort);
         connector.setHost("localhost");
         connector.setMaxThreads(2);
         connector.doStart();
