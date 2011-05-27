@@ -49,6 +49,7 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.deployment.ClassPathUtils;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -668,6 +669,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             } else {
                 // extract the ejbJar file into a standalone packed jar file and add the contents to the output
                 earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+               // add manifest class path entries to the ejb module classpath
+                Set<String> EjbModuleClasspaths = module.getClassPath();
+                earContext.addManifestClassPath(moduleFile, URI.create("."), EjbModuleClasspaths);
+                
+                for (String classpath:EjbModuleClasspaths){
+                    earContext.addToClassPath(classpath);
+                }
+                
             }
             //earContext.addInclude(".", moduleFile);
         } catch (IOException e) {
@@ -714,9 +723,17 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
         }
     }
+    
 
     private void doInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
+        
+        Collection<String> manifestcp = module.getClassPath();
+        manifestcp.add(module.getTargetPath());
+        EARContext moduleContext = module.getEarContext();
+        Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(module.getRootEarContext().getGeneralData());
+        URI baseUri = URI.create(module.getTargetPath());
+        moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
 
         GeronimoEjbInfo ejbInfo = getEjbInfo(earContext, ejbModule, bundle);
 
@@ -758,12 +775,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Add extra gbean declared in the geronimo-openejb.xml file
         serviceBuilders.build(ejbModule.getVendorDD(), earContext, ejbModule.getEarContext());
 
-        Collection<String> manifestcp = module.getClassPath();
-        manifestcp.add(module.getTargetPath());
-        EARContext moduleContext = module.getEarContext();
-        Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(module.getRootEarContext().getGeneralData());
-        URI baseUri = URI.create(module.getTargetPath());
-        moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
+       
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
             earContext.addGBean(ejbModuleGBeanData);
@@ -946,7 +958,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (offline) {
             AutoConfig autoConfig = new AutoConfig(configurationFactory);
             autoConfig.autoCreateResources(false);
-            autoConfig.autoCreateContainers(false);
+            autoConfig.autoCreateContainers(true);
             chain.add(autoConfig);
         } else {
             chain.add(new AutoConfig(configurationFactory));

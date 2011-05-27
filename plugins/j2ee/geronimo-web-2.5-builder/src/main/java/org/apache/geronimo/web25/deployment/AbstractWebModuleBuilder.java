@@ -396,6 +396,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // and the url class loader will not pick up a manifest from an unpacked dir
             //GERONIMO-4972 this can't be correct for one-bundle deployments.
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI, manifestcp);
+            
+            for (String classpath : manifestcp) {
+                earContext.addToClassPath(module.resolve(classpath).toString());
+            }
+            
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } finally {
