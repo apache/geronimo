@@ -421,7 +421,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             try {
                 Field field = clazz.getDeclaredField(fieldName);
                 Resource resource = field.getAnnotation(Resource.class);
-                if (resource != null) {
+                if (resource != null && resource.type()!=Object.class) {
                     type = chooseType(fieldName, field.getType(), resource.type());
                 } else {
                     type = field.getType();
@@ -437,7 +437,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                         String setName = Introspector.decapitalize(methodName.substring(3));
                         if (fieldName.equals(setName)) {
                             Resource resource = method.getAnnotation(Resource.class);
-                            if (resource != null) {
+                            if (resource != null && resource.type()!=Object.class) {
                                 type = chooseType(fieldName, method.getParameterTypes()[0], resource.type());
                             } else {
                                 type = method.getParameterTypes()[0];
@@ -446,12 +446,15 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                     }
                 }
             }
+            
+            if (type != null) {
+                return deprimitivize(type);
+            }
+            
             clazz = clazz.getSuperclass();
         } while (clazz != null);
         
-        if (type != null) {
-            return deprimitivize(type);
-        }
+
         
         throw new NoSuchFieldException(fieldName);
     }
