@@ -136,11 +136,13 @@ public class ClassPathUtils {
                     if (!targetUri.getPath().endsWith("/")) {
                         targetUri = URI.create(targetUri.getPath() + "/");
                     }
+                    
+                    //1, add the directory to classpath
+                    classPath.add(targetUri.getPath());
+                    
+                    //2, add  *.jar under the directory to classpath
                     for (File file : factory.listFiles(targetUri)) {
-                        if (file.isDirectory()) {
-                            log.debug("Sub directory [" + file.getAbsolutePath() + "] in the manifest entry directory is ignored");
-                            continue;
-                        }
+
                         if (!file.getName().endsWith(".jar")) {
                             log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
                             continue;
@@ -149,15 +151,6 @@ public class ClassPathUtils {
                     }
                 } else {
                     if (!pathUri.getPath().endsWith(".jar")) {
-                        if (manifestClassLoaderMode == MFCP_STRICT) {
-                            problems.add(new DeploymentException(
-                                    "Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= "
-                                            + path + ", module= " + moduleBaseUri));
-                        } else {
-                            log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                                    + "Therefore, a manifest classpath entry which does not end with .jar, "
-                                    + pathUri + " is being permitted and ignored.");
-                        }
                         continue;
                     }
                     classPath.add(targetUri.getPath());
@@ -234,6 +227,32 @@ public class ClassPathUtils {
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
+            
+            try {
+                if (factory.isDirectory(targetUri)) {
+                    if (!targetUri.getPath().endsWith("/")) {
+                        targetUri = URI.create(targetUri.getPath() + "/");
+                    }
+                    
+                    //1, add the directory to classpath
+                    addToClassPath(moduleBaseUri, resolutionUri, targetUri, classpath, exclusions, factory, problems);
+                    
+                    //2, add  *.jar under the directory to classpath
+                    for (File file : factory.listFiles(targetUri)) {
+
+                        if (!file.getName().endsWith(".jar")) {
+                            log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
+                            continue;
+                        }
+                        addToClassPath(moduleBaseUri, resolutionUri, targetUri.resolve(file.getName()), classpath, exclusions, factory, problems);
+                    }
+                } else {
+                    if (!pathUri.getPath().endsWith(".jar")) {
+                        continue;
+                    }
+                    addToClassPath(moduleBaseUri, resolutionUri, targetUri, classpath, exclusions, factory, problems);
+                }
+            } catch (IOException e) {}
 
             try {
                 if (factory.isDirectory(targetUri)) {
@@ -281,7 +300,7 @@ public class ClassPathUtils {
 
     private static void addToClassPath(URI moduleBaseUri, URI resolutionUri, URI targetUri, Collection<String> classpath, Collection<String> exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
         String targetEntry = targetUri.toString();
-        if (exclusions.contains(targetEntry)) {
+        if (exclusions!=null && exclusions.contains(targetEntry)) {
             return;
         }
         URI resolvedUri = resolutionUri.resolve(targetUri);
@@ -291,6 +310,11 @@ public class ClassPathUtils {
             return;
         }
         classpath.add(classpathEntry);
+        
+        if (!classpathEntry.endsWith(".jar")){
+            return;
+        }
+        
         JarFile classPathJarFile;
         try {
             classPathJarFile = factory.newJarFile(targetUri);

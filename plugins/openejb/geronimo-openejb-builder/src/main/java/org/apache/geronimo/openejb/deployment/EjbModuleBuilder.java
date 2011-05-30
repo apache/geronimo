@@ -362,7 +362,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             
 
             
-            detectTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, (URL[])libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
+            detectTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
 
             ResourceFinder finder = new ResourceFinder("", detectTempClassLoader, baseUrl);
 
@@ -397,7 +397,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             libURLs.clear();
             libURLs.add(baseUrl);
             
-            ejbModuleTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, (URL[])libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
+            ejbModuleTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
             
 
             // create the EJB Module
@@ -670,8 +670,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 // extract the ejbJar file into a standalone packed jar file and add the contents to the output
                 earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
                // add manifest class path entries to the ejb module classpath
-                Set<String> EjbModuleClasspaths = module.getClassPath();
-                earContext.addManifestClassPath(moduleFile, URI.create("."), EjbModuleClasspaths);
+                Collection<String> EjbModuleClasspaths = module.getClassPath();
+                EjbModuleClasspaths.add(module.getTargetPath());
+                Collection<String> moduleLocations = module.isStandAlone() ? null : module.getParentModule()
+                        .getModuleLocations();
+                URI baseUri = URI.create(module.getTargetPath());
+                earContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), EjbModuleClasspaths, moduleLocations);
                 
                 for (String classpath:EjbModuleClasspaths){
                     earContext.addToClassPath(classpath);
@@ -728,12 +732,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private void doInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         
-        Collection<String> manifestcp = module.getClassPath();
-        manifestcp.add(module.getTargetPath());
-        EARContext moduleContext = module.getEarContext();
-        Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(module.getRootEarContext().getGeneralData());
-        URI baseUri = URI.create(module.getTargetPath());
-        moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
+
 
         GeronimoEjbInfo ejbInfo = getEjbInfo(earContext, ejbModule, bundle);
 

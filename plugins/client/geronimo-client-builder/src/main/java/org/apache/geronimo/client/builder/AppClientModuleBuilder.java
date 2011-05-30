@@ -25,12 +25,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -563,12 +566,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(appClientDeploymentContext);
 
-            try {
-                appClientDeploymentContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
-            }
-            if (module.getParentModule() != null) {
+
+      if (module.getParentModule() != null) {
+                
                 Collection<String> libClasspath = module.getParentModule().getClassPath();
                 for (String libEntryPath : libClasspath) {
                     try {
@@ -579,12 +579,65 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                 }
                 module.getClassPath().addAll(libClasspath);
+            
+            
+            Enumeration<JarEntry> ear_entries = earFile.entries();
+            
+            //Copy non archive files from ear file to appclient configuration. These
+            // files are needed when caculating dir classpath in manifest.
+            while (ear_entries.hasMoreElements()) {
+                
+                ZipEntry ear_entry = ear_entries.nextElement();
+                URI targetPath = module.getParentModule().resolve(ear_entry.getName());
+                
+                if (!ear_entry.getName().endsWith(".jar") && !ear_entry.getName().endsWith(".war")
+                        && !ear_entry.getName().endsWith(".rar") && !ear_entry.getName().startsWith("META-INF")) 
+                {
+                    appClientDeploymentContext.addFile(targetPath, earFile, ear_entry);
+                }
             }
+            
+            Collection<String> appClientModuleClasspaths = module.getClassPath();
+            
+            try {
+                // extract the client Jar file into a standalone packed jar file and add the contents to the output
+                URI moduleBase = new URI(module.getTargetPath());
+                appClientDeploymentContext.addIncludeAsPackedJar(moduleBase, moduleFile);
+                // add manifest class path entries to the app client context
+                addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
+                
+                
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Unable to get app client module base URI " + module.getTargetPath(), e);
+            }
+                        
+            appClientModuleClasspaths.add(module.getTargetPath());
+            EARContext moduleContext = module.getEarContext();
+            Collection<String> moduleLocations = module.getParentModule().getModuleLocations();
+            URI baseUri = URI.create(module.getTargetPath());
+            moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), appClientModuleClasspaths, moduleLocations);
+
+            
+            for (String classpath: appClientModuleClasspaths){
+                appClientDeploymentContext.addToClassPath(classpath);
+                
+                //Copy needed jar from ear to appclient configuration.
+                if (classpath.endsWith(".jar")){
+
+                    NestedJarFile library = new NestedJarFile(earFile, classpath);
+                    appClientDeploymentContext.addIncludeAsPackedJar(URI.create(classpath), library);
+                    
+                }                 
+            }
+            }
+            
         } catch (DeploymentException e) {
             throw e;
         } catch (IOException e) {
            throw new DeploymentException(e);
-        }
+        } 
         for (Module connectorModule : appClientModule.getModules()) {
             if (connectorModule instanceof ConnectorModule) {
                 getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
@@ -652,25 +705,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             }
         }
 
-        // Create a Module ID Builder defaulting to similar settings to use for any children we create
-        ModuleIDBuilder idBuilder = new ModuleIDBuilder();
-        idBuilder.setDefaultGroup(appClientModule.getEnvironment().getConfigId().getGroupId());
-        idBuilder.setDefaultVersion(appClientModule.getEnvironment().getConfigId().getVersion());
+
         try {
             try {
 
                 //register the message destinations in the app client ear context.
                 namingBuilders.initContext(appClient, geronimoAppClient, appClientModule);
-                // extract the client Jar file into a standalone packed jar file and add the contents to the output
-                URI moduleBase = new URI(appClientModule.getTargetPath());
-                try {
-                    appClientDeploymentContext.addIncludeAsPackedJar(moduleBase, moduleFile);
-                } catch (IOException e) {
-                    throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
-                }
-
-                // add manifest class path entries to the app client context
-                addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
 
                 // get the classloader
                 Bundle appClientClassBundle = appClientDeploymentContext.getDeploymentBundle();
@@ -896,12 +936,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 throw new DeploymentException("Invalid manifest classpath entry: jarFile=" + jarFileLocation + ", path=" + path, e);
             }
 
-            if (!pathUri.getPath().endsWith(".jar")) {
-                throw new DeploymentException("Manifest class path entries must end with the .jar extension (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
-            }
             if (pathUri.isAbsolute()) {
                 throw new DeploymentException("Manifest class path entries must be relative (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
             }
+            
+            Enumeration<JarEntry> ear_entries = earFile.entries();
 
             // determine the target file
             URI classPathJarLocation = jarFileLocation.resolve(pathUri);
@@ -915,23 +954,44 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 if (entry == null) {
                     throw new DeploymentException("Cound not find manifest class path entry: jarFile=" + jarFileLocation + ", path=" + path);
                 }
-
+                
                 try {
-                    // copy the file into the output context
-                    deploymentContext.addFile(classPathJarLocation, earFile, entry);
+
+                    if (!entry.getName().endsWith(".jar")) {
+
+                        while (ear_entries.hasMoreElements()) {
+                            ZipEntry ear_entry = ear_entries.nextElement();
+                            URI targetPath = jarFileLocation.resolve(ear_entry.getName());
+                            if (ear_entry.getName().startsWith(classPathJarLocation.getPath()))
+                                deploymentContext.addFile(targetPath, earFile, ear_entry);
+                        }
+                    } else {
+
+                        // copy the file into the output context
+                        deploymentContext.addFile(classPathJarLocation, earFile, entry);
+                    }
                 } catch (IOException e) {
-                    throw new DeploymentException("Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation + ", path=" + path, e);
+                    throw new DeploymentException(
+                            "Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation
+                                    + ", path=" + path, e);
                 }
 
                 JarFile classPathJarFile;
-                try {
-                    classPathJarFile = new JarFile(classPathFile);
-                } catch (IOException e) {
-                    throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path, e);
-                }
+                
+                if (classPathFile.getName().endsWith(".jar")) {
 
-                // add the client jars of this class path jar
-                addManifestClassPath(deploymentContext, earFile, classPathJarFile, classPathJarLocation);
+                    try {
+                        classPathJarFile = new JarFile(classPathFile);
+                    } catch (IOException e) {
+                        throw new DeploymentException(
+                                "Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile="
+                                        + jarFileLocation + ", path=" + path, e);
+                    }
+
+                    // add the client jars of this class path jar
+                    addManifestClassPath(deploymentContext, earFile, classPathJarFile, classPathJarLocation);
+
+                }
             }
         }
     }
