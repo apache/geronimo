@@ -63,6 +63,7 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
         super(standAlone, moduleName, name, environment, moduleFile,
               targetPath, specDD, vendorDD, originalSpecDD, jndiContext, parentModule);
         this.ejbModule = ejbModule;
+        this.ejbModule.setStandaloneModule(standAlone);
 
         preAutoConfigDeployer = new ConfigurationFactory.Chain();
         this.shareJndi = shareJndi;
