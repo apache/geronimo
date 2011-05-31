@@ -162,7 +162,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             ejbEncInfo.ejbLocalReferences.addAll(moduleJndi.ejbLocalReferences);
             ejbEncInfo.ejbLocalReferences.addAll(compJndi.ejbLocalReferences);
 
-            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, module.getName(), module.getName(), getClass().getClassLoader());
+            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, moduleId, module.getModuleURI(), moduleId, getClass().getClassLoader());
 
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
