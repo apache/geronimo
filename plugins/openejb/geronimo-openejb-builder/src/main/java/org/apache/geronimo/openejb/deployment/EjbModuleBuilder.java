@@ -337,6 +337,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             List<URL> libURLs = new ArrayList<URL>();
             
             libURLs.add(baseUrl);
+            
+            boolean standAlone = earEnvironment == null;
         
            if (parentModule instanceof WebModule)  {
               
@@ -358,6 +360,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                        libJar.deleteOnExit();
                     }
                 }  
+                
+                // The war it self is a ejbmodule. If the war is standalone, 
+                // the corresponding ejbmodule is standalone too.
+                standAlone = parentModule.isStandAlone();
             }
             
 
@@ -444,7 +450,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
 
             // Get the geronimo-openejb.xml tree
-            boolean standAlone = earEnvironment == null;
+
             GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getAltDDs().get("geronimo-openejb.xml");
             if (geronimoEjbJarType == null) {
                 // create default plan
@@ -467,7 +473,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
 
             AbstractName moduleName;
-            if (parentModule == null || ".".equals(targetPath)) {
+            if (parentModule == null) {
                 AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
                 moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
             } else {
@@ -486,7 +492,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 name = parentModule.getName();
             } else if (ejbJar.getModuleName() != null) {
                 name = ejbJar.getModuleName().trim();
-            } else if (standAlone || ".".equals(targetPath)) {
+            } else if (standAlone) {
                 name = FileUtils.removeExtension(packageName, ".jar");
             } else {
                 name = FileUtils.removeExtension(targetPath, ".jar");
@@ -494,7 +500,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             ejbModule.setModuleId(name);
 
-            if (standAlone || ".".equals(targetPath)) {
+            if (standAlone) {
                 ejbModule.setModuleUri(URI.create(packageName));
             } else {
                 ejbModule.setModuleUri(URI.create(targetPath));
@@ -803,7 +809,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 //            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], bundleLoader);
 
             // create an openejb app module for the ear containing all ejb modules
-            AppModule appModule = new AppModule(bundleLoader, earContext.getConfigID().toString());
+            AppModule appModule = new AppModule(bundleLoader, earContext.getConfigID().toString(), null, ejbModule.isStandAlone());
             for (EjbModule module : earData.getEjbModules()) {
                 module.setClassLoader(bundleLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
