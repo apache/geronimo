@@ -202,13 +202,14 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
         ArrayList<String> classPathList = new ArrayList<String>();
         ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
-        assertEquals(6, classPathList.size());
+        assertEquals(7, classPathList.size());
         assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("lib2/lib2.jar", classPathList.get(1));
         assertEquals("lib2/lib2a.jar", classPathList.get(2));
         assertEquals("lib3.jar", classPathList.get(3));
-        assertEquals("libfolder/a.jar", classPathList.get(4));
-        assertEquals("libfolder/b.jar", classPathList.get(5));
+        assertEquals("libfolder/", classPathList.get(4));
+        assertEquals("libfolder/a.jar", classPathList.get(5));
+        assertEquals("libfolder/b.jar", classPathList.get(6));
 
     }
 
