@@ -571,12 +571,14 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 
                 Collection<String> libClasspath = module.getParentModule().getClassPath();
                 for (String libEntryPath : libClasspath) {
+                  if(libEntryPath.endsWith(".jar")){
                     try {
                         NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
                         appClientDeploymentContext.addIncludeAsPackedJar(URI.create(libEntryPath), library);
                     } catch (IOException e) {
                         throw new DeploymentException("Could not add to app client library classpath: " + libEntryPath, e);
                     }
+                  }
                 }
                 module.getClassPath().addAll(libClasspath);
             

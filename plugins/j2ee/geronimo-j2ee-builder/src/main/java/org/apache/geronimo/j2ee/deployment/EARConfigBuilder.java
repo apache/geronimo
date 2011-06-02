@@ -607,17 +607,31 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
+                    
+                    if (addEntry) {
+                        earContext.addFile(URI.create(entry.getName()), earFile, entry);
+                    }
+                }
+                
+                for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
+                    ZipEntry entry = e.nextElement();
+                    String entryName = entry.getName();
                     //   EAR/lib/sub-dir/*.jar should not be added into lib classpath.
                     if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar") && entry.getName().substring(libDir.length()+1).indexOf("/") == -1) {
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
-                    } else if (addEntry) {
-                        earContext.addFile(URI.create(entry.getName()), earFile, entry);
-                    }
+                        earContext.addManifestClassPath(library, URI.create(libDir+"/"), libClasspath);
+                    } 
                 }
+                
             }
-
+            
+            
+            for(String classpath:applicationInfo.getClassPath()){
+                earContext.addToClassPath(classpath);
+            }
+            
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
