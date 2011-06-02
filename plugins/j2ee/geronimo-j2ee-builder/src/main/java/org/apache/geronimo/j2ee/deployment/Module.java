@@ -203,7 +203,7 @@ public abstract class Module<T, U> {
     }
 
     public int hashCode() {
-        return name.hashCode();
+        return moduleURI.hashCode();
     }
 
     public boolean equals(Object obj) {
