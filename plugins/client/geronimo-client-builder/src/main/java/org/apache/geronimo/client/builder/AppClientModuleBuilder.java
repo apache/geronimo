@@ -599,6 +599,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 }
             }
             
+      }
+            
             Collection<String> appClientModuleClasspaths = module.getClassPath();
             
             try {
@@ -614,7 +616,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Unable to get app client module base URI " + module.getTargetPath(), e);
             }
-                        
+            
+          if (module.getParentModule() != null) {      
+              
             appClientModuleClasspaths.add(module.getTargetPath());
             EARContext moduleContext = module.getEarContext();
             Collection<String> moduleLocations = module.getParentModule().getModuleLocations();
@@ -633,7 +637,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     
                 }                 
             }
-            }
+            
+          }
             
         } catch (DeploymentException e) {
             throw e;
