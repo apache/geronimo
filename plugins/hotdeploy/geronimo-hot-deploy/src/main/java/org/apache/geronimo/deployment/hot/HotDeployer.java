@@ -21,7 +21,7 @@ package org.apache.geronimo.deployment.hot;
  *
  * @version $Rev$ $Date$
  */
-public interface HotDeployer extends DirectoryMonitor.Listener {
+public interface HotDeployer {
     public int getPollIntervalMillis();
     public void setPollIntervalMillis(int millis);
 }
