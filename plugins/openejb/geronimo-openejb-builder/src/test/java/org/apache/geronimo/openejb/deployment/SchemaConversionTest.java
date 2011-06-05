@@ -27,7 +27,6 @@ import org.apache.geronimo.testsupport.XmlBeansTestSupport;
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class SchemaConversionTest extends XmlBeansTestSupport {
-    private ClassLoader classLoader = this.getClass().getClassLoader();
 
     // Dain: I don't believe we need this test anymore since openejb is doing the converstions.
     public void testNothing() {

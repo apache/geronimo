@@ -144,7 +144,7 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
         return ejb;
     }
 
-    class Ejb extends Module<EnterpriseBean, XmlObject> {
+   static class Ejb extends Module<EnterpriseBean, XmlObject> {
         protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, EnterpriseBean specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
             super(standAlone, moduleName, name, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, jndiContext, parentModule);
         }

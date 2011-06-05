@@ -247,13 +247,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         valueToConvert = createClientRef(valueToConvert);
 
         name = "java:" + name;
-        if (value instanceof Serializable) {
-            List<InjectionTarget> injections = injectionsMap.get(name);
-            if (injections == null) {
-                injections = Collections.emptyList();
-            }
-            put(name, valueToConvert, moduleJndiContext, injections, sharedContext);
+        
+        List<InjectionTarget> injections = injectionsMap.get(name);
+        if (injections == null) {
+            injections = Collections.emptyList();
         }
+        put(name, valueToConvert, moduleJndiContext, injections, sharedContext);
     }
         
 

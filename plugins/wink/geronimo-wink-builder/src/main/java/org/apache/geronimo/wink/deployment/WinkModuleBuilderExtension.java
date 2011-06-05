@@ -123,9 +123,6 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             // not a web module, nothing to do
             return;
         }
-        WebModule webModule = (WebModule) module;
-        WebApp webApp = webModule.getSpecDD();
-
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
@@ -228,7 +225,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
                             Class servletClass=null;
                             
                             try {
-                                bundleClassLoader.loadClass(servlet.getServletClass());
+                                servletClass = bundleClassLoader.loadClass(servlet.getServletClass());
                             } catch (ClassNotFoundException e) {
                                 log.warn("failed to load servlet class:"+servlet.getServletClass());
                             }
