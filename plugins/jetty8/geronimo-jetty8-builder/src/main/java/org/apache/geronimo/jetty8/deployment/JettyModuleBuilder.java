@@ -136,6 +136,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         GERONIMO_SCHEMA_CONVERSIONS.put("serverAuthConfig", new NamespaceElementConverter(JASPI_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("serverAuthContext", new NamespaceElementConverter(JASPI_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("serverAuthModule", new NamespaceElementConverter(JASPI_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("openejb-jar", new NamespaceElementConverter(OPENEJB_JAR_NAMESPACE));
     }
 
     private final Environment defaultEnvironment;

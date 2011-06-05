@@ -332,7 +332,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:choice>
-                <xs:element name="ejb" type="web:pathType">
+                <xs:element name="ejb" type="tomcat:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -342,7 +342,7 @@
                 </xs:element>
             </xs:choice>
             <xs:choice>
-                <xs:element name="alt-dd" type="web:pathType">
+                <xs:element name="alt-dd" type="tomcat:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             Specifies an optional URI to the post-assembly
