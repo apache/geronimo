@@ -32,6 +32,8 @@ public class GeronimoSingletonService implements SingletonService<WebBeansContex
 
     private static final ThreadLocal<WebBeansContext> contexts = new ThreadLocal<WebBeansContext>();
     private static Bundle bundle;
+    
+    private static final WebBeansContext noContext = new WebBeansContext();
 
     public static void init(Bundle owbBundle) {
         bundle = owbBundle;
@@ -59,7 +61,7 @@ public class GeronimoSingletonService implements SingletonService<WebBeansContex
     private WebBeansContext getContext() {
         WebBeansContext context = contexts.get();
         if (context == null) {
-            throw new IllegalStateException("On a thread without an initialized context");
+            contexts.set(noContext);
         }
         return context;
     }
