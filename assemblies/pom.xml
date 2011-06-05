@@ -33,17 +33,6 @@
     <name>Geronimo Assemblies</name>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>geronimo-jetty8-minimal</module>
-        <!-- <module>geronimo-jetty8-eba</module> -->
-        <module>geronimo-jetty8-javaee6-web</module>
-        <module>geronimo-jetty8-javaee6</module>
-        <module>geronimo-tomcat7-minimal</module>
-        <!-- <module>geronimo-tomcat7-eba</module> -->
-        <module>geronimo-tomcat7-javaee6-web</module>
-        <module>geronimo-tomcat7-javaee6</module>
-    </modules>
-
     <build>
         <plugins>
             <plugin>
@@ -83,6 +72,43 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>   
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>geronimo-jetty8-minimal</module>
+                <!-- <module>geronimo-jetty8-eba</module> -->
+                <module>geronimo-jetty8-javaee6-web</module>
+                <module>geronimo-jetty8-javaee6</module>
+                <module>geronimo-tomcat7-minimal</module>
+                <!-- <module>geronimo-tomcat7-eba</module> -->
+                <module>geronimo-tomcat7-javaee6-web</module>
+                <module>geronimo-tomcat7-javaee6</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>jetty</id>
+            <modules>
+                <module>geronimo-jetty8-minimal</module>
+                <module>geronimo-jetty8-javaee6-web</module>
+                <module>geronimo-jetty8-javaee6</module>
+            </modules>
+        </profile>
 
+        <profile>
+            <id>tomcat</id>
+
+            <modules>
+                <module>geronimo-tomcat7-minimal</module>
+                <module>geronimo-tomcat7-javaee6-web</module>
+                <module>geronimo-tomcat7-javaee6</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
 
