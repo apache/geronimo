@@ -20,6 +20,17 @@ package org.apache.geronimo.web;
 /**
  * @version $Rev$ $Date$
  */
-public enum WebAttributeName {
-    META_COMPLETE, ORDERED_LIBS, SCHEMA_VERSION, SERVLET_CONTAINER_INITIALIZERS, WEB_APP_INFO;
+public class WebApplicationConstants {
+
+    public static final String META_COMPLETE = "META_COMPLETE";
+
+    public static final String ORDERED_LIBS = "ORDERED_LIBS";
+
+    public static final String SCHEMA_VERSION = "SCHEMA_VERSION";
+
+    public static final String SERVLET_CONTAINER_INITIALIZERS = "SERVLET_CONTAINER_INITIALIZERS";
+
+    public static final String WEB_APP_INFO = "WEB_APP_INFO";
+
+    public static final String WEB_APP_NAME = "WEB_APP_NAME";
 }

@@ -20,7 +20,7 @@ package org.apache.geronimo.myfaces.info;
 import javax.faces.context.ExternalContext;
 
 import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
-import org.apache.geronimo.osgi.web.WebApplicationConstants;
+import org.apache.geronimo.osgi.web.WABApplicationConstants;
 import org.apache.myfaces.config.element.FacesConfigData;
 import org.apache.myfaces.spi.FacesConfigurationMerger;
 import org.apache.myfaces.spi.FacesConfigurationMergerFactory;
@@ -38,7 +38,7 @@ public class GeronimoFacesConfigurationMergerFactory extends FacesConfigurationM
     public FacesConfigurationMerger getFacesConfigurationMerger(ExternalContext externalContext) {
         if (facesConfigurationMerger == null) {
             Bundle bundle = ((BundleContext) externalContext.getApplicationMap().get(
-                    WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
+                    WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
             final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(bundle);
             facesConfigurationMerger = new FacesConfigurationMerger() {
 

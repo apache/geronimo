@@ -42,13 +42,14 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
-import org.apache.geronimo.osgi.web.WebApplicationConstants;
+import org.apache.geronimo.osgi.web.WABApplicationConstants;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
@@ -98,15 +99,15 @@ public class GeronimoWebAppContext extends WebAppContext {
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
         this.classLoader = classLoader;
-        
+
         Bundle bundle = BundleUtils.unwrapBundle(integrationContext.getBundle());
-        
-        setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, 
+
+        setAttribute(WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                      bundle.getBundleContext());
 
-        setAttribute(WebAttributeName.WEB_APP_INFO.name(), webAppInfo);
+        setAttribute(WebApplicationConstants.WEB_APP_INFO, webAppInfo);
 
-        setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
+        setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(),
                      bundle.getBundleContext());
 
         // now set the module context ValidatorFactory in a context property.

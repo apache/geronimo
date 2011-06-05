@@ -86,7 +86,7 @@ import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
@@ -182,20 +182,20 @@ public class GeronimoStandardContext extends StandardContext {
             if (tomcatWebAppContext.getSecurityHolder() != null) {
                 configurationFactory = tomcatWebAppContext.getSecurityHolder().getConfigurationFactory();
             }
-            float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
-            boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
+            float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.SCHEMA_VERSION);
+            boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.META_COMPLETE);
             webSecurityConstraintStore = new WebSecurityConstraintStore(tomcatWebAppContext.getWebAppInfo(), bundle, schemaVersion >= 2.5f && !metaComplete, getInternalServletContext());
 
             servletContext.setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
 
             //Set some attributes passed from the deployment process
-            List<String> orderedLists = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.ORDERED_LIBS.name());
+            List<String> orderedLists = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.ORDERED_LIBS);
             if (orderedLists != null) {
                 servletContext.setAttribute(ServletContext.ORDERED_LIBS, Collections.unmodifiableList(orderedLists));
             }
             //Set ServletContainerInitializer
-            Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS
-                    .name());
+            Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) tomcatWebAppContext
+                    .getDeploymentAttribute(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS);
             Bundle bundle = tomcatWebAppContext.getBundle();
             if (servletContainerInitializerClassNamesMap != null) {
                 for (Map.Entry<String, Set<String>> entry : servletContainerInitializerClassNamesMap.entrySet()) {

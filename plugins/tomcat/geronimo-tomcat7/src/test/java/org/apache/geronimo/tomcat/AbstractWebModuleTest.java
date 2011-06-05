@@ -29,7 +29,6 @@ import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
 import javax.transaction.TransactionManager;
 
-import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
@@ -59,9 +58,10 @@ import org.apache.geronimo.tomcat.connector.ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.webbeans.config.WebBeansFinder;
 import org.osgi.framework.Bundle;
 
@@ -108,8 +108,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                null,
                 null);
         Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
-        deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);
-        deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), 3.0f);
+        deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, Boolean.TRUE);
+        deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, 3.0f);
         TomcatWebAppContext app = new TomcatWebAppContext(cl, //classLoader
                 bundle, //bundle
                 null,   //objectName

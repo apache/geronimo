@@ -45,11 +45,11 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.osgi.web.WebApplicationConstants;
+import org.apache.geronimo.osgi.web.WABApplicationConstants;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -277,14 +277,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");
         }
         context.setParent(host);
-        
+
         Bundle bundle = BundleUtils.unwrapBundle(contextInfo.getBundle());
         // set the bundle context attribute in the servlet context
-        context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
+        context.getServletContext().setAttribute(WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                                                  bundle.getBundleContext());
-        context.getServletContext().setAttribute(WebAttributeName.WEB_APP_INFO.name(), contextInfo.getWebAppInfo());
+        context.getServletContext().setAttribute(WebApplicationConstants.WEB_APP_INFO, contextInfo.getWebAppInfo());
 
-        context.getServletContext().setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
+        context.getServletContext().setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(),
                                                  bundle.getBundleContext());
 
         // now set the module context ValidatorFactory in a context property.

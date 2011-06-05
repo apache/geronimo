@@ -18,7 +18,7 @@
  */
 package org.apache.geronimo.osgi.web;
 
-public interface WebApplicationConstants {
+public interface WABApplicationConstants {
 
     public static final String BUNDLE_CONTEXT_ATTRIBUTE = "osgi-bundlecontext";
 

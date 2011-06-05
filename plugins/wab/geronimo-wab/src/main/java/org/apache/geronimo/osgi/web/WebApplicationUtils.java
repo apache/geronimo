@@ -30,7 +30,7 @@ import org.osgi.framework.ServiceRegistration;
 public class WebApplicationUtils {
 
     public static boolean isWebApplicationBundle(Bundle bundle) {
-        return (bundle != null && bundle.getHeaders().get(WebApplicationConstants.CONTEXT_PATH_HEADER) != null);
+        return (bundle != null && bundle.getHeaders().get(WABApplicationConstants.CONTEXT_PATH_HEADER) != null);
     }
     
     public static ServiceRegistration registerServletContext(BundleContext bundleContext, ServletContext context) {   
@@ -39,12 +39,12 @@ public class WebApplicationUtils {
     
     public static ServiceRegistration registerServletContext(Bundle bundle, ServletContext context) {        
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put(WebApplicationConstants.WEB_SYMBOLIC_NAME, bundle.getSymbolicName());
+        properties.put(WABApplicationConstants.WEB_SYMBOLIC_NAME, bundle.getSymbolicName());
         String version = (String) bundle.getHeaders().get(Constants.BUNDLE_VERSION);
         if (version != null) {
-            properties.put(WebApplicationConstants.WEB_VERSION, version);
+            properties.put(WABApplicationConstants.WEB_VERSION, version);
         }
-        properties.put(WebApplicationConstants.WEB_CONTEXT_PATH, context.getContextPath());
+        properties.put(WABApplicationConstants.WEB_CONTEXT_PATH, context.getContextPath());
         return bundle.getBundleContext().registerService(ServletContext.class.getName(), context, properties);
     }
     

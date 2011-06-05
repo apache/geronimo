@@ -58,7 +58,7 @@ import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.webbeans.config.WebBeansContext;
@@ -180,7 +180,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap = new LinkedHashMap<ServletContainerInitializer, Set<Class<?>>>();
         //Set ServletContainerInitializer
-        Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) deploymentAttributes.get(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS.name());
+        Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) deploymentAttributes.get(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS);
         if (servletContainerInitializerClassNamesMap != null) {
             for (Map.Entry<String, Set<String>> entry : servletContainerInitializerClassNamesMap.entrySet()) {
                 String servletContainerInitializerClassName = entry.getKey();
@@ -211,7 +211,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
 
         final WebBeansContext owbContext = (sharedOwbContext == null) ? new WebBeansContext() : sharedOwbContext.getOWBContext();
-        
+
         IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, owbContext);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);

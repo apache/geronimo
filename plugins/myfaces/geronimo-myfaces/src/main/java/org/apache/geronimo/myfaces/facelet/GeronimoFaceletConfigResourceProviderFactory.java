@@ -24,7 +24,7 @@ import java.util.Collection;
 import javax.faces.context.ExternalContext;
 
 import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
-import org.apache.geronimo.osgi.web.WebApplicationConstants;
+import org.apache.geronimo.osgi.web.WABApplicationConstants;
 import org.apache.myfaces.spi.FaceletConfigResourceProvider;
 import org.apache.myfaces.spi.FaceletConfigResourceProviderFactory;
 import org.osgi.framework.Bundle;
@@ -40,7 +40,7 @@ public class GeronimoFaceletConfigResourceProviderFactory extends FaceletConfigR
     @Override
     public FaceletConfigResourceProvider createFaceletConfigResourceProvider(ExternalContext externalContext) {
         if (faceletConfigResourceProvider == null) {
-            Bundle bundle = ((BundleContext) externalContext.getApplicationMap().get(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
+            Bundle bundle = ((BundleContext) externalContext.getApplicationMap().get(WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
             final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(bundle);
             faceletConfigResourceProvider = new FaceletConfigResourceProvider() {
 

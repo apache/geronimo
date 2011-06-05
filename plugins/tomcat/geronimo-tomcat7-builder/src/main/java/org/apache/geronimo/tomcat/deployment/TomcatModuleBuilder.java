@@ -84,7 +84,7 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
@@ -673,10 +673,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
-            deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), webApp.isMetadataComplete());
-            deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebAttributeName.ORDERED_LIBS.name(), AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS.name(), AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, webApp.isMetadataComplete());
+            deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.ORDERED_LIBS, AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS, AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
             webModuleData.setAttribute("deploymentAttributes", deploymentAttributes);
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!

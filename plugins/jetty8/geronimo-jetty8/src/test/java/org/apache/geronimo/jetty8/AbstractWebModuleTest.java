@@ -65,11 +65,10 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.webbeans.config.WebBeansFinder;
-import org.apache.webbeans.spi.SingletonService;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
@@ -148,8 +147,8 @@ public class AbstractWebModuleTest extends TestSupport {
         }
         String contextPath = "/test";
         Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
-        deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);
-        deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), 3.0f);
+        deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, Boolean.TRUE);
+        deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, 3.0f);
         ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
                 Collections.<String, Object>emptyMap(),
                 transactionManager,
