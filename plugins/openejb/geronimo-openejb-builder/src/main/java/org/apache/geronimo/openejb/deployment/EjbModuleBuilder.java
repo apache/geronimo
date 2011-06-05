@@ -295,7 +295,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         //check for web module
         if (module instanceof WebModule) {
             //check for WEB-INF/ejb-jar.xml
-            Module ejbModule = createModule(null, moduleFile, targetPath, null, environment, module, naming, idBuilder, "WEB-INF/", true);
+            Module ejbModule = createModule(plan, moduleFile, targetPath, null, environment, module, naming, idBuilder, "WEB-INF/", true);
             if (ejbModule != null) {
                 module.getModules().add(ejbModule);
                 //???
@@ -434,10 +434,25 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                     xmlCursor.toFirstChild();
                     qname = xmlCursor.getName();
                 }
+                
+             while (xmlCursor.hasNextToken()){
+                 
+                 qname = xmlCursor.getName();
+                    if (qname == null || qname.getLocalPart() == null) {
+                        xmlCursor.toNextToken();
+                        continue;
+                    }
+                
                 if (qname.getLocalPart().equals("openejb-jar")) {
                     ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
+                    break;
                 } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
                     ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
+                    break;
+                }
+                
+                xmlCursor.toNextToken();
+
                 }
             }
 

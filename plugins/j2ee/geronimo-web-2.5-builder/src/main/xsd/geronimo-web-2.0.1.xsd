@@ -66,7 +66,17 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-
+         <xs:element name="module" type="web:moduleType" minOccurs="0"
+                maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        An optional module element which defines various
+                        modules included in the web application archive and
+                        adds an optional alt-dd element defining a Geronimo
+                        specific deployment descriptor.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="work-dir" type="xs:string" minOccurs="0">
                 <xs:annotation>
@@ -118,8 +128,6 @@
                 </xs:element>
                 <xs:any namespace="http://java.sun.com/xml/ns/persistence"/>
             </xs:choice>
-            
-
         </xs:sequence>
     </xs:complexType>
 
@@ -137,5 +145,67 @@
             <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
+    
+    <xs:complexType name="moduleType">
+        <xs:annotation>
+            <xs:documentation>
+               add an optional alt-dd element defining a Geronimo specific
+                deployment descriptor for war ejb module.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="ejb" type="web:pathType">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The presence of this element is indicative of J2EE
+                            module type to be EJB module
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
+            <xs:choice>
+                <xs:element name="alt-dd" type="web:pathType">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Specifies an optional URI to the post-assembly
+                            version of the Geronimo specific deployment
+                            descriptor file for a particular J2EE module
+                            relative to the enterprise application package main
+                            directory.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:any namespace="##other" processContents="lax">
+                    <xs:annotation>
+                        <xs:documentation>
+                            This option element contains the alternate geronimo
+                            deployment plan for included modules.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:any>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="pathType">
+        <xs:annotation>
+            <xs:documentation>Mirrors j2ee:pathType.</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:restriction base="web:string" />
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="string">
+        <xs:annotation>
+            <xs:documentation>Mirrors j2ee:string.</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:token">
+                <xs:attribute name="id" type="xs:ID" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>    
 
 </xs:schema>
