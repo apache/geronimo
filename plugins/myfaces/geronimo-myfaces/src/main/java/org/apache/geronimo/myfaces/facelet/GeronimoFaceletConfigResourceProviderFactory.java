@@ -24,11 +24,9 @@ import java.util.Collection;
 import javax.faces.context.ExternalContext;
 
 import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
-import org.apache.geronimo.osgi.web.WABApplicationConstants;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.myfaces.spi.FaceletConfigResourceProvider;
 import org.apache.myfaces.spi.FaceletConfigResourceProviderFactory;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -40,8 +38,8 @@ public class GeronimoFaceletConfigResourceProviderFactory extends FaceletConfigR
     @Override
     public FaceletConfigResourceProvider createFaceletConfigResourceProvider(ExternalContext externalContext) {
         if (faceletConfigResourceProvider == null) {
-            Bundle bundle = ((BundleContext) externalContext.getApplicationMap().get(WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
-            final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(bundle);
+            String webModuleName = (String) externalContext.getApplicationMap().get(WebApplicationConstants.WEB_APP_NAME);
+            final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(webModuleName);
             faceletConfigResourceProvider = new FaceletConfigResourceProvider() {
 
                 @Override

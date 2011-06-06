@@ -372,8 +372,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         ContextConfig config = new EjbWsContextConfig(webAppInfo, policyContextId,  configurationFactory, defaultSubject, authMethod, realmName);
         context.addLifecycleListener(config);
 
-        Context webServiceContext = (context);
-
         String virtualServer;
         if (virtualHosts != null && virtualHosts.length > 0) {
             virtualServer = virtualHosts[0];
@@ -386,8 +384,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matchiing Host entry in the plan?");
         }
 
-        host.addChild(webServiceContext);
-        webServices.put(contextPath, webServiceContext);
+        host.addChild(context);
+        webServices.put(contextPath, context);
     }
 
     public void removeWebService(String contextPath) {

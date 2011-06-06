@@ -72,7 +72,7 @@ public class StatTest extends AbstractWebModuleTest {
                 aStts = stats.getStatistic(sttsName);
                 assertTrue("startTime was not set for " + sttsName, aStts.getStartTime() != 0);
                 assertTrue("lastSampleTime was not set for " + sttsName, aStts.getLastSampleTime() != 0);
-                /*System.out.println("              lastSampleTime = " + aStts.getLastSampleTime() + 
+                /*System.out.println("              lastSampleTime = " + aStts.getLastSampleTime() +
             	    "  startTime = " + aStts.getStartTime());
                 System.out.println(aStts);*/
             }

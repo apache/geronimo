@@ -149,6 +149,16 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
 
         holder = holder == null ? Holder.EMPTY : holder;
 
+        this.server = server;
+        this.application = application;
+        this.objectName = objectName;
+        if (objectName != null) {
+            ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
+            verifyObjectName(myObjectName);
+        }
+        this.jettyContainer = jettyContainer;
+        this.originalSpecDD = originalSpecDD;
+
         RunAsSource runAsSource1 = runAsSource == null ? RunAsSource.NULL : runAsSource;
 
         SessionHandler sessionHandler;
@@ -217,6 +227,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
+        webAppContext.setWebModuleName(getWARName());
 
         if (workDir == null) {
             workDir = contextPath.replace('/', '_');
@@ -239,16 +250,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.setMimeMap(webAppInfo.mimeMappings);
         webAppContext.setMimeTypes(mimeTypes);
-
-        this.server = server;
-        this.application = application;
-        this.objectName = objectName;
-        if (objectName != null) {
-            ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
-            verifyObjectName(myObjectName);
-        }
-        this.jettyContainer = jettyContainer;
-        this.originalSpecDD = originalSpecDD;
 
         //DONT install the jetty TLD configuration as we find and create all the listeners ourselves
         webAppContext.setConfigurationClasses(new String[]{});

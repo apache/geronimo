@@ -49,8 +49,9 @@ public class TomcatEJBWebServiceContext extends StandardContext {
         this.setParentClassLoader(classLoader);
         this.setDelegate(true);
 
-        log.debug("EJB Webservice Context = " + contextPath);
-
+        if (log.isDebugEnabled()) {
+            log.debug("EJB Webservice Context = " + contextPath);
+        }
         this.classLoader = classLoader;
 
         //Create a dummy wrapper
@@ -133,12 +134,12 @@ public class TomcatEJBWebServiceContext extends StandardContext {
             return request.getHeader(name);
         }
 
-        public java.net.URI getURI() {
+        public URI getURI() {
             if (uri == null) {
                 try {
                     //String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getLocalPort() + request.getRequestURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
-                    uri = new java.net.URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
+                    uri = new URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
                 } catch (URISyntaxException e) {
                     throw new IllegalStateException(e.getMessage(), e);
                 }

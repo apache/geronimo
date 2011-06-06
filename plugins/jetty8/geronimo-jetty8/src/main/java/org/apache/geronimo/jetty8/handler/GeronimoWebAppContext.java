@@ -85,6 +85,7 @@ public class GeronimoWebAppContext extends WebAppContext {
     private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private ServiceRegistration serviceRegistration;
     boolean fullyStarted = false;
+    private String webModuleName;
 
     public GeronimoWebAppContext(SecurityHandler securityHandler,
                                  SessionHandler sessionHandler,
@@ -110,6 +111,8 @@ public class GeronimoWebAppContext extends WebAppContext {
         setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(),
                      bundle.getBundleContext());
 
+        setAttribute(WebApplicationConstants.WEB_APP_NAME, webModuleName);
+
         // now set the module context ValidatorFactory in a context property.
         try {
             javax.naming.Context ctx = integrationContext.getComponentContext();
@@ -126,6 +129,10 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean annotationScanRequired = true;
         webSecurityConstraintStore = new WebSecurityConstraintStore(webAppInfo, integrationContext.getBundle(), annotationScanRequired, _scontext);
 
+    }
+
+    public void setWebModuleName(String webModuleName) {
+        this.webModuleName = webModuleName;
     }
 
     public void registerServletContext() {

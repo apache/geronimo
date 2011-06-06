@@ -112,7 +112,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, 3.0f);
         TomcatWebAppContext app = new TomcatWebAppContext(cl, //classLoader
                 bundle, //bundle
-                null,   //objectName
+                "geronimo:J2EEServer=geronimo,name=hello.war,J2EEApplication=null,j2eeType=WebModule",   //objectName
                 "/test",    //contextPath
                 null,   //originalSpecDD
                 "", //modulePath

@@ -77,6 +77,8 @@ import org.eclipse.jetty.security.UserAuthentication;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.server.UserIdentity;
+import org.junit.After;
+import org.junit.Before;
 import org.osgi.framework.Bundle;
 
 
@@ -156,7 +158,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 cl,
                 null,
                 null);
-        WebAppContextWrapper app = new WebAppContextWrapper(null,
+        WebAppContextWrapper app = new WebAppContextWrapper("geronimo:J2EEServer=geronimo,name=hello.war,J2EEApplication=null,j2eeType=WebModule",
                 contextPath,
                 null,
                 null,
@@ -245,6 +247,7 @@ public class AbstractWebModuleTest extends TestSupport {
     protected void tearDownSecurity() throws Exception {
     }
 
+    @Before
     protected void setUp() throws Exception {
         cl = this.getClass().getClassLoader();
 
@@ -273,6 +276,7 @@ public class AbstractWebModuleTest extends TestSupport {
         transactionManager.addTransactionAssociationListener(new GeronimoTransactionListener(connectionTrackingCoordinator));
     }
 
+    @After
     protected void tearDown() throws Exception {
         connector.doStop();
         Thread.sleep(1000);

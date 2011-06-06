@@ -20,12 +20,10 @@ package org.apache.geronimo.myfaces.info;
 import javax.faces.context.ExternalContext;
 
 import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
-import org.apache.geronimo.osgi.web.WABApplicationConstants;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.myfaces.config.element.FacesConfigData;
 import org.apache.myfaces.spi.FacesConfigurationMerger;
 import org.apache.myfaces.spi.FacesConfigurationMergerFactory;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -37,9 +35,8 @@ public class GeronimoFacesConfigurationMergerFactory extends FacesConfigurationM
     @Override
     public FacesConfigurationMerger getFacesConfigurationMerger(ExternalContext externalContext) {
         if (facesConfigurationMerger == null) {
-            Bundle bundle = ((BundleContext) externalContext.getApplicationMap().get(
-                    WABApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE)).getBundle();
-            final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(bundle);
+            String webModuleName = (String) externalContext.getApplicationMap().get(WebApplicationConstants.WEB_APP_NAME);
+            final MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(webModuleName);
             facesConfigurationMerger = new FacesConfigurationMerger() {
 
                 @Override

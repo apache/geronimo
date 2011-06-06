@@ -25,11 +25,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.myfaces.config.element.FacesConfigData;
@@ -47,7 +49,7 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(MyFacesWebAppContext.class);
 
-    private static final Map<Bundle, MyFacesWebAppContext> MYFACES_WEBAPP_CONTEXTS = new ConcurrentHashMap<Bundle, MyFacesWebAppContext>();
+    private static final Map<String, MyFacesWebAppContext> MYFACES_WEBAPP_CONTEXTS = new ConcurrentHashMap<String, MyFacesWebAppContext>();
 
     private FacesConfigData facesConfigData;
 
@@ -57,12 +59,17 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     private List<URL> faceletConfigResources;
 
+    private AbstractName abName;
+
     public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData,
-            @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources, @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+            @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources,
+            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+            @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName) {
         this.bundle = BundleUtils.unwrapBundle(bundle);
         this.facesConfigData = facesConfigData;
         this.classLoader = classLoader;
+        this.abName = abName;
         ServiceReference serviceReference = null;
         this.faceletConfigResources = new ArrayList<URL>(faceletConfigResources.size());
         try {
@@ -109,17 +116,21 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
         }
     }
 
+    public String getWebModuleName(){
+        return abName.getNameProperty(NameFactory.WEB_MODULE);
+    }
+
     @Override
     public void doStart() throws Exception {
-        MYFACES_WEBAPP_CONTEXTS.put(bundle, this);
+        MYFACES_WEBAPP_CONTEXTS.put(getWebModuleName(), this);
     }
 
     @Override
     public void doStop() throws Exception {
-        MYFACES_WEBAPP_CONTEXTS.remove(bundle);
+        MYFACES_WEBAPP_CONTEXTS.remove(getWebModuleName());
     }
 
-    public static MyFacesWebAppContext getMyFacesWebAppContext(Bundle bundle) {
-        return MYFACES_WEBAPP_CONTEXTS.get(bundle);
+    public static MyFacesWebAppContext getMyFacesWebAppContext(String webModuleName) {
+        return MYFACES_WEBAPP_CONTEXTS.get(webModuleName);
     }
 }

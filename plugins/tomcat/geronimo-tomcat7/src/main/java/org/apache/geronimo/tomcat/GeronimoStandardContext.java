@@ -34,6 +34,7 @@ import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
@@ -156,7 +157,7 @@ public class GeronimoStandardContext extends StandardContext {
         setResources(createDirContext(ctx));
 
         // Create ReadOnlyContext
-        javax.naming.Context enc = ctx.getJndiContext();
+        Context enc = ctx.getJndiContext();
         setInstanceManager(ctx.getInstanceManager());
         ServletContext servletContext = getServletContext();
 
@@ -167,6 +168,9 @@ public class GeronimoStandardContext extends StandardContext {
             setServer(tomcatWebAppContext.getServer());
             setJ2EEApplication(tomcatWebAppContext.getJ2EEApplication());
             setJ2EEServer(tomcatWebAppContext.getJ2EEServer());
+
+            servletContext.setAttribute(WebApplicationConstants.WEB_APP_NAME, tomcatWebAppContext.getWARName());
+
             //install jasper injection support if required
             if (tomcatWebAppContext.getRuntimeCustomizer() != null) {
                 Map<String, Object> attributes = new HashMap<String, Object>();
