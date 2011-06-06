@@ -23,6 +23,7 @@ import java.util.Properties;
 import javax.naming.Context;
 
 import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -54,6 +55,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               @ParamAttribute(name="portInfo")PortInfo portInfo,
                               @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
                               @ParamSpecial(type = SpecialAttributeType.bundle)Bundle bundle,
+                              @ParamSpecial(type = SpecialAttributeType.abstractName)AbstractName abName,
                               @ParamReference(name="WebServiceContainer")Collection<SoapHandler> webContainers,
                               @ParamAttribute(name="policyContextID")String policyContextID,
                               @ParamReference(name="ConfigurationFactory")ConfigurationFactory configurationFactory,
@@ -76,7 +78,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         BeanContext deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
         Context context = deploymnetInfo.getJndiEnc();
 
-        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, axis2ModuleRegistry, deploymnetInfo);
+        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, axis2ModuleRegistry, deploymnetInfo, abName.getNameProperty(NameFactory.EJB_MODULE));
         this.container.init();
 
         soapHandler.addWebService(this.location,

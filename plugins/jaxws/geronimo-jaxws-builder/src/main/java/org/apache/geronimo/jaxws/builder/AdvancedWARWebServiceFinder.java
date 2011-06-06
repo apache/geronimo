@@ -118,6 +118,8 @@ public class AdvancedWARWebServiceFinder extends AbstractWARWebServiceFinder {
                     PortInfo portInfo = new PortInfo();
                     portInfo.setLocation(contextRoot + location);
                     portInfo.setHandlerChainsInfo(annotationHandlerChainFinder.buildHandlerChainFromClass(service));
+                    portInfo.setWsdlService(JAXWSUtils.getServiceQName(service));
+                    portInfo.setWsdlPort(JAXWSUtils.getPortQName(service));
                     servletNamePortInfoMap.put(service.getName(), portInfo);
                 } else {
                     // found at least one mapped <servlet/> entry
@@ -126,6 +128,8 @@ public class AdvancedWARWebServiceFinder extends AbstractWARWebServiceFinder {
                             LOG.debug("POJO Web Service class {} is mapped to {} servlet", service.getName(), servlet);
                         }
                         PortInfo portInfo = createPortInfo(servlet, portLocations);
+                        portInfo.setWsdlService(JAXWSUtils.getServiceQName(service));
+                        portInfo.setWsdlPort(JAXWSUtils.getPortQName(service));
                         servletNamePortInfoMap.put(servlet, portInfo);
                     }
                 }
@@ -158,6 +162,8 @@ public class AdvancedWARWebServiceFinder extends AbstractWARWebServiceFinder {
                     String servletName = servletType.getServletName().trim();
                     portInfo = createPortInfo(servletName, portLocations);
                     portInfo.setHandlerChainsInfo(annotationHandlerChainFinder.buildHandlerChainFromClass(servletClass));
+                    portInfo.setWsdlService(JAXWSUtils.getServiceQName(servletClass));
+                    portInfo.setWsdlPort(JAXWSUtils.getPortQName(servletClass));
                 }
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Failed to load servlet class " + servletClassName, e);

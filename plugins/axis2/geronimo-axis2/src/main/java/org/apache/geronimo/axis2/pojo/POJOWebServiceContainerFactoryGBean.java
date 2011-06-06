@@ -24,12 +24,14 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
@@ -50,16 +52,17 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private static final Logger LOG = LoggerFactory.getLogger(POJOWebServiceContainerFactoryGBean.class);
 
     private final ClassLoader classLoader;
-    private final org.apache.geronimo.jaxws.PortInfo portInfo;
+    private final PortInfo portInfo;
     private final String endpointClassName;
     private Context context;
     private AnnotationHolder holder;
     private String contextRoot;
     private Bundle bundle;
     private Axis2ModuleRegistry axis2ModuleRegistry;
+    private String webModuleName;
 
     public POJOWebServiceContainerFactoryGBean(
-                        @ParamAttribute(name="portInfo") org.apache.geronimo.jaxws.PortInfo portInfo,
+                        @ParamAttribute(name="portInfo") PortInfo portInfo,
                         @ParamAttribute(name="endpointClassName") String endpointClassName,
                         @ParamAttribute(name="componentContext") Map componentContext,
                         @ParamReference(name="TransactionManager", namingType=NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
@@ -68,7 +71,8 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                         @ParamReference(name="Axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                        @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader)
+                        @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                        @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName)
                      throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 
         if (componentContext != null) {
@@ -89,10 +93,11 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.holder = holder;
         this.contextRoot = contextRoot;
         this.axis2ModuleRegistry = axis2ModuleRegistry;
+        this.webModuleName = abName.getNameProperty(NameFactory.WEB_MODULE);
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, holder, contextRoot);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, holder, contextRoot, webModuleName);
         try {
             container.init();
         } catch (Exception e) {

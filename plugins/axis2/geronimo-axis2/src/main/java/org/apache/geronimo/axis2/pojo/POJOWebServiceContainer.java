@@ -19,7 +19,6 @@ package org.apache.geronimo.axis2.pojo;
 
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-
 import javax.naming.Context;
 import javax.xml.ws.WebServiceException;
 
@@ -64,8 +63,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
                                    Context context,
                                    Axis2ModuleRegistry axis2ModuleRegistry,
                                    AnnotationHolder holder,
-                                   String contextRoot) {
-        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry);
+                                   String contextRoot,
+                                   String moduleName) {
+        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, moduleName);
         this.holder = holder;
         this.contextRoot = contextRoot;
     }

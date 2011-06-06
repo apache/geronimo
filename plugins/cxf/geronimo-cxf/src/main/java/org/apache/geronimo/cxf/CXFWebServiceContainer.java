@@ -49,7 +49,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     public CXFWebServiceContainer(Bus bus, Object target, Bundle bundle) {
         this.bus = bus;
         this.bundle = bundle;
-        List ids = new ArrayList();
+        List<String> ids = new ArrayList<String>();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/");
 
         DestinationFactoryManager destinationFactoryManager = bus

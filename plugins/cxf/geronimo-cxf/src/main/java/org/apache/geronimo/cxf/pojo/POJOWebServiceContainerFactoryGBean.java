@@ -66,7 +66,6 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                                                Kernel kernel,
                                                Bundle bundle,
                                                TransactionManager transactionManager,
-                                               URL configurationBaseUrl,
                                                AnnotationHolder holder,
                                                String contextRoot)
             throws ClassNotFoundException,
@@ -128,7 +127,6 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("bundle", Bundle.class, false);
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
         infoBuilder.addAttribute("contextRoot", String.class, true, true);
 
@@ -140,7 +138,6 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                 "kernel",
                 "bundle",
                 "TransactionManager",
-                "configurationBaseUrl",
                 "holder",
                 "contextRoot"
         });

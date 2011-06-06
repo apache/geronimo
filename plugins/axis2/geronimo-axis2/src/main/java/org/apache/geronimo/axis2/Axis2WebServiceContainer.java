@@ -21,6 +21,8 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +78,7 @@ import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.jaxws.JAXWSWebApplicationContext;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
@@ -131,13 +134,16 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
     protected Axis2ModuleRegistry axis2ModuleRegistry;
 
-    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Bundle bundle, Context context, Axis2ModuleRegistry axis2ModuleRegistry) {
+    protected String moduleName;
+
+    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Bundle bundle, Context context, Axis2ModuleRegistry axis2ModuleRegistry, String moduleName) {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.bundle = bundle;
         this.context = context;
         this.jndiResolver = new ServerJNDIResolver(context);
         this.axis2ModuleRegistry = axis2ModuleRegistry;
+        this.moduleName = moduleName;
     }
 
     public void init() throws Exception {
@@ -172,7 +178,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         service.setScope(Constants.SCOPE_APPLICATION);
         configurationContext.getAxisConfiguration().addService(service);
 
-        this.wsdlQueryHandler = new WSDLQueryHandler(this.service);
+        this.wsdlQueryHandler = new WSDLQueryHandler(this.service, portInfo, getPortInfos(bundle));
 
         /*
          * This replaces HandlerLifecycleManagerFactory for all web services.
@@ -187,6 +193,11 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         configureAddressing();
 
         this.service.addParameter(new Parameter(org.apache.axis2.jaxws.spi.Constants.CACHE_CLASSLOADER, new BundleClassLoader(bundle)));
+    }
+
+    protected Collection<PortInfo> getPortInfos(Bundle bundle) {
+        JAXWSWebApplicationContext jaxwsWebApplicationContext = JAXWSWebApplicationContext.get(moduleName);
+        return jaxwsWebApplicationContext == null ? Collections.<PortInfo>emptyList() : jaxwsWebApplicationContext.getPortInfos();
     }
 
     static String getBaseUri(URI request) {
@@ -490,7 +501,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
      */
     protected void configureHandlers() throws Exception {
         EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
-        
+
         if(portInfo.getHandlerChainsInfo() != null) {
             desc.setHandlerChain(toAxis2HandlerChainsType(portInfo.getHandlerChainsInfo()));
         }
@@ -503,7 +514,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());
     }
-    
+
     private HandlerChainsType toAxis2HandlerChainsType(HandlerChainsInfo handlerChainsInfo) {
         HandlerChainsType handlerChains = new HandlerChainsType();
         for (HandlerChainInfo handlerChainInfo : handlerChainsInfo.handleChains) {
@@ -525,7 +536,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
         return handlerChains;
     }
-    
+
     private void logHandlers(HandlerChainsType handlerChains) {
         if (handlerChains == null || handlerChains.getHandlerChain() == null || handlerChains.getHandlerChain().isEmpty()) {
             LOG.debug("No handlers");

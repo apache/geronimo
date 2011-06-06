@@ -65,6 +65,8 @@ public class EJBWebServiceFinder implements WebServiceFinder<EjbModule> {
                         location = "/" + JAXWSUtils.getServiceName(ejbClass) + "/" + JAXWSUtils.getName(ejbClass);
                     }
                     portInfo.setLocation(location);
+                    portInfo.setWsdlService(JAXWSUtils.getServiceQName(ejbClass));
+                    portInfo.setWsdlPort(JAXWSUtils.getPortQName(ejbClass));
                     map.put(bean.ejbName, portInfo);
                     ejbWebServiceClassNames.add(bean.ejbClass);
                 }

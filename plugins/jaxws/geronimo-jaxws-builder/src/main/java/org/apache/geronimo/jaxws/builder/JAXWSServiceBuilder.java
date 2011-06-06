@@ -19,6 +19,7 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -38,7 +39,9 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.jaxws.JAXWSEJBApplicationContext;
 import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.jaxws.JAXWSWebApplicationContext;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
@@ -253,6 +256,21 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             return false;
         }
 
+        Map<String, PortInfo> servletNamePortInfoMap = null;
+        AbstractName jaxwsWebApplicationContextName = context.getNaming().createChildName(module.getModuleName(), "JAXWSWebApplicationContext", "JAXWSWebApplicationContext");
+        try {
+            servletNamePortInfoMap = (Map<String, PortInfo>)(context.getGBeanInstance(jaxwsWebApplicationContextName).getAttribute("servletNamePortInfoMap"));
+        } catch (GBeanNotFoundException e) {
+            GBeanData jaxwsWebApplicationContextGBeanData = new GBeanData(jaxwsWebApplicationContextName, JAXWSWebApplicationContext.class);
+            try {
+                context.addGBean(jaxwsWebApplicationContextGBeanData);
+            } catch (GBeanAlreadyExistsException e1) {
+            }
+            servletNamePortInfoMap = new HashMap<String, PortInfo>();
+            jaxwsWebApplicationContextGBeanData.setAttribute("servletNamePortInfoMap", servletNamePortInfoMap);
+        }
+        servletNamePortInfoMap.put(servletName, portInfo);
+
         Map componentContext = null;
         Holder moduleHolder = null;
         try {
@@ -335,9 +353,23 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             throw new DeploymentException("Endpoint URI for EJB WebService is missing");
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
+        Map<String, PortInfo> ejbNamePortInfoMap = null;
+        DeploymentContext context = module.getEarContext();
+        AbstractName jaxwsEJBApplicationContextName = context.getNaming().createChildName(module.getModuleName(), "JAXWSEJBApplicationContext", "JAXWSEJBApplicationContext");
+        try {
+            ejbNamePortInfoMap = (Map<String, PortInfo>)(context.getGBeanInstance(jaxwsEJBApplicationContextName).getAttribute("ejbNamePortInfoMap"));
+        } catch (GBeanNotFoundException e) {
+            GBeanData jaxwsEJBApplicationContextGBeanData = new GBeanData(jaxwsEJBApplicationContextName, JAXWSEJBApplicationContext.class);
+            try {
+                context.addGBean(jaxwsEJBApplicationContextGBeanData);
+            } catch (GBeanAlreadyExistsException e1) {
+            }
+            ejbNamePortInfoMap = new HashMap<String, PortInfo>();
+            jaxwsEJBApplicationContextGBeanData.setAttribute("ejbNamePortInfoMap", ejbNamePortInfoMap);
         }
+        ejbNamePortInfoMap.put(ejbName, portInfo);
+
+        LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
 
         targetGBean.setAttribute("portInfo", portInfo);
 
