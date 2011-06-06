@@ -145,11 +145,9 @@ public class ApplicationInstaller implements GBeanLifecycle {
 
             return context;
         } catch (DeploymentException e) {
-            e.printStackTrace();
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new DeploymentException("", e);
+            throw new DeploymentException("Error deploying application", e);
         }
     }
 
@@ -160,8 +158,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             targetConfigurationStore.install(configurationData);
             return configurationData;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new DeploymentException("", e);
+            throw new DeploymentException("Error installing application", e);
         } finally {
             try { context.close(); } catch (IOException e) {}
         }
@@ -179,8 +176,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             configurationManager.loadConfiguration(configurationData.getId());
             configurationManager.startConfiguration(configurationData.getId());
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new DeploymentException("", e);
+            throw new DeploymentException("Error installing application", e);
         }
     }
 

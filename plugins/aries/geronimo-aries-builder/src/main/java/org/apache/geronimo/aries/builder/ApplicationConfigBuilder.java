@@ -139,6 +139,11 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
         return ApplicationInstaller.getConfigId(metadata);
     }
 
+    private static boolean getResolveOnDeploy() {
+        String property = System.getProperty("org.apache.geronimo.aries.resolveApplicationOnDeploy", "true");
+        return Boolean.parseBoolean(property);
+    }
+
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment,
                                                 Artifact configId,
                                                 Object plan,
@@ -157,7 +162,7 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
             throw new DeploymentException("Error creating Aries Application", e);
         }
 
-        if (!app.isResolved()) {
+        if (!app.isResolved() && getResolveOnDeploy()) {
             try {
                 app = appManager.resolve(app);
             } catch (Exception e) {

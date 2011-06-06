@@ -42,6 +42,7 @@ import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.AriesApplicationResolver;
 import org.apache.aries.application.management.BundleInfo;
 import org.apache.aries.application.management.ManagementException;
+import org.apache.aries.application.management.ResolverException;
 import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -104,6 +105,8 @@ public class ApplicationGBean implements GBeanLifecycle {
             applicationFactory = getService(applicationFactoryReference, ApplicationMetadataFactory.class);
         
             this.application = new GeronimoApplication(bundle, applicationFactory, deploymentFactory);
+            
+            install(deploymentFactory);
         } finally {
             if (deploymentFactory != null) {
                 bundleContext.ungetService(deploymentFactoryReference);
@@ -112,8 +115,6 @@ public class ApplicationGBean implements GBeanLifecycle {
                 bundleContext.ungetService(applicationFactoryReference);
             }
         }
-        
-        install();
                         
         ServiceReference applicationManagerReference = 
             bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
@@ -315,7 +316,21 @@ public class ApplicationGBean implements GBeanLifecycle {
         return applicationState;
     }
     
-    private void install() throws Exception {
+    private DeploymentMetadata getDeploymentMetadata(AriesApplicationResolver resolver, DeploymentMetadataFactory deploymentFactory) throws ResolverException {
+        DeploymentMetadata meta = application.getDeploymentMetadata();
+        if (meta == null) {
+            // try to resolve the application
+            LOG.debug("Resolving {} application.", application.getApplicationMetadata().getApplicationScope());
+            Set<BundleInfo> requiredBundles = resolver.resolve(application);
+            meta = deploymentFactory.createDeploymentMetadata(application, requiredBundles);
+            LOG.debug("Resolved application bundles: {} ", requiredBundles);
+        } else {
+            LOG.debug("Application {} is resolved.", application.getApplicationMetadata().getApplicationScope());
+        }
+        return meta;
+    }
+    
+    private void install(DeploymentMetadataFactory deploymentFactory) throws Exception {
 
         BundleContext bundleContext = bundle.getBundleContext();
         
@@ -324,19 +339,20 @@ public class ApplicationGBean implements GBeanLifecycle {
         
         ServiceReference resolverRef = bundleContext.getServiceReference(AriesApplicationResolver.class.getName());
         ServiceReference packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
-                
-        DeploymentMetadata meta = application.getDeploymentMetadata();
-        
-        List<DeploymentContent> deploymentContentsBundles = meta.getApplicationDeploymentContents();
-        List<DeploymentContent> provisionBundles = meta.getApplicationProvisionBundles();
-        
-        List<DeploymentContent> bundlesToInstall = new ArrayList<DeploymentContent>();
-        bundlesToInstall.addAll(deploymentContentsBundles);
-        bundlesToInstall.addAll(provisionBundles);
-        
+                              
         applicationBundles = new HashSet<Bundle>();
         try {
             resolver = getService(resolverRef, AriesApplicationResolver.class);
+            
+            DeploymentMetadata meta = getDeploymentMetadata(resolver, deploymentFactory);
+            
+            List<DeploymentContent> deploymentContentsBundles = meta.getApplicationDeploymentContents();
+            List<DeploymentContent> provisionBundles = meta.getApplicationProvisionBundles();
+            
+            List<DeploymentContent> bundlesToInstall = new ArrayList<DeploymentContent>();
+            bundlesToInstall.addAll(deploymentContentsBundles);
+            bundlesToInstall.addAll(provisionBundles);
+            
             packageAdmin = getService(packageAdminRef, PackageAdmin.class);
             
             for (DeploymentContent content : bundlesToInstall) {

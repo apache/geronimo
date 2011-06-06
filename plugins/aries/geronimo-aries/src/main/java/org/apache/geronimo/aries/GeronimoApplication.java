@@ -41,15 +41,16 @@ import org.osgi.framework.Bundle;
  */
 public class GeronimoApplication implements AriesApplication {
     
+    private final ApplicationMetadata applicationMetadata;
+    private final Set<BundleInfo> bundleInfo;
     private DeploymentMetadata deploymentMetadata;
-    private Set<BundleInfo> bundleInfo;
     
     public GeronimoApplication(Bundle bundle, 
                                ApplicationMetadataFactory applicationFactory, 
                                DeploymentMetadataFactory deploymentFactory) 
         throws IOException {
-        URL deploymentMF = bundle.getEntry(AppConstants.DEPLOYMENT_MF);
-        deploymentMetadata = deploymentFactory.createDeploymentMetadata(deploymentMF.openStream());    
+        URL applicationMF = bundle.getEntry(AppConstants.APPLICATION_MF);
+        applicationMetadata = applicationFactory.parseApplicationMetadata(applicationMF.openStream());
         
         bundleInfo = new HashSet<BundleInfo>();
         Enumeration<URL> e = bundle.findEntries("/", "*", true);
@@ -63,10 +64,15 @@ public class GeronimoApplication implements AriesApplication {
                 bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, url.toExternalForm()));
             }
         }
+        
+        URL deploymentMF = bundle.getEntry(AppConstants.DEPLOYMENT_MF);
+        if (deploymentMF != null) {
+            deploymentMetadata = deploymentFactory.createDeploymentMetadata(deploymentMF.openStream());
+        }
     }
 
     public ApplicationMetadata getApplicationMetadata() {
-        return deploymentMetadata.getApplicationMetadata();
+        return applicationMetadata;
     }
 
     public Set<BundleInfo> getBundleInfo() {
@@ -78,7 +84,7 @@ public class GeronimoApplication implements AriesApplication {
     }
 
     public boolean isResolved() {
-        return true;
+        return (deploymentMetadata != null);
     }
 
     public void store(File arg0) throws FileNotFoundException, IOException {
