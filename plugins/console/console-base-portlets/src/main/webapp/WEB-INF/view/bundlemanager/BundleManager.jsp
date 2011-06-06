@@ -93,7 +93,7 @@ function refreshPrompt(target, bundleId, bundleName) {
         <td align="right">
             <form id="packageForm" method="POST" action="<portlet:actionURL><portlet:param name='page' value='find_packages'/></portlet:actionURL>">
                 Find Packages:
-                <input type="text" id="packageString" name="packageString" value=""/>&nbsp;
+                <input type="text" id="packageString" name="packageString" value="" title="Input nothing to list all packages"/>&nbsp;
                 <input type="submit" value="Go" />
             </form>
         </td>

@@ -399,6 +399,30 @@ limitations under the License.
             <value>EBA</value>
         </init-param>
     </portlet>
+     <portlet>
+        <description>Portlet for displaying Bundle modules</description>
+        <portlet-name>BundleModules</portlet-name>
+        <display-name>Bundle Modules Portlet</display-name>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
+        <expiration-cache>-1</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
+        <portlet-info>
+            <title>Deployed OSGi Bundles</title>
+            <short-title>BundleModules</short-title>
+            <keywords>OSGi Bundle Module</keywords>
+        </portlet-info>
+        <init-param>
+            <name>config-type</name>
+            <value>BUNDLE</value>
+        </init-param>
+    </portlet>
     <portlet>
         <description>Portlet for displaying bundles</description>
         <portlet-name>BundleManagerPortlet</portlet-name>

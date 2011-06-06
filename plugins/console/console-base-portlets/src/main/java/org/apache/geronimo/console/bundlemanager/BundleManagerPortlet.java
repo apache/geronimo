@@ -275,8 +275,8 @@ public class BundleManagerPortlet extends BasePortlet {
                         BundleInfo exportBundleInfo = new SimpleBundleInfo(bundle);
                         
                         for (ExportedPackage exportedPackage : exportedPackages) {
-                            if (exportedPackage.getName().toLowerCase().indexOf(packageString.trim().toLowerCase())!= -1) { // filter by keyword and ignore case 
-                                
+                            // filter by keyword and ignore case. if the keyword is null, then return all the packages
+                            if (packageString==null || exportedPackage.getName().toLowerCase().indexOf(packageString.trim().toLowerCase())!= -1) {
                                 // construct the package info
                                 // fill in its export bundle
                                 PackageInfo packageInfo = new PackageInfo(exportedPackage.getName(), exportedPackage.getVersion().toString());
