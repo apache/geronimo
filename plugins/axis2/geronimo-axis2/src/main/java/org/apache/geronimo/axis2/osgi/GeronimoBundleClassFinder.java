@@ -27,11 +27,15 @@ import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GeronimoBundleClassFinder implements ClassFinder {
+
+    private static final Logger logger = LoggerFactory.getLogger(GeronimoBundleClassFinder.class);
 
     private PackageAdmin packageAdmin;
 
@@ -40,9 +44,9 @@ public class GeronimoBundleClassFinder implements ClassFinder {
     }
 
     @Override
-    public ArrayList<Class> getClassesFromJarFile(final String packageName, ClassLoader cl) throws ClassNotFoundException {        
+    public ArrayList<Class> getClassesFromJarFile(final String packageName, ClassLoader cl) throws ClassNotFoundException {
         Bundle bundle = BundleUtils.getBundle(cl, true);
-        if(bundle == null) {
+        if (bundle == null) {
             return new ArrayList<Class>();
         }
         //TODO Do we need to limit the scanning scope in the target application ? As we share one bundle for all the sub modules except for car
@@ -71,7 +75,19 @@ public class GeronimoBundleClassFinder implements ClassFinder {
         Set<String> classNames = bundleClassFinder.find();
         ArrayList<Class> clses = new ArrayList<Class>(classNames.size());
         for (String className : classNames) {
-            clses.add(bundle.loadClass(className));
+            try {
+                Class<?> cls = bundle.loadClass(className);
+                //Invoke getConstructors() to force the classloader to resolve the target class 
+                cls.getConstructors();
+                clses.add(cls);
+            } catch (Throwable e) {
+                String message = "Fail to load class " + className + " in GeronimoBundleClassFinder, it might not be considered while processing SOAP message due to " + e.getMessage();
+                if (logger.isDebugEnabled()) {
+                    logger.debug(message, e);
+                } else {
+                    logger.warn(message);
+                }
+            }
         }
         return clses;
     }
