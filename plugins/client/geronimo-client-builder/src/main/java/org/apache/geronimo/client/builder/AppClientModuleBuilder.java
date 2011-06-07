@@ -711,7 +711,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 break;
             }
         }
-
+        
+        //Share the messageDestination info with the ear
+        if (appClientDeploymentContext.getMessageDestinations() != null && earContext.getMessageDestinations() != null) {
+            appClientDeploymentContext.getMessageDestinations().putAll(earContext.getMessageDestinations());
+        }
 
         try {
             try {

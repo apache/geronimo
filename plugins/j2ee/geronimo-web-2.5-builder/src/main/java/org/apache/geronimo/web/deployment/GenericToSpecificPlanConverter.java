@@ -56,6 +56,7 @@ public class GenericToSpecificPlanConverter {
         this.namespace = namespace;
         this.element = element;
         excludedNamespaces.add("http://geronimo.apache.org/xml/ns/geronimo-jaspi");
+        excludedNamespaces.add("http://openejb.apache.org/xml/ns/openejb-jar-2.3");
     }
 
     public XmlObject convertToSpecificPlan(XmlObject plan) throws DeploymentException {
@@ -96,9 +97,9 @@ public class GenericToSpecificPlanConverter {
                     cursor.push();
                     while (cursor.hasNextToken()) {
                         if (cursor.isStart()) {
-                            if (!SchemaConversionUtils.convertSingleElementToGeronimoSubSchemas(cursor, end)
-                            && !this.namespace.equals(cursor.getName().getNamespaceURI())
-                                    && !excludedNamespaces.contains(cursor.getName().getNamespaceURI())) {
+                            if (!excludedNamespaces.contains(cursor.getName().getNamespaceURI())
+                                    && !SchemaConversionUtils.convertSingleElementToGeronimoSubSchemas(cursor, end)
+                                    && !this.namespace.equals(cursor.getName().getNamespaceURI())) {
                                 cursor.setName(new QName(this.namespace, cursor.getName().getLocalPart()));
                             }
                         }

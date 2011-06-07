@@ -127,7 +127,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     private static final Set<String> INGORED_ELEMENT_NAMES = new HashSet<String>();
     private static final Set<String> INGORED_CONTEXT_ATTRIBUTE_NAMES = new HashSet<String>();
-    private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
+   // private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -157,8 +157,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         INGORED_CONTEXT_ATTRIBUTE_NAMES.add("path");
         INGORED_CONTEXT_ATTRIBUTE_NAMES.add("delegate");
         INGORED_CONTEXT_ATTRIBUTE_NAMES.add("docBase".toLowerCase());
-        
-        GERONIMO_SCHEMA_CONVERSIONS.put("openejb-jar", new NamespaceElementConverter(OPENEJB_JAR_NAMESPACE));
     }
 
     private final Environment defaultEnvironment;
@@ -196,7 +194,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
-        SchemaConversionUtils.registerNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doStop() {

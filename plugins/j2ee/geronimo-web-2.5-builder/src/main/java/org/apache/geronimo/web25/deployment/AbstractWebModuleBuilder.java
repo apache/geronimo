@@ -121,8 +121,6 @@ import org.xml.sax.SAXException;
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
     
-    protected static final String OPENEJB_JAR_NAMESPACE = "http://openejb.apache.org/xml/ns/openejb-jar-2.3";
-
     //are we combining all web apps into one bundle in an ear?
     //TODO eliminate this
     protected static final boolean COMBINED_BUNDLE = true;

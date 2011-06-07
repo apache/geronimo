@@ -101,10 +101,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
     public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
-        List<MessageDestination> specDestinations;
+        Collection<MessageDestination> specDestinations;
         try {
             Method m = specDD.getClass().getMethod("getMessageDestination", new Class[0]);
-            specDestinations = (List<MessageDestination>) m.invoke(specDD, new Object[0]);
+            m.setAccessible(true);
+            specDestinations = (Collection<MessageDestination>) m.invoke(specDD, new Object[0]);
         } catch (Exception e) {
             specDestinations = new ArrayList<MessageDestination>();
         }
@@ -125,7 +126,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 throw new DeploymentException("No spec DD message-destination for " + name);
             }
         }
-        module.getRootEarContext().registerMessageDestionations(module.getName(), nameMap);
+        module.getRootEarContext().registerMessageDestionations(module.getModuleURI().toString(), nameMap);
     }
 
 

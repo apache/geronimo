@@ -20,10 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -49,7 +47,6 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.deployment.ClassPathUtils;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -132,9 +129,14 @@ import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationFailure;
 import org.apache.openejb.config.WlsConversion;
 import org.apache.openejb.config.WsDeployer;
+import org.apache.openejb.jee.DataSource;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.EnvEntry;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.MessageDestination;
 import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceUnitRef;
@@ -782,10 +784,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         // initialize the naming builders
         if (ejbJar.getAssemblyDescriptor() != null) {
-            //TODO I think this just has MessageDestinations defined in it.
-//                namingBuilder.initContext(ejbJar.getAssemblyDescriptor(),
-//                        module.getVendorDD(),
-//                        ejbModule);
+            final List<MessageDestination> specMessageDestinations = ejbJar.getAssemblyDescriptor().getMessageDestination();
+            final JndiConsumer  jndiConsumer = new MessageDestinationInfo(specMessageDestinations);
+                namingBuilder.initContext(jndiConsumer,
+                        (XmlObject)module.getVendorDD(),
+                        ejbModule);
         }
 
         EjbDeploymentBuilder ejbDeploymentBuilder = new EjbDeploymentBuilder(earContext, ejbModule, namingBuilder, resourceEnvironmentSetter);
@@ -1394,6 +1397,131 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         public Collection<GeronimoEjbInfo> getEjbInfos() {
             return ejbJars.values();
+        }
+    }
+    
+    public static class MessageDestinationInfo implements JndiConsumer {
+        
+        private final IllegalStateException notAllowedException = new IllegalStateException(
+                "this instance is only used for adminObjectRefBuilder to get MessageDestination defined.");
+        private final List<MessageDestination> specMessageDestinations;
+        
+        public MessageDestinationInfo(List<MessageDestination> specMessageDestinations) {
+            this.specMessageDestinations = specMessageDestinations == null ? new ArrayList<MessageDestination>()
+                    : specMessageDestinations;
+        }
+        
+        @Override
+        public Collection<DataSource> getDataSource() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, DataSource> getDataSourceMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<EjbLocalRef> getEjbLocalRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, EjbLocalRef> getEjbLocalRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<EjbRef> getEjbRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, EjbRef> getEjbRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<EnvEntry> getEnvEntry() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, EnvEntry> getEnvEntryMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public String getJndiConsumerName() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<MessageDestinationRef> getMessageDestinationRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, MessageDestinationRef> getMessageDestinationRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<PersistenceContextRef> getPersistenceContextRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, PersistenceContextRef> getPersistenceContextRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<PersistenceUnitRef> getPersistenceUnitRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, PersistenceUnitRef> getPersistenceUnitRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<ResourceEnvRef> getResourceEnvRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, ResourceEnvRef> getResourceEnvRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<ResourceRef> getResourceRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, ResourceRef> getResourceRefMap() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Collection<ServiceRef> getServiceRef() {
+            throw notAllowedException;
+        }
+
+        @Override
+        public Map<String, ServiceRef> getServiceRefMap() {
+            throw notAllowedException;
+        }
+
+        /*
+         * allow AdminObjectRefBuilder.initContext(JndiConsumer, XmlObject, Module) to call this method with reflection
+         * to get MessageDestinations in spec dd.
+         */
+        public List<MessageDestination> getMessageDestination() {
+            return specMessageDestinations;
         }
     }
 
