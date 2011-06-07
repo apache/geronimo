@@ -146,7 +146,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         return null;
     }
 
-    public void updateApplicationContent(long bundleId, File bundleFile) throws IOException, BundleException {
+    public synchronized void updateApplicationContent(long bundleId, File bundleFile) throws Exception {
         Bundle targetBundle = null;
         for (Bundle content : applicationBundles) {
             if (content.getBundleId() == bundleId) {
@@ -161,6 +161,7 @@ public class ApplicationGBean implements GBeanLifecycle {
 
         BundleContext context = bundle.getBundleContext();
 
+        ServiceReference reference = null;
         RefreshListener refreshListener = null;
         try {
             // stop the bundle
@@ -175,12 +176,21 @@ public class ApplicationGBean implements GBeanLifecycle {
                 IOUtils.close(fi);
             }
 
+            reference = context.getServiceReference(PackageAdmin.class.getName());
+            PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
+            
+            Bundle[] bundles = new Bundle [] { targetBundle };
+            // resolve the bundle
+            if (!packageAdmin.resolveBundles(bundles)) {
+                throw new BundleException("Updated bundle cannot be resolved");
+            }
+            
             // install listener for package refresh
             refreshListener = new RefreshListener();
             context.addFrameworkListener(refreshListener);
 
             // refresh the bundle - this happens asynchronously
-            refreshPackages(context, new Bundle[] { targetBundle });
+            packageAdmin.refreshPackages(bundles);
 
             // update application archive
             try {
@@ -197,20 +207,19 @@ public class ApplicationGBean implements GBeanLifecycle {
             if (BundleUtils.canStart(targetBundle)) {
                 targetBundle.start(Bundle.START_TRANSIENT);
             }
+        } catch (Exception e) {
+            LOG.debug("Error updating application", e);
+            throw new Exception("Error updating application: " + e.getMessage());
         } finally {
             if (refreshListener != null) {
                 context.removeFrameworkListener(refreshListener);
             }
+            if (reference != null) {
+                context.ungetService(reference);
+            }
         }
     }
     
-    private void refreshPackages(BundleContext context, Bundle[] bundles) {
-        ServiceReference reference = context.getServiceReference(PackageAdmin.class.getName());
-        PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
-        packageAdmin.refreshPackages(bundles);
-        context.ungetService(reference);
-    }
-
     private class RefreshListener implements FrameworkListener {
 
         public CountDownLatch latch = new CountDownLatch(1);
