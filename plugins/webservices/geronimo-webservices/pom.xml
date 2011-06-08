@@ -113,6 +113,11 @@
             <artifactId>pax-logging-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-osgi-registry</artifactId>
+        </dependency>
+
         <!-- Use org.apache.geronimo.javamail/geronimo-javamail_1.4_mail
           uber jar containing both the spec and the providers in order that
           users can actually use mail without advanced degrees in geronimo
@@ -140,6 +145,7 @@
                             org.apache.geronimo.javamail.handlers,
                             *
                         </Import-Package>
+                        <SPI-Provider>true</SPI-Provider>
                     </instructions>
                 </configuration>
             </plugin>
