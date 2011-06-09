@@ -592,9 +592,15 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             LinkedHashSet<String> moduleLocations = applicationInfo.getModuleLocations();
+            boolean initModulesInDDOrder = false;
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
                 Application specDD = (Application) applicationInfo.getSpecDD();
+                
+                if(specDD!=null){
+                    initModulesInDDOrder = specDD.getInitializeInOrder();
+                }
+                
                 String libDir = getLibraryDirectory(specDD);
                 Collection<String> libClasspath = applicationInfo.getClassPath();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
@@ -638,7 +644,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             
             List<Module<?,?>> modules = new ArrayList<Module<?,?>>();
             modules.addAll(applicationInfo.getModules());
-            Collections.sort(modules, new Module.ModulePriorityComparator());
+            if (!initModulesInDDOrder){
+                Collections.sort(modules, new Module.ModulePriorityComparator());
+            }
                 
             for (Module<?,?> module : modules) {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
