@@ -597,7 +597,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 //get the value of the library-directory element in spec DD
                 Application specDD = (Application) applicationInfo.getSpecDD();
                 
-                if(specDD!=null){
+                if (specDD != null && specDD.getInitializeInOrder() != null) {
                     initModulesInDDOrder = specDD.getInitializeInOrder();
                 }
                 
