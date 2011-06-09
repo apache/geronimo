@@ -504,7 +504,7 @@ public class EjbDeploymentBuilder {
                 String homeInterface = ((RemoteBean) bean).getHome();
                 if (homeInterface != null) {
 
-                    String name = "openejb/Deployment/" + format(id, homeInterface, InterfaceType.EJB_OBJECT);
+                    String name = "openejb/Deployment/" + format(id, homeInterface, InterfaceType.EJB_HOME);
                     Reference ref = new IntraVmJndiReference(name);
                     count ++;
                     singleRef = ref;
@@ -517,7 +517,7 @@ public class EjbDeploymentBuilder {
                 String localHomeInterface = ((RemoteBean) bean).getLocalHome();
                 if (localHomeInterface != null) {
 
-                    String name = "openejb/Deployment/" + format(id, localHomeInterface, InterfaceType.EJB_LOCAL);
+                    String name = "openejb/Deployment/" + format(id, localHomeInterface, InterfaceType.EJB_LOCAL_HOME);
                     Reference ref = new IntraVmJndiReference(name);
                     count++;
                     singleRef = ref;
