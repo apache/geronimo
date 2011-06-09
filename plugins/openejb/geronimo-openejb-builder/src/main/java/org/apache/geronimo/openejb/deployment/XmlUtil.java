@@ -122,6 +122,14 @@ public final class XmlUtil {
                     environment.addDependency(dependency);
                 }
             }
+            
+            environment.setBundleActivator(environmentType.getBundleActivator());
+            environment.addToBundleClassPath(environmentType.getBundleClassPath());
+            environment.addRequireBundles(environmentType.getRequireBundle());
+            environment.addExportPackages(environmentType.getExportPackage());
+            environment.addImportPackages(environmentType.getImportPackage());
+            environment.addDynamicImportPackages(environmentType.getDynamicImportPackage());
+
 
             environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
 
