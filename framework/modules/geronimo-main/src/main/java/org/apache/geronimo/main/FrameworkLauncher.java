@@ -96,7 +96,6 @@ public class FrameworkLauncher {
     private Properties configProps = null;
         
     private Framework framework = null;
-    private int defaultStartLevel = 100;
     
     public void setLog4jConfigFile(String log4jFile) {
         this.log4jFile = log4jFile;
@@ -154,11 +153,7 @@ public class FrameworkLauncher {
             configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN, 
                                     Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         }
-                
-        defaultStartLevel = Integer.parseInt(configProps.getProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL));
 
-        configProps.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "1");
-        
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 FrameworkLauncher.this.destroy(false);
@@ -169,13 +164,19 @@ public class FrameworkLauncher {
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         FrameworkFactory factory = loader.iterator().next();
         framework = factory.newFramework(new StringMap(configProps, false));
-        framework.start();
-                
-        serverInfo = new ServerInfo(geronimoHome, geronimoBase);        
-        framework.getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
+        
+        framework.init();
+        
+        BundleContext bundleContext = framework.getBundleContext();
+        
+        serverInfo = new ServerInfo(geronimoHome, geronimoBase);      
+        bundleContext.registerService(ServerInfo.class.getName(), serverInfo, null);
         
         List<BundleInfo> startList = loadStartupProperties();
-        startBundles(startList);        
+        startBundles(bundleContext, startList);
+        
+        framework.start();
+
     }
 
     public void destroy(boolean await) {
@@ -327,8 +328,7 @@ public class FrameworkLauncher {
         mth.invoke(classLoader, bundleFile.toURL());
     }
 
-    private void startBundles(List<BundleInfo> startList) throws Exception {
-        BundleContext context = framework.getBundleContext();
+    private void startBundles(BundleContext context, List<BundleInfo> startList) throws Exception {
         
         // Retrieve the Start Level service, since it will be needed
         // to set the start level of the installed bundles.
@@ -357,7 +357,6 @@ public class FrameworkLauncher {
             info.bundle.start();
         }
         
-        sl.setStartLevel(defaultStartLevel);
     }
     
     private List<BundleInfo> loadStartupProperties() throws Exception {        
