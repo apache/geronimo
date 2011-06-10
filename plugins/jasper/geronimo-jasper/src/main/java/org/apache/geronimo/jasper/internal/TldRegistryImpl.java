@@ -69,19 +69,17 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
     }
 
     private Set<Bundle> getDependentBundles(Bundle bundle) {
-        Set<Bundle> dependentBundles = null;
+        Set<Bundle> dependentBundles = new HashSet<Bundle>();
         
         // add in bundles from dependency manager
         ServiceReference serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
         if (serviceReference != null) {
             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
             try {
-                dependentBundles = dependencyManager.getFullDependentBundles(bundle.getBundleId());
+                dependentBundles.addAll(dependencyManager.getFullDependentBundles(bundle.getBundleId()));
             } finally {
                 bundleContext.ungetService(serviceReference);
             }
-        } else {
-            dependentBundles = new HashSet<Bundle>();
         }
         
         // add in wired bundles if WAB        
