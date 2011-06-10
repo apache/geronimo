@@ -1834,7 +1834,19 @@ only found in cxf
                 <exclusions>
                     <exclusion>
                        <groupId>org.apache.aries.testsupport</groupId>
-        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                       <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
+                </exclusions> 
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.proxy</groupId>
+                <artifactId>org.apache.aries.proxy.impl</artifactId>
+                <version>${aries.proxy.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions> 
             </dependency>
@@ -1850,7 +1862,7 @@ only found in cxf
                     </exclusion>
                     <exclusion>
                        <groupId>org.apache.aries.testsupport</groupId>
-        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                       <artifactId>org.apache.aries.testsupport.unit</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
