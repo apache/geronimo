@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -339,6 +340,11 @@ public class ArchiveCarMojo
                     }
                 }
             }
+            
+            if (classpath != null) {
+                archive.addManifestEntry("Class-Path", getClassPath());
+            }
+
             archiver.createArchive(project, archive);
 
             return archiveFile;
@@ -347,6 +353,43 @@ public class ArchiveCarMojo
         } finally {
             archiver.cleanup();
         }
+    }
+    
+    private String getClassPath() throws MojoExecutionException {
+        StringBuilder buff = new StringBuilder();
+        for (int i = 0; i < classpath.length; i++) {
+            String entry = classpath[i].getEntry();
+            if (entry != null) {
+                buff.append(entry);
+            } else {
+                Artifact artifact = resolveArtifact(classpath[i].getGroupId(), classpath[i].getArtifactId(), classpath[i].getType());
+                if (artifact == null) {
+                    throw new MojoExecutionException("Could not resolve classpath item: " + classpath[i]);
+                }
+                //
+                // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
+                //
+                String prefix = classpath[i].getClasspathPrefix();
+                if (prefix == null) {
+                    prefix = classpathPrefix;
+                }
+                if (prefix != null) {
+                    buff.append(prefix);
+                    if (!prefix.endsWith("/")) {
+                        buff.append("/");
+                    }
+                }
+                String path = getArtifactRepository().pathOf(artifact);
+                buff.append(path);
+            }
+            if (i + 1 < classpath.length) {
+                buff.append(" ");
+            }
+        }
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Using classpath: " + buff);
+        }
+        return buff.toString();
     }
     
     private static class GeronimoArchiver extends MavenArchiver {

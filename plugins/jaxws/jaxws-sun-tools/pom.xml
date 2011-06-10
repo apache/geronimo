@@ -94,7 +94,7 @@
                             <Extension-Dirs>lib/ext</Extension-Dirs>
                         </manifestEntries>
                         <manifest>
-                            <mainClass>org.apache.geronimo.jaxws.builder.JAXWSToolsCLI</mainClass>
+                            <mainClass>org.apache.geronimo.jaxws.sun.tools.JAXWSToolsCLI</mainClass>
                         </manifest>
                     </archive>
                     <!--
@@ -112,27 +112,24 @@
                             <version>${project.version}</version>
                         </element>
                         <element>
-                            <groupId>cglib</groupId>
-                            <artifactId>cglib-nodep</artifactId>
+                            <groupId>org.apache.servicemix.bundles</groupId>
+                            <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
                         </element>
                         <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-api</artifactId>
+                            <groupId>org.ops4j.pax.logging</groupId>
+                            <artifactId>pax-logging-api</artifactId>
                         </element>
                         <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-log4j12</artifactId>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-pax-logging</artifactId>
+                            <version>${project.version}</version>
                         </element>
                         <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>jcl-over-slf4j</artifactId>
-                        </element>
-                        <element>
-                            <groupId>log4j</groupId>
-                            <artifactId>log4j</artifactId>
+                            <groupId>org.apache.xbean</groupId>
+                            <artifactId>xbean-classloader</artifactId>
                         </element>
                     </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
+                    <classpathPrefix>../repository</classpathPrefix>
 
                     <useMavenDependencies>
                         <value>true</value>

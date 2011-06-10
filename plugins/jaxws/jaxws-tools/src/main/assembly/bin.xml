@@ -24,14 +24,6 @@
     <dependencySets>
 
         <dependencySet>
-            <outputDirectory>contents/lib</outputDirectory>
-            <useStrictFiltering>true</useStrictFiltering>
-            <includes>
-                <include>org.apache.geronimo.modules:geronimo-jaxws-sun-tools</include>
-            </includes>
-        </dependencySet>
-
-        <dependencySet>
             <outputDirectory>contents/bin</outputDirectory>
             <outputFileNameMapping>jaxws-tools.jar</outputFileNameMapping>
             <useStrictFiltering>true</useStrictFiltering>
