@@ -20,31 +20,41 @@
 
 package org.apache.geronimo.web25.deployment.utils;
 
+import java.beans.PropertyEditorSupport;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.DefaultWebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JAXBContextFactory;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.xml.sax.InputSource;
 
 /**
  * @version $Rev:$ $Date:$
  */
 
 @GBean(j2eeType = "XmlAttributeBuilder")
-public class WebAppXmlAttributeBuilder implements XmlAttributeBuilder {
+public class WebAppXmlAttributeBuilder extends PropertyEditorSupport implements XmlAttributeBuilder {
 
     @Override
     public String getNamespace() {
@@ -84,5 +94,41 @@ public class WebAppXmlAttributeBuilder implements XmlAttributeBuilder {
             throw new DeploymentException("parsing problem", e);
         }
     }
+
+    //TODO figure out how to turn WebAppInfo back into xml
+//    public String getAsText() {
+//        try {
+//            WebAppInfo webAppInfo = (WebAppInfo) getValue();
+//            StringWriter sw = new StringWriter();
+//            JAXBContext ctx = JAXBContextFactory.newInstance(WebApp.class);
+//            Marshaller marshaller = ctx.createMarshaller();
+//            marshaller.marshal(webAppInfo, sw);
+//            return sw.toString();
+//        } catch (JAXBException e) {
+//            throw new RuntimeException("parsing problem", e);
+//        }
+//    }
+
+    public void setAsText(String text) {
+        try {
+            JAXBContext ctx = JAXBContextFactory.newInstance(WebApp.class);
+            Unmarshaller unmarshaller = ctx.createUnmarshaller();
+            unmarshaller.setEventHandler(new ValidationEventHandler(){
+                public boolean handleEvent(ValidationEvent validationEvent) {
+                    return false;
+                }
+            });
+
+
+            JAXBElement<WebApp> element = unmarshaller.unmarshal(new StreamSource(new StringReader(text)), WebApp.class);
+            WebAppInfo webAppInfo = new WebAppInfoBuilder(element.getValue(), new DefaultWebAppInfoFactory()).build();
+            setValue(webAppInfo);
+        } catch (JAXBException e) {
+            throw new RuntimeException("parsing problem", e);
+        } catch (DeploymentException e) {
+            throw new RuntimeException("conversion problem", e);
+        }
+    }
+
 
 }

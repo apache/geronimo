@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.web25.deployment;
 
+import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -91,6 +92,7 @@ import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
+import org.apache.geronimo.web25.deployment.utils.WebAppXmlAttributeBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
@@ -121,6 +123,10 @@ import org.xml.sax.SAXException;
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
     
+    static {
+        PropertyEditorManager.registerEditor(WebAppInfo.class, WebAppXmlAttributeBuilder.class);
+    }
+
     //are we combining all web apps into one bundle in an ear?
     //TODO eliminate this
     protected static final boolean COMBINED_BUNDLE = true;
