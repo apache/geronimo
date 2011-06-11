@@ -1892,6 +1892,10 @@ only found in cxf
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+                    </exclusion>                      
                 </exclusions>
             </dependency>            
         </dependencies>
