@@ -95,7 +95,7 @@
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
-                    <classpath>
+                    <!--classpath>
                         <element>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
@@ -141,7 +141,7 @@
                             <artifactId>log4j</artifactId>
                         </element>
                     </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
+                    <classpathPrefix>../lib</classpathPrefix-->
 
                     <useMavenDependencies>
                         <value>true</value>

@@ -128,7 +128,7 @@
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
-                    <classpath>
+                    <!--classpath>
                         <element>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-crypto</artifactId>
@@ -165,7 +165,7 @@
                             <artifactId>xstream</artifactId>
                         </element>
                     </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
+                    <classpathPrefix>../lib</classpathPrefix-->
 
                     <category>Deployment</category>
                     <instance>

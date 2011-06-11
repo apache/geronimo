@@ -87,31 +87,6 @@
                             <mainClass>org.apache.geronimo.kernel.util.MainBootstrapper</mainClass>
                         </manifest>
                     </archive>
-
-                    <!--
-                    NOTE: This list of dependencies is non-transitive.
-                    -->
-                    <classpath>
-                        <element>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-crypto</artifactId>
-                            <version>${project.version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-kernel</artifactId>
-                            <version>${project.version}</version>
-                        </element>
-                        <element>
-                            <groupId>cglib</groupId>
-                            <artifactId>cglib-nodep</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.apache.xbean</groupId>
-                            <artifactId>xbean-reflect</artifactId>
-                        </element>
-                    </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>

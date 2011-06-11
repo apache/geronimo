@@ -184,7 +184,7 @@
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->
-                    <classpath>
+                    <!--classpath>
                         <element>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-cli</artifactId>
@@ -194,11 +194,11 @@
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${project.version}</version>
-                        </element>
+                        </element-->
                         <!--
                         NOTE: geronimo-transformer needs to be on the system classpath to avoid a potential deadlock. See GERONIMO-3141.
                         -->
-                        <element>
+                        <!--element>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-transformer</artifactId>
                             <version>${project.version}</version>
@@ -227,7 +227,6 @@
                             <groupId>com.thoughtworks.xstream</groupId>
                             <artifactId>xstream</artifactId>
                         </element>
-                        <!-- TODO bad idea... temp, for plugins -->
                         <element>
                             <groupId>org.apache.geronimo.specs</groupId>
                             <artifactId>geronimo-jaxb_2.2_spec</artifactId>
@@ -249,7 +248,7 @@
                             <artifactId>geronimo-activation_1.1_spec</artifactId>
                         </element>
                     </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
+                    <classpathPrefix>../lib</classpathPrefix-->
 
                     <category>Geronimo Core</category>
                     <osiApproved>true</osiApproved>
