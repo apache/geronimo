@@ -7,13 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging-api</artifactId>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>axis</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>axis</artifactId>
+        <artifactId>castor</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

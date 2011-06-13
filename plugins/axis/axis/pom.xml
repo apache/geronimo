@@ -95,7 +95,11 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-            <version>2.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>castor</artifactId>
         </dependency>
 
         <!-- JAXR implementation -->
