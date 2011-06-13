@@ -347,6 +347,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String getDocBase() {
+        if (context != null) {
+            return context.getDocBase();
+        }
         return docBase;
     }
 
