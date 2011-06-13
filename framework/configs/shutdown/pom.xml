@@ -78,15 +78,6 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <boot>true</boot>
-                    <archive>
-                        <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
-                        </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.kernel.util.MainBootstrapper</mainClass>
-                        </manifest>
-                    </archive>
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>
