@@ -45,37 +45,4 @@
         </dependency>
     </dependencies>
 
-<!-- Needs to be reworked to support the new karaf shell
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath" />
-                                   <arg value="${project.build.directory}/assembly" />
-                                   <arg value="gsh-wsgen.properties" />
-                                </java>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath" />
-                                   <arg value="${project.build.directory}/assembly" />
-                                   <arg value="gsh-cxf-tools.properties" />
-                                </java>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
--->
-
 </project>
