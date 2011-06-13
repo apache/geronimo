@@ -681,14 +681,26 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
                 mbe.addGBeans(earContext, module, bundle, repository);
             }
-            LinkedHashSet<Module<?, ?>> submodules = module.getModules();
-            for (Module<?, ?> subModule: submodules) {
-                if (subModule.getSharedContext().get(SharedOwbContext.class) != null) {
-                    GBeanData data = (GBeanData) subModule.getSharedContext().get(SharedOwbContext.class);
-                    AbstractName name = data.getAbstractName();
-                    webModuleData.setReferencePattern("SharedOwbContext", name);
-                }
+            //commented out code shares OWB context between ejb submodules and this web module.
+//            LinkedHashSet<Module<?, ?>> submodules = module.getModules();
+//            for (Module<?, ?> subModule: submodules) {
+//                if (subModule.getSharedContext().get(SharedOwbContext.class) != null) {
+//                    GBeanData data = (GBeanData) subModule.getSharedContext().get(SharedOwbContext.class);
+//                    AbstractName name = data.getAbstractName();
+//                    webModuleData.setReferencePattern("SharedOwbContext", name);
+//                }
+//            }
+            //This shares a single OWB context for the whole ear
+            Module<?,?> m = module;
+            while (m.getParentModule() != null) {
+                m = m.getParentModule();
             }
+            if (m.getSharedContext().get(SharedOwbContext.class) != null) {
+                GBeanData data = (GBeanData) m.getSharedContext().get(SharedOwbContext.class);
+                AbstractName name = data.getAbstractName();
+                webModuleData.setReferencePattern("SharedOwbContext", name);
+            }
+
             if(tomcatWebApp.isSetSecurityRealmName()) {
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }

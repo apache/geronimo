@@ -66,8 +66,9 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
                 } finally {
                     contextExited(null);
                 }
-                // an existing OWBConfiguration will have already been initialized
+                startupObject.getAppContext().set(WebBeansContext.class, webBeansContext);
             } else {
+                // an existing OWBConfiguration will have already been initialized
                 startupObject.getAppContext().set(WebBeansContext.class, (WebBeansContext) old);
             }
         } finally {

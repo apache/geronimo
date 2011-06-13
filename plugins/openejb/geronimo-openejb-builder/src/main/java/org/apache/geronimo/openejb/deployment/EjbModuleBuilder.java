@@ -805,7 +805,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add ejb module gbean", e);
         }
-        module.getSharedContext().put(SharedOwbContext.class, ejbModuleGBeanData);
+        //commented out code is for sharing owb context of an ejb module in a war with the war
+//        module.getSharedContext().put(SharedOwbContext.class, ejbModuleGBeanData);
+        //this shares the OWB context over the whole ear
+        Module<?,?> m = module;
+        while (m.getParentModule() != null) {
+            m = m.getParentModule();
+        }
+        if (m.getSharedContext().get(SharedOwbContext.class) == null) {
+            m.getSharedContext().put(SharedOwbContext.class, ejbModuleGBeanData);
+        }
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
