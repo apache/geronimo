@@ -21,11 +21,9 @@ package org.apache.geronimo.myfaces;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -42,23 +40,20 @@ import org.osgi.framework.Bundle;
  * @version $Rev$ $Date$
  */
 @GBean
-public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle {
+public class LifecycleProviderGBean implements LifecycleProvider {
 
     private final Holder holder;
     private final Context context;
-    private final ApplicationIndexedLifecycleProviderFactory factory;
     private final ClassLoader classLoader;
     private final Bundle bundle;
 
     public LifecycleProviderGBean(@ParamAttribute(name="holder") Holder holder,
                                   @ParamReference(name="ContextSource", namingType = "Context") ContextSource contextSource,
-                                  @ParamReference(name="LifecycleProviderFactory") LifecycleProviderFactorySource factory,
                                   @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
                                   @ParamSpecial(type = SpecialAttributeType.bundle)Bundle bundle,
                                   @ParamSpecial(type=SpecialAttributeType.classLoader)ClassLoader classLoader) throws NamingException {
         this.holder = holder;
         context = contextSource.getContext();
-        this.factory = factory.getLifecycleProviderFactory();
         this.bundle = bundle;
         this.classLoader = classLoader;
     }
@@ -79,17 +74,4 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
             }
         }
     }
-
-    public void doStart() {
-        factory.registerLifecycleProvider(bundle, this);
-    }
-
-    public void doStop() {
-        factory.unregisterLifecycleProvider(bundle);
-    }
-
-    public void doFail() {
-        doStop();
-    }
-
 }

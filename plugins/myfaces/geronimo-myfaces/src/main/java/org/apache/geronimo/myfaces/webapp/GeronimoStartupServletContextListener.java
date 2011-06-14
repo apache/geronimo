@@ -20,11 +20,13 @@ package org.apache.geronimo.myfaces.webapp;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import org.apache.geronimo.myfaces.GeronimoLifecycleProviderFactory;
 import org.apache.geronimo.myfaces.facelet.GeronimoFaceletConfigResourceProviderFactory;
 import org.apache.geronimo.myfaces.info.GeronimoFacesConfigurationMergerFactory;
 import org.apache.geronimo.osgi.web.WABApplicationConstants;
 import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
 import org.apache.myfaces.shared_impl.webapp.webxml.WebXml;
 import org.apache.myfaces.spi.FaceletConfigResourceProviderFactory;
 import org.apache.myfaces.spi.FacesConfigurationMergerFactory;
@@ -47,6 +49,7 @@ public class GeronimoStartupServletContextListener extends StartupServletContext
         servletContext.setAttribute(WebXml.class.getName(), webXml);
         servletContext.setAttribute(FacesConfigurationMergerFactory.class.getName(), new GeronimoFacesConfigurationMergerFactory());
         servletContext.setAttribute(FaceletConfigResourceProviderFactory.class.getName(), new GeronimoFaceletConfigResourceProviderFactory());
+        servletContext.setAttribute(LifecycleProviderFactory.class.getName(), new GeronimoLifecycleProviderFactory());
         super.contextInitialized(servletContextEvent);
     }
 }

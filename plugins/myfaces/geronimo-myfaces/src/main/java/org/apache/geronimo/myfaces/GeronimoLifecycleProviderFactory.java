@@ -19,30 +19,32 @@
 
 package org.apache.geronimo.myfaces;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.faces.context.ExternalContext;
 
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProviderFactory {
+public class GeronimoLifecycleProviderFactory extends LifecycleProviderFactory {
 
-    private final Map<Bundle, LifecycleProvider> providers = new ConcurrentHashMap<Bundle, LifecycleProvider>();
+    private LifecycleProvider lifecycleProvider;
 
     public LifecycleProvider getLifecycleProvider(ExternalContext externalContext) {
-        Bundle bundle = getBundle();
-        LifecycleProvider provider = providers.get(bundle);
-        if (provider == null) {
-            throw new IllegalStateException("No LifecycleProvider registered for application bundle: " + bundle);
+        if (lifecycleProvider == null) {
+            String webModuleName = (String) externalContext.getApplicationMap().get(WebApplicationConstants.WEB_APP_NAME);
+            MyFacesWebAppContext myFacesWebAppContext = MyFacesWebAppContext.getMyFacesWebAppContext(webModuleName);
+            lifecycleProvider = myFacesWebAppContext.getLifecycleProvider();
+            if (lifecycleProvider == null) {
+                throw new IllegalStateException("No LifecycleProvider registered for application " + webModuleName + " in the bundle: " + getBundle());
+            }
         }
-        return provider;
+        return lifecycleProvider;
     }
 
     private Bundle getBundle() {
@@ -52,25 +54,9 @@ public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProvide
         }
         return bundle;
     }
-    
-    /**
-     * Register a lifecycle provider for an application classloader.  This method is intended to be called
-     * by the container in which MyFaces is running, once for each application, during application startup before
-     * any other myfaces initialization has taken place.
-     *
-     * @param cl       application classloader, used to index LifecycleProviders
-     * @param provider LifecycleProvider for the application.
-     */
-    public void registerLifecycleProvider(Bundle bundle, LifecycleProvider provider) {
-        providers.put(bundle, provider);
-    }
 
-    public void unregisterLifecycleProvider(Bundle bundle) {
-        providers.remove(bundle);
-    }
-
+    @Override
     public void release() {
-        providers.clear();
+        lifecycleProvider = null;
     }
-
 }

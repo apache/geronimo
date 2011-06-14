@@ -29,11 +29,13 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
+import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.myfaces.config.element.FacesConfigData;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
@@ -61,8 +63,11 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     private AbstractName abName;
 
+    private LifecycleProvider lifecycleProvider;
+
     public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData,
             @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources,
+            @ParamReference(name = "LifecycleProvider") LifecycleProvider lifecycleProvider,
             @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName) {
@@ -70,6 +75,8 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
         this.facesConfigData = facesConfigData;
         this.classLoader = classLoader;
         this.abName = abName;
+        this.lifecycleProvider = lifecycleProvider;
+
         ServiceReference serviceReference = null;
         this.faceletConfigResources = new ArrayList<URL>(faceletConfigResources.size());
         try {
@@ -106,6 +113,10 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     public List<URL> getRuntimeFaceletConfigResources() {
         return faceletConfigResources;
+    }
+
+    public LifecycleProvider getLifecycleProvider() {
+        return lifecycleProvider;
     }
 
     @Override

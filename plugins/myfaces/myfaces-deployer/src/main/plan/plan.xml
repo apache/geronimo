@@ -21,7 +21,6 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="MyFacesModuleBuilderExtension" class="org.apache.geronimo.myfaces.deployment.MyFacesModuleBuilderExtension">
-        <attribute name="providerFactoryNameQuery">?name=MyFacesLifecycleProviderFactory#org.apache.geronimo.myfaces.LifecycleProviderFactoryGBean</attribute>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>

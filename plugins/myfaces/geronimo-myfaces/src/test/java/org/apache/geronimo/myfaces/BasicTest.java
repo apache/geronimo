@@ -28,8 +28,5 @@ import junit.framework.TestCase;
 public class BasicTest extends TestCase {
 
     public void testLifecycleProviderFactory() throws Exception {
-        LifecycleProviderFactoryGBean factory = new LifecycleProviderFactoryGBean();
-        ApplicationIndexedLifecycleProviderFactory providerFactory = factory.getLifecycleProviderFactory();
-        assertNotNull(providerFactory);
     }
 }

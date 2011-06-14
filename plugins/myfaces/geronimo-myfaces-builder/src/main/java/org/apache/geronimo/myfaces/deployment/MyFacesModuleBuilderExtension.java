@@ -48,7 +48,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -108,8 +107,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     private final Environment defaultEnvironment;
 
-    private final AbstractNameQuery providerFactoryNameQuery;
-
     private final NamingBuilder namingBuilders;
 
     private static final String CONTEXT_LISTENER_NAME = GeronimoStartupServletContextListener.class.getName();
@@ -137,10 +134,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     };
 
     public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-            @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
-        this.providerFactoryNameQuery = providerFactoryNameQuery;
         this.namingBuilders = namingBuilders;
         this.standardFacesConfig = getStandardFacesConfig();
     }
@@ -304,7 +299,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.class);
         providerData.setAttribute("holder", holder);
         providerData.setReferencePatterns("ContextSource", webAppData.getReferencePatterns("ContextSource"));
-        providerData.setReferencePattern("LifecycleProviderFactory", providerFactoryNameQuery);
         try {
             moduleContext.addGBean(providerData);
             moduleContext.addGBean(myFacesWebAppContextData);
@@ -312,9 +306,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             throw new DeploymentException("Duplicate jsf config gbean in web module", e);
         }
 
+        myFacesWebAppContextData.setReferencePattern("LifecycleProvider", providerName);
         //make the web app start second after the injection machinery
         webAppData.addDependency(providerName);
-
+        webAppData.addDependency(myFacesWebAppContextName);
     }
 
     protected FacesConfig getJSFAnnotationFacesConfig(EARContext earContext, Module module, Bundle bundle, Set<ConfigurationResource> metaInfConfigurationResources) throws DeploymentException {
