@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -52,6 +53,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
@@ -135,8 +137,25 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("Parse Persistence configuration file failed", e);
         }
         try {
-
+            
             final Collection<String> manifestcp = module.getClassPath();
+            // add "" into manifestcp to make META-INF/persistence.xml in standalone ejb be processed
+            if (module.isStandAlone() && module.getType() == ConfigurationModuleType.EJB) {
+                manifestcp.add("");
+            }
+            // resolve the classpath for non-standalone war file since module.getClassPath 
+            // returns the classpath relative to the war file
+            if (!module.isStandAlone() && module.getType() == ConfigurationModuleType.WAR) {
+                Collection<String> cps = new LinkedHashSet<String> ();
+                for (String classpath : manifestcp) {
+                     cps.add(module.resolve(classpath).toString());
+                }
+                manifestcp.clear();
+                for (String cp : cps) {
+                    manifestcp.add(cp);
+                }
+            }            
+            
             BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml", new ResourceDiscoveryFilter() {
 
                 @Override
