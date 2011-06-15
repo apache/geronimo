@@ -48,6 +48,9 @@
                 <name>PersistenceRefBuilder</name>
             </pattern>
             <pattern>
+                <name>DataSourceBuilder</name>
+            </pattern>            
+            <pattern>
                 <name>ClientResourceRefBuilder</name>
             </pattern>
             <pattern>
