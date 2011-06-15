@@ -50,12 +50,12 @@ public class ClassPathUtils {
     static {
         // Extract the LenientMFCP value if specified.  If not, default to strict..
         String mode = System.getProperty("Xorg.apache.geronimo.deployment.LenientMFCP");
-        int mfcpMode = MFCP_STRICT;    // Default to strict
-        String mfcpModeMessage = "Strict Manifest Classpath";
+        int mfcpMode = MFCP_LENIENT;    // Default to lenient
+        String mfcpModeMessage = "Lenient Manifest Classpath";
         if (mode != null) {
-            if (mode.equals("true")) {
-                mfcpMode = MFCP_LENIENT;
-                mfcpModeMessage = "Lenient Manifest Classpath";
+            if (mode.equals("false")) {
+                mfcpMode = MFCP_STRICT;
+                mfcpModeMessage = "Strict Manifest Classpath";
             }
         }
 
