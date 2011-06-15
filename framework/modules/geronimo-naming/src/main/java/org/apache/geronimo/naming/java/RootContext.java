@@ -17,9 +17,13 @@
 
 package org.apache.geronimo.naming.java;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Properties;
 
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -35,6 +39,8 @@ import org.apache.xbean.naming.context.ImmutableContext;
  */
 public class RootContext extends ImmutableContext {
     private static InheritableThreadLocal<Context> compContext = new InheritableThreadLocal<Context>();
+    
+    private static InheritableThreadLocal<URI> openejbRemoteContextURI = new InheritableThreadLocal<URI>();
 
     public RootContext() throws NamingException {
         super(Collections.<String, Object>emptyMap());
@@ -52,20 +58,31 @@ public class RootContext extends ImmutableContext {
                 return compCtx;
             }
             name = name.charAt(5) == '/'? name.substring(6): name.substring(5);
-            return compCtx.lookup(name);
+            
+            try {
+                return compCtx.lookup(name);
+            } catch (NamingException e1) {
 
+                if (openejbRemoteContextURI.get() != null && (name.startsWith("global/") || name.startsWith("app/"))) {
 
-//            if ("comp".equals(name)) {
-//                return compCtx;
-//            } else if (name.startsWith("comp/")) {
-//                return compCtx.lookup(name.substring(5));
-//            } else if ("/comp".equals(name)) {
-//                return compCtx;
-//            } else if (name.startsWith("/comp/")) {
-//                return compCtx.lookup(name.substring(6));
-//            } else {
-//                throw new NameNotFoundException("Unrecognized name, does not start with expected 'comp': " + name);
-//            }
+                    Properties p = new Properties();
+                    p.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
+                    p.put("java.naming.provider.url", openejbRemoteContextURI.get().toString());
+                    p.put("openejb.client.moduleId", "openejb/global");
+
+                    try {
+                        InitialContext ctx = new InitialContext(p);
+                        Object value = ctx.lookup(name);
+                        return value;
+                    } catch (NamingException e2) {
+                        throw (NameNotFoundException) new NameNotFoundException().initCause(e2);
+                    }
+                } else {
+
+                    throw e1;
+                }
+            }
+
         }
         return super.lookup(name);
     }
@@ -83,6 +100,16 @@ public class RootContext extends ImmutableContext {
     public static void setComponentContext(Context ctx) {
         compContext.set(ctx);
     }
+    
+    /**
+     * Set the remote Context uri, app client 
+     * need to set this to utilize the openejb remote
+     * jndi system to do fallback global jndi lookup.
+     * @param uri
+     */
+    public static void setOpenejbRemoteContextURI(URI uri) {
+      openejbRemoteContextURI.set(uri);
+    }    
 
     /**
      * Get the component context for the current thread.

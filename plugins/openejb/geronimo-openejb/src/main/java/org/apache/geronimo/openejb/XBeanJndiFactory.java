@@ -46,6 +46,7 @@ public class XBeanJndiFactory implements JndiFactory {
         rootContext.createSubcontext("remote");
         rootContext.createSubcontext("client");
         rootContext.createSubcontext("Deployment");
+        rootContext.createSubcontext("global");
     }
 
     @Override

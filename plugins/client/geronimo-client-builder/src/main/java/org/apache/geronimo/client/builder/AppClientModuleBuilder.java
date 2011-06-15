@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -131,6 +130,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private final Collection<Repository> repositories;
 
     private final ArtifactResolver clientArtifactResolver;
+    private final URI uri;
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
                                   Environment defaultServerEnvironment,
@@ -143,7 +143,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                   NamespaceDrivenBuilder serviceBuilder,
                                   Collection<NamingBuilder> namingBuilders,
                                   Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-                                  ArtifactResolver clientArtifactResolver) {
+                                  ArtifactResolver clientArtifactResolver,
+                                  String host,
+                                  int port) throws URISyntaxException{
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
@@ -153,7 +155,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
                 namingBuilders == null ? Collections.<NamingBuilder>emptySet() : namingBuilders,
                 moduleBuilderExtensions,
-                clientArtifactResolver);
+                clientArtifactResolver,
+                host,
+                port);
     }
 
     public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
@@ -167,8 +171,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                   Collection<ModuleBuilderExtension> moduleBuilderExtensions,
                                   ArtifactResolver clientArtifactResolver,
                                   Environment defaultClientEnvironment,
-                                  Environment defaultServerEnvironment
-    ) {
+                                  Environment defaultServerEnvironment,
+                                  String host,
+                                  int port) throws URISyntaxException{
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
@@ -179,7 +184,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 serviceBuilder,
                 namingBuilders,
                 moduleBuilderExtensions,
-                clientArtifactResolver);
+                clientArtifactResolver,
+                host,
+                port);
     }
 
     private AppClientModuleBuilder(Environment defaultClientEnvironment,
@@ -193,7 +200,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                    Collection<NamespaceDrivenBuilder> serviceBuilder,
                                    Collection<NamingBuilder> namingBuilders,
                                    Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-                                   ArtifactResolver clientArtifactResolver) {
+                                   ArtifactResolver clientArtifactResolver,
+                                   String host,
+                                   int port) throws URISyntaxException {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -206,6 +215,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.namingBuilders = new NamingBuilderCollection(namingBuilders);
         this.moduleBuilderExtensions = moduleBuilderExtensions;
         this.clientArtifactResolver = clientArtifactResolver;
+        if (host != null) {
+            uri = new URI("ejbd", null, host, port, null, null, null);
+        } else {
+            uri = null;
+        }
     }
 
     @Override
@@ -745,6 +759,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.class);
+                jndiContextGBeanData.setAttribute("uri", uri);
                 try {
                     Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
@@ -1038,6 +1053,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ClientArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
+        infoBuilder.addAttribute("host", String.class, true);
+        infoBuilder.addAttribute("port", int.class, true);
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -1053,6 +1070,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 "ClientArtifactResolver",
                 "defaultClientEnvironment",
                 "defaultServerEnvironment",
+                "host",
+                "port"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

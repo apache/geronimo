@@ -27,15 +27,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
@@ -51,7 +49,6 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
@@ -199,6 +196,32 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
             }
         }
+        
+        if (uri != null) {
+            
+           /* Map<String, Object> appclientAppContext = new HashMap<String, Object>();
+            Map<String, Object> sharedAppScopeContext = module.getJndiScope(JndiScope.app);
+            for (Entry<String, Object> entry : sharedAppScopeContext.entrySet()) {
+                appclientAppContext.put(entry.getKey(), createClientRef(entry.getValue()));
+            }
+            module.getJndiContext().put(JndiScope.app, appclientAppContext);
+
+            Map<String, Object> appclientGlobalContext = new HashMap<String, Object>();
+            Map<String, Object> sharedGlobalScopeContext = module.getJndiScope(JndiScope.global);
+            for (Entry<String, Object> entry : sharedGlobalScopeContext.entrySet()) {
+                appclientGlobalContext.put(entry.getKey(), createClientRef(entry.getValue()));
+            }
+            module.getJndiContext().put(JndiScope.global, appclientGlobalContext);*/
+            
+            
+            Map<String, Object> appclientModuleContext = new HashMap<String, Object>();
+            Map<String, Object> sharedModuleScopeContext = module.getJndiScope(JndiScope.module);
+            for (Entry<String, Object> entry : sharedModuleScopeContext.entrySet()) {
+                appclientModuleContext.put(entry.getKey(), createClientRef(entry.getValue()));
+            }
+            module.getJndiContext().put(JndiScope.module, appclientModuleContext);
+
+        }
     }
     
     /*
@@ -236,10 +259,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         Object valueToConvert = null;
 
-        if (moduleJndiContext.get(JndiScope.app).containsKey(name)) {
+/*        if (moduleJndiContext.get(JndiScope.app).containsKey(name)) {
             valueToConvert = moduleJndiContext.get(JndiScope.app).get(name);
         } else if (moduleJndiContext.get(JndiScope.global).containsKey(name)) {
             valueToConvert = moduleJndiContext.get(JndiScope.global).get(name);
+        } else */if (moduleJndiContext.get(JndiScope.module).containsKey(name)) {
+            valueToConvert = moduleJndiContext.get(JndiScope.module).get(name);
         } else {
             return;
         }

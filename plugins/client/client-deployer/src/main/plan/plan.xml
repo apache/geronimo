@@ -123,6 +123,8 @@
                 </dependencies>
             </environment>
         </xml-attribute>
+        <attribute name="host">localhost</attribute>
+        <attribute name="port">4201</attribute>
     </gbean>
 
     <gbean name="ClientArtifactResolver" class="org.apache.geronimo.client.builder.OptionalExplicitDefaultArtifactResolver">

@@ -41,7 +41,7 @@ public class PlanParsingTest extends TestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, Collections.<Repository>emptyList(), null, null, null, Collections.<ModuleBuilderExtension>emptyList(), clientArtifactResolver);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, Collections.<Repository>emptyList(), null, null, null, Collections.<ModuleBuilderExtension>emptyList(), clientArtifactResolver,"localhost",4021);
         builder.doStart();
     }
 

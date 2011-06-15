@@ -841,6 +841,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 module.setClassLoader(bundleLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
             }
+            
+            if(!ejbModule.isStandAlone())
+            {
+               appModule.setModuleId(ejbModule.getParentModule().getName());
+            }
 
             // build the config info tree
             // this method fills in the ejbJar jaxb tree based on the annotations
@@ -867,7 +872,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             // add all of the modules to the ear data
             for (EjbJarInfo ejbJar : appInfo.ejbJars) {
-                GeronimoEjbInfo ejbInfo = new GeronimoEjbInfo(ejbJar, appInfo.globalJndiEnc, appInfo.appJndiEnc);
+                GeronimoEjbInfo ejbInfo = new GeronimoEjbInfo(ejbJar, appInfo.globalJndiEnc, appInfo.appJndiEnc, appInfo.appId);
                 earData.addEjbInfo(ejbInfo);
             }
 

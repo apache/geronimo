@@ -27,15 +27,17 @@ public class GeronimoEjbInfo implements Serializable {
     private final EjbJarInfo ejbJarInfo;
     private final JndiEncInfo globalJndiEnc;
     private final JndiEncInfo appJndiEnc;
+    private final String appId;
 
-    public GeronimoEjbInfo(EjbJarInfo ejbJarInfo) {
-        this(ejbJarInfo, new JndiEncInfo(), new JndiEncInfo());
+    public GeronimoEjbInfo(EjbJarInfo ejbJarInfo, String appId) {
+        this(ejbJarInfo, new JndiEncInfo(), new JndiEncInfo(), appId);
     }
 
-    public GeronimoEjbInfo(EjbJarInfo ejbJarInfo, JndiEncInfo globalJndiEnc, JndiEncInfo appJndiEnc) {
+    public GeronimoEjbInfo(EjbJarInfo ejbJarInfo, JndiEncInfo globalJndiEnc, JndiEncInfo appJndiEnc, String appId) {
         this.ejbJarInfo = ejbJarInfo;
         this.globalJndiEnc = globalJndiEnc;
         this.appJndiEnc = appJndiEnc;
+        this.appId = appId;
     }
 
     public EjbJarInfo getEjbJarInfo() {
@@ -46,7 +48,7 @@ public class GeronimoEjbInfo implements Serializable {
         AppInfo appInfo = new AppInfo();
         appInfo.path = ejbJarInfo.path;
         appInfo.ejbJars.add(ejbJarInfo);
-        appInfo.appId = ejbJarInfo.moduleId;
+        appInfo.appId = appId == null ? "" : appId;
         merge(appInfo.appJndiEnc, appJndiEnc);
         merge(appInfo.globalJndiEnc, globalJndiEnc);
         return appInfo;
