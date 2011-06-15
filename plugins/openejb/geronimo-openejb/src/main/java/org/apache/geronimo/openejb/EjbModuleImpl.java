@@ -74,6 +74,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
                          @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
                          @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
                          @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
+                         @ParamAttribute(name = "isStandalone") boolean isStandalone,
                          @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
@@ -106,6 +107,8 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         this.openEjbSystem = openEjbSystem;
         
         this.appInfo = ejbInfo.createAppInfo();
+        
+        this.appInfo.standaloneModule = isStandalone;
     }
     
     private void removeEjb(EjbDeployment ejb) {

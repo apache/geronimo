@@ -1171,6 +1171,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 //            }
 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", ejbModule.getOriginalSpecDD());
+            ejbModuleGBeanData.setAttribute("isStandalone", ejbModule.isStandAlone());
 
             ejbModuleGBeanData.setReferencePatterns("EJBCollection",
                     new ReferencePatterns(new AbstractNameQuery(null,
