@@ -109,7 +109,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox</artifactId>
+            <artifactId>woodstox-core-asl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>        
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
