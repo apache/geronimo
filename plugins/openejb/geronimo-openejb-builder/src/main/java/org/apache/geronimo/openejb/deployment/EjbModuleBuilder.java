@@ -1195,8 +1195,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData);
 
         // add the Jacc permissions to the ear
+        String policyContextID = ejbModule.getModuleURI()+"_Type_"+ejbModule.getType().getName();
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
-        earContext.addSecurityContext(ejbModule.getEjbInfo().getEjbJarInfo().moduleId, componentPermissions);
+        earContext.addSecurityContext(policyContextID, componentPermissions);
 
         setMdbContainerIds(earContext, ejbModule, ejbModuleGBeanData);
 
