@@ -70,6 +70,7 @@ import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
+import org.apache.openejb.jee.ManagedBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.RemoteBean;
@@ -556,7 +557,7 @@ public class EjbDeploymentBuilder {
         }
 
         try {
-            if (bean instanceof SessionBean && ((SessionBean)bean).getLocalBean() != null) {
+            if (bean instanceof SessionBean && ( ((SessionBean)bean).getLocalBean() != null) || bean instanceof ManagedBean ) {
                 String beanClass = bean.getEjbClass();
 
                 String name = "openejb/Deployment/" + format(id, beanClass, InterfaceType.BUSINESS_LOCALBEAN_HOME);
@@ -568,7 +569,7 @@ public class EjbDeploymentBuilder {
         } catch (NamingException e) {
             throw new RuntimeException("Unable to bind business remote deployment in jndi.", e);
         }
-        if (count == 1) {
+        if (count == 1 || bean instanceof ManagedBean) {
             try {
                 bindJava(appName, moduleName, beanName, null, singleRef, jndiContext);
             } catch (NamingException e) {
