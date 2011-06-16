@@ -494,7 +494,7 @@ public class EjbDeploymentBuilder {
     public void bind(EnterpriseBean bean, String appName, String moduleName, String id, Map<JndiKey, Map<String, Object>> jndiContext) {
 
 
-        appName = appName == null? "": appName + "/";
+        appName = (appName == null || appName.isEmpty())? "": appName + "/";
         moduleName = moduleName + "/";
         String beanName = bean.getEjbName();
         int count = 0;
