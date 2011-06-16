@@ -212,6 +212,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         } else if (iface.isAnnotationPresent(ManagedBean.class)) {
             ManagedBean managed = iface.getAnnotation(ManagedBean.class);
             String beanName = managed.value().length() == 0 ? iface.getSimpleName() : managed.value();
+            if (iface != null) {
+                beanName = beanName + "!" + iface.getName();
+            }
             return new JndiReference("java:module/" + beanName);        
         } else {
             //determine jsr-77 type from interface
