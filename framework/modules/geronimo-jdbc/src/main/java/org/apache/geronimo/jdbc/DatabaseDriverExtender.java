@@ -42,21 +42,29 @@ import org.slf4j.LoggerFactory;
 public class DatabaseDriverExtender implements BundleActivator {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseDriverExtender.class);
-    
+
     private BundleTracker tracker;
-    
+
+    private JdbcLeakPreventionListener jdbcPreventionListener;
+
     public void start(BundleContext context) throws Exception {
         tracker = new BundleTracker(context, Bundle.ACTIVE, new DriverBundleTrackerCustomizer());
         tracker.open();
+
+        jdbcPreventionListener = new JdbcLeakPreventionListener();
+        context.addBundleListener(jdbcPreventionListener);
     }
 
     public void stop(BundleContext context) throws Exception {
-        tracker.close();        
+        tracker.close();
+        context.removeBundleListener(jdbcPreventionListener);
+        //Remove any driver from myself
+        JdbcLeakPreventionListener.unRegisterJdbcDrivers(context.getBundle());
     }
 
     private static List<Driver> loadDrivers(Bundle bundle, URL providerURL) {
         List<Driver> drivers = new ArrayList<Driver>();
-        
+
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(providerURL.openStream()));
             String line;
@@ -64,33 +72,33 @@ public class DatabaseDriverExtender implements BundleActivator {
                 line = line.trim();
 
                 try {
-                    Class driverClass = bundle.loadClass(line);
+                    Class<?> driverClass = bundle.loadClass(line);
                     drivers.add( (Driver) driverClass.newInstance());
                 } catch (Exception e) {
                     LOG.warn("Failed to load driver {}", line, e);
                 }
-                
+
             }
         } catch (IOException e) {
             // ignore - shouldn't happen
             LOG.warn("Error reading {} service file", providerURL);
         }
-        
+
         return drivers;
     }
-    
+
     private static void register(List<Driver> drivers) {
         for (Driver driver : drivers) {
             DelegatingDriver.registerDriver(driver);
         }
     }
-    
+
     private static void unregister(List<Driver> drivers) {
         for (Driver driver : drivers) {
             DelegatingDriver.unregisterDriver(driver);
         }
     }
-    
+
     private static class DriverBundleTrackerCustomizer implements BundleTrackerCustomizer {
 
         public Object addingBundle(Bundle bundle, BundleEvent event) {
@@ -112,7 +120,7 @@ public class DatabaseDriverExtender implements BundleActivator {
             unregister(drivers);
             LOG.debug("Unregistered {} drivers in bundle {}", drivers, bundle);
         }
-        
+
     }
-    
+
 }
