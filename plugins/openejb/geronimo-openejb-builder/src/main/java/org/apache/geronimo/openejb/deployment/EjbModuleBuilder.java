@@ -899,7 +899,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
         // find our module
-        GeronimoEjbInfo ejbInfo = earData.getEjbInfo(ejbModule.getEjbModule().getModuleId());
+        GeronimoEjbInfo ejbInfo = earData.getEjbInfo(ejbModule.getEjbModule().getModuleUri().toString());
         return ejbInfo;
     }
 
@@ -1141,7 +1141,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
         // add enc
-        module.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
+        String moduleName = module.getName();
+        
+        if( module.getJndiScope(JndiScope.module).get("module/ModuleName")== moduleName){
+            log.warn("Duplicated moduleName:'"+moduleName +"' is found ! deployer will rename it to:'"+moduleName +
+                    "_duplicated', please check your modules in application to make sure they don't share the same name");
+            moduleName = moduleName +"_duplicated";
+        }
+        
+        module.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
         ejbDeploymentBuilder.buildEnc();
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
@@ -1383,13 +1391,13 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         private final Map<String, GeronimoEjbInfo> ejbJars = new TreeMap<String, GeronimoEjbInfo>();
 
         public void addEjbModule(EjbModule ejbModule) {
-            ejbModules.put(ejbModule.getEjbModule().getModuleId(), ejbModule);
+            ejbModules.put(ejbModule.getEjbModule().getModuleUri().toString(), ejbModule);
         }
 
-        public EjbModule getEjbModule(String moduleId) throws DeploymentException {
-            EjbModule ejbModule = ejbModules.get(moduleId);
+        public EjbModule getEjbModule(String moduleURI) throws DeploymentException {
+            EjbModule ejbModule = ejbModules.get(moduleURI);
             if (ejbModule == null) {
-                throw new DeploymentException("Ejb  module " + moduleId + " was not found in configured module list " + ejbModules.keySet());
+                throw new DeploymentException("Ejb  module " + moduleURI + " was not found in configured module list " + ejbModules.keySet());
             }
             return ejbModule;
         }
@@ -1399,14 +1407,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
         public void addEjbInfo(GeronimoEjbInfo ejbInfo) {
-            ejbJars.put(ejbInfo.getEjbJarInfo().moduleId, ejbInfo);
+            ejbJars.put(ejbInfo.getEjbJarInfo().moduleUri.toString(), ejbInfo);
         }
 
-        public GeronimoEjbInfo getEjbInfo(String moduleId) throws DeploymentException {
-            GeronimoEjbInfo ejbInfo = ejbJars.get(moduleId);
+        public GeronimoEjbInfo getEjbInfo(String moduleURI) throws DeploymentException {
+            GeronimoEjbInfo ejbInfo = ejbJars.get(moduleURI);
             if (ejbInfo == null) {
                 throw new DeploymentException("Ejb jar configuration passed but expected module " +
-                        moduleId + " was not found in configured module list " + ejbJars.keySet());
+                        moduleURI + " was not found in configured module list " + ejbJars.keySet());
             }
             return ejbInfo;
         }
