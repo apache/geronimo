@@ -211,7 +211,7 @@ public class EjbDeploymentBuilder {
         }
     }
 
-    public ComponentPermissions buildComponentPermissions() throws DeploymentException {
+    public void buildComponentPermissions(ComponentPermissions componentPermissions) throws DeploymentException {
         List<MethodPermission> methodPermissions = ejbModule.getEjbJar().getAssemblyDescriptor().getMethodPermission();
         if (earContext.getSecurityConfiguration() != null) {
             earContext.setHasSecurity(true);
@@ -219,11 +219,9 @@ public class EjbDeploymentBuilder {
         if (earContext.getSecurityConfiguration() == null && methodPermissions.size() > 0) {
             throw new DeploymentException("Ejb app has method permissions but no security configuration supplied in geronimo plan");
         }
-        ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap<String, PermissionCollection>());
         for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
             addSecurityData(enterpriseBean, componentPermissions);
         }
-        return componentPermissions;
     }
 
     private void addSecurityData(EnterpriseBean enterpriseBean, ComponentPermissions componentPermissions) throws DeploymentException {

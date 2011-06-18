@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1203,9 +1205,13 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData);
 
         // add the Jacc permissions to the ear
-        String policyContextID = ejbModule.getModuleURI()+"_Type_"+ejbModule.getType().getName();
-        ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
-        earContext.addSecurityContext(policyContextID, componentPermissions);
+        String policyContextId = ejbModule.getEjbInfo().getEjbJarInfo().moduleId;
+        ComponentPermissions componentPermissions = (ComponentPermissions) earContext.getContextIDToPermissionsMap().get(policyContextId);
+        if (componentPermissions == null) {
+            componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap<String, PermissionCollection>());
+            earContext.addSecurityContext(policyContextId, componentPermissions);
+        }
+        ejbDeploymentBuilder.buildComponentPermissions(componentPermissions);
 
         setMdbContainerIds(earContext, ejbModule, ejbModuleGBeanData);
 
