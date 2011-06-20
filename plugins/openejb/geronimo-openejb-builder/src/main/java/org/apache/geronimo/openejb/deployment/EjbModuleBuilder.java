@@ -1205,7 +1205,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData);
 
         // add the Jacc permissions to the ear
-        String policyContextId = ejbModule.getEjbInfo().getEjbJarInfo().moduleId;
+        String policyContextId = ejbModule.getEjbInfo().getEjbJarInfo().moduleUri.toString();
         ComponentPermissions componentPermissions = (ComponentPermissions) earContext.getContextIDToPermissionsMap().get(policyContextId);
         if (componentPermissions == null) {
             componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap<String, PermissionCollection>());
