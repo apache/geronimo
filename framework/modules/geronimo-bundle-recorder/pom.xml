@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 1084516 $ $Date: 2011-03-23 17:08:03 +0800 (Wed, 23 Mar 2011) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -28,50 +28,24 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-deploy-jsr88</artifactId>
+    <artifactId>geronimo-bundle-recorder</artifactId>
     <packaging>bundle</packaging>
-    <name>Geronimo Framework, Modules :: Deploy JSR-88</name>
+    <name>Geronimo Framework, Modules :: Bundle Recorder</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-system</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-common</artifactId>
+            <artifactId>geronimo-kernel</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-crypto</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-bundle-recorder</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-bundleutils</artifactId>
         </dependency>
     </dependencies>
 

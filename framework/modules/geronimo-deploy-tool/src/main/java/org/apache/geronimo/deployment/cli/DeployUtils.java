@@ -39,6 +39,9 @@ import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
  */
 public class DeployUtils extends ConfigIDExtractor {
 
+    public final static String DEFAULT_HOST = "localhost";
+    public final static Integer DEFAULT_PORT = 1099;
+    
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
     private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
     
@@ -142,10 +145,10 @@ public class DeployUtils extends ConfigIDExtractor {
 
     public static String getConnectionURI(String host, Integer port, boolean secure) {
         if (host == null) {
-            host = "localhost";
+            host = DEFAULT_HOST;
         }
         if (port == null) {
-            port = new Integer(1099);
+            port = DEFAULT_PORT;
         }
         String uri = (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
         uri += "://" + host + ":" + port;

@@ -212,6 +212,15 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
         super.updateEBAContent(applicationGBeanName, bundleId, newfile);
     }
     
+    @Override
+    public long recordInstall(File bundleFile, boolean inplace, int startLevel) throws IOException {
+        if(!isSameMachine) {
+            throw new UnsupportedOperationException("recordBundle operation is not supportted from a remote JMX connection.");
+        }
+        
+        return super.recordInstall(bundleFile, inplace, startLevel);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_MODULE_CONFIGURERS = "ModuleConfigurers";
 

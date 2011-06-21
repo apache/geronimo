@@ -45,7 +45,7 @@ public class OnlineServerConnection extends ServerConnection {
     private boolean logToSysErr;
 
     private boolean verboseMessages;
-
+    
     public OnlineServerConnection(ConnectionParams params, ConsoleReader consoleReader) throws DeploymentException {
         this(params, new DefaultUserPasswordHandler(consoleReader));
     }
@@ -62,37 +62,39 @@ public class OnlineServerConnection extends ServerConnection {
         logToSysErr = params.isSyserr();
         boolean secure = params.isSecure();
 
-        if ((driver != null) && uri == null) {
+        if (driver != null && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
         if (params.isOffline()) {
             throw new DeploymentException("Offline connection is not supported");
         }
-        if (host != null || port != null) {
-            uri = DeployUtils.getConnectionURI(host, port, secure);
-        }
-
+        
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(DeployUtils.class.getClassLoader());
         try {
-            tryToConnect(uri, driver, user, password, secure);
+            tryToConnect(uri, driver, host, port, user, password, secure);
         } finally  {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
         if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
         }
+        
     }
 
-    private void tryToConnect(String argURI, String driver, String user, String password, boolean secure) throws DeploymentException {
+    private void tryToConnect(String uri, String driver, String host, Integer port, String user, String password, boolean secure) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if (driver != null) {
             loadDriver(driver, mgr);
         }
-        String useURI = argURI == null ? DeployUtils.getConnectionURI(null, null, secure) : argURI;
+        
+        if (host != null || port != null || uri == null) {
+            uri = DeployUtils.getConnectionURI(host, port, secure);
+        }
+        
         if (user == null && password == null) {
             try {
-                SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(useURI);
+                SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(uri);
                 if (savedAuthentication != null) {
                     user = savedAuthentication.getUser();
                     password = new String(savedAuthentication.getPassword());
@@ -117,13 +119,13 @@ public class OnlineServerConnection extends ServerConnection {
             }
         }
         try {
-            manager = mgr.getDeploymentManager(useURI, user, password);
-            auth = new SavedAuthentication(useURI, user, password == null ? null : password.toCharArray());
+            manager = mgr.getDeploymentManager(uri, user, password);
+            auth = new SavedAuthentication(uri, user, password == null ? null : password.toCharArray());
         } catch (AuthenticationFailedException e) {
             // server's there, you just can't talk to it
             throw new DeploymentException("Login Failed");
         } catch (DeploymentManagerCreationException e) {
-            throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage(), e);
+            throw new DeploymentException("Unable to connect to server at " + uri + " -- " + e.getMessage(), e);
         }
         if (manager instanceof JMXDeploymentManager) {
             JMXDeploymentManager deploymentManager = (JMXDeploymentManager) manager;
@@ -173,4 +175,5 @@ public class OnlineServerConnection extends ServerConnection {
             return consoleReader.readLine("Username: ");
         }
     }
+    
 }

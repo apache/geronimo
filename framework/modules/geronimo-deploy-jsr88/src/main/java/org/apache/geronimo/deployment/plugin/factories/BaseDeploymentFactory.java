@@ -53,6 +53,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
     private static final Logger log = LoggerFactory.getLogger(BaseDeploymentFactory.class);
 
     public static final String URI_PREFIX = "deployer:geronimo:";
+    private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 1099;
 
     public BaseDeploymentFactory() {
@@ -85,12 +86,12 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         if(protocol.equals("jmx") || protocol.equals("jmxs")) {
             boolean secure = protocol.equals("jmxs");
             if(!uri.startsWith("//")) {
-                return new ConnectParams(protocol, "localhost", DEFAULT_PORT, secure);
+                return new ConnectParams(protocol, DEFAULT_HOST, DEFAULT_PORT, secure);
             }
             uri = uri.substring(2);
             pos = uri.indexOf(':');
             if(pos == -1) {
-                return new ConnectParams(protocol, uri.equals("") ? "localhost" : uri, DEFAULT_PORT, secure);
+                return new ConnectParams(protocol, uri.equals("") ? DEFAULT_HOST : uri, DEFAULT_PORT, secure);
             }
             if(uri.indexOf('/', pos+1) > -1) {
                 return null;
@@ -101,7 +102,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             String host = uri.substring(0, pos);
             String port = uri.substring(pos+1);
             try {
-                return new ConnectParams(protocol, host.equals("") ? "localhost" : host, Integer.parseInt(port), secure);
+                return new ConnectParams(protocol, host.equals("") ? DEFAULT_HOST : host, Integer.parseInt(port), secure);
             } catch (NumberFormatException e) {
                 return null;
             }

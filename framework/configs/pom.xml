@@ -47,6 +47,7 @@
         <module>server-security-config</module>
         <module>shutdown</module>
         <module>jmx-security</module>
+        <module>bundle-recorder</module>
         <module>karaf-framework</module>
     </modules>
 

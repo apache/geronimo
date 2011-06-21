@@ -62,6 +62,7 @@
         <module>geronimo-deploy-config</module>
         <module>geronimo-rmi-loader</module>
         <module>geronimo-main</module>
+        <module>geronimo-bundle-recorder</module>
     </modules>
 
     <profiles>

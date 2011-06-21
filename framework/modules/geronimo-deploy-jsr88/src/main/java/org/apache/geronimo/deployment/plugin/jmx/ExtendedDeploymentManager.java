@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
@@ -34,16 +33,15 @@ import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.system.bundle.BundleRecorder;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
@@ -313,4 +311,23 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
         return applicationGBeanNames.iterator().next();
     }
     
+    
+    /**
+     * Get the BundleRecorderGBean
+     * @return
+     */
+    private BundleRecorder getBundleRecorder() {
+        return getImplementation(BundleRecorder.class);
+    }
+    
+    public long recordInstall(File bundleFile, boolean inplace, int startLevel) throws IOException {
+        BundleRecorder recorder = getBundleRecorder();
+        try {
+            return recorder.recordInstall(bundleFile, inplace, startLevel);
+        } finally {
+            kernel.getProxyManager().destroyProxy(recorder);
+        }
+    }
+    
+   
 }

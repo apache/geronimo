@@ -21,6 +21,7 @@ import java.net.URL;
 import javax.enterprise.deploy.spi.DeploymentManager;
 
 import org.apache.geronimo.deployment.plugin.eba.EBADeploymentManager;
+import org.apache.geronimo.system.bundle.BundleRecorder;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.ServerArchiver;
 
@@ -29,7 +30,7 @@ import org.apache.geronimo.system.plugin.ServerArchiver;
  *
  * @version $Rev$ $Date$
  */
-public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller, ServerArchiver, EBADeploymentManager {
+public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller, ServerArchiver, EBADeploymentManager, BundleRecorder {
 
     public <T> T getImplementation(Class<T> clazz);
     public URL[] getRepositories();
