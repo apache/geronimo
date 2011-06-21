@@ -2,7 +2,7 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openejb</artifactId>
+        <artifactId>openejb-client</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
@@ -19,11 +19,6 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openwebbeans</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>system-database</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -139,6 +134,11 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-asm-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

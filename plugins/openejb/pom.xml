@@ -38,6 +38,7 @@
         <module>geronimo-openejb-clustering-wadi</module>
         <module>geronimo-openejb-clustering-builder-wadi</module>
         <module>openejb</module>
+        <module>openejb-client</module>
         <module>openejb-deployer</module>
         <module>openejb-portlets</module>
         <module>openejb-console-jetty</module>

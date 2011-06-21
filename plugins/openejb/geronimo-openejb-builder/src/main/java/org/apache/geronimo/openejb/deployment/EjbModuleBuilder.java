@@ -298,7 +298,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                              Naming naming,
                              ModuleIDBuilder idBuilder) throws DeploymentException {
         //check for web module
-        if (module instanceof WebModule) {
+        if (module instanceof WebModule || module instanceof AppClientModule) {
             //check for WEB-INF/ejb-jar.xml
             Module ejbModule = createModule(plan, moduleFile, targetPath, null, environment, module, naming, idBuilder, "WEB-INF/", true);
             if (ejbModule != null) {
@@ -497,7 +497,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
                 moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
             } else {
-                moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.EJB_MODULE);
+                
+                AbstractName parentName = parentModule instanceof AppClientModule ? ((AppClientModule) parentModule)
+                        .getAppClientName() : parentModule.getModuleName();
+                        
+                moduleName = naming.createChildName(parentName, targetPath, NameFactory.EJB_MODULE);
             }
 
             // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
@@ -680,6 +684,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                     subModule.setEarContext(module.getEarContext());
                     subModule.setRootEarContext(module.getRootEarContext());
                     //don't copy, module is already in classloader
+                    if(module instanceof AppClientModule){
+                        earContext = module.getEarContext();
+                    }
                     registerModule(subModule, earContext);
                 }
             }
@@ -748,6 +755,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             LinkedHashSet<Module<?,?>> modules = module.getModules();
             for (Module<?,?> subModule: modules) {
                 if (subModule instanceof EjbModule)  {
+                    
+                    if(module instanceof AppClientModule){
+                        earContext = module.getEarContext();
+                    }
                     doInitContext(earContext, subModule, bundle);
                 }
             }
@@ -804,7 +815,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
        
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
-            earContext.addGBean(ejbModuleGBeanData);
+
+          earContext.addGBean(ejbModuleGBeanData);
+            
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add ejb module gbean", e);
         }

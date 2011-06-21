@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -131,6 +132,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     private final ArtifactResolver clientArtifactResolver;
     private final URI uri;
+    private AbstractNameQuery globalContextAbstractName;
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
                                   Environment defaultServerEnvironment,
@@ -138,6 +140,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                   AbstractNameQuery connectionTrackerObjectName,
                                   AbstractNameQuery corbaGBeanObjectName,
                                   AbstractNameQuery credentialStoreName,
+                                  AbstractNameQuery globalContextAbstractName,
                                   Collection<Repository> repositories,
                                   ModuleBuilder connectorModuleBuilder,
                                   NamespaceDrivenBuilder serviceBuilder,
@@ -151,7 +154,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                credentialStoreName, repositories, new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
+                credentialStoreName, 
+                globalContextAbstractName,
+                repositories,
+                new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
                 serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
                 namingBuilders == null ? Collections.<NamingBuilder>emptySet() : namingBuilders,
                 moduleBuilderExtensions,
@@ -164,6 +170,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                   AbstractNameQuery connectionTrackerObjectName,
                                   AbstractNameQuery corbaGBeanObjectName,
                                   AbstractNameQuery credentialStoreName,
+                                  AbstractNameQuery globalContextAbstractName,
                                   Collection<Repository> repositories,
                                   Collection<ModuleBuilder> connectorModuleBuilder,
                                   Collection<NamespaceDrivenBuilder> serviceBuilder,
@@ -179,7 +186,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                credentialStoreName, repositories,
+                credentialStoreName, 
+                globalContextAbstractName,
+                repositories,
                 new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
                 serviceBuilder,
                 namingBuilders,
@@ -195,6 +204,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                    AbstractNameQuery connectionTrackerObjectName,
                                    AbstractNameQuery corbaGBeanObjectName,
                                    AbstractNameQuery credentialStoreName,
+                                   AbstractNameQuery globalContextAbstractName,
                                    Collection<Repository> repositories,
                                    SingleElementCollection<ModuleBuilder> connectorModuleBuilder,
                                    Collection<NamespaceDrivenBuilder> serviceBuilder,
@@ -209,6 +219,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.credentialStoreName = credentialStoreName;
+        this.globalContextAbstractName = globalContextAbstractName;
         this.repositories = repositories;
         this.connectorModuleBuilder = connectorModuleBuilder;
         this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder);
@@ -561,7 +572,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         // construct the app client deployment context... this is the same class used by the ear context
-        EARContext appClientDeploymentContext;
+        EARContext appClientDeploymentContext = null;
         
         
         try {
@@ -577,8 +588,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
                     earContext);
+            
+            
             appClientModule.setEarContext(appClientDeploymentContext);
-            appClientModule.setRootEarContext(appClientDeploymentContext);
+            appClientModule.setRootEarContext(earContext);
 
 
       if (module.getParentModule() != null) {
@@ -658,7 +671,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             throw e;
         } catch (IOException e) {
            throw new DeploymentException(e);
-        } 
+        }
+        
         for (Module connectorModule : appClientModule.getModules()) {
             if (connectorModule instanceof ConnectorModule) {
                 getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
@@ -686,6 +700,19 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     public void addGBeans(EARContext earContext, Module module, Bundle earBundle, Collection repositories) throws DeploymentException {
 
+        AbstractName appJndiName = module.getEarContext().getNaming().createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
+        module.getEarContext().getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
+        
+        GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
+        appContexts.setAttribute("globalContextSegment", module.getJndiContext().get(JndiScope.global));
+        appContexts.setAttribute("applicationContextMap", module.getJndiContext().get(JndiScope.app));
+        appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
+        try {
+            module.getEarContext().addGBean(appContexts);
+        } catch (GBeanAlreadyExistsException e1) {
+          throw new DeploymentException(e1);
+        }
+        
         AppClientModule appClientModule = (AppClientModule) module;
         JarFile moduleFile = module.getModuleFile();
 
@@ -1058,6 +1085,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         infoBuilder.addAttribute("connectionTrackerObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("corbaGBeanObjectName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("credentialStoreName", AbstractNameQuery.class, true);
+        infoBuilder.addAttribute("globalContextAbstractName", AbstractNameQuery.class, true);
         infoBuilder.addReference("Repositories", Repository.class, "Repository");
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
@@ -1073,6 +1101,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 "connectionTrackerObjectName",
                 "corbaGBeanObjectName",
                 "credentialStoreName",
+                "globalContextAbstractName",
                 "Repositories",
                 "ConnectorModuleBuilder",
                 "ServiceBuilders",

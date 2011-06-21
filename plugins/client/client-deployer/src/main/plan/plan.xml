@@ -23,6 +23,7 @@
         <attribute name="connectionTrackerObjectName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanObjectName">?name=Server</attribute>
         <attribute name="credentialStoreName">?name=CredentialStore</attribute>
+        <attribute name="globalContextAbstractName">?name=JavaGlobalContext</attribute>
         <reference name="Repositories">
             <!--<gbean-name>*:name=Repository,*</gbean-name>-->
         </reference>
@@ -35,6 +36,9 @@
         <references name="ModuleBuilderExtensions">
             <pattern>
                 <name>PersistenceUnitBuilder</name>
+            </pattern>
+            <pattern>
+                <name>ClientEJBBuilder</name>
             </pattern>
             <pattern>
                 <name>BValModuleBuilderExtension</name>

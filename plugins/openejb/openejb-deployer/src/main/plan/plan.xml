@@ -80,6 +80,47 @@
             </environment>
         </xml-attribute>
     </gbean>
+    
+ <gbean name="ClientEJBBuilder" class="org.apache.geronimo.openejb.deployment.EjbModuleBuilder">
+        <attribute name="defaultCmpJTADataSource">SystemDatasource</attribute>
+        <attribute name="defaultCmpNonJTADataSource">NoTxDatasource</attribute>
+        <references name="ModuleBuilderExtensions">
+            <pattern>
+                <name>PersistenceUnitBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
+            </pattern>
+            <pattern>
+                <name>BValModuleBuilderExtension</name>
+            </pattern>
+        </references>
+        <references name="ServiceBuilders">
+            <pattern>
+                <name>GBeanBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
+            </pattern>
+        </references>
+        <reference name="NamingBuilders">
+            <name>NamingBuilders</name>
+        </reference>
+        <reference name="ResourceEnvironmentSetter">
+            <name>ResourceRefBuilder</name>
+        </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>openejb-client</artifactId>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+    </gbean>    
 
     <gbean name="EjbRefBuilder" class="org.apache.geronimo.openejb.deployment.EjbRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
