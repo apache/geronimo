@@ -778,7 +778,18 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClient.setMainClass(appClientModule.getMainClassName());
                     }
                     
-                    appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
+                    String moduleName =  module.getName();
+                    
+                    if (earContext.getSubModuleNames().contains(moduleName)){
+                        log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
+                                "_duplicated' , please check your modules in application to make sure they don't share the same name");
+                        moduleName = moduleName +"_duplicated";
+                        earContext.getSubModuleNames().add(moduleName);
+                    } 
+                        
+                   earContext.getSubModuleNames().add(moduleName);                    
+                   appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
+                    
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
                     if (!appClient.isMetadataComplete()) {

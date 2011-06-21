@@ -19,7 +19,9 @@ package org.apache.geronimo.j2ee.deployment;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -43,6 +45,7 @@ public class EARContext extends DeploymentContext {
     private final AbstractNameQuery corbaGBeanObjectName;
 
     private final Map<String, Object> contextIDToPermissionsMap = new HashMap<String, Object>();
+    private final Set<String> subModuleNames = new HashSet<String>();
     private Object securityConfiguration;
     private boolean hasSecurity;
 
@@ -209,6 +212,10 @@ public class EARContext extends DeploymentContext {
 
     public void setHasSecurity(boolean hasSecurity) {
         this.hasSecurity = hasSecurity;
+    }
+
+    public Set<String> getSubModuleNames() {
+        return subModuleNames;
     }
 
     public static interface Key<T> {

@@ -64,6 +64,7 @@ import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -1145,13 +1146,18 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // add enc
         String moduleName = module.getName();
         
-        if( module.getJndiScope(JndiScope.module).get("module/ModuleName")== moduleName){
-            log.warn("Duplicated moduleName:'"+moduleName +"' is found ! deployer will rename it to:'"+moduleName +
-                    "_duplicated', please check your modules in application to make sure they don't share the same name");
+        if (earContext.getSubModuleNames().contains(moduleName)){
+            log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
+                    "_duplicated' , please check your modules in application to make sure they don't share the same name");
             moduleName = moduleName +"_duplicated";
+            earContext.getSubModuleNames().add(moduleName);
         }
         
-        module.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
+        if (!(module.getParentModule() instanceof WebModule) && !(module.getParentModule() instanceof AppClientModule)) {
+            earContext.getSubModuleNames().add(moduleName);
+            module.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
+        }
+        
         ejbDeploymentBuilder.buildEnc();
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));

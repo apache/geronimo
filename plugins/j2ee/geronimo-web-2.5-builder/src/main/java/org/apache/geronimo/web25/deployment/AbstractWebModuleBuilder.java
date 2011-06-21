@@ -676,7 +676,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             throws DeploymentException {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
-        webModule.getJndiContext().get(JndiScope.module).put("module/ModuleName", webModule.getName());
+        
+        String moduleName =  webModule.getName();
+        
+        if (earContext.getSubModuleNames().contains(moduleName)){
+            log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
+                    "_duplicated' , please check your modules in application to make sure they don't share the same name");
+            moduleName = moduleName +"_duplicated";
+            earContext.getSubModuleNames().add(moduleName);
+        }   
+        
+        earContext.getSubModuleNames().add(moduleName);
+        webModule.getJndiContext().get(JndiScope.module).put("module/ModuleName", moduleName);
+
+        
         if (!webApp.isMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
