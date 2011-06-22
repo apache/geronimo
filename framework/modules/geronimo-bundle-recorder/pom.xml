@@ -33,14 +33,15 @@
     <name>Geronimo Framework, Modules :: Bundle Recorder</name>
 
     <dependencies>
+
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security-builder</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-kernel</artifactId>
+            <artifactId>geronimo-system</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
