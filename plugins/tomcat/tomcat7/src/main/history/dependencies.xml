@@ -8,11 +8,6 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>castor</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>commons-digester</artifactId>
         <type>jar</type>
     </dependency>

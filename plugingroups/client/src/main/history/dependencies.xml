@@ -16,4 +16,9 @@
         <artifactId>client-deployer</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openejb-client</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>
