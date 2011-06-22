@@ -57,7 +57,7 @@ public class GeronimoLoginService implements LoginService {
         return login(new CertificateChainCallbackHandler(certs));
     }
     
-    private UserIdentity login(CallbackHandler callbackHandler) {
+    public UserIdentity login(CallbackHandler callbackHandler) {
         try {
             LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
             Subject establishedSubject = loginContext.getSubject();

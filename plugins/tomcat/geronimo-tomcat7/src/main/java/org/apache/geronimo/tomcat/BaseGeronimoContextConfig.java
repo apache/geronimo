@@ -49,6 +49,7 @@ import org.apache.geronimo.tomcat.security.authentication.BasicAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.ClientCertAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.DigestAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.FormAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.GenericHeaderAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.NoneAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicCallbackHandler;
@@ -173,6 +174,8 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
             authenticator = new DigestAuthenticator(loginService, realmName, unauthenticatedIdentity);
         } else if ("FORM".equalsIgnoreCase(authMethod)) {
             authenticator = new FormAuthenticator(loginService, unauthenticatedIdentity, loginPage, errorPage);
+        } else if ("GENERIC".equalsIgnoreCase(authMethod)) {
+            authenticator = new GenericHeaderAuthenticator(loginService, unauthenticatedIdentity);
         } else {
             authenticator = new NoneAuthenticator(unauthenticatedIdentity);
         }
