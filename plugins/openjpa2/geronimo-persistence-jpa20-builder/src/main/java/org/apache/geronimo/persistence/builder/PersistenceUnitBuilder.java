@@ -52,6 +52,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
@@ -137,6 +138,12 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         try {
 
             final Collection<String> manifestcp = module.getClassPath();
+            
+            // add "" into manifestcp to make META-INF/persistence.xml in standalone ejb be processed
+            if (module.isStandAlone() && module.getType() == ConfigurationModuleType.EJB) {
+                manifestcp.add("");
+            }
+            
             BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml", new ResourceDiscoveryFilter() {
 
                 @Override
