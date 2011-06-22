@@ -48,6 +48,12 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-bundle-recorder</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
     </dependencies>
     <build>
         <plugins>
@@ -61,6 +67,7 @@
                         org.apache.geronimo.common*,
                         org.apache.geronimo.system.jmx*,
                         org.apache.geronimo.system.plugin*,
+                        org.apache.geronimo.system.bundle*,
                         org.apache.geronimo.gbean*,
                         org.apache.geronimo.kernel*,
                         org.osgi.framework,
