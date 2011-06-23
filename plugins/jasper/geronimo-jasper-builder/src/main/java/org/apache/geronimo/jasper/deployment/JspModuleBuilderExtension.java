@@ -18,6 +18,7 @@
 package org.apache.geronimo.jasper.deployment;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -154,8 +156,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         Set<String> listenerNames = new HashSet<String>();
 
-        Collection<URL> urls = getTldFiles(webApp, webModule);
-        LinkedHashSet<Class<?>> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
+        Map<String, Bundle> tldLocationBundleMap = getTldFiles(webApp, webModule);
+        LinkedHashSet<Class<?>> classes = getListenerClasses(webApp, webModule, tldLocationBundleMap, listenerNames);
         ClassFinder classFinder = new ClassFinder(new ArrayList<Class<?>>(classes));
         webModule.setClassFinder(classFinder);
 
@@ -193,8 +195,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 for (JspPropertyGroup propertyGroup : jspConfig.getJspPropertyGroup()) {
                     WebAppInfoBuilder.normalizeUrlPatterns(propertyGroup.getUrlPattern(), jspMappings);
                 }
-            }       
-            
+            }
+
             jspServlet.servletMappings.addAll(jspMappings);
             for (ServletInfo servletInfo: webAppInfo.servlets) {
                 servletInfo.servletMappings.removeAll(jspMappings);
@@ -235,12 +237,13 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @return list of the URL(s) for the TLD files
      * @throws DeploymentException if there's a problem finding a tld file
      */
-    private LinkedHashSet<URL> getTldFiles(WebApp webApp, WebModule webModule) throws DeploymentException {
+    private Map<String, Bundle> getTldFiles(WebApp webApp, WebModule webModule) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getTldFiles( " + webApp.toString() + "," + webModule.getName() + " ): Entry");
         }
 
-        LinkedHashSet<URL> tldURLs = new LinkedHashSet<URL>();
+        Map<String, Bundle> tldLocationBundleMap = new LinkedHashMap<String, Bundle>();
+        Bundle webBundle = webModule.getEarContext().getDeploymentBundle();
 
         // 1. web.xml <taglib> entries
         List<JspConfig> jspConfigs = webApp.getJspConfig();
@@ -256,7 +259,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     try {
                         URL targetUrl = webModule.getEarContext().getTargetURL(webModule.resolve(createURI(location)));
                         if (targetUrl != null) {
-                            tldURLs.add(targetUrl);
+                            tldLocationBundleMap.put(targetUrl.toString(), webBundle);
                         }
                     } catch (URISyntaxException use) {
                         throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + use.getMessage(), use);
@@ -267,14 +270,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         // 2. TLD(s) in JAR files in WEB-INF/lib
         // 3. TLD(s) under WEB-INF
-        tldURLs.addAll(scanModule(webModule));
+        for (URL tldURL : scanModule(webModule)) {
+            tldLocationBundleMap.put(tldURL.toString(), webBundle);
+        }
 
         // 4. All TLD files in all META-INF(s)
-        tldURLs.addAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
+        tldLocationBundleMap.putAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
         if (log.isDebugEnabled()) {
-            log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
+            log.debug("getTldFiles() Exit: URL[" + tldLocationBundleMap.size() + "]: " + tldLocationBundleMap.toString());
         }
-        return tldURLs;
+        return tldLocationBundleMap;
     }
 
     /**
@@ -297,33 +302,36 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return Collections.emptyList();
     }
 
-    private List<URL> scanGlobalTlds(Bundle bundle) throws DeploymentException {
+    private Map<String, Bundle> scanGlobalTlds(Bundle bundle) throws DeploymentException {
         BundleContext bundleContext = bundle.getBundleContext();
         ServiceReference reference = bundleContext.getServiceReference(TldRegistry.class.getName());
-        List<URL> tldURLs = new ArrayList<URL>();
-        if (reference != null) {            
+        Map<String, Bundle> tldLocationBundleMap = new HashMap<String, Bundle>();
+        if (reference != null) {
             TldRegistry tldRegistry = (TldRegistry) bundleContext.getService(reference);
             for (TldProvider.TldEntry entry : tldRegistry.getDependentTlds(bundle)) {
                 URL url = entry.getURL();
-                tldURLs.add(url);
+                tldLocationBundleMap.put(url.toString(), entry.getBundle());
             }
-            bundleContext.ungetService(reference);           
+            bundleContext.ungetService(reference);
         }
-        return tldURLs;
+        return tldLocationBundleMap;
     }
 
-    private LinkedHashSet<Class<?>> getListenerClasses(WebApp webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
+    private LinkedHashSet<Class<?>> getListenerClasses(WebApp webApp, WebModule webModule, Map<String, Bundle> tldLocationBundleMap, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
                     webModule.getName() + " ): Entry");
         }
 
         // Get the classloader from the module's EARContext
-        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
 
-        for (URL url : urls) {
-            parseTldFile(url, bundle, classes, listenerNames);
+        try {
+            for (Map.Entry<String, Bundle> entry : tldLocationBundleMap.entrySet()) {
+                parseTldFile(new URL(entry.getKey()), entry.getValue(), classes, listenerNames);
+            }
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Fail to parse the tld files", e);
         }
 
         if (log.isDebugEnabled()) {
