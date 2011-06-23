@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.JarURLConnection;
@@ -249,7 +250,8 @@ public final class ConfigurationUtil {
 
     public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName, File inPlaceLocation) throws IOException {
         Properties properties = new Properties();
-        properties.load(in);
+        // file is written with UTF-8
+        properties.load(new InputStreamReader(in, "UTF-8"));
         return readConfigurationInfo("", properties, storeName, inPlaceLocation);
     }
 
