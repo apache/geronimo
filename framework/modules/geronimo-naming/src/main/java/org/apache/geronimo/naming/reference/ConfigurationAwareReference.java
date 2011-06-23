@@ -60,6 +60,12 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         Configuration configuration =  configurationManager.getConfiguration(configId[0]);
         if (configuration == null) {
+            for (int i = 1; i < configId.length; i++) {
+                configuration = configurationManager.getConfiguration(configId[i]);
+                if (configuration != null) {
+                    return configuration;
+                }
+            }
             throw new IllegalStateException("No configuration found for id: " + configId[0]);
         }
         next: for (int i = 1; i < configId.length; i++) {
