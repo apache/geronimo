@@ -164,7 +164,7 @@ public final class ExecutableConfigurationUtil {
         // write the info file
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(new FileWriter(new File(metaInf, CONFIG_INFO)));
+            writer = new PrintWriter(new File(metaInf, CONFIG_INFO), "UTF-8");
             ConfigurationUtil.writeConfigInfo(writer, configurationData);
         } finally {
             flush(writer);
