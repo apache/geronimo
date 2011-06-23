@@ -202,7 +202,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         
         if (configurationData.isUseEnvironment() && configurationManager != null) {
             try {
-                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);            
+                Collection<Bundle> bundles = getBundles(configurationData, configurationResolver, configurationManager);            
                 this.bundle = new DelegatingBundle(bundles);
             } catch (Exception e) {
                 log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
@@ -231,25 +231,43 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private List<Bundle> getParentBundles(ConfigurationData configurationData,
+    private Collection<Bundle> getBundles(ConfigurationData configurationData,
                                           ConfigurationResolver configurationResolver,
                                           ConfigurationManager configurationManager) 
-                                          throws MissingDependencyException, InvalidConfigException {
-        List<Bundle> bundles = new ArrayList<Bundle>();
+        throws MissingDependencyException, InvalidConfigException {
+        
+        Set<Bundle> bundles = new LinkedHashSet<Bundle>();
         bundles.add(configurationData.getBundleContext().getBundle());
       
-        LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
-        for (Artifact parent : parents) {
-            String location = getBundleLocation(configurationResolver, parent);
-            Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
-            if (bundle != null) {
-                bundles.add(bundle);
-            }
-        }
-        
+        getAllBundles(configurationData, configurationManager, new HashSet<Artifact>(), bundles);
+                
         return bundles;
     }
 
+    /*
+     * Gets all dependent non-configuration bundles.
+     */
+    private void getAllBundles(ConfigurationData configurationData, ConfigurationManager configurationManager, Set<Artifact> artifacts, Collection<Bundle> bundles) throws MissingDependencyException, InvalidConfigException {
+        LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
+        for (Artifact parent : parents) {
+            if (artifacts.contains(parent)) {
+                continue;
+            }
+            artifacts.add(parent);
+            boolean isConfiguration = configurationManager.isConfiguration(parent);
+            if (isConfiguration) {
+                Configuration configuration = configurationManager.getConfiguration(parent);
+                getAllBundles(configuration.getConfigurationData(), configurationManager, artifacts, bundles);
+            } else {
+                String location = getBundleLocation(configurationResolver, parent);
+                Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
+                if (bundle != null) {
+                    bundles.add(bundle);
+                }
+            }
+        }
+    }
+    
     private static String getBundleLocation(ConfigurationResolver configurationResolver, Artifact configurationId) {
         if (System.getProperty("geronimo.build.car") == null) {
             return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
