@@ -22,6 +22,9 @@ import org.eclipse.osgi.baseadaptor.HookRegistry;
 
 public class GeronimoHookConfigurator implements HookConfigurator {
 
+    /**
+     * Called by Equinox framework.
+     */
     public void addHooks(HookRegistry registry) {
         ClassLoaderHook classLoaderHook = new ClassLoaderHook();
         registry.addClassLoadingHook(classLoaderHook);

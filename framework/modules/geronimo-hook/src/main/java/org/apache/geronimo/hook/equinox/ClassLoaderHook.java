@@ -33,6 +33,7 @@ import org.eclipse.osgi.baseadaptor.loader.ClasspathEntry;
 import org.eclipse.osgi.baseadaptor.loader.ClasspathManager;
 import org.eclipse.osgi.framework.adaptor.BundleProtectionDomain;
 import org.eclipse.osgi.framework.adaptor.ClassLoaderDelegate;
+import org.eclipse.osgi.framework.internal.core.AbstractBundle;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
@@ -41,6 +42,15 @@ import org.osgi.framework.BundleException;
 
 public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
 
+    private static final String USE_URL_CLASSLOADER = "org.apache.geronimo.equinox.useURLClassLoader";
+    
+    private static final boolean useURLClassLoader = initUseURLClassLoader();
+    
+    private static boolean initUseURLClassLoader() {
+        String property = System.getProperty(USE_URL_CLASSLOADER, "false");
+        return Boolean.parseBoolean(property);        
+    }
+    
     private final Map<Long, String> dynamicPackages = 
         Collections.synchronizedMap(new HashMap<Long, String>());
     
@@ -68,7 +78,8 @@ public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
                                              BaseData data,
                                              String[] classpath) {
         BundleLoader loader = (BundleLoader) delegate;
-        String packages = dynamicPackages.get(loader.getBundle().getBundleId());
+        AbstractBundle bundle = loader.getBundle();
+        String packages = dynamicPackages.get(bundle.getBundleId());
         if (packages != null) {
             try {
                 loader.addDynamicImportPackage(ManifestElement.parseHeader(Constants.DYNAMICIMPORT_PACKAGE, packages));
@@ -77,18 +88,24 @@ public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
             }
         }
         
-        if (domain == null) {
+        ProtectionDomain protectionDomain = domain;
+        if (protectionDomain == null) {
             /**
              * By default Equinox creates a ProtectionDomain for each bundle with AllPermission permission.
              * That breaks Geronimo security checks. See GERONIMO-5480 for details.
              * This work-around prevents Equinox from adding AllPermission permission to each bundle.
              */
             PermissionCollection emptyPermissionCollection = (new AllPermission()).newPermissionCollection();
-            ProtectionDomain emptyProtectionDomain = new ProtectionDomain(null, emptyPermissionCollection);
-            return new DefaultClassLoader(parent, delegate, emptyProtectionDomain, data, classpath);
+            protectionDomain = new ProtectionDomain(null, emptyPermissionCollection);
         }
 
-        return null;
+        BaseClassLoader classLoader;
+        if (useURLClassLoader) {
+            classLoader = new GeronimoClassLoader(this, parent, delegate, protectionDomain, data, classpath, bundle);
+        } else {
+            classLoader = new DefaultClassLoader(parent, delegate, protectionDomain, data, classpath);
+        }
+        return classLoader;
     }
 
     public String findLibrary(BaseData arg0, String arg1) {

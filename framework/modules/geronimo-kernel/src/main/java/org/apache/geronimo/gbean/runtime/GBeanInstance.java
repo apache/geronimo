@@ -56,9 +56,11 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.equinox.EquinoxBundleClassLoader;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
+import org.apache.geronimo.kernel.osgi.FrameworkUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.xbean.recipe.ConstructionException;
 import org.apache.xbean.recipe.ObjectRecipe;
@@ -238,7 +240,6 @@ public final class GBeanInstance implements StateManageable {
         this.lifecycleBroadcaster = lifecycleBroadcaster;
         this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
         this.bundleContext = bundleContext;
-        this.classLoader = new BundleClassLoader(bundleContext.getBundle());
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         try {
@@ -248,6 +249,12 @@ public final class GBeanInstance implements StateManageable {
                     " className=" + gbeanInfo.getClassName(), e);
         }
 
+        if (FrameworkUtils.useURLClassLoader() && FrameworkUtils.isEquinox()) {
+            this.classLoader = new EquinoxBundleClassLoader(bundleContext.getBundle());
+        } else {
+            this.classLoader = new BundleClassLoader(bundleContext.getBundle());
+        }
+        
         name = gbeanInfo.getName();
 
         // interfaces
