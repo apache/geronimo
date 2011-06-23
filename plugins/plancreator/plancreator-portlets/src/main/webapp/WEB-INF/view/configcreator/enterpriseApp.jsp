@@ -24,8 +24,8 @@
 <portlet:defineObjects />
 
 <style type="text/css">
-  @import "/dojo/dijit/themes/tundra/tundra.css";
-  @import "/dojo/dojo/resources/dojo.css";
+  @import "/console/dojo/dijit/themes/claro/claro.css";
+  @import "/console/dojo/dojo/resources/dojo.css";
   @import "<%=request.getContextPath()%>/enterpriseApp.css";  
 </style>
 
@@ -34,7 +34,8 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 <script type="text/javascript">
   dojo.require("dojo.parser");
   dojo.require("dijit.layout.TabContainer");
@@ -63,7 +64,7 @@
 
 <script type='text/javascript' src='<%=request.getContextPath()%>/js/enterpriseApp.js'></script>
 
-<body class="tundra">
+<body class="claro">
 <table width="750px">
     <tr>
         <td align="left" width="100px"><button dojoType="dijit.form.Button" onClick="doPrevious()">&lt; <fmt:message key="plancreator.common.previous"/></button></td>

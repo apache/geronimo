@@ -36,8 +36,8 @@
 <!--     DOJO Stuff     -->
 <!------------------------>
 <style type="text/css">
-    @import "/dojo/dojo/resources/dojo.css";
-    @import "/dojo/dijit/themes/soria/soria.css";
+    @import "/console/dojo/dojo/resources/dojo.css";
+    @import "/console/dojo/dijit/themes/claro/claro.css";
     
     table thead th { 
         background: #2581C7; 
@@ -45,11 +45,12 @@
         font-weight: bold;
     }
 </style>
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 
 <script type="text/javascript">
     // style class
-    document.body.className="soria";
+    document.body.className="claro";
     
     // dojo libs import
     dojo.require("dojo.data.ItemFileWriteStore"); 

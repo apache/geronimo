@@ -25,13 +25,14 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 <style type="text/css">
-    @import "/dojo/dojo/resources/dojo.css";
-    @import "/dojo/dijit/themes/soria/soria.css";
+    @import "/console/dojo/dojo/resources/dojo.css";
+    @import "/console/dojo/dijit/themes/claro/claro.css";
 </style>
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad:true"></script>
+<script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad:true"></script>
+<script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 <script type="text/javascript">
     //style class
-    document.body.className="soria";
+    document.body.className="claro";
 
     //import dojo lib
     dojo.require("dojo.data.ItemFileWriteStore");
@@ -211,7 +212,7 @@
     <input type="checkbox" id="inSelected" onChange="javascript:searchReset()" />
 </div>
 <br />
-<div dojoType="dijit.Tree" jsId="debugTree" class="soria" showRoot="false"
+<div dojoType="dijit.Tree" jsId="debugTree" class="claro" showRoot="false"
       model="debugModel" openOnClick="true"  style="width: 100%;overflow: auto;overflow-y: hidden;">
 </div>
 

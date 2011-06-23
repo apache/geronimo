@@ -80,13 +80,6 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-jetty</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-
         <!-- for jspc. why is this needed? -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

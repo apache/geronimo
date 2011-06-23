@@ -24,5 +24,5 @@ package org.apache.geronimo.monitoring.console;
  * @version $Rev$ $Date$
  */
 public interface Constants {
-    static String DOJO_JS = "/dojo/dojo/dojo.js";
+    static String DOJO_JS = "/console/dojo/dojo/dojo.js";
 }

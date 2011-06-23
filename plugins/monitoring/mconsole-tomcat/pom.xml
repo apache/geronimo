@@ -74,13 +74,7 @@
             <version>${pom.version}</version>
             <type>car</type>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-tomcat</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>

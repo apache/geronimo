@@ -26,9 +26,9 @@ limitations under the License.
 <body id="admin-console" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
 
 
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true">
-
-</script>
+<script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
+<script type="text/javascript" src="/console/dojo/dojox/dojox.js" ></script>
 
 
 <script>

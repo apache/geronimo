@@ -30,7 +30,7 @@ limitations under the License.
 <html lang="en">
 <head>
     <title><fmt:message key="console.head.title"/></title>
-    <link rel="stylesheet" href="/dojo/dijit/themes/tundra/tundra.css" type="text/css"/>
+    <link rel="stylesheet" href="/console/dojo/dijit/themes/claro/claro.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/CommonMsg.css" type="text/css"/>

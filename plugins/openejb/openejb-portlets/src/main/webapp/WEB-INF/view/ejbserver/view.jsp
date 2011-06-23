@@ -29,8 +29,8 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 <style type="text/css">
 
-@import "/dojo/dojo/resources/dojo.css";
-@import "/dojo/dijit/themes/soria/soria.css";
+@import "/console/dojo/dojo/resources/dojo.css";
+@import "/console/dojo/dijit/themes/claro/claro.css";
 
 table thead td, table thead th { 
     background: #2581C7; /* #94BEFF */
@@ -38,7 +38,8 @@ table thead td, table thead th {
 }
 
 </style>
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
     
 <script>    
 
@@ -151,7 +152,7 @@ table thead td, table thead th {
        addCommonMessage("<portlet:namespace/>", msg);
    }
      
-   document.body.className="soria";
+   document.body.className="claro";
    
   </script>
 
@@ -166,7 +167,7 @@ table thead td, table thead th {
    <!-- Horizontal split container -->
     <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
        <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">       
-         <div class="soria" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
+         <div class="claro" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
 	         <script type="dojo/method" event="onClick" args="item">
 			 if(item.id!="Ejb Containers") {             	        
 		        var ids = serverStore.getValues(item, "values");
@@ -183,7 +184,7 @@ table thead td, table thead th {
 	      </div>
       </div> 
 	
-      <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="soria" >
+      <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="claro" >
          <table id="ejbsTable",
             cellpadding="0" 
             cellspacing="2" 

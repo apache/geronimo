@@ -163,6 +163,9 @@ a:hover
 .tundra .dijitTreeNodeSelected {
     font-size: 1.2em;
 }
+.claro .dijitTreeLabel {
+    font-size: 1.5em !important;
+}
 
 .modeSwitcher {
     margin-bottom: 2px;
