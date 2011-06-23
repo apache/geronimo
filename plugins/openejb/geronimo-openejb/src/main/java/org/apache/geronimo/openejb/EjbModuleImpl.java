@@ -192,6 +192,9 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
     public void doStop() {
         try {
             openEjbSystem.removeApplication(appInfo, classLoader);
+            for (EjbDeployment ejb : ejbs.values()) {
+                removeEjb(ejb);
+            }
         } catch (NoSuchApplicationException e) {
             log.error("Module does not exist.", e);
         } catch (UndeployException e) {
