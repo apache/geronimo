@@ -39,8 +39,26 @@
         <module>axis-deployer</module>
         <module>geronimo-axis</module>
         <module>geronimo-axis-builder</module>
-        <module>axis-jetty-server</module>
     </modules>
+    
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>axis-jetty-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>axis</module>
+                <module>axis-deployer</module>
+                <module>geronimo-axis</module>
+                <module>geronimo-axis-builder</module>
+                <module>axis-jetty-server</module>
+           </modules>
+        </profile>
+    </profiles> 
 
     <dependencyManagement>
         <dependencies>
