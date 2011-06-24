@@ -179,6 +179,9 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         WebXml webXml = null;
         try {
             webXml = new WebXml(ctxt);
+            if (webXml.getInputSource() == null) {
+                return;
+            }
             
             // Parse the web application deployment descriptor
             TreeNode webtld = null;
