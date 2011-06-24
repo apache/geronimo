@@ -122,6 +122,8 @@
         <planOpenEJBPort>4201</planOpenEJBPort>
         <planOpenEJBMulticastPort>6142</planOpenEJBMulticastPort>
         <planOpenEJBMulticastHostname>239.255.3.2</planOpenEJBMulticastHostname>
+        <PlanOpenEJBMultipointPort>4212</PlanOpenEJBMultipointPort>
+        <PlanOpenEJBMultipointHostname>localhost</PlanOpenEJBMultipointHostname>
         <planNamingPort>1099</planNamingPort>
         <planActiveMQPort>61616</planActiveMQPort>
         <planCOSNamingHost>localhost</planCOSNamingHost>
@@ -2685,4 +2687,5 @@ only found in cxf
     </profiles>
 
 </project>
+
 

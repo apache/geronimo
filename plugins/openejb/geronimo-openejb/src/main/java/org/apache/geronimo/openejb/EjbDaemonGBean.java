@@ -59,7 +59,11 @@ public class EjbDaemonGBean implements GBeanLifecycle {
                           @ParamAttribute(name = "clusterName") String clusterName,
                           @ParamAttribute(name = "multicastHost") String multicastHost,
                           @ParamAttribute(name = "multicastPort") int multicastPort,
-                          @ParamAttribute(name = "enableMulticast") boolean enableMulticast,
+                          @ParamAttribute(name = "multicastEnabled") boolean multicastEnabled,
+                          @ParamAttribute(name = "multipointEnabled") boolean multipointEnabled,
+                          @ParamAttribute(name = "multipointHost") String multipointHost,
+                          @ParamAttribute(name = "multipointPort") int multipointPort,
+                          @ParamAttribute(name = "multipointServers") String multipointServers,
 
                           @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                           @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName name,
@@ -100,8 +104,14 @@ public class EjbDaemonGBean implements GBeanLifecycle {
 
         properties.setProperty("multicast.bind", multicastHost);
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
-        properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
+        properties.setProperty("multicast.disabled", Boolean.toString(!multicastEnabled));
         properties.setProperty("multicast.group", clusterName);
+        
+        properties.setProperty("multipoint.bind", multipointHost);
+        properties.setProperty("multipoint.port", Integer.toString(multipointPort));
+        properties.setProperty("multipoint.initialServers", multipointServers);
+        properties.setProperty("multipoint.disabled", Boolean.toString(!multipointEnabled));
+        properties.setProperty("multipoint.group", clusterName);
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);

@@ -89,9 +89,13 @@
         <attribute name="host">${planServerHostname}</attribute>
         <attribute name="threads">20</attribute>
         <attribute name="multicastPort">${planOpenEJBMulticastPort}</attribute>
-        <attribute name="multicastHost">${planOpenEJBMulticastHostname}</attribute>
-        <attribute name="clusterName">cluster1</attribute>
-        <attribute name="enableMulticast">true</attribute>
+        <attribute name="multicastHost">${planOpenEJBMulticastHostname}</attribute>        
+        <attribute name="multipointPort">${PlanOpenEJBMultipointPort}</attribute>
+        <attribute name="multipointHost">${PlanOpenEJBMultipointHostname}</attribute>
+        <attribute name="multipointServers"></attribute>
+        <attribute name="multipointEnabled">false</attribute>
+        <attribute name="clusterName">cluster1</attribute>        
+        <attribute name="multicastEnabled">false</attribute>
         <dependency>
             <name>OpenEjbSystem</name>
         </dependency>
