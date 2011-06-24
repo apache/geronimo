@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -192,9 +193,14 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
     public void doStop() {
         try {
             openEjbSystem.removeApplication(appInfo, classLoader);
-            for (EjbDeployment ejb : ejbs.values()) {
-                removeEjb(ejb);
+            
+            Iterator<EjbDeployment> it= ejbs.values().iterator();
+            while(it.hasNext())
+            {
+                GeronimoThreadContextListener.get().removeEjb(it.next().getDeploymentId());  
+                it.remove();
             }
+
         } catch (NoSuchApplicationException e) {
             log.error("Module does not exist.", e);
         } catch (UndeployException e) {
