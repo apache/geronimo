@@ -60,13 +60,46 @@ import org.xml.sax.SAXException;
 
 /**
  * Validation Module Builder extension to support customization of ValidatorFactory using validation.xml descriptors.
- * 
+ *
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class BValModuleBuilderExtension implements ModuleBuilderExtension {
     private static final Logger log = LoggerFactory.getLogger(BValModuleBuilderExtension.class);
-    
+
+    private static final Schema VALIDATION_CONFIGURATION_SCHMEA;
+
+    private static final Schema VALIDATION_MAPPING_SCHMEA;
+
+    private static final JAXBContext VALIDATION_CONFIGURATION_JAXBCONTEXT;
+
+    private static final JAXBContext CONSTRAINTMAPPINGSTYPE_JAXBCONTEXT;
+
+    static {
+        try {
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
+            VALIDATION_CONFIGURATION_SCHMEA = sf.newSchema(schemaUrl);
+            URL mappingSchemaUrl = ValidationMappingParser.class.getClassLoader().getResource("META-INF/validation-mapping-1.0.xsd");
+            VALIDATION_MAPPING_SCHMEA = sf.newSchema(mappingSchemaUrl);
+        } catch (SAXException e) {
+            log.error("Unable to initialize validation schema", e);
+            throw new RuntimeException("Unable to initialize validation schema", e);
+        }
+        try {
+            VALIDATION_CONFIGURATION_JAXBCONTEXT = JAXBContext.newInstance(ValidationConfigType.class);
+        } catch (JAXBException e) {
+            log.error("Unable to initialize validation configuration JAXBContext", e);
+            throw new RuntimeException("Unable to initialize validation configuration JAXBContext", e);
+        }
+        try {
+            CONSTRAINTMAPPINGSTYPE_JAXBCONTEXT = JAXBContext.newInstance(ConstraintMappingsType.class);
+        } catch (JAXBException e) {
+            log.error("Unable to initialize constraint mapping JAXBContext", e);
+            throw new RuntimeException("Unable to initialize constraint mapping JAXBContext", e);
+        }
+    }
+
     // our default environment
     protected Environment defaultEnvironment;
 
@@ -92,16 +125,16 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
         if (module.getDeployable() instanceof DeployableBundle) {
             return;
         }
-        
+
         String moduleName = null;
-        String validationConfig = null; 
-        // the location of the validation config varies depending 
+        String validationConfig = null;
+        // the location of the validation config varies depending
         // on the module type
         if (module.getType() == ConfigurationModuleType.WAR) {
-            validationConfig = "WEB-INF/validation.xml"; 
+            validationConfig = "WEB-INF/validation.xml";
         } else if (module.getType() == ConfigurationModuleType.EAR|| module.getType() == ConfigurationModuleType.EJB
                    || module.getType() == ConfigurationModuleType.CAR || module.getType() == ConfigurationModuleType.RAR) {
-            validationConfig = "META-INF/validation.xml"; 
+            validationConfig = "META-INF/validation.xml";
         }
 
         if(validationConfig != null) {
@@ -116,39 +149,33 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                 // No validation.xml file
                 validationConfig = null;
             } else {
-                // Parse the validation xml and log debug messages if there are any errors
-                URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
-                SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 InputStream inp = null;
                 try {
-                    Schema schema = sf.newSchema(schemaUrl);
-                    JAXBContext jc = JAXBContext.newInstance(ValidationConfigType.class);
-                    Unmarshaller unmarshaller = jc.createUnmarshaller();
-                    unmarshaller.setSchema(schema);
+                    Unmarshaller unmarshaller = VALIDATION_CONFIGURATION_JAXBCONTEXT.createUnmarshaller();
+                    unmarshaller.setSchema(VALIDATION_CONFIGURATION_SCHMEA);
                     inp = validationConfigEntry.openStream();
                     StreamSource stream = new StreamSource(inp);
                     JAXBElement<ValidationConfigType> root = unmarshaller.unmarshal(stream, ValidationConfigType.class);
                     ValidationConfigType xmlConfig = root.getValue();
                     if(xmlConfig.getConstraintMapping().size() > 0) {
-                        URL mappingSchemaUrl = ValidationMappingParser.class.getClassLoader().getResource("META-INF/validation-mapping-1.0.xsd");
-                        Schema mappingSchema = sf.newSchema(mappingSchemaUrl);
                         for (JAXBElement<String> mappingFileNameElement : xmlConfig.getConstraintMapping()) {
                             String mappingFileName = mappingFileNameElement.getValue();
                             if(bundle.getEntry(mappingFileName) == null) {
-                                log.debug("Non-existent constraint mapping file "+mappingFileName+" specified in "+validationConfig+" in module "+module.getName());
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Non-existent constraint mapping file " + mappingFileName + " specified in " + validationConfig + " in module " + module.getName());
+                                }
                             } else {
                                 // Parse the constraint mappings file and log debug messages if there are any errors
                                 InputStream inp1 = null;
-                                try { 
-                                    jc = JAXBContext.newInstance(ConstraintMappingsType.class);
+                                try {
                                     if(module.isStandAlone()) {
                                         inp1 = bundle.getEntry(mappingFileName).openStream();
                                     } else {
                                         inp1 = module.getDeployable().getResource(mappingFileName).openStream();
                                     }
                                     stream = new StreamSource(inp1);
-                                    unmarshaller = jc.createUnmarshaller();
-                                    unmarshaller.setSchema(mappingSchema);
+                                    unmarshaller = CONSTRAINTMAPPINGSTYPE_JAXBCONTEXT.createUnmarshaller();
+                                    unmarshaller.setSchema(VALIDATION_MAPPING_SCHMEA);
                                     JAXBElement<ConstraintMappingsType> mappingRoot = unmarshaller.unmarshal(stream, ConstraintMappingsType.class);
                                     ConstraintMappingsType constraintMappings = mappingRoot.getValue();
                                 } catch (JAXBException e) {
@@ -161,12 +188,10 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                             }
                         }
                     }
-                } catch (SAXException e) {
-                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
                 } catch (JAXBException e) {
-                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
+                    log.debug("Error processing validation configuration " + validationConfig + " in module " + module.getName(), e);
                 } catch (IOException e) {
-                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
+                    log.debug("Error processing validation configuration " + validationConfig + " in module " + module.getName(), e);
                 } finally {
                     IOUtils.close(inp);
                 }
