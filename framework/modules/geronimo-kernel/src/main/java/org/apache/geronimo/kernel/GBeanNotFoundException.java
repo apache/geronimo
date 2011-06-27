@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.kernel;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
@@ -46,8 +47,8 @@ public class GBeanNotFoundException extends KernelException {
     }
 
     public GBeanNotFoundException(String message, Set patterns, Set<AbstractName> matches) {
-        super(message + ": " + patterns);
-        this.matches = matches;
+        super(message + ": " + patterns + (matches == null? " (no matches)": " matches: " + matches));
+        this.matches = matches == null? null: new HashSet<AbstractName>(matches);
     }
 
     public GBeanNotFoundException(String message, Throwable cause) {
