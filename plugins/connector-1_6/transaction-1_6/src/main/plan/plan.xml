@@ -132,4 +132,13 @@
         <attribute name="abstractNameQuery">?#org.apache.geronimo.naming.ResourceSource</attribute>
     </gbean>
 
+    <gbean name="DataSourceGBeanObjectFactory" class="org.apache.geronimo.datasource.DataSourceGBeanObjectFactory">
+        <reference name="ConnectionTracker">
+            <name>ConnectionTracker</name>
+        </reference>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
 </module>

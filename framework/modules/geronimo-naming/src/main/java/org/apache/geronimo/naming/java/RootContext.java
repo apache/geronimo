@@ -63,7 +63,7 @@ public class RootContext extends ImmutableContext {
                 return compCtx.lookup(name);
             } catch (NamingException e1) {
 
-                if (openejbRemoteContextURI.get() != null && (name.startsWith("global/") || name.startsWith("app/"))) {
+                if (openejbRemoteContextURI.get() != null && (name.startsWith("global/"))) {
 
                     Properties p = new Properties();
                     p.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");

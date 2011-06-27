@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gjndi.FederatedContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.xbean.naming.context.ImmutableContext;
 import org.osgi.framework.Bundle;
 
 /**
@@ -44,6 +45,7 @@ public class ApplicationJndi implements GBeanLifecycle {
 
     private final Context applicationContext;
     private final Context globalAdditions;
+    private final Map<String, Object> liveGlobalMap;
     private final FederatedContext globalContext;
 
     public ApplicationJndi(@ParamAttribute(name = "globalContextSegment") Map<String, Object> globalContextSegment,
@@ -53,7 +55,8 @@ public class ApplicationJndi implements GBeanLifecycle {
                            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle
                            ) throws NamingException {
-        this.globalAdditions = EnterpriseNamingContext.livenReferences(globalContextSegment, null, kernel, classLoader, bundle, JndiScope.global.name() + "/");
+        this.liveGlobalMap = EnterpriseNamingContext.livenReferencesToMap(globalContextSegment, null, kernel, classLoader, bundle, JndiScope.global.name() + "/");
+        this.globalAdditions = new ImmutableContext(this.liveGlobalMap, false);
         this.globalContext = globalContext;
         this.globalContext.federateContext(this.globalAdditions);
         this.applicationContext = EnterpriseNamingContext.livenReferences(applicationContext, null, kernel, classLoader, bundle, JndiScope.app.name() + "/");
@@ -65,6 +68,10 @@ public class ApplicationJndi implements GBeanLifecycle {
 
     public FederatedContext getGlobalContext() {
         return globalContext;
+    }
+
+    public Map<String, Object> getGlobalMap() {
+        return liveGlobalMap;
     }
 
     @Override

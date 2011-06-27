@@ -76,4 +76,13 @@
         </reference>
     </gbean>
 
+    <gbean name="DataSourceGBeanObjectFactory" class="org.apache.geronimo.datasource.DataSourceGBeanObjectFactory">
+        <reference name="ConnectionTracker">
+            <name>ConnectionTracker</name>
+        </reference>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
 </module>

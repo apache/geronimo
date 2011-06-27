@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.datasource.deployment;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,19 +30,14 @@ import javax.annotation.sql.DataSourceDefinitions;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.deployment.ConnectorModuleBuilder;
 import org.apache.geronimo.datasource.DataSourceDescription;
-import org.apache.geronimo.datasource.DataSourceGBean;
+import org.apache.geronimo.datasource.DataSourceService;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.openejb.jee.DataSource;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.IsolationLevel;
@@ -50,19 +46,12 @@ import org.apache.openejb.jee.Property;
 import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class DataSourceBuilder extends AbstractNamingBuilder {
-
-    private static final Logger log = LoggerFactory.getLogger(DataSourceBuilder.class);
 
     private final int defaultMaxSize;
     private final int defaultMinSize;
@@ -71,7 +60,6 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
     
-    private final PackageAdmin packageAdmin;
     private final QNameSet dataSourceQNameSet;
 
     public DataSourceBuilder(@ParamAttribute(name = "eeNamespaces") String[] eeNamespaces,
@@ -80,8 +68,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                              @ParamAttribute(name = "defaultBlockingTimeoutMilliseconds") int defaultBlockingTimeoutMilliseconds,
                              @ParamAttribute(name = "defaultIdleTimeoutMinutes") int defaultIdleTimeoutMinutes,
                              @ParamAttribute(name = "defaultXATransactionCaching") boolean defaultXATransactionCaching,
-                             @ParamAttribute(name = "defaultXAThreadCaching") boolean defaultXAThreadCaching,
-                             @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) {
+                             @ParamAttribute(name = "defaultXAThreadCaching") boolean defaultXAThreadCaching) {
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
         this.defaultBlockingTimeoutMilliseconds = defaultBlockingTimeoutMilliseconds;
@@ -89,14 +76,11 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         
-        ServiceReference sr = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        this.packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(sr);
-        
         this.dataSourceQNameSet = buildQNameSet(eeNamespaces, "data-source");
     }
     
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-                        
+
         // step 1: process annotations and update deployment descriptor
         if ((module != null) && (module.getClassFinder() != null)) {
 
@@ -104,7 +88,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinitions.class);
             if (classes != null) {
                 for (Class<?> clazz : classes) {
-                    DataSourceDefinitions dsDefinitions = (DataSourceDefinitions) clazz.getAnnotation(DataSourceDefinitions.class);
+                    DataSourceDefinitions dsDefinitions = clazz.getAnnotation(DataSourceDefinitions.class);
                     for (DataSourceDefinition dsDefinition : dsDefinitions.value()) {
                         processDefinition(dsDefinition, specDD);
                     }
@@ -114,7 +98,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinition.class);
             if (classes != null) {
                 for (Class<?> clazz : classes) {
-                    DataSourceDefinition dsDefinition = (DataSourceDefinition) clazz.getAnnotation(DataSourceDefinition.class);
+                    DataSourceDefinition dsDefinition = clazz.getAnnotation(DataSourceDefinition.class);
                     processDefinition(dsDefinition, specDD);
                 }
             }
@@ -124,17 +108,13 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         Collection<DataSource> dataSources = specDD.getDataSource();
         if (dataSources != null) {
             for (DataSource dataSource: dataSources) {
-                try {
-                    addDataSourceGBean(module, sharedContext, dataSource);
-                } catch (GBeanAlreadyExistsException e) {
-                    throw new DeploymentException("Error creating DataSource gbean", e);
-                }
+                addDataSourceGBean(module, sharedContext, dataSource);
             }
         }        
     }
 
     private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds)
-        throws GBeanAlreadyExistsException {
+        throws DeploymentException {
                         
         String jndiName = ds.getKey();
         
@@ -151,23 +131,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                        
         AbstractName dataSourceAbstractName = earContext.getNaming().createChildName(module.getModuleName(), name, "GBean");
 
-        GBeanData dataSourceGBean = new GBeanData(dataSourceAbstractName, DataSourceGBean.class);
-        
         DataSourceDescription dsDescription = createDataSourceDescription(ds);
-        dataSourceGBean.setAttribute("dataSourceDescription", dsDescription);
-        
-        dataSourceGBean.setAttribute("defaultMaxSize", defaultMaxSize);
-        dataSourceGBean.setAttribute("defaultMinSize", defaultMinSize);
-        dataSourceGBean.setAttribute("defaultBlockingTimeoutMilliseconds", defaultBlockingTimeoutMilliseconds);
-        dataSourceGBean.setAttribute("defaultIdleTimeoutMinutes", defaultIdleTimeoutMinutes);
-        
-        dataSourceGBean.setAttribute("defaultXATransactionCaching", defaultXATransactionCaching);
-        dataSourceGBean.setAttribute("defaultXAThreadCaching", defaultXAThreadCaching);
-        
-        dataSourceGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
-        dataSourceGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
-
-        dataSourceGBean.setServiceInterfaces(new String[] { javax.sql.DataSource.class.getName() });
         String osgiJndiName = null;
         if (dsDescription.getProperties() != null) {
             osgiJndiName = dsDescription.getProperties().get(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME);
@@ -175,12 +139,14 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         if (osgiJndiName == null) {
             osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(dataSourceAbstractName);
         }
-        dataSourceGBean.getServiceProperties().put(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME, osgiJndiName);
-        
-        earContext.addGBean(dataSourceGBean);
-                
-        Object ref = new JndiReference("aries:services/" + osgiJndiName);
-        put(jndiName, ref, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        dsDescription.setOsgiServiceName(osgiJndiName);
+
+        try {
+            Object ref = DataSourceService.buildReference(dsDescription);
+            put(jndiName, ref, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        } catch (IOException e) {
+            throw new DeploymentException("Could not construct Reference for datasource " + dsDescription, e);
+        }
     }
     
     private DataSource processDefinition(DataSourceDefinition dsDefinition, JndiConsumer annotatedApp) {
@@ -367,22 +333,21 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             dsDescription.setInitialPoolSize(ds.getInitialPoolSize());
         }
         
-        if (ds.getMaxPoolSize() != null) {
-            dsDescription.setMaxPoolSize(ds.getMaxPoolSize());
-        }
-        
-        if (ds.getMinPoolSize() != null) {
-            dsDescription.setMinPoolSize(ds.getMinPoolSize());
-        }
-        
+            dsDescription.setMaxPoolSize(ds.getMaxPoolSize() != null? ds.getMaxPoolSize(): defaultMaxSize);
+
+            dsDescription.setMinPoolSize(ds.getMinPoolSize() != null? ds.getMinPoolSize(): defaultMinSize);
+
         if (ds.getMaxStatements() != null) {
             dsDescription.setMaxStatements(ds.getMaxStatements());
         }
         
-        if (ds.getMaxIdleTime() != null) {
-            dsDescription.setMaxIdleTime(ds.getMaxIdleTime());
-        }
-        
+            dsDescription.setMaxIdleTime(ds.getMaxIdleTime() != null? ds.getMaxIdleTime(): defaultIdleTimeoutMinutes);
+
+        //geronimo specific properties
+        dsDescription.setBlockingTimeoutMilliseconds(defaultBlockingTimeoutMilliseconds);
+        dsDescription.setXaThreadCaching(defaultXAThreadCaching);
+        dsDescription.setXaTransactionCaching(defaultXATransactionCaching);
+
         return dsDescription;
     }
         

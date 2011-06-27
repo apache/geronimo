@@ -17,10 +17,17 @@
 
 package org.apache.geronimo.datasource;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.BinaryRefAddr;
+import javax.naming.RefAddr;
+import javax.naming.Reference;
+import javax.resource.Referenceable;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
@@ -36,20 +43,11 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.OsgiService;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
@@ -64,33 +62,22 @@ import org.tranql.connector.jdbc.AbstractXADataSourceMCF;
 /**
  * @version $Revision$
  */
-@GBean
-@OsgiService
-public class DataSourceGBean implements ResourceSource<ResourceException>, ServiceFactory {
+public class DataSourceService implements ResourceSource<ResourceException>, ServiceFactory {
     
-    private static final Logger log = LoggerFactory.getLogger(DataSourceGBean.class);
+    private static final Logger log = LoggerFactory.getLogger(DataSourceService.class);
         
     private final DataSourceDescription dataSourceDescription;
-    private final transient ClassLoader classLoader;
-    private final transient GenericConnectionManager connectionManager;
+    private final GenericConnectionManager connectionManager;
+    private Reference reference;
 
-    public DataSourceGBean(@ParamAttribute(name="dataSourceDescription") DataSourceDescription dataSourceDescription,
-                           @ParamAttribute(name="defaultMaxSize") int defaultMaxSize,
-                           @ParamAttribute(name="defaultMinSize") int defaultMinSize,
-                           @ParamAttribute(name="defaultBlockingTimeoutMilliseconds") int defaultBlockingTimeoutMilliseconds,
-                           @ParamAttribute(name="defaultIdleTimeoutMinutes") int defaultIdleTimeoutMinutes,
-                           @ParamAttribute(name="defaultXATransactionCaching") boolean defaultXATransactionCaching,
-                           @ParamAttribute(name="defaultXAThreadCaching") boolean defaultXAThreadCaching,
-                           @ParamReference(name="ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER) ConnectionTracker connectionTracker,
-                           @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE) RecoverableTransactionManager transactionManager,
-                           @ParamSpecial(type=SpecialAttributeType.objectName) String objectName,
-                           @ParamSpecial(type=SpecialAttributeType.abstractName) AbstractName abstractName,
-                           @ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader classLoader,
-                           @ParamSpecial(type=SpecialAttributeType.bundleContext) BundleContext bundleContext)
+    public DataSourceService(DataSourceDescription dataSourceDescription,
+                             ConnectionTracker connectionTracker,
+                             RecoverableTransactionManager transactionManager,
+                             String objectName,
+                             ClassLoader classLoader)
         throws Exception {
         this.dataSourceDescription = dataSourceDescription;        
-        this.classLoader = classLoader;
-        
+
         String dsName = dataSourceDescription.getName();
         String dsClass = dataSourceDescription.getClassName();
         
@@ -103,24 +90,20 @@ public class DataSourceGBean implements ResourceSource<ResourceException>, Servi
         if (instance instanceof XADataSource) {
             mcf = new XADataSourceMCF((XADataSource) instance);
             if (dataSourceDescription.isTransactional()) {
-                transactionSupport = new XATransactions(defaultXATransactionCaching, defaultXAThreadCaching);
+                transactionSupport = new XATransactions(dataSourceDescription.isXaTransactionCaching(), dataSourceDescription.isXaThreadCaching());
             } else {
                 transactionSupport = NoTransactions.INSTANCE;
             }
-            pooling = createPool(defaultMinSize, 
-                                 defaultMaxSize, 
-                                 defaultBlockingTimeoutMilliseconds, 
-                                 defaultIdleTimeoutMinutes);
+            pooling = createPool(
+            );
         } else if (instance instanceof ConnectionPoolDataSource) {
             mcf = new PooledConnectionDataSourceMCF((ConnectionPoolDataSource) instance);
             if (dataSourceDescription.isTransactional()) {
                 log.warn("[{}] Transactional property is true but DataSource does not support transactions", dsName); 
             }
             transactionSupport = NoTransactions.INSTANCE;
-            pooling = createPool(defaultMinSize, 
-                                 defaultMaxSize, 
-                                 defaultBlockingTimeoutMilliseconds, 
-                                 defaultIdleTimeoutMinutes);
+            pooling = createPool(
+            );
         } else if (instance instanceof DataSource) {
             mcf = new LocalDataSourceMCF((DataSource) instance, true);
             if (dataSourceDescription.isTransactional()) {
@@ -137,14 +120,24 @@ public class DataSourceGBean implements ResourceSource<ResourceException>, Servi
         
         this.connectionManager = 
             new GenericConnectionManager(transactionSupport, pooling, null, connectionTracker, transactionManager, mcf, objectName, classLoader);
-                
+        reference = buildReference(dataSourceDescription);
         connectionManager.doRecovery();
     }
-    
+
+    public static Reference buildReference(DataSourceDescription dataSourceDescription) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oas = new ObjectOutputStream(baos);
+        oas.writeObject(dataSourceDescription);
+        oas.flush();
+        byte[] content = baos.toByteArray();
+        RefAddr addr = new BinaryRefAddr(DataSourceDescription.class.getName(), content);
+        return new Reference(DataSourceService.class.getName(), addr, DataSourceGBeanObjectFactory.class.getName(), null);
+    }
+
     @Override
     public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
         try {
-            return connectionManager.createConnectionFactory();
+            return $getResource();
         } catch (ResourceException e) {
             throw new ServiceException("Error creating connection factory", e);
         }
@@ -156,8 +149,9 @@ public class DataSourceGBean implements ResourceSource<ResourceException>, Servi
 
     private Object createDataSource() throws Exception {
         String className = dataSourceDescription.getClassName();
-        Class clazz = classLoader.loadClass(className);
-            
+        //TODO also try our provider registry
+        Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+
         Map<String, Object> properties = new HashMap<String, Object>();
             
         // standard settings
@@ -205,22 +199,23 @@ public class DataSourceGBean implements ResourceSource<ResourceException>, Servi
         }
     }
 
-    private PoolingSupport createPool(int defaultMinSize, 
-                                      int defaultMaxSize, 
-                                      int defaultBlockingTimeoutMilliseconds, 
-                                      int defaultIdleTimeoutMinutes) {
+    private PoolingSupport createPool() {
         return new SinglePool(
-                dataSourceDescription.getMaxPoolSize() != -1 ? dataSourceDescription.getMaxPoolSize() : defaultMaxSize,
-                dataSourceDescription.getMinPoolSize() != -1 ? dataSourceDescription.getMinPoolSize() : defaultMinSize,
-                defaultBlockingTimeoutMilliseconds,
-                dataSourceDescription.getMaxIdleTime() != -1 ? dataSourceDescription.getMaxIdleTime() : defaultIdleTimeoutMinutes,
+                dataSourceDescription.getMaxPoolSize(),
+                dataSourceDescription.getMinPoolSize(),
+                dataSourceDescription.getBlockingTimeoutMilliseconds(),
+                dataSourceDescription.getMaxIdleTime(),
                 false,
                 false,
                 true);
     }
     
     public Object $getResource() throws ResourceException {
-        return connectionManager.createConnectionFactory();
+        Object o = connectionManager.createConnectionFactory();
+        if (o instanceof Referenceable) {
+            ((Referenceable)o).setReference(reference);
+        }
+        return o;
     }
     
     private class PooledConnectionDataSourceMCF extends AbstractPooledConnectionDataSourceMCF {

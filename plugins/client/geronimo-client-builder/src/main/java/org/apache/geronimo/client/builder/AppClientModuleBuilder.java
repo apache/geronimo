@@ -41,6 +41,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.datasource.deployment.DataSourceBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -52,10 +53,11 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
@@ -104,6 +106,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev:385232 $ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(AppClientModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
@@ -123,7 +126,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery credentialStoreName;
-    private final SingleElementCollection connectorModuleBuilder;
+    private final SingleElementCollection<ModuleBuilder> connectorModuleBuilder;
     private final NamespaceDrivenBuilderCollection serviceBuilder;
     private final NamingBuilderCollection namingBuilders;
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
@@ -166,21 +169,21 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 port);
     }
 
-    public AppClientModuleBuilder(AbstractNameQuery transactionManagerObjectName,
-                                  AbstractNameQuery connectionTrackerObjectName,
-                                  AbstractNameQuery corbaGBeanObjectName,
-                                  AbstractNameQuery credentialStoreName,
-                                  AbstractNameQuery globalContextAbstractName,
-                                  Collection<Repository> repositories,
-                                  Collection<ModuleBuilder> connectorModuleBuilder,
-                                  Collection<NamespaceDrivenBuilder> serviceBuilder,
-                                  Collection<NamingBuilder> namingBuilders,
-                                  Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-                                  ArtifactResolver clientArtifactResolver,
-                                  Environment defaultClientEnvironment,
-                                  Environment defaultServerEnvironment,
-                                  String host,
-                                  int port) throws URISyntaxException{
+    public AppClientModuleBuilder(@ParamAttribute(name = "transactionManagerObjectName") AbstractNameQuery transactionManagerObjectName,
+                                  @ParamAttribute(name = "connectionTrackerObjectName") AbstractNameQuery connectionTrackerObjectName,
+                                  @ParamAttribute(name = "corbaGBeanObjectName") AbstractNameQuery corbaGBeanObjectName,
+                                  @ParamAttribute(name = "credentialStoreName") AbstractNameQuery credentialStoreName,
+                                  @ParamAttribute(name = "globalContextAbstractName") AbstractNameQuery globalContextAbstractName,
+                                  @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
+                                  @ParamReference(name = "ConnectorModuleBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> connectorModuleBuilder,
+                                  @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilder,
+                                  @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamingBuilder> namingBuilders,
+                                  @ParamReference(name = "ModuleBuilderExtensions", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                                  @ParamReference(name = "ClientArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver clientArtifactResolver,
+                                  @ParamAttribute(name = "defaultClientEnvironment") Environment defaultClientEnvironment,
+                                  @ParamAttribute(name = "defaultServerEnvironment") Environment defaultServerEnvironment,
+                                  @ParamAttribute(name = "host") String host,
+                                  @ParamAttribute(name = "port") int port) throws URISyntaxException{
         this(defaultClientEnvironment,
                 defaultServerEnvironment,
                 transactionManagerObjectName,
@@ -818,7 +821,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                    appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
                     
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
-
                     if (!appClient.isMetadataComplete()) {
                         appClient.setMetadataComplete(true);
                         module.setOriginalSpecDD(module.getSpecDD().toString());
@@ -1073,52 +1075,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             return false;
         }
         return true;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultClientEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("defaultServerEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("transactionManagerObjectName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("connectionTrackerObjectName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("corbaGBeanObjectName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("credentialStoreName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("globalContextAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addReference("Repositories", Repository.class, "Repository");
-        infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ClientArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
-        infoBuilder.addAttribute("host", String.class, true);
-        infoBuilder.addAttribute("port", int.class, true);
-
-        infoBuilder.addInterface(ModuleBuilder.class);
-
-        infoBuilder.setConstructor(new String[]{"transactionManagerObjectName",
-                "connectionTrackerObjectName",
-                "corbaGBeanObjectName",
-                "credentialStoreName",
-                "globalContextAbstractName",
-                "Repositories",
-                "ConnectorModuleBuilder",
-                "ServiceBuilders",
-                "NamingBuilders",
-                "ModuleBuilderExtensions",
-                "ClientArtifactResolver",
-                "defaultClientEnvironment",
-                "defaultServerEnvironment",
-                "host",
-                "port"
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

@@ -33,6 +33,7 @@
         </reference>
         <reference name="ResourceAdapterWrappers"/>
         <reference name="PersistenceUnitGBeans"/>
+        <reference name="ApplicationJndis"/>
     </gbean>
 
     <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">

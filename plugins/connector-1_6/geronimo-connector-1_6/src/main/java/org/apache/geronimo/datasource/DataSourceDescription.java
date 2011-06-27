@@ -47,7 +47,13 @@ public class DataSourceDescription implements Serializable {
     private int maxPoolSize = -1;
     private int minPoolSize = -1;
     private int maxIdleTime = -1;
-    private int maxStatements = -1; 
+    private int maxStatements = -1;
+
+    //extra geronimo properties
+    private int blockingTimeoutMilliseconds = -1;
+    private boolean xaTransactionCaching = true;
+    private boolean xaThreadCaching = false;
+    private String osgiServiceName;
     
     public String getName() {
         return name;
@@ -192,7 +198,39 @@ public class DataSourceDescription implements Serializable {
     public void setMaxStatements(int maxStatements) {
         this.maxStatements = maxStatements;
     }
-    
+
+    public int getBlockingTimeoutMilliseconds() {
+        return blockingTimeoutMilliseconds;
+    }
+
+    public void setBlockingTimeoutMilliseconds(int blockingTimeoutMilliseconds) {
+        this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
+    }
+
+    public String getOsgiServiceName() {
+        return osgiServiceName;
+    }
+
+    public void setOsgiServiceName(String osgiServiceName) {
+        this.osgiServiceName = osgiServiceName;
+    }
+
+    public boolean isXaThreadCaching() {
+        return xaThreadCaching;
+    }
+
+    public void setXaThreadCaching(boolean xaThreadCaching) {
+        this.xaThreadCaching = xaThreadCaching;
+    }
+
+    public boolean isXaTransactionCaching() {
+        return xaTransactionCaching;
+    }
+
+    public void setXaTransactionCaching(boolean xaTransactionCaching) {
+        this.xaTransactionCaching = xaTransactionCaching;
+    }
+
     public boolean hasStandardProperties() {
         return (databaseName != null
                 || password != null

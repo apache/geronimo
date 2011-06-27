@@ -53,7 +53,7 @@
             </pattern>
             <pattern>
                 <name>DataSourceBuilder</name>
-            </pattern>            
+            </pattern>
             <pattern>
                 <name>ClientResourceRefBuilder</name>
             </pattern>

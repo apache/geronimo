@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import org.apache.geronimo.gjndi.FederatedContext;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.openejb.SystemException;
@@ -79,6 +80,28 @@ public class XBeanJndiFactory implements JndiFactory {
     @Override
     public Context createRootContext() {
         return rootContext;
+    }
+
+    public void addGlobals(Map<String, Object> globals) {
+        for (Map.Entry<String, Object> entry: globals.entrySet()) {
+            String name = "openejb/global/" + entry.getKey();
+            try {
+                rootContext.bind(name, entry.getValue());
+            } catch (NamingException e) {
+                //??
+            }
+        }
+    }
+
+    public void removeGlobals(Map<String, Object> globals) {
+        for (Map.Entry<String, Object> entry: globals.entrySet()) {
+            String name = "openejb/global/" + entry.getKey();
+            try {
+                rootContext.unbind(name);
+            } catch (NamingException e) {
+                //??
+            }
+        }
     }
 }
 

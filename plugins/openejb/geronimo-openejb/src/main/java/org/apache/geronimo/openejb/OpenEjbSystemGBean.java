@@ -43,6 +43,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -102,12 +103,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private Properties properties; 
     
     public OpenEjbSystemGBean(RecoverableTransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
+        this(transactionManager, null, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
     }
 
     public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) RecoverableTransactionManager transactionManager,
                               @ParamReference(name = "ResourceAdapterWrappers", namingType = NameFactory.JCA_RESOURCE_ADAPTER) Collection<ResourceAdapterWrapper> resourceAdapters,
                               @ParamReference(name = "PersistenceUnitGBeans", namingType = NameFactory.PERSISTENCE_UNIT) Collection<PersistenceUnitGBean> persistenceUnitGBeans,
+                              @ParamReference(name = "ApplicationJndis") Collection<ApplicationJndi> applicationJndis,
 //                              @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
                               @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                               @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
@@ -131,7 +133,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 //        System.setProperty("openejb.naming", "xbean");
         boolean offline = true;
         configurationFactory = new ConfigurationFactory(offline);
-        assembler = new Assembler(new XBeanJndiFactory());
+        final XBeanJndiFactory jndiFactory = new XBeanJndiFactory();
+        assembler = new Assembler(jndiFactory);
 
         // install application server
         ApplicationServer applicationServer = new ServerFederation();
@@ -174,6 +177,21 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         // process all resource adapters
         processResourceAdapterWrappers(resourceAdapters);
         processPersistenceUnitGBeans(persistenceUnitGBeans);
+
+        if (applicationJndis instanceof ReferenceCollection) {
+            ((ReferenceCollection)applicationJndis).addReferenceCollectionListener(new ReferenceCollectionListener() {
+                @Override
+                public void memberAdded(ReferenceCollectionEvent referenceCollectionEvent) {
+                     jndiFactory.addGlobals(((ApplicationJndi)referenceCollectionEvent.getMember()).getGlobalMap());
+                }
+
+                @Override
+                public void memberRemoved(ReferenceCollectionEvent referenceCollectionEvent) {
+                    jndiFactory.removeGlobals(((ApplicationJndi) referenceCollectionEvent.getMember()).getGlobalMap());
+                }
+            });
+
+        }
     }
 
     private void setDefaultProperty(String key, String value) {

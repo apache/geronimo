@@ -49,6 +49,12 @@ public final class EnterpriseNamingContext {
 
     public static Context livenReferences(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader, Bundle bundle, String prefix)
             throws NamingException {
+        Map<String, Object> map = livenReferencesToMap(componentContext, userTransaction, kernel, classLoader, bundle, prefix);
+
+        return new ImmutableContext(map, false);
+    }
+
+    public static Map<String, Object> livenReferencesToMap(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader, Bundle bundle, String prefix) throws NamingException {
         Map<String, Object> map = new HashMap<String, Object>();
         boolean containsEnv = false;
         if (componentContext != null) {
@@ -84,8 +90,7 @@ public final class EnterpriseNamingContext {
         if (userTransaction != null) {
             map.put(prefix + "UserTransaction", userTransaction);
         }
-
-        return new ImmutableContext(map, false);
+        return map;
     }
 
 }
