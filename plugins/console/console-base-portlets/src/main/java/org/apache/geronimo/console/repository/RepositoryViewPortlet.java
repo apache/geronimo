@@ -46,6 +46,8 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +55,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * @version $Rev$ $Date$
@@ -175,18 +180,52 @@ public class RepositoryViewPortlet extends BasePortlet {
                     set.put(jarName, group + "/" + artifact + "/" + version + "/" + fileType);
                     instance.addAliases(set);
                 }
-                repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
-                    public void writeStarted(String fileDescription, int fileSize) {
-                        log.info("Copying into repository " + fileDescription + "...");
-                    }
 
-                    public void writeProgress(int bytes) {
-                    }
+                JarFile jar = new JarFile(file);
+                try {
+                    // only handle non OSGi jar
+                    Manifest manifest = jar.getManifest();
+                    if (manifest != null &&
+                        manifest.getMainAttributes().getValue(new Attributes.Name("Bundle-SymbolicName")) != null &&
+                        manifest.getMainAttributes().getValue(new Attributes.Name("Bundle-Version")) != null) {
 
-                    public void writeComplete(int bytes) {
-                        log.info("Finished.");
+                        URL wrap = new URL("wrap", null, file.toURI().toURL().toExternalForm() + "$Bundle-SymbolicName=" + artifact + "&Bundle-Version=" + version.replace("-", "."));
+                        InputStream in = wrap.openStream();
+                        try {
+                            repo.copyToRepository(in, (int)file.getTotalSpace(), new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
+                                public void writeStarted(String fileDescription, int fileSize) {
+                                    log.info("Copying into repository " + fileDescription + "...");
+                                }
+
+                                public void writeProgress(int bytes) {
+                                }
+
+                                public void writeComplete(int bytes) {
+                                    log.info("Finished.");
+                                }
+                            });
+                        } finally {
+                            in.close();
+                        }
+                    } else {
+                        repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
+                            public void writeStarted(String fileDescription, int fileSize) {
+                                log.info("Copying into repository " + fileDescription + "...");
+                            }
+
+                            public void writeProgress(int bytes) {
+                            }
+
+                            public void writeComplete(int bytes) {
+                                log.info("Finished.");
+                            }
+                        });
                     }
-                });
+                } finally {
+                    jar.close();
+                }
+
+
             } catch (FileUploadException e) {
                 throw new PortletException(e);
             } catch (GBeanNotFoundException e) {
