@@ -237,6 +237,10 @@ a.tooltip:hover span.tooltip {
   border-top-style: dotted;
 }
 
+/* navigation Tree */
+#navigationTreeBasic, #navigationTreeAdvanced {
+    font-size:8px !important;
+}
 
 /** Login page styles **/
 

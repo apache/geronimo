@@ -54,7 +54,7 @@ limitations under the License.
 
 %>
 
-<table class="tundra" width="200px" border="0" cellpadding="0" cellspacing="0">
+<table class="claro" width="200px" border="0" cellpadding="0" cellspacing="0">
     <tr>
         <td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message    key="Console Navigation"/></strong></td>
     </tr>
