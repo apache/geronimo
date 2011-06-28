@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -137,11 +138,27 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         try {
 
-            final Collection<String> manifestcp = module.getClassPath();
+            final Collection<String> manifestcpCopy = new LinkedHashSet<String> ();
+            boolean resolveWARcp = false;
             
-            // add "" into manifestcp to make META-INF/persistence.xml in standalone ejb be processed
+            // resolve the classpath for non-standalone war file since module.getClassPath 
+            // returns the classpath relative to the war file
+            if (!module.isStandAlone() && module.getType() == ConfigurationModuleType.WAR) {
+                resolveWARcp = true;
+            } 
+            
+            final Collection<String> manifestcp = module.getClassPath();
+            for (String classpath : manifestcp) {
+                if (resolveWARcp) {
+                    manifestcpCopy.add(module.resolve(classpath).toString());                    
+                } else {
+                    manifestcpCopy.add(classpath);
+                }
+            }
+            
+            // add "" into manifestcpCopy to make META-INF/persistence.xml in standalone ejb be processed
             if (module.isStandAlone() && module.getType() == ConfigurationModuleType.EJB) {
-                manifestcp.add("");
+                manifestcpCopy.add("");
             }
             
             BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml", new ResourceDiscoveryFilter() {
@@ -153,16 +170,16 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String s) {
-                    return manifestcp.contains(s);
+                    return manifestcpCopy.contains(s);
                 }
 
                 @Override
                 public boolean directoryDiscoveryRequired(String s) {
                     
                     boolean found = false;
-                    if (manifestcp.contains(s)){
+                    if (manifestcpCopy.contains(s)){
                         found=true;
-                    } else if(s.endsWith("/") && manifestcp.contains(s.substring(0,s.length()-1))){
+                    } else if(s.endsWith("/") && manifestcpCopy.contains(s.substring(0,s.length()-1))){
                         found=true;
                     }
                     
