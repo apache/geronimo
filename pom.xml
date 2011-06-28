@@ -2308,22 +2308,7 @@ only found in cxf
                 <enabled>false</enabled>
             </releases>
         </pluginRepository>
-    </pluginRepositories>
-    
-    <repositories>
-            <repository>
-                  <id>uddistaging</id>
-                  <name>uddi 3.1.0</name>
-                  <url>https://repository.apache.org/content/repositories/orgapachejuddi-043/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
-    </repositories>    
+    </pluginRepositories>   
 
     <profiles>
         <profile>
