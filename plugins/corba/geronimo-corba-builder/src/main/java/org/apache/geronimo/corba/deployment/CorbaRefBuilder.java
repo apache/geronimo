@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -69,8 +70,8 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
                     Artifact[] moduleId = module.getConfigId();
-                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
-                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), ReferenceType.ORB, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), ReferenceType.HANDLEDELEGATE, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
                 }
             }
         }

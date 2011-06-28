@@ -25,13 +25,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
@@ -49,6 +52,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
+import org.apache.openejb.assembler.classic.EjbLocalReferenceInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
@@ -130,6 +134,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         }
 
         Map<String, Object> map = null;
+        Set<String> ejbLocalRefNames = new HashSet<String>();
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
             Collection<GeronimoEjbInfo> ejbInfos = Collections.emptySet();
@@ -162,6 +167,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, moduleId, module.getModuleURI(), moduleId, getClass().getClassLoader());
 
             map = jndiEncBuilder.buildMap();
+            
+            for (EjbLocalReferenceInfo ejbLocalReferenceInfo : ejbEncInfo.ejbLocalReferences) {
+                ejbLocalRefNames.add(ejbLocalReferenceInfo.referenceName);
+            }
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
         }
@@ -180,10 +189,11 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     name.startsWith("app/") ||
                     name.startsWith("module/") ||
                     name.startsWith("comp/")) {
+                ReferenceType referenceType = ejbLocalRefNames.contains(name) ? ReferenceType.EJB_LOCAL : ReferenceType.EJB;
                 if (uri != null) {
                     //handle ejb ref for application client module
                     value = createClientRef(value);
-                    handleJndiUrlReference(value, moduleJndiContext, injectionsMap, sharedContext);
+                    handleJndiUrlReference(value, referenceType, moduleJndiContext, injectionsMap, sharedContext);
                 }
                 name = "java:" + name;
                 if (value instanceof Serializable) {
@@ -192,7 +202,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                         log.warn("No entry in ejb-jar.xml for name:\n " + name + "\n Known names:\n " + injectionsMap.keySet());
                         injections = Collections.emptyList();
                     }
-                    put(name, value, module.getJndiContext(), injections, sharedContext);
+                    put(name, value, referenceType, module.getJndiContext(), injections, sharedContext);
                 }
             }
         }
@@ -244,8 +254,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
      * so that they could be used in application client.
      * 
      */
-    private void handleJndiUrlReference(Object value, Map<JndiKey, Map<String, Object>> moduleJndiContext,
-            Map<String, List<InjectionTarget>> injectionsMap, Map<EARContext.Key, Object> sharedContext) {
+    private void handleJndiUrlReference(Object value, ReferenceType ReferenceType, Map<JndiKey, Map<String, Object>> moduleJndiContext, Map<String, List<InjectionTarget>> injectionsMap,
+            Map<EARContext.Key, Object> sharedContext) {
 
         if (!(value instanceof JndiUrlReference)) {
             return;
@@ -277,7 +287,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if (injections == null) {
             injections = Collections.emptyList();
         }
-        put(name, valueToConvert, moduleJndiContext, injections, sharedContext);
+        put(name, valueToConvert, ReferenceType, moduleJndiContext, injections, sharedContext);
     }
         
 

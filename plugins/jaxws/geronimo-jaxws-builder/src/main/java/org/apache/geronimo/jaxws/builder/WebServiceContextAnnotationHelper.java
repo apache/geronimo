@@ -26,6 +26,7 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.xbean.finder.ClassFinder;
 
 public class WebServiceContextAnnotationHelper {
@@ -48,7 +49,7 @@ public class WebServiceContextAnnotationHelper {
             Class type = getInjectionType(resource.type(), null, field);
             if (WebServiceContext.class == type) {
                 holder.addInjection(field.getDeclaringClass().getName(),
-                                    new Injection(field.getDeclaringClass().getName(), getInjectionName(null, field), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME));
+                                    new Injection(field.getDeclaringClass().getName(), getInjectionName(null, field), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME, ReferenceType.RESOURCE_ENV));
             }
         }
         List<Method> methods = finder.findAnnotatedMethods(Resource.class);
@@ -57,7 +58,7 @@ public class WebServiceContextAnnotationHelper {
             Class type = getInjectionType(resource.type(), method, null);
             if (WebServiceContext.class == type) {
                 holder.addInjection(method.getDeclaringClass().getName(),
-                                    new Injection(method.getDeclaringClass().getName(), getInjectionName(method, null), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME));
+                                    new Injection(method.getDeclaringClass().getName(), getInjectionName(method, null), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME, ReferenceType.RESOURCE_ENV));
             }
         }
     }

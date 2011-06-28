@@ -28,6 +28,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -92,7 +93,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), ReferenceType.GBEAN, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
 
         }
     }

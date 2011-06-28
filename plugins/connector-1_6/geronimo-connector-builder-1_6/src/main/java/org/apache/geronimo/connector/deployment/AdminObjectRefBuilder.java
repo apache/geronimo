@@ -42,6 +42,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
@@ -131,20 +132,20 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map sharedContext) throws DeploymentException {
-        
+
         AbstractNameQuery transactionManager = module.getEarContext().getTransactionManagerName();
         if (transactionManager != null) {
             Set<AbstractNameQuery> query = new HashSet<AbstractNameQuery>();
             query.add(transactionManager);
             GBeanReference transactionManagerRef = new GBeanReference(module.getConfigId(), query, TransactionManager.class);
-            put("java:comp/TransactionManager", transactionManagerRef, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/TransactionManager", transactionManagerRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
             GBeanReference transactionSynchronizationRef = new GBeanReference(module.getConfigId(), query, TransactionSynchronizationRegistry.class);
-            put("java:comp/TransactionSynchronizationRegistry", transactionSynchronizationRef, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/TransactionSynchronizationRegistry", transactionSynchronizationRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
         }
-        
-        put("java:comp/Bundle", new BundleReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
-        put("java:comp/BundleContext", new BundleContextReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
-        
+
+        put("java:comp/Bundle", new BundleReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
+        put("java:comp/BundleContext", new BundleContextReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
+
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
@@ -192,7 +193,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, module.getJndiContext(), resourceEnvRef.getInjectionTarget(), sharedContext);
+                put(name, value, ReferenceType.RESOURCE_ENV, module.getJndiContext(), resourceEnvRef.getInjectionTarget(), sharedContext);
             }
         }
 
@@ -235,7 +236,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
 
             if (value != null) {
-                put(name, value, module.getJndiContext(), messageDestinationRef.getInjectionTarget(), sharedContext);
+                put(name, value, ReferenceType.RESOURCE_ENV, module.getJndiContext(), messageDestinationRef.getInjectionTarget(), sharedContext);
             }
         }
 
@@ -261,7 +262,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             } else {
                 addr = new StringRefAddr("","");
             }
-            
+
             String objectFactory = getStringValue(gerResourceEnvRef.getObjectFactory());
             String objectFactoryLocation = getStringValue(gerResourceEnvRef.getObjectFactoryLocation());
             return new Reference(clazz, addr, objectFactory, objectFactoryLocation);
@@ -435,20 +436,20 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         public static final AdminObjectRefProcessor INSTANCE = new AdminObjectRefProcessor(null, null, null);
 
         private static final Set<String> knownResourceEnvEntries = new HashSet<String>(Arrays.asList(
-                "javax.ejb.SessionContext", 
-                "javax.ejb.MessageDrivenContext", 
-                "javax.ejb.EntityContext", 
-                "javax.ejb.TimerService", 
-                "javax.validation.Validator", 
+                "javax.ejb.SessionContext",
+                "javax.ejb.MessageDrivenContext",
+                "javax.ejb.EntityContext",
+                "javax.ejb.TimerService",
+                "javax.validation.Validator",
                 "javax.validation.ValidatorFactory",
                 "javax.enterprise.inject.spi.BeanManager",
-                "javax.transaction.UserTransaction", 
-                "javax.transaction.TransactionManager", 
+                "javax.transaction.UserTransaction",
+                "javax.transaction.TransactionManager",
                 "javax.transaction.TransactionSynchronizationRegistry",
                 "org.osgi.framework.Bundle",
                 "org.osgi.framework.BundleContext"
         ));
-        
+
         private final EARContext earContext;
         private final Map<String, GerResourceEnvRefType> refMap;
         private final Map<String, Map<String, GerMessageDestinationType>> messageDestinations;
@@ -462,7 +463,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
-            
+
             String jndiName = getJndiName(resourceName);
 
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
@@ -476,7 +477,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 }
                 return true;
             }
-            
+
             ResourceEnvRef resourceEnvRef = annotatedApp.getResourceEnvRefMap().get(jndiName);
             if (resourceEnvRef != null) {
                 if (method != null || field != null) {

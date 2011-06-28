@@ -61,18 +61,18 @@ public class Holder implements Serializable {
             this.injectionMap = new HashMap<String, Set<Injection>>();
             addInjectionMap(source.getInjectionMap());
         }
-        
+
         if (source.getPostConstruct() != null) {
             this.postConstruct = new HashMap<String, LifecycleMethod>();
             addPostConstructs(source.getPostConstruct());
         }
-        
+
         if (source.getPreDestroy() != null) {
             this.preDestroy = new HashMap<String, LifecycleMethod>();
             addPreDestroys(source.getPreDestroy());
         }
     }
-    
+
     private Set<Injection> getInjectionList(String className) {
         if (injectionMap == null) {
             injectionMap = new HashMap<String, Set<Injection>>();
@@ -84,14 +84,14 @@ public class Holder implements Serializable {
         }
         return injections;
     }
-    
+
     public void addInjection(String className, Injection newInjection) {
         Set<Injection> injections = getInjectionList(className);
         injections.add(newInjection);
     }
-    
+
     public void addInjections(String className, Collection<Injection> newInjections) {
-        Set<Injection> injections = getInjectionList(className);        
+        Set<Injection> injections = getInjectionList(className);
         for (Injection injection : newInjections) {
             injections.add(injection);
         }
@@ -123,12 +123,12 @@ public class Holder implements Serializable {
         for (Map.Entry<String, Set<Injection>> entry : injectionMap.entrySet()) {
             String className = entry.getKey();
             Set<Injection> injections = entry.getValue();
-            addInjections(className, injections);            
+            addInjections(className, injections);
         }
     }
-    
+
     public List<Injection> getInjections(String className) {
-        if (injectionMap != null) {                  
+        if (injectionMap != null) {
             Set<Injection> injections = injectionMap.get(className);
             if (injections != null) {
                 return new ArrayList<Injection>(injections);
@@ -140,7 +140,7 @@ public class Holder implements Serializable {
     public Map<String, Set<Injection>> getInjectionMap() {
         return injectionMap;
     }
-    
+
     public Map<String, LifecycleMethod> getPostConstruct() {
         return postConstruct;
     }
@@ -159,7 +159,7 @@ public class Holder implements Serializable {
         ObjectRecipe objectRecipe = new ObjectRecipe(className);
         objectRecipe.allow(Option.FIELD_INJECTION);
         objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz = classLoader.loadClass(className);
         } catch (ClassNotFoundException e) {
@@ -207,32 +207,37 @@ public class Holder implements Serializable {
                     Object object = context.lookup(jndiName);
                     objectRecipe.setProperty(injection.getTargetName(), object);
                 } catch (NamingException e) {
+                    //Per EE 5.4.1.3, if no value is configured for environment entry, it will be ignored
+                    //In the past, we skip this in the EnvironmentEntryBuilder, while in Java EE 6, there are some sharable JNDI name spaces are added
+                    //So, in some scenarios, it is impossible to know whether the environment entry is available in the deploying process.
+                    if (injection.getType() != ReferenceType.ENV_ENTRY) {
+                        problems.add(e);
+                    }
                     log.info("Could not look up " + injection.getJndiName(), e);
-                    problems.add(e);
                 }
             }
         }
     }
 
     public void destroyInstance(Object o) throws Exception {
-        Class clazz = o.getClass();
+        Class<?> clazz = o.getClass();
         Map<String, LifecycleMethod> preDestroy = getPreDestroy();
         if (preDestroy != null) {
             apply(o, clazz, preDestroy);
         }
     }
 
-    public static void apply(Object o, Class clazz, Map<String, LifecycleMethod> map) throws IllegalAccessException, InvocationTargetException {
+    public static void apply(Object o, Class<?> clazz, Map<String, LifecycleMethod> map) throws IllegalAccessException, InvocationTargetException {
         if (clazz == null) {
             clazz = o.getClass();
         }
-        ArrayList<Class> classes = new ArrayList<Class>();
+        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
         while (clazz != null && clazz != Object.class) {
             classes.add(clazz);
             clazz = clazz.getSuperclass();
         }
         for (int i = classes.size() - 1; i > -1; i--) {
-            Class clazz1 = classes.get(i);
+            Class<?> clazz1 = classes.get(i);
             LifecycleMethod m = map.get(clazz1.getName());
             if (m != null) {
                 m.call(o, clazz1);

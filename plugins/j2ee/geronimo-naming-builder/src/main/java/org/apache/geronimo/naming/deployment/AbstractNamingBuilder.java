@@ -18,7 +18,6 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.beans.Introspector;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -133,7 +134,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
     public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
     }
-    
+
     public int getPriority() {
         return NORMAL_PRIORITY;
     }
@@ -149,7 +150,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
      * @param injectionTargets
      * @param sharedContext
      */
-    protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts, List<InjectionTarget> injectionTargets, Map<EARContext.Key, Object> sharedContext) {
+    protected void put(String key, Object value, ReferenceType type, Map<JndiKey, Map<String, Object>> contexts, List<InjectionTarget> injectionTargets, Map<EARContext.Key, Object> sharedContext) {
         key = normalize(key);
         JndiKey jndiKey = keyFor(key);
         Map<String, Object> scope = contexts.get(jndiKey);
@@ -157,11 +158,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             scope = new HashMap<String, Object>();
             contexts.put(jndiKey, scope);
         }
-        log.debug("binding at name " + key + " in scope " + jndiKey + " value " + value);
+        if (log.isDebugEnabled()) {
+            log.debug("binding at name " + key + " in scope " + jndiKey + " value " + value);
+        }
         scope.put(key, value);
-        addInjections(key, injectionTargets, NamingBuilder.INJECTION_KEY.get(sharedContext));
+        addInjections(key, type, injectionTargets, NamingBuilder.INJECTION_KEY.get(sharedContext));
     }
-    
+
     protected Object lookupJndiContextMap(Module module, String key) {
         key = normalize(key);
         JndiKey jndiKey = keyFor(key);
@@ -186,15 +189,19 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return JndiScope.valueOf(type);
     }
 
+    protected boolean isSharableJndiNamespace(String name) {
+        name = normalize(name);
+        return name.startsWith("app/") || name.startsWith("module/") || name.startsWith("global/");
+    }
 
     protected static String getJndiName(String name) {
-        if (name.indexOf(':') == -1) {   
+        if (name.indexOf(':') == -1) {
             return "java:comp/env/" + name.trim();
         } else {
             return name.trim();
         }
     }
-    
+
     protected AbstractName getGBeanName(Map<EARContext.Key, Object> sharedContext) {
         return GBEAN_NAME_KEY.get(sharedContext);
     }
@@ -284,7 +291,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     protected static String getStringValue(String s) {
         return s == null ? null : s.trim();
     }
-    
+
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
         return ENCConfigBuilder.buildAbstractNameQueryFromPattern(pattern, null, type, moduleType, interfaceTypes);
@@ -293,7 +300,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {
         return ENCConfigBuilder.buildAbstractNameQuery(configId, module, normalizeJndiName(name), type, moduleType);
     }
-    
+
     private static String normalizeJndiName(String name) {
         if (name.startsWith("java:")) {
             return name.substring(name.indexOf("/env/") + 5);
@@ -327,11 +334,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return clazz;
     }
 
-    protected void addInjections(String jndiName, List<InjectionTarget> injectionTargets, Holder holder) {
+    protected void addInjections(String jndiName, ReferenceType type, List<InjectionTarget> injectionTargets, Holder holder) {
         for (InjectionTarget injectionTarget : injectionTargets) {
             String targetName = injectionTarget.getInjectionTargetName().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().trim();
-            holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName));
+            holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName, type));
         }
     }
 
@@ -374,7 +381,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         }
         return type.getName();
     }
-    
+
     private static Class<?> chooseType(String name, Class<?> originalType, Class<?> alternativeType) throws DeploymentException{
         alternativeType = deprimitivize(alternativeType);
         originalType = deprimitivize(originalType);
@@ -390,8 +397,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             } else {
                 throw new DeploymentException("Mismatched types in named: " + name + " type: " + originalType );
             }
-        } 
-        
+        }
+
         return originalType;
     }
 
@@ -414,9 +421,9 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     private Class<?> getField(Class<?> clazz, String fieldName) throws NoSuchFieldException, DeploymentException {
-        
+
         Class<?> type = null;
-        
+
         do {
             try {
                 Field field = clazz.getDeclaredField(fieldName);
@@ -426,7 +433,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 } else {
                     type = field.getType();
                 }
-                
+
             } catch (NoSuchFieldException e) {
                 //look at superclass
             }
@@ -446,16 +453,16 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                     }
                 }
             }
-            
+
             if (type != null) {
                 return deprimitivize(type);
             }
-            
+
             clazz = clazz.getSuperclass();
         } while (clazz != null);
-        
 
-        
+
+
         throw new NoSuchFieldException(fieldName);
     }
 }

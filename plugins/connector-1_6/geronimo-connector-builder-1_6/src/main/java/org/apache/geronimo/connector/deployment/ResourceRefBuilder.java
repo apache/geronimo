@@ -43,6 +43,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -72,7 +73,6 @@ import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,13 +135,13 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             ResourceRef resourceRef = entry.getValue();
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
-                
+
                 // Always merge injections. This is for example where data source is defined as
                 // @DataSource(name='foo') and it is injected via @Resource(name='foo')
-                addInjections(normalize(name), resourceRef.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
-                
+                addInjections(normalize(name), ReferenceType.RESOURCE, resourceRef.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
+
                 continue;
-            }            
+            }
             String type = getStringValue(resourceRef.getResType());
             type = inferAndCheckType(module, bundle, resourceRef.getInjectionTarget(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);
@@ -165,7 +165,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, module.getJndiContext(), resourceRef.getInjectionTarget(), sharedContext);
+                put(name, value, ReferenceType.RESOURCE, module.getJndiContext(), resourceRef.getInjectionTarget(), sharedContext);
             }
 
         }
@@ -215,7 +215,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             if (iface != null) {
                 beanName = beanName + "!" + iface.getName();
             }
-            return new JndiReference("java:module/" + beanName);        
+            return new JndiReference("java:module/" + beanName);
         } else {
             //determine jsr-77 type from interface
             String j2eeType;
@@ -437,30 +437,30 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         log.debug("ResourceRefBuilder: Exception caught while processing <resource-ref>");
                     }
                 }
-                
+
                 if (method != null || field != null) {
                     List<InjectionTarget> targets = resourceRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
                 }
-                
+
                 return true;
             }
-            
+
             return false;
         }
-        
+
         private boolean isManagedBeanReference(Class<?> resourceTypeClass, Resource annotation) {
             // Check if this is @Resource managedBean injection. Handle two cases:
-            // 1) @Resource managedBeanClass; or  
-            // 2) @Resource(lookup='...') managedBeanInterfaceClass; 
-            if (resourceTypeClass.isAnnotationPresent(ManagedBean.class) || 
+            // 1) @Resource managedBeanClass; or
+            // 2) @Resource(lookup='...') managedBeanInterfaceClass;
+            if (resourceTypeClass.isAnnotationPresent(ManagedBean.class) ||
                 (resourceTypeClass.isInterface() && annotation.lookup().length() != 0)) {
                 return true;
             }
             return false;
         }
     }
-        
+
 }

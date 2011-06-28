@@ -33,6 +33,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -108,14 +109,13 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         for (Map.Entry<String, EnvEntry> entry : specDD.getEnvEntryMap().entrySet()) {
             String name = entry.getKey();
             EnvEntry envEntry = entry.getValue();
-            
+
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
-                addInjections(normalize(name), envEntry.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
-                
+                addInjections(normalize(name), ReferenceType.ENV_ENTRY, envEntry.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
                 continue;
-            }         
-            
+            }
+
             String type = getStringValue(envEntry.getEnvEntryType());
 
             Object value = null;
@@ -194,7 +194,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             // perform resource injection only if there is a value specified
             // see Java EE 5 spec, section EE.5.4.1.3
             if (value != null) {
-                put(name, value, module.getJndiContext(), envEntry.getInjectionTarget(), sharedContext);
+                put(name, value, ReferenceType.ENV_ENTRY, module.getJndiContext(), envEntry.getInjectionTarget(), sharedContext);
+            } else if(isSharableJndiNamespace(name)) {
+                //Even the value is configured, while it is belong to those shareable namespace, it is still to be added to the injection list
+                addInjections(normalize(name), ReferenceType.ENV_ENTRY, envEntry.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
             }
         }
 
@@ -239,10 +242,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 "java.lang.String",
                 "java.lang.Class"
         ));
-                
+
         private EnvEntryRefProcessor() {
         }
-        
+
         public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             String resourceName = getResourceName(annotation, method, field);
             Class resourceType = getResourceTypeClass(annotation, method, field);
@@ -250,10 +253,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 log.debug("addResource(): <env-entry> found");
 
                 EnvEntry envEntry = annotatedApp.getEnvEntryMap().get(getJndiName(resourceName));
-                                
+
                 if (envEntry == null) {
                     try {
-                        
+
                         log.debug("addResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
@@ -298,17 +301,17 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         log.debug("ResourceAnnotationHelper: Exception caught while processing <env-entry>");
                     }
                 }
-                
+
                 if (method != null || field != null) {
                     List<InjectionTarget> targets = envEntry.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         envEntry.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
                 }
-                
+
                 return true;
             }
-            
+
             return false;
         }
     }

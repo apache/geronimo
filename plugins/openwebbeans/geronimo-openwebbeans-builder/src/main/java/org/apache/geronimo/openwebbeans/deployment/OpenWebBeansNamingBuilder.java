@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -42,7 +43,7 @@ import org.apache.xmlbeans.XmlObject;
 public class OpenWebBeansNamingBuilder extends AbstractNamingBuilder {
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-        put("java:comp/BeanManager", new BeanManagerReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        put("java:comp/BeanManager", new BeanManagerReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -66,7 +67,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     private final AxisBuilder axisBuilder;
 
     public AxisServiceRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                 @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces, 
+                                 @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces,
                                  @ParamReference(name = "AxisBuilder", namingType = NameFactory.MODULE_BUILDER) AxisBuilder axisBuilder) {
         super(defaultEnvironment);
         this.axisBuilder = axisBuilder;
@@ -158,7 +159,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
 //we could get a Reference or the actual serializable Service back.
         Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, gerServiceRefType, module, bundle);
-        put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
+        put(name, ref, ReferenceType.SERVICE, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
         //getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
@@ -174,7 +175,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     private static List<HandlerInfoInfo> buildHandlerInfoList(List<Handler> handlers, Bundle bundle) throws DeploymentException {
         List<HandlerInfoInfo> handlerInfos = new ArrayList<HandlerInfoInfo>();
         for (Handler handler: handlers) {
-            List<String> portNames = handler.getPortName(); 
+            List<String> portNames = handler.getPortName();
             String handlerClassName = handler.getHandlerClass();
             Class handlerClass;
             try {
@@ -186,7 +187,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
             for (ParamValue paramValue: handler.getInitParam()) {
                 config.put(paramValue.getParamName(), paramValue.getParamValue());
             }
-            List<QName> headerQNames = handler.getSoapHeader(); 
+            List<QName> headerQNames = handler.getSoapHeader();
             Set<String> soapRoles = new HashSet<String>(handler.getSoapRole());
             HandlerInfoInfo handlerInfoInfo = new HandlerInfoInfo(new HashSet(portNames), handlerClass, config, headerQNames, soapRoles);
             handlerInfos.add(handlerInfoInfo);

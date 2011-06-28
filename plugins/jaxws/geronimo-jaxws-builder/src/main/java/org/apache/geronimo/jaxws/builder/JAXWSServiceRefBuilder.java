@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.handler.HandlerChainsInfoBuilder;
@@ -152,7 +153,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         Object ref = createService(serviceRef, gerServiceRef, module, bundle,
                                    serviceInterfaceClass, serviceQName,
                                    wsdlURI, serviceReferenceType, portComponentRefMap);
-        put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
+        put(name, ref, ReferenceType.SERVICE, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
     }
 
     protected abstract Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,

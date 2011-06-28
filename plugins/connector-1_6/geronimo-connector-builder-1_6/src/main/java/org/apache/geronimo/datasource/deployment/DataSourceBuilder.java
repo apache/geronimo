@@ -34,6 +34,7 @@ import org.apache.geronimo.datasource.DataSourceService;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -143,7 +144,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
 
         try {
             Object ref = DataSourceService.buildReference(dsDescription);
-            put(jndiName, ref, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put(jndiName, ref, ReferenceType.DATA_SOURCE, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
         } catch (IOException e) {
             throw new DeploymentException("Could not construct Reference for datasource " + dsDescription, e);
         }

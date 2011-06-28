@@ -25,11 +25,13 @@ import java.util.Map;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.corba.proxy.CORBAProxyReference;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -109,7 +111,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
             Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
             if (ejbReference != null) {
-                put(ejbRefName, ejbReference, module.getJndiContext(), ejbRef.getInjectionTarget(), sharedContext);
+                put(ejbRefName, ejbReference, ReferenceType.EJB, module.getJndiContext(), ejbRef.getInjectionTarget(), sharedContext);
             }
         }
     }
