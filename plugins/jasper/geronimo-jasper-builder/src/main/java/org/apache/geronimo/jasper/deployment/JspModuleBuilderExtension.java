@@ -191,10 +191,14 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigs.size() + " jsp-config elements.");
             }
             List<String> jspMappings = new ArrayList<String>();
+            List<String> problems = new ArrayList<String>();
             for (JspConfig jspConfig : jspConfigs) {
                 for (JspPropertyGroup propertyGroup : jspConfig.getJspPropertyGroup()) {
-                    WebAppInfoBuilder.normalizeUrlPatterns(propertyGroup.getUrlPattern(), jspMappings);
+                    WebAppInfoBuilder.normalizeUrlPatterns(propertyGroup.getUrlPattern(), jspMappings, problems);
                 }
+            }
+            if (!problems.isEmpty()) {
+                throw new DeploymentException("Invalid url patterns: " + problems);
             }
 
             jspServlet.servletMappings.addAll(jspMappings);
