@@ -20,7 +20,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="el2.2-javaee6">
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="restful-test">
 
     <description>Restful Web Service - javaee6 Servlet Sample</description>
     <session-config>
@@ -28,4 +28,17 @@
             30
         </session-timeout>
     </session-config>
+    <servlet>
+		<servlet-name>restService</servlet-name>
+		<servlet-class>org.apache.wink.server.internal.servlet.RestServlet</servlet-class>
+		<init-param>
+			<param-name>applicationConfigLocation</param-name>
+			<param-value>/WEB-INF/application</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>restService</servlet-name>
+		<url-pattern>/resources/*</url-pattern>
+	</servlet-mapping>
 </web-app>
