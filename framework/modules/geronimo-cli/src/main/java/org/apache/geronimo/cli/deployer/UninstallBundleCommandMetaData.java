@@ -16,22 +16,15 @@
  */
 package org.apache.geronimo.cli.deployer;
 
-import org.apache.geronimo.cli.CLParserException;
+public class UninstallBundleCommandMetaData extends BaseCommandMetaData {
+    public static final CommandMetaData META_DATA = new UninstallBundleCommandMetaData();
 
-public class InstallBundleCommandMetaData extends BaseCommandMetaData {
-    public static final CommandMetaData META_DATA = new InstallBundleCommandMetaData();
-
-    private InstallBundleCommandMetaData() {
-        super("install-bundle", 
+    private UninstallBundleCommandMetaData() {
+        super("uninstall-bundle", 
                 "2. Other Commands", 
-                "[--groupId groupId] [--startLevel number] [--start] bundleFile",
-                "Install and record an OSGi bundle file in Geronimo so that it can be automatically started " + 
-                "even after you cleaned the cache directory of the OSGi framework."
+                "bundleId",
+                "Uninstall the bundle and erase its record if it appears in startup.properties."
                 );
     }
-    
-    @Override
-    public CommandArgs parse(String[] newArgs) throws CLParserException {
-        return new InstallBundleCommandArgsImpl(newArgs);
-    }
+
 }

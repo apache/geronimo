@@ -49,11 +49,12 @@ public class CommandInstallBundle extends AbstractCommand {
             DeploymentManager dmgr = connection.getDeploymentManager();
             if(dmgr instanceof GeronimoDeploymentManager) {
                 GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
-                boolean inPlace = recordBundleCommandArgs.isInPlace();
+                
                 boolean start = recordBundleCommandArgs.isStart();
                 int startLevel = recordBundleCommandArgs.getStartLevel();
+                String groupId = recordBundleCommandArgs.getGroupId();
                 try {
-                    long bundleId = mgr.recordInstall(bundleFile, inPlace, startLevel);
+                    long bundleId = mgr.recordInstall(bundleFile, groupId, startLevel);
                     if ( bundleId > 0 ){
                         consoleReader.printString(DeployUtils.reformat("Installed and recorded bundle: " + bundleId, 4, 72));
                         

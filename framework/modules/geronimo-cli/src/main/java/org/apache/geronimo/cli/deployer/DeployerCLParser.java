@@ -92,6 +92,7 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
         commandMetaData.add(EncryptCommandMetaData.META_DATA);
         commandMetaData.add(UnlockKeystoreCommandMetaData.META_DATA);
         commandMetaData.add(InstallBundleCommandMetaData.META_DATA);
+        commandMetaData.add(UninstallBundleCommandMetaData.META_DATA);
 
         addURI();
         addHost();

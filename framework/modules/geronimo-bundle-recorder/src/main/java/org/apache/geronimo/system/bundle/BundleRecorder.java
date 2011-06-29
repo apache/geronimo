@@ -22,16 +22,22 @@ import java.io.IOException;
 public interface BundleRecorder {
     
     /**
-     * Record the bundle in recorded-bundles.properties and add to the bundleRecords map
+     * Record the bundle in startup.properties
      * @param bundleFile
-     * @param inplace
+     * @param groupId
      * @param startLevel
      * @return the installed bundle id, return -1 if installed failed
      * @throws IOException
      */
-    public long recordInstall(File bundleFile, boolean inplace, int startLevel) throws IOException;
+    public long recordInstall(File bundleFile,  String groupId, int startLevel) throws IOException;
     
     
+    /**
+     * Erase the bundle if it appears in startup.properties
+     * @param bundleId
+     * @throws IOException
+     */
+    public void eraseUninstall(long bundleId) throws IOException;
 }
 
 

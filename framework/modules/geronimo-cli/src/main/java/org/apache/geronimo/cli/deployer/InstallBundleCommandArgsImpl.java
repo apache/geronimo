@@ -27,8 +27,8 @@ import org.apache.geronimo.cli.CLParserException;
 
 public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
 
-    private final static String ARGUMENT_IN_PLACE_SHORTFORM = "i";
-    private final static String ARGUMENT_IN_PLACE = "inPlace";
+    private final static String ARGUMENT_GROUP_ID_SHORTFORM = "g";
+    private final static String ARGUMENT_GROUP_ID = "groupId";
     
     private final static String ARGUMENT_START_SHORTFORM = "s";
     private final static String ARGUMENT_START = "start";
@@ -41,7 +41,7 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
 
     public InstallBundleCommandArgsImpl(String[] args) throws CLParserException {
         options = new Options();
-        addInPlace();
+        addGroupId();
         addStart();
         addStartLevel();
         
@@ -55,14 +55,6 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
         if (0 == commandLine.getArgs().length) {
             throw new CLParserException("Must specify a bundle location");
         }
-    }
-
-    
-    protected void addInPlace() {
-        options.addOption(ARGUMENT_IN_PLACE_SHORTFORM,
-                ARGUMENT_IN_PLACE,
-                false,
-                "If inPlace is provided, the bundle is not copied to the \"repository/recorded-bundles\" directory.");
     }
     
     protected void addStart() {
@@ -78,16 +70,16 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
         optionBuilder = optionBuilder.withDescription("If no start level are provided, will use the framework's initial bundle start level");
         Option option = optionBuilder.create(ARGUMENT_START_LEVEL_SHORTFORM);
         options.addOption(option);
-        
+    }
+    
+    protected void addGroupId() {
+        OptionBuilder optionBuilder = OptionBuilder.hasArg().withArgName("groupId");
+        optionBuilder = optionBuilder.withLongOpt(ARGUMENT_GROUP_ID);
+        optionBuilder = optionBuilder.withDescription("If gourpId is not provided, will use \"default\" as its group id.");
+        Option option = optionBuilder.create(ARGUMENT_GROUP_ID_SHORTFORM);
+        options.addOption(option);
     }
 
-    
-    
-    @Override
-    public boolean isInPlace() {
-        return commandLine.hasOption(ARGUMENT_IN_PLACE_SHORTFORM);
-    }
-    
     @Override
     public boolean isStart() {
         return commandLine.hasOption(ARGUMENT_START_SHORTFORM);
@@ -102,7 +94,11 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
         return Integer.valueOf(startLevelStr);
     }
     
-    
+    @Override
+    public String getGroupId(){
+        String groupId = commandLine.getOptionValue(ARGUMENT_GROUP_ID_SHORTFORM);
+        return groupId;
+    }
     
     @Override
     public String[] getArgs() {

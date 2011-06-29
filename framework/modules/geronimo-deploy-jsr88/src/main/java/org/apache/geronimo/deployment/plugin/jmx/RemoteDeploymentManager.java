@@ -213,12 +213,12 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     }
     
     @Override
-    public long recordInstall(File bundleFile, boolean inplace, int startLevel) throws IOException {
+    public long recordInstall(File bundleFile, String gourpId, int startLevel) throws IOException {
         if(!isSameMachine) {
             throw new UnsupportedOperationException("recordBundle operation is not supportted from a remote JMX connection.");
         }
         
-        return super.recordInstall(bundleFile, inplace, startLevel);
+        return super.recordInstall(bundleFile, gourpId, startLevel);
     }
     
     public static final GBeanInfo GBEAN_INFO;

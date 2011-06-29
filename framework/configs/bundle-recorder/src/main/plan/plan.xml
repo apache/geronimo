@@ -17,11 +17,11 @@
 -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-    <!-- ServerInfo service -->
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
-    
+
     <gbean name="GeronimoBundleRecorder" class="org.apache.geronimo.system.bundle.BundleRecorderGBean">
-        <attribute name="bundleRecordsFile">var/config/bundle-records.csv</attribute>
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>

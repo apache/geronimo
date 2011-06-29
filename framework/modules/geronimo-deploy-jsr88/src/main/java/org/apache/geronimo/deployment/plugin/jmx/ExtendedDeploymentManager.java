@@ -320,14 +320,23 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
         return getImplementation(BundleRecorder.class);
     }
     
-    public long recordInstall(File bundleFile, boolean inplace, int startLevel) throws IOException {
+    @Override
+    public long recordInstall(File bundleFile, String groupId, int startLevel) throws IOException {
         BundleRecorder recorder = getBundleRecorder();
         try {
-            return recorder.recordInstall(bundleFile, inplace, startLevel);
+            return recorder.recordInstall(bundleFile, groupId, startLevel);
         } finally {
             kernel.getProxyManager().destroyProxy(recorder);
         }
     }
     
-   
+    @Override
+    public void eraseUninstall(long bundleId) throws IOException {
+        BundleRecorder recorder = getBundleRecorder();
+        try {
+            recorder.eraseUninstall(bundleId);
+        } finally {
+            kernel.getProxyManager().destroyProxy(recorder);
+        }
+    }
 }
