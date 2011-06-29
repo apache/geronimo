@@ -55,6 +55,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.util.InputUtils;
 import org.apache.geronimo.management.geronimo.KeyIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreException;
@@ -178,21 +181,21 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
             }
         }
         data.setAttribute("keystoreType", type);
-//        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-//        if(mgr != null) {
-//            try {
-//                mgr.addGBeanToConfiguration(myName.getArtifact(), data, true);
-//                return (KeystoreInstance) kernel.getProxyManager().createProxy(aName, KeystoreInstance.class);
-//            } catch (InvalidConfigException e) {
-//                log.error("Should never happen", e);
-//                throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")", e);
-//            } finally {
-//                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-//            }
-//        } else {
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if(mgr != null) {
+            try {
+                mgr.addGBeanToConfiguration(myName.getArtifact(), data, true);
+                return (KeystoreInstance) kernel.getProxyManager().createProxy(aName, KeystoreInstance.class);
+            } catch (InvalidConfigException e) {
+                log.error("Should never happen", e);
+                throw new IllegalStateException("Unable to add Keystore GBean ("+e.getMessage()+")", e);
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
             log.warn("The ConfigurationManager in the kernel does not allow changes at runtime");
             return null;
-//        }
+        }
     }
 
     /**
