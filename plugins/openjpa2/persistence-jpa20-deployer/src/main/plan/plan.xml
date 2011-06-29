@@ -25,6 +25,7 @@
         <attribute name="extendedEntityManagerRegistryName">?name=ExtendedEntityManagerRegistry#org.apache.geronimo.persistence.ExtendedEntityManagerRegistry</attribute>
         <attribute name="defaultPersistenceUnitProperties">
             openjpa.Log=commons
+            openjpa.Compatibility=ConvertPositionalParametersToNamed=true
             openjpa.jdbc.DBDictionary=org.apache.openjpa.jdbc.sql.DerbyDictionary
             openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true)
             openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
