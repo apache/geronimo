@@ -209,27 +209,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         
         if (uri != null) {
             
-           /* Map<String, Object> appclientAppContext = new HashMap<String, Object>();
+            Map<String, Object> appclientAppContext = new HashMap<String, Object>();
             Map<String, Object> sharedAppScopeContext = module.getJndiScope(JndiScope.app);
             for (Entry<String, Object> entry : sharedAppScopeContext.entrySet()) {
                 appclientAppContext.put(entry.getKey(), createClientRef(entry.getValue()));
             }
             module.getJndiContext().put(JndiScope.app, appclientAppContext);
-
-            Map<String, Object> appclientGlobalContext = new HashMap<String, Object>();
-            Map<String, Object> sharedGlobalScopeContext = module.getJndiScope(JndiScope.global);
-            for (Entry<String, Object> entry : sharedGlobalScopeContext.entrySet()) {
-                appclientGlobalContext.put(entry.getKey(), createClientRef(entry.getValue()));
-            }
-            module.getJndiContext().put(JndiScope.global, appclientGlobalContext);*/
-            
-            
-            Map<String, Object> appclientModuleContext = new HashMap<String, Object>();
-            Map<String, Object> sharedModuleScopeContext = module.getJndiScope(JndiScope.module);
-            for (Entry<String, Object> entry : sharedModuleScopeContext.entrySet()) {
-                appclientModuleContext.put(entry.getKey(), createClientRef(entry.getValue()));
-            }
-            module.getJndiContext().put(JndiScope.module, appclientModuleContext);
 
         }
     }
@@ -243,14 +228,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
      *   ...
      *   <lookup-name>java:app/xxxx</lookup-name>
      * </ejb-ref>
-     * <ejb-ref>
-     *   ...
-     *   <lookup-name>java:global/xxxx</lookup-name>
-     * </ejb-ref>
-     * ...
      * </application-client>
      * 
-     * we need to convert the corresponding app and global ejb ref into ClientEjbReference
+     * we need to convert the corresponding app ejb ref into ClientEjbReference
      * so that they could be used in application client.
      * 
      */
@@ -269,12 +249,8 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         Object valueToConvert = null;
 
-/*        if (moduleJndiContext.get(JndiScope.app).containsKey(name)) {
+        if (moduleJndiContext.get(JndiScope.app).containsKey(name)) {
             valueToConvert = moduleJndiContext.get(JndiScope.app).get(name);
-        } else if (moduleJndiContext.get(JndiScope.global).containsKey(name)) {
-            valueToConvert = moduleJndiContext.get(JndiScope.global).get(name);
-        } else */if (moduleJndiContext.get(JndiScope.module).containsKey(name)) {
-            valueToConvert = moduleJndiContext.get(JndiScope.module).get(name);
         } else {
             return;
         }
