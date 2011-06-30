@@ -197,11 +197,12 @@ public class BundleRecorderGBean implements BundleRecorder{
             
             FileUtils.recursiveDelete(versionFolder); // try delete the version folder recursively
             
-            if (artifactFolder.listFiles().length == 0) 
-                artifactFolder.delete(); // delete the artifact folder if it is empty
+            Utils.regressiveDelete(artifactFolder); // try delete the parent folder if it is empty
         }
                 
     }
+    
+    
     
     private String getMvnLocationFromArtifact(Artifact artifact){
         if (artifact == null) return null;

@@ -26,6 +26,19 @@ import java.io.IOException;
 import org.apache.geronimo.kernel.util.IOUtils;
 
 public class Utils {
+    
+    public static void regressiveDelete(File file){
+        if (file == null || !file.exists()) return;
+        
+        File parent = file.getParentFile();
+                
+        if (file.isFile() || (file.isDirectory() && file.listFiles().length ==0)) {
+            file.delete();
+            regressiveDelete(parent);
+        }
+        
+    }
+    
     public static void appendLine(File file, String line) throws IOException {
         BufferedWriter writer = null;
         try {
