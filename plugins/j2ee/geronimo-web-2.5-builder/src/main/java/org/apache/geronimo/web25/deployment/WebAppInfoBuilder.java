@@ -43,6 +43,7 @@ import org.apache.geronimo.web.info.SessionConfigInfo;
 import org.apache.geronimo.web.info.SessionCookieConfigInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.info.WebResourceCollectionInfo;
+import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
 import org.apache.openejb.jee.Dispatcher;
 import org.apache.openejb.jee.ErrorPage;
 import org.apache.openejb.jee.Filter;
@@ -85,6 +86,10 @@ public class WebAppInfoBuilder {
         if (webAppInfo != null) {
             throw new IllegalStateException("already built");
         }
+        
+        // check url-pattern and multiplicities
+        WebDeploymentValidationUtils.validateWebApp(webApp);
+        
         List<String> problems = new ArrayList<String>();
         WebAppInfo webAppInfo = webAppInfoFactory.newWebAppInfo();
 
@@ -131,7 +136,7 @@ public class WebAppInfoBuilder {
                 if (!filterMapping.getUrlPattern().isEmpty()) {
                     FilterMappingInfo urlMapping = new FilterMappingInfo();
                     urlMapping.dispatchers = toEnumSet(filterMapping.getDispatcher());
-                    normalizeUrlPatterns(filterMapping.getUrlPattern(), urlMapping.mapping, problems);
+                    normalizeUrlPatterns(filterMapping.getUrlPattern(), urlMapping.mapping);
                     filterInfo.urlMappings.add(urlMapping);
                 }
             }
@@ -175,7 +180,7 @@ public class WebAppInfoBuilder {
             for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
                 WebResourceCollectionInfo webResourceCollectionInfo = new WebResourceCollectionInfo();
                 webResourceCollectionInfo.webResourceName = webResourceCollection.getWebResourceName();
-                normalizeUrlPatterns(webResourceCollection.getUrlPattern(), webResourceCollectionInfo.urlPatterns, problems);
+                normalizeUrlPatterns(webResourceCollection.getUrlPattern(), webResourceCollectionInfo.urlPatterns);
                 if (webResourceCollection.getHttpMethod().size() > 0) {
                     webResourceCollectionInfo.omission = false;
                     webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethod());
@@ -239,7 +244,7 @@ public class WebAppInfoBuilder {
             if (servletInfo == null) {
                 problems.add("\nNo servlet matching servlet mappings for " + servletName);
             } else {
-                normalizeUrlPatterns(servletMapping.getUrlPattern(), servletInfo.servletMappings, problems);
+                normalizeUrlPatterns(servletMapping.getUrlPattern(), servletInfo.servletMappings);
             }
         }
 
@@ -298,11 +303,8 @@ public class WebAppInfoBuilder {
         return webAppInfoFactory.copy(filterInfo);
     }
 
-    public static void normalizeUrlPatterns(Collection<String> source, Collection<String> target, Collection<String> problems) {
+    public static void normalizeUrlPatterns(Collection<String> source, Collection<String> target) {
         for (String pattern : source) {
-            if (pattern.contains("\n") || pattern.contains("\r")) {
-                problems.add("Invalid url pattern containing a line break: '" + pattern + "'");
-            }
             if (!pattern.startsWith("*") && !pattern.startsWith("/")) {
                 pattern = "/" + pattern;
                 //log.info("corrected url pattern to " + pattern);

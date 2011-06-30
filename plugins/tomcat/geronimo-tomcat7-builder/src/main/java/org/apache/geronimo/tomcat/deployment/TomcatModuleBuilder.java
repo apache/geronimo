@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -72,9 +71,6 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openwebbeans.SharedOwbContext;
-import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
@@ -230,7 +226,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 } finally {
                     in.close();
                 }
-//                WebDeploymentValidationUtils.validateWebApp(webApp);
+
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
             }
@@ -297,7 +293,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             } finally {
                 in.close();
             }
-//            WebDeploymentValidationUtils.validateWebApp(webApp);
+
         } catch (JAXBException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful

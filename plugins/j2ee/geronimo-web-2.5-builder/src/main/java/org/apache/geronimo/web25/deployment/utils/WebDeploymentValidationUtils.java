@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.openejb.jee.FilterMapping;
+import org.apache.openejb.jee.JspConfig;
+import org.apache.openejb.jee.JspPropertyGroup;
 import org.apache.openejb.jee.SecurityConstraint;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
@@ -67,12 +69,21 @@ public class WebDeploymentValidationUtils {
                 }
             }
         }
+        List<JspConfig> jspConfigs = webApp.getJspConfig();
+        for (JspConfig jspConfig : jspConfigs) {
+            for (JspPropertyGroup propertyGroup : jspConfig.getJspPropertyGroup()) {
+                for (String urlPattern : propertyGroup.getUrlPattern()) {
+                    if (!isValidUrlPattern(urlPattern.trim())) {
+                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("jsp-config", propertyGroup.getDisplayName(), urlPattern
+                                , "web.xml"));
+                    }
+                }
+            }
+        }
         List<SecurityConstraint> constraints = webApp.getSecurityConstraint();
         for (SecurityConstraint constraint : constraints) {
-            List<WebResourceCollection> collections = constraint.getWebResourceCollection();
-            for (WebResourceCollection collection : collections) {
-                List<String> patterns = collection.getUrlPattern();
-                for (String pattern : patterns) {
+            for (WebResourceCollection collection : constraint.getWebResourceCollection()) {
+                for (String pattern : collection.getUrlPattern()) {
                     if (!isValidUrlPattern(pattern.trim())) {
                         throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", collection.getWebResourceName(), pattern
                                 , "web.xml"));
@@ -93,4 +104,5 @@ public class WebDeploymentValidationUtils {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("login-config"));
         }
     }
+    
 }
