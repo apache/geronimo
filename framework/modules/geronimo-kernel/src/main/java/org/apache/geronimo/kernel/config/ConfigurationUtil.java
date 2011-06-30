@@ -244,7 +244,14 @@ public final class ConfigurationUtil {
     public static ConfigurationInfo readConfigurationInfo(InputStream in, AbstractName storeName, File inPlaceLocation) throws IOException {
         Properties properties = new Properties();
         // file is written with UTF-8
-        properties.load(new InputStreamReader(in, "UTF-8"));
+        properties.load(in);
+
+        for (Object key : properties.keySet()) {
+            String val = properties.getProperty(key.toString());
+            String goodVal = new String(val.getBytes("iso8859-1"), "utf-8");
+            properties.setProperty(key.toString(), goodVal);
+        }
+
         return readConfigurationInfo("", properties, storeName, inPlaceLocation);
     }
 
