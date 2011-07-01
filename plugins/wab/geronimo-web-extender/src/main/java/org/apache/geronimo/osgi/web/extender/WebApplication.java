@@ -118,13 +118,15 @@ public class WebApplication implements Runnable {
     public void run() {
         scheduled.set(false);
         synchronized (scheduled) {
-            synchronized (running) {
-                running.set(true);
-                try {
-                    doRun();
-                } finally {
-                    running.set(false);
-                    running.notifyAll();
+            synchronized (extender.getConfigurationManager()) {
+                synchronized (running) {
+                    running.set(true);
+                    try {
+                        doRun();
+                    } finally {
+                        running.set(false);
+                        running.notifyAll();
+                    }
                 }
             }
         }
