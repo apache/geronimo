@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
 import javax.xml.bind.JAXBException;
@@ -99,6 +101,7 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatParameterType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
+import org.apache.openejb.jee.JavaeeSchema;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
@@ -269,6 +272,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         return module;
     }
 
+    private boolean isSchemaDefined(String xmlFile, String definedTag){
+        // we need remove the comments first
+        Pattern commentsPattern = Pattern.compile("<!--(.*)-->", Pattern.DOTALL);
+        Matcher commentsMatcher = commentsPattern.matcher(xmlFile);
+        
+        Pattern schemaPattern = Pattern.compile("<(\\w*:)?" + definedTag + "(.*)schemaLocation(.*)>", Pattern.DOTALL);
+        Matcher schemaMatcher = schemaPattern.matcher(commentsMatcher.replaceAll(""));
+        
+        return schemaMatcher.find();
+
+    }
+    
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -285,21 +300,41 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = JarUtils.readAll(specDDUrl);
-
-            // we found web.xml, if it won't parse that's an error.
-            InputStream in = specDDUrl.openStream();
-            try {
-                webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
-            } finally {
-                in.close();
+             
+            InputStream in = null;
+            
+            // firstly validate the DD xml file, if it is defined by a schema.
+            if (isSchemaDefined(specDD, "web-app")){
+                in = specDDUrl.openStream();
+                try {
+                    JaxbJavaee.validateJavaee(JavaeeSchema.WEB_APP_3_0, in);
+                } catch (Exception e) {
+                    throw new DeploymentException("Error validate web.xml for " + targetPath, e);
+                } finally {
+                    if (in != null)
+                        in.close();
+                }
             }
 
-        } catch (JAXBException e) {
-            // Output the target path in the error to make it clearer to the user which webapp
-            // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
-            // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
+            // we found web.xml, if it won't parse that's an error.
+            in = specDDUrl.openStream();
+            try {
+                webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
+            } catch (Exception e) {
+                // Output the target path in the error to make it clearer to the user which webapp
+                // has the problem. The targetPath is used, as moduleFile may have an unhelpful
+                // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
+                throw new DeploymentException("Error unmarshal web.xml for " + targetPath, e);
+            } finally {
+                if (in != null)
+                    in.close();
+            }
+
         } catch (Exception e) {
+            if (e instanceof DeploymentException) {
+                throw new DeploymentException(e);
+            }
+           
             if (!moduleFile.getName().endsWith(".war")) {
                 //not for us
                 return null;
