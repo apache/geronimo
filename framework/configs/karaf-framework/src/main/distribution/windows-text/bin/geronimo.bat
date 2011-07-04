@@ -359,7 +359,7 @@ if not "%JDB%" == "" goto doJDB
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end
