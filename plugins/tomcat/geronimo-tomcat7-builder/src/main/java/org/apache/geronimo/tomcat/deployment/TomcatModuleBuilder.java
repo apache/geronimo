@@ -68,6 +68,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -271,18 +272,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
         return module;
     }
-
-    private boolean isSchemaDefined(String xmlFile, String definedTag){
-        // we need remove the comments first
-        Pattern commentsPattern = Pattern.compile("<!--(.*)-->", Pattern.DOTALL);
-        Matcher commentsMatcher = commentsPattern.matcher(xmlFile);
-        
-        Pattern schemaPattern = Pattern.compile("<(\\w*:)?" + definedTag + "(.*)schemaLocation(.*)>", Pattern.DOTALL);
-        Matcher schemaMatcher = schemaPattern.matcher(commentsMatcher.replaceAll(""));
-        
-        return schemaMatcher.find();
-
-    }
     
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
@@ -304,7 +293,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             InputStream in = null;
             
             // firstly validate the DD xml file, if it is defined by a schema.
-            if (isSchemaDefined(specDD, "web-app")){
+            if (identifySpecDDSchemaVersion(specDD) >= 2.4f){
                 in = specDDUrl.openStream();
                 try {
                     JaxbJavaee.validateJavaee(JavaeeSchema.WEB_APP_3_0, in);
@@ -312,7 +301,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                     throw new DeploymentException("Error validate web.xml for " + targetPath, e);
                 } finally {
                     if (in != null)
-                        in.close();
+                        IOUtils.close(in);
                 }
             }
 
@@ -327,7 +316,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 throw new DeploymentException("Error unmarshal web.xml for " + targetPath, e);
             } finally {
                 if (in != null)
-                    in.close();
+                    IOUtils.close(in);
             }
 
         } catch (Exception e) {

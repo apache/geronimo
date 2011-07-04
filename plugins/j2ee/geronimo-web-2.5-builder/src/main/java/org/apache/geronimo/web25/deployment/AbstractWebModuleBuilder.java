@@ -512,7 +512,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * @param originalSpecDD text of original spec dd
      * @return spec dd version
      */
-    private float identifySpecDDSchemaVersion(String originalSpecDD) {
+    protected float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
         XmlCursor cursor = null;
         try {
@@ -548,7 +548,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         return schemaVersion;
     }
-
+    
     protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebApp webApp, Bundle bundle) {
         SpecSecurityBuilder builder = new SpecSecurityBuilder(new WebAppInfo());
         return builder.buildSpecSecurityConfig();
