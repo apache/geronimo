@@ -20,28 +20,49 @@ package org.apache.geronimo.tomcat.connector;
 
 public interface Https11Protocol {
 
-    //Https
+    // Https
     public String getAlgorithm();
+
     public void setAlgorithm(String algorithm);
-    public String getClientAuth();
-    public void setClientAuth(String clientAuth);
+
+    public boolean getClientAuth();
+
+    public void setClientAuth(boolean clientAuth);
+
     public String getKeystoreFile();
+
     public void setKeystoreFile(String keystoreFile);
+
     public String getKeystorePass();
+
     public void setKeystorePass(String keystorePass);
+
     public String getKeystoreType();
+
     public void setKeystoreType(String keystoreType);
+
     public String getSslProtocol();
+
     public void setSslProtocol(String sslProtocol);
+
     public String getCiphers();
+
     public void setCiphers(String ciphers);
+
     public String getKeyAlias();
+
     public void setKeyAlias(String keyAlias);
+
     public String getTruststoreFile();
+
     public void setTruststoreFile(String truststoreFile);
+
     public String getTruststorePass();
+
     public void setTruststorePass(String truststorePass);
+
     public String getTruststoreType();
+
     public void setTruststoreType(String truststoreType);
 
 }
