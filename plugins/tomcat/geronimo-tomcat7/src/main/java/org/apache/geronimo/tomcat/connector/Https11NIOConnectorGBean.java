@@ -75,9 +75,9 @@ public class Https11NIOConnectorGBean extends Http11NIOConnectorGBean implements
         return (String) connector.getAttribute("ciphers");
     }
 
-    public boolean getClientAuth() {
+    public String getClientAuth() {
         Object value = connector.getAttribute("clientAuth");
-        return value == null ? false : Boolean.valueOf(value.toString());
+        return value == null ? "false" : value.toString();
     }
 
     public String getKeyAlias() {
@@ -135,8 +135,8 @@ public class Https11NIOConnectorGBean extends Http11NIOConnectorGBean implements
     }
 
     @Persistent(manageable=false)
-    public void setClientAuth(boolean clientAuth) {
-        connector.setAttribute("clientAuth", Boolean.valueOf(clientAuth));
+    public void setClientAuth(String clientAuth) {
+        connector.setAttribute("clientAuth", clientAuth);
     }
 
     @Persistent(manageable=false)
