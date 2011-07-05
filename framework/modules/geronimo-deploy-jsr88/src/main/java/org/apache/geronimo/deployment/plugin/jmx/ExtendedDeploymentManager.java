@@ -339,4 +339,14 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
             kernel.getProxyManager().destroyProxy(recorder);
         }
     }
+    
+    @Override
+    public long getBundleId(String symbolicName, String version) {
+        BundleRecorder recorder = getBundleRecorder();
+        try {
+            return recorder.getBundleId(symbolicName, version);
+        } finally {
+            kernel.getProxyManager().destroyProxy(recorder);
+        }
+    }
 }

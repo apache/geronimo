@@ -38,6 +38,16 @@ public interface BundleRecorder {
      * @throws IOException
      */
     public void eraseUninstall(long bundleId) throws IOException;
+    
+    
+    /**
+     * Get the bundle id according to its symbolic name and version.
+     * It is pretty slow to call listBundles of OSGi JMX API.
+     * @param symbolicName
+     * @param version
+     * @return the installed bundle id, return -1 if can not find.
+     */
+    public long getBundleId(String symbolicName, String version);
 }
 
 

@@ -58,7 +58,7 @@ public class Utils {
         File tmpFile = new File(file.getAbsolutePath()+".tmpfile");
         try {
             reader = new BufferedReader(new FileReader(file));
-            writer = new BufferedWriter(new FileWriter(tmpFile,true));
+            writer = new BufferedWriter(new FileWriter(tmpFile));
             String line = null;
             while (( line = reader.readLine()) != null){
                 if (line.startsWith("#")) { // comments line
@@ -74,8 +74,8 @@ public class Utils {
             }
             
         } finally {
-            reader.close();
-            writer.close();
+            IOUtils.close(reader);
+            IOUtils.close(writer);
         }
         
         if (file.delete()){
@@ -99,7 +99,7 @@ public class Utils {
             }
             
         } finally {
-            reader.close();
+            IOUtils.close(reader);
         }
         
         return null;

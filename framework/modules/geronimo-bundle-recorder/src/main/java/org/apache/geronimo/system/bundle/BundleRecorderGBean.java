@@ -19,6 +19,7 @@ package org.apache.geronimo.system.bundle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -32,6 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -155,12 +157,19 @@ public class BundleRecorderGBean implements BundleRecorder{
         String recordKey = getRecordKey(artifact);
         
         Properties startupBundles = new Properties();
-        startupBundles.load(new FileInputStream(startupFile)); 
-        if (startupBundles.containsKey(recordKey.toString())) { // check if we have recorded this
-            log.warn("This bundle has been recorded in startup.properties: "+ recordKey);
-        } else {
-            // record it
-            Utils.appendLine(startupFile, recordKey+"="+String.valueOf(startLevel));
+        InputStream is = null;
+        try{
+            is = new FileInputStream(startupFile);
+            startupBundles.load(is); 
+            if (startupBundles.containsKey(recordKey.toString())) { // check if we have recorded this
+                log.warn("This bundle has been recorded in startup.properties: "+ recordKey);
+            } else {
+                // record it
+                Utils.appendLine(startupFile, recordKey+"="+String.valueOf(startLevel));
+            }
+        }finally{
+            if (is!=null)
+                IOUtils.close(is);
         }
             
         return bundle.getBundleId();
@@ -242,4 +251,13 @@ public class BundleRecorderGBean implements BundleRecorder{
         return recordKey.toString();
     }
     
+    @Override
+    public long getBundleId(String symbolicName, String version) {
+        for (Bundle bundle : bundleContext.getBundles()) {
+            if (symbolicName.equals(bundle.getSymbolicName()) && version.equals(bundle.getVersion().toString())){
+                return bundle.getBundleId();
+            }
+        }
+        return -1;
+    }
 }
