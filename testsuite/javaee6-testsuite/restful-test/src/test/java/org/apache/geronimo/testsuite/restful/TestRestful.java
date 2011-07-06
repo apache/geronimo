@@ -76,7 +76,7 @@ public class TestRestful extends TestSupport {
 		}
 		String responseText = response.toString();
 		Assert.assertEquals(responseText, 
-				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><order id=\"1\"><customer>wgz</customer><price>666.0</price><productname>water</productname><quantity>1</quantity><seller>shop</seller></order>");
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><order id=\"2\"><customer>wgz</customer><price>666.0</price><productname>water</productname><quantity>1</quantity><seller>shop</seller></order>");
 		connection.disconnect();
 		
 	}
