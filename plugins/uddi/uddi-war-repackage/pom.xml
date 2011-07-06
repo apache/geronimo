@@ -85,7 +85,7 @@
                  </artifactItem>
                </artifactItems>
                <includes>**/*</includes>
-               <excludes>**/persistence.xml,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar,**/geronimo-jaxws_2.2_spec*.jar,**/uddi-ws*.jar</excludes>
+               <excludes>**/persistence.xml,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar,**/geronimo-jaxws_2.2_spec*.jar,**/uddi-ws*.jar,,**/wsdl4j*.jar</excludes>
                <outputDirectory>${project.build.directory}/classes</outputDirectory>
                <overWriteReleases>false</overWriteReleases>
                <overWriteSnapshots>true</overWriteSnapshots>

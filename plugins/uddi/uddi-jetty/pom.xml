@@ -124,7 +124,11 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
         </dependency>   
-			
+        
+        <dependency>         
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
+        </dependency>   			
 		
     </dependencies>
     
