@@ -15,6 +15,17 @@
  * limitations under the License.
  */
 package org.apache.geronimo.testsuite.restful.app;
+
+import java.util.HashSet;
+import java.util.Set;
+
 @javax.ws.rs.ApplicationPath("resources")
 public class ApplicationConfig extends javax.ws.rs.core.Application {
+    
+    @Override
+    public Set<Class<?>> getClasses() {
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(OrderResource.class);
+        return classes;
+    }
 }
