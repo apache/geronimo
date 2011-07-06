@@ -20,6 +20,7 @@
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.0">
 
@@ -39,6 +40,18 @@
             http://geronimo.apache.org/xml/ns/j2ee/application-2.0
         </xs:documentation>
     </xs:annotation>
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2"
+        schemaLocation="geronimo-naming-1.2.xsd">
+        <xs:annotation>
+            <xs:documentation>
+                Import partial schema containing common naming elements, the
+                imported plan declares elements like ejb-ref, ejb-local-ref,
+                service-ref, resource-ref, and resource-env-ref required by this
+                plan schema.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:import>
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
         schemaLocation="geronimo-module-1.2.xsd">
@@ -116,6 +129,26 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+
+            <xs:group ref="naming:jndiEnvironmentRefsGroup">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to jndiEnvironmentRefsGroup group defined in
+                        imported "geronimo-naming-1.2.xsd"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:group>
+
+            <xs:element ref="naming:message-destination" minOccurs="0"
+                maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to message-destination element defined in
+                        imported "geronimo-naming-1.2.xsd"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
             <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>

@@ -46,6 +46,13 @@
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         </dependency>
 
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.schema</groupId>-->
             <!--<artifactId>geronimo-schema-javaee_6</artifactId>-->
@@ -61,26 +68,41 @@
             <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
         <!--</dependency>-->
     </dependencies>
-
+    
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88,
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>
+                        <Export-Package>
+                            org.apache.geronimo.xbeans.geronimo.naming,
+                            org.apache.geronimo.xbeans.geronimo.naming.impl,
+                            org.apache.geronimo.schema
+                        </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
 
