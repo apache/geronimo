@@ -48,14 +48,14 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
     }
 
     protected ConfigurationAwareReference(Artifact[] configId, Set<AbstractNameQuery> abstractNameQueries) {
-        if (configId == null || configId.length == 0) {
-            throw new NullPointerException("No configId");
-        }
         this.configId = configId;
         this.abstractNameQueries = abstractNameQueries;
     }
 
     public Configuration getConfiguration() throws GBeanNotFoundException {
+        if(configId == null || configId.length == 0) {
+            return null;
+        }
         Kernel kernel = getKernel();
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         Configuration configuration =  configurationManager.getConfiguration(configId[0]);
@@ -66,7 +66,7 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
                     return configuration;
                 }
             }
-            throw new IllegalStateException("No configuration found for id: " + configId[0]);
+            return null;
         }
         next: for (int i = 1; i < configId.length; i++) {
             List<Configuration> children = configuration.getChildren();
@@ -76,22 +76,30 @@ public abstract class ConfigurationAwareReference extends SimpleAwareReference {
                     break next;
                 }
             }
-            throw new GBeanNotFoundException("No configuration found for id: " + configId[i], null);
+            return null;
         }
         return configuration;
     }
 
     public AbstractName resolveTargetName() throws GBeanNotFoundException {
+        AbstractName gbeanAbName = null;
         Configuration configuration = getConfiguration();
         try {
-            return configuration.findGBean(abstractNameQueries);
-        } catch (GBeanNotFoundException e) {
-            Set results = getKernel().listGBeans(abstractNameQueries);
-            if (results.size() == 1) {
-                return (AbstractName) results.iterator().next();
+            if (configuration != null) {
+                gbeanAbName = configuration.findGBean(abstractNameQueries);
             }
-            throw new GBeanNotFoundException("Name query " + abstractNameQueries + " not satisfied in kernel, matches: " + results, e);
+        } catch (GBeanNotFoundException e) {
+            //Ignore this
         }
+        if (gbeanAbName == null) {
+            Set<AbstractName> results = getKernel().listGBeans(abstractNameQueries);
+            if (results.size() == 1) {
+                return results.iterator().next();
+            } else {
+                throw new GBeanNotFoundException("ConfigurationAwareReference", abstractNameQueries, results);
+            }
+        }
+        return gbeanAbName;
     }
 
 }

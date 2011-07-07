@@ -231,7 +231,8 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         Map<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("j2eeType", NameFactory.PERSISTENCE_UNIT);
         nameMap.put("name", persistenceUnitName);
-        persistenceUnitNameQuery = new AbstractNameQuery(localConfiguration.getId(), nameMap, PERSISTENCE_UNIT_INTERFACE_TYPES);
+        //Do not set configId, so the query will work on both server and application client sides
+        persistenceUnitNameQuery = new AbstractNameQuery(null, nameMap, PERSISTENCE_UNIT_INTERFACE_TYPES);
         Set<AbstractName> matches = new HashSet<AbstractName>();
         switch (checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching, true, matches)) {
             case 1:
@@ -240,7 +241,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 //try unrestricted search on name persistence/<name>
                 persistenceUnitName = "persistence/" + persistenceUnitName;
                 nameMap.put("name", persistenceUnitName);
-                persistenceUnitNameQuery = new AbstractNameQuery(localConfiguration.getId(), nameMap, PERSISTENCE_UNIT_INTERFACE_TYPES);
+                persistenceUnitNameQuery = new AbstractNameQuery(null, nameMap, PERSISTENCE_UNIT_INTERFACE_TYPES);
                 if (1 == checkForGBean(localConfiguration, persistenceUnitNameQuery, false, true, new HashSet<AbstractName>())) {
                     return persistenceUnitNameQuery;
                 }
@@ -248,18 +249,18 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         }
         //there was more than one match, and if necessary persistence/ was prepended to the name.
         AbstractName childName = module.getEarContext().getNaming().createChildName(module.getModuleName(), persistenceUnitName, NameFactory.PERSISTENCE_UNIT);
-        persistenceUnitNameQuery = new AbstractNameQuery(localConfiguration.getId(), childName.getName(), PERSISTENCE_UNIT_INTERFACE_TYPES);
+        persistenceUnitNameQuery = new AbstractNameQuery(null, childName.getName(), PERSISTENCE_UNIT_INTERFACE_TYPES);
         try {
             checkForGBean(localConfiguration, persistenceUnitNameQuery, false, false, new HashSet<AbstractName>());
             return persistenceUnitNameQuery;
         } catch (DeploymentException e) {
-            // 
+            //
             for (Iterator<AbstractName> i = matches.iterator(); i.hasNext();) {
                 AbstractName abstractName = i.next();
                 if (isParentModule(abstractName.getName(), childName.getName())) {
                     return new AbstractNameQuery(abstractName.getArtifact(), abstractName.getName(), PERSISTENCE_UNIT_INTERFACE_TYPES);
                 }
-            }            
+            }
             throw e;
         }
     }
@@ -275,9 +276,9 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
             return NameFactory.APP_CLIENT_MODULE;
         } else {
             return null;
-        }            
-    }    
-    
+        }
+    }
+
     private boolean isParentModule(Map parent, Map child) {
         String parentModuleType = getModuleType(parent);
         String childModuleType = getModuleType(child);
@@ -287,7 +288,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
             return false;
         }
     }
-    
+
 
     private static int checkForGBean(Configuration localConfiguration, AbstractNameQuery persistenceQuery, boolean allowNone, boolean allowMultiple, Set<AbstractName> matches) throws DeploymentException {
         try {
@@ -316,7 +317,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
             if ("cmp".equals(nameMap.get("name"))) {
                 it.remove();
             } else {
-                persistenceUnitNameQuery = new AbstractNameQuery(name);
+                persistenceUnitNameQuery = new AbstractNameQuery(null, name.getName());
             }
         }
         if (gbeans.size() > 1) {
