@@ -358,7 +358,15 @@ public abstract class Module<T, U> {
         public int compare(Module<?, ?> m1, Module<?, ?> m2) {
             boolean m1AppClientModule = m1 instanceof AppClientModule;
             boolean m2AppClientModule = m2 instanceof AppClientModule;
-            return m1AppClientModule && m2AppClientModule ? 0 : (m1AppClientModule ? -1 : 1);
+            if(m1AppClientModule && m2AppClientModule) {
+                return 0;
+            } else if(m1AppClientModule) {
+                return 1;
+            } else if(m2AppClientModule) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
     }
 }
