@@ -23,19 +23,35 @@ package org.apache.geronimo.naming.reference;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.xbean.naming.reference.SimpleReference;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceReference<E extends Throwable> extends SimpleReference implements BundleAwareReference {
+public class ResourceReference<E extends Throwable> extends SimpleReference implements BundleAwareReference, KernelAwareReference {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResourceReference.class);
     private final String type;
-    private final String query;
+    private String query;
+    private AbstractName gbeanName;
     private transient BundleContext bundleContext;
+
+    public ResourceReference(AbstractName gbeanName, String type) {
+        this.gbeanName = gbeanName;
+        this.type = type;
+    }
 
     public ResourceReference(String query, String type) {
         this.query = query;
@@ -51,7 +67,7 @@ public class ResourceReference<E extends Throwable> extends SimpleReference impl
                 throw new NameNotFoundException("could not locate osgi service matching " + query);
             }
             ref = refs[0];
-            @SuppressWarnings("Unchecked")
+            @SuppressWarnings("unchecked")
             ResourceSource<E> source = (ResourceSource<E>) bundleContext.getService(ref);
             return source.$getResource();
         } catch (Throwable e) {
@@ -71,5 +87,21 @@ public class ResourceReference<E extends Throwable> extends SimpleReference impl
     @Override
     public void setBundle(Bundle bundle) {
         this.bundleContext = bundle.getBundleContext();
+    }
+
+    @Override
+    public void setKernel(Kernel kernel) {
+        if(query == null) {
+            try {
+                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+                AbstractName mappedAbstractName = new AbstractName(configurationManager.getArtifactResolver().resolveInClassLoader(gbeanName.getArtifact()), gbeanName.getName());
+                String osgiJndiName = kernel.getNaming().toOsgiJndiName(mappedAbstractName);
+                query = "(osgi.jndi.service.name=" + osgiJndiName + ')';
+            } catch (GBeanNotFoundException e) {
+                logger.error("Fail to build the jndi name for " + gbeanName, e);
+            } catch (MissingDependencyException e) {
+                logger.error("Fail to build the jndi name for " + gbeanName, e);
+            }
+        }
     }
 }

@@ -386,8 +386,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         Configuration localConfiguration = module.getEarContext().getConfiguration();
         try {
             AbstractName abstractName = localConfiguration.findGBean(containerId);
-            String osgiJndiName = "aries:services/" + module.getEarContext().getNaming().toOsgiJndiName(abstractName);
-            return new JndiReference(osgiJndiName);
+            //String osgiJndiName = "aries:services/" + module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+            return new JndiReference("aries:services/", abstractName);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId(), e);
         }

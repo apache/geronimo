@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.annotation.ManagedBean;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
@@ -145,8 +146,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             String type = getStringValue(resourceRef.getResType());
             type = inferAndCheckType(module, bundle, resourceRef.getInjectionTarget(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);
-            log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
-
+            if (log.isDebugEnabled()) {
+                log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
+            }
             Object value = null;
             if (gerResourceRef == null) {
                 String lookupName = getStringValue(resourceRef.getLookupName());
@@ -235,10 +237,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
                 String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
 
-                return new ResourceReference(filter, type);
+                return new ResourceReference(abstractName, type);
                         //ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
             } catch (GBeanNotFoundException e) {
-                StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
+                StringBuilder errorMessage = new StringBuilder("Unable to resolve resource reference '");
                 errorMessage.append(name);
                 errorMessage.append("' (");
                 if (e.hasMatches()) {
@@ -357,12 +359,13 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
 
         public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) {
-            log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
-                    "[annotation] " + annotation.toString() + "," + '\n' +
-                    "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
-                    "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
-                    "[field] " + (field != null ? field.getName() : null) + " ): Entry");
-
+            if(log.isDebugEnabled()) {
+                log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+                        "[annotation] " + annotation.toString() + "," + '\n' +
+                        "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
+                        "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
+                        "[field] " + (field != null ? field.getName() : null) + " ): Entry");
+            }
             String resourceName = getResourceName(annotation, method, field);
             Class resourceTypeClass = getResourceTypeClass(annotation, method, field);
             String resourceType = resourceTypeClass.getCanonicalName();
