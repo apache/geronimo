@@ -69,23 +69,22 @@ public class GeronimoResourceInjectionService implements ResourceInjectionServic
             Field[] fields = securityService.doPrivilegedGetDeclaredFields(currentClass);
 
             for (Field field : fields) {
-                if (!field.isAnnotationPresent(Produces.class)) {
-                    if (!Modifier.isStatic(field.getModifiers())) {
-                        Annotation ann = AnnotationUtil.hasOwbInjectableResource(field.getDeclaredAnnotations());
-                        if (ann != null) {
-                            @SuppressWarnings("unchecked")
-                            ResourceReference<Object, ?> resourceRef = new ResourceReference(field.getDeclaringClass(), field.getName(), field.getType(), ann);
-                            boolean acess = field.isAccessible();
-                            try {
-                                securityService.doPrivilegedSetAccessible(field, true);
-                                field.set(managedBeanInstance, getResourceReference(resourceRef));
-                            } catch (Exception e) {
-                                throw new WebBeansException("Unable to inject field" + field, e);
-                            } finally {
-                                securityService.doPrivilegedSetAccessible(field, acess);
-                            }
-                        }
-                    }
+                if (Modifier.isStatic(field.getModifiers())) continue;
+
+                Annotation ann = AnnotationUtil.hasOwbInjectableResource(field.getDeclaredAnnotations());
+
+                if (ann == null) continue;
+
+                @SuppressWarnings("unchecked")
+                ResourceReference<Object, ?> resourceRef = new ResourceReference(field.getDeclaringClass(), field.getName(), field.getType(), ann);
+                boolean acess = field.isAccessible();
+                try {
+                    securityService.doPrivilegedSetAccessible(field, true);
+                    field.set(managedBeanInstance, getResourceReference(resourceRef));
+                } catch (Exception e) {
+                    throw new WebBeansException("Unable to inject field" + field, e);
+                } finally {
+                    securityService.doPrivilegedSetAccessible(field, acess);
                 }
             }
             currentClass = currentClass.getSuperclass();
