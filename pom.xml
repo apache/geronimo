@@ -80,8 +80,8 @@
         <xbeanVersion>3.8-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1</txmanagerVersion>
-        <tranqlVersion>1.6</tranqlVersion>
-        <tranqlDerbyVersion>1.6</tranqlDerbyVersion>
+        <tranqlVersion>1.7</tranqlVersion>
+        <tranqlDerbyVersion>1.7</tranqlDerbyVersion>
         <jaxbImplVersion>2.2.3-1_1-SNAPSHOT</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>

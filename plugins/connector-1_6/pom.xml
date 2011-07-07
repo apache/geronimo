@@ -199,7 +199,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-db2-xa</artifactId>
-                <version>1.5</version>
+                <version>1.6</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -216,7 +216,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-informix-xa</artifactId>
-                <version>1.3</version>
+                <version>1.4</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -233,7 +233,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-local</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -250,7 +250,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-xa</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -267,7 +267,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-oracle-local</artifactId>
-                <version>1.6</version>
+                <version>1.7</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -284,7 +284,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-oracle-xa</artifactId>
-                <version>1.6</version>
+                <version>1.7</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -301,7 +301,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-oracle-rac-local</artifactId>
-                <version>1.6</version>
+                <version>1.7</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -318,7 +318,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-postgresql-local</artifactId>
-                <version>1.3</version>
+                <version>1.4</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -335,7 +335,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-postgresql-xa</artifactId>
-                <version>1.3</version>
+                <version>1.4</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -352,7 +352,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-sqlserver2000-xa</artifactId>
-                <version>1.2</version>
+                <version>1.3</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -369,12 +369,29 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
-                <version>1.2</version>
+                <version>1.3</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
                         <groupId>org.tranql</groupId>
                         <artifactId>tranql-connector-sqlserver2005-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.tranql</groupId>
+                <artifactId>tranql-connector-db2ISeries-xa</artifactId>
+                <version>1.0</version>
+                <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-db2ISeries-common</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.tranql</groupId>
