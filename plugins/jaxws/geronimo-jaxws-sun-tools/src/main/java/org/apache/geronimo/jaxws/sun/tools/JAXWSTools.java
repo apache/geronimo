@@ -54,6 +54,7 @@ public class JAXWSTools {
         { "org.apache.geronimo.javamail", "geronimo-javamail_1.4_mail"},
         { "org.apache.geronimo.specs",    "geronimo-activation_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-annotation_1.1_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-atinject_1.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-ws-metadata_2.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-ejb_3.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-interceptor_1.1_spec"},
