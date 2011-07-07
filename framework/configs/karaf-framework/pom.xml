@@ -381,8 +381,8 @@
             <artifactId>sshd-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
-            <artifactId>osgi</artifactId>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
