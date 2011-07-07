@@ -94,9 +94,8 @@
 
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.derby</groupId>
-                        <artifactId>derby</artifactId>
-                        <!-- HACK: For some reason this is not picked up from dependencyManagement -->
+                        <groupId>org.apache.geronimo.bundles</groupId>
+                        <artifactId>derby-all</artifactId>
                         <version>${derbyVersion}</version>
                     </dependency>
                 </dependencies>

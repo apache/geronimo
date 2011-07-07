@@ -72,7 +72,7 @@
         <openejbVersion>4.0.0-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.1.1-SNAPSHOT</openjpaVersion>
         <openwebbeansVersion>1.1.1-SNAPSHOT</openwebbeansVersion>
-        <derbyVersion>10.6.1.0</derbyVersion>
+        <derbyVersion>10.6.1.0_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.7.0</axis2Version>
         <axiomVersion>1.2.12</axiomVersion>
@@ -680,33 +680,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${derbyVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbynet</artifactId>
-                <version>${derbyVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbyclient</artifactId>
-                <version>${derbyVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbytools</artifactId>
-                <version>${derbyVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>derby-all</artifactId>
-                <version>${derbyVersion}_1</version>
+                <version>${derbyVersion}</version>
             </dependency>
 
             <dependency>
@@ -804,12 +780,6 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
                 <version>1.2_2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>xml-resolver</groupId>
-                <artifactId>xml-resolver</artifactId>
-                <version>1.2</version>
             </dependency>
 
             <dependency>
