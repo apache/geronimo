@@ -65,10 +65,10 @@ public abstract class Module<T, U> {
 
     private final Map<JndiKey, Map<String, Object>> jndiContext;
     private final Module<?, ?> parentModule;
-    
+
     /*
      * The Modules should be sorted with following sequence:
-     * 
+     *
      * 1, ConnectorModule
      * 2, EJBModule
      * 3, WebModule
@@ -344,12 +344,21 @@ public abstract class Module<T, U> {
         }
         return jndiContext;
     }
-    
+
 
     public static class ModulePriorityComparator implements Comparator<Module<?,?>> {
 
         public int compare(Module<?,?> m1, Module<?,?> m2) {
             return m1.priority - m2.priority;
+        }
+    }
+
+    public static class AppClientModuleLastComparator implements Comparator<Module<?, ?>> {
+
+        public int compare(Module<?, ?> m1, Module<?, ?> m2) {
+            boolean m1AppClientModule = m1 instanceof AppClientModule;
+            boolean m2AppClientModule = m2 instanceof AppClientModule;
+            return m1AppClientModule && m2AppClientModule ? 0 : (m1AppClientModule ? -1 : 1);
         }
     }
 }

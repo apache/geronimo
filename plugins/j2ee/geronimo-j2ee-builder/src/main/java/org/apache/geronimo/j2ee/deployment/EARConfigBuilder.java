@@ -545,14 +545,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
-        
+
         if (earFile != null) {
             Manifest mf = earFile.getManifest();
             if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null) {
                 log.warn("Application module contains OSGi manifest. The OSGi manifest will be ignored and the application will be deployed as a regular Java EE application.");
             }
         }
-        
+
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
         EARContext earContext = null;
@@ -595,12 +595,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             boolean initModulesInDDOrder = false;
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
-                Application specDD = (Application) applicationInfo.getSpecDD();
-                
+                Application specDD = applicationInfo.getSpecDD();
+
                 if (specDD != null && specDD.getInitializeInOrder() != null) {
                     initModulesInDDOrder = specDD.getInitializeInOrder();
                 }
-                
+
                 String libDir = getLibraryDirectory(specDD);
                 Collection<String> libClasspath = applicationInfo.getClassPath();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
@@ -613,12 +613,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             break;
                         }
                     }
-                    
+
                     if (addEntry) {
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
-                
+
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -628,26 +628,29 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
                         earContext.addManifestClassPath(library, URI.create(libDir+"/"), libClasspath);
-                    } 
+                    }
                 }
-                
+
             }
-            
-            
+
+
             for(String classpath:applicationInfo.getClassPath()){
                 earContext.addToClassPath(classpath);
             }
-            
+
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
-            
+
             List<Module<?,?>> modules = new ArrayList<Module<?,?>>();
             modules.addAll(applicationInfo.getModules());
-            if (!initModulesInDDOrder){
+            if (initModulesInDDOrder){
+                //Per the xsd description, the application client module could be in any order
+                Collections.sort(modules, new Module.AppClientModuleLastComparator());
+            } else {
                 Collections.sort(modules, new Module.ModulePriorityComparator());
             }
-                
+
             for (Module<?,?> module : modules) {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
@@ -689,11 +692,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             if (ConfigurationModuleType.EAR == applicationType) {
-                
+
                 for (ModuleBuilderExtension mbe : BValModuleBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
-                }                
-                
+                }
+
                 // process persistence unit in EAR library directory
                 for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
