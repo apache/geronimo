@@ -217,7 +217,7 @@ public class BundleManagerPortlet extends BasePortlet {
                         addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.update", symbolicName, id));
                     } else if (REFRESH_OPERATION.equals(operation)) {
                         ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
-                        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+                        PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
                         packageAdmin.refreshPackages(new Bundle[]{bundle});
                         addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.refresh", symbolicName, id));
                     } else {
