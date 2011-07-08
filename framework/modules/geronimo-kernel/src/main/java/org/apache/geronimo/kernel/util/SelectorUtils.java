@@ -542,7 +542,7 @@ public final class SelectorUtils {
             //remove the initial separator; the root has it.
             next = (ca[next] == sep) ? next + 1 : next;
 
-            StringBuffer sbPath = new StringBuffer();
+            StringBuilder sbPath = new StringBuilder();
             // Eliminate consecutive slashes after the drive spec:
             for (int i = next; i < ca.length; i++) {
                 if (ca[i] != sep || ca[i - 1] != sep) {
@@ -676,7 +676,7 @@ public final class SelectorUtils {
      * @return a String that has had all whitespace removed.
      */
     public static String removeWhitespace(String input) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if (input != null) {
             StringTokenizer st = new StringTokenizer(input);
             while (st.hasMoreTokens()) {
@@ -702,7 +702,7 @@ public final class SelectorUtils {
      */
     public static String rtrimWildcardTokens(String input) {
         Vector v = tokenizePath(input, File.separator);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int counter = 0; counter < v.size(); counter++) {
             if (hasWildcards((String) v.elementAt(counter))) {
                 break;

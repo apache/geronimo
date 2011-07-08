@@ -55,7 +55,7 @@ public class FindEntityByNamesQuery extends EntityQuery {
 		this.entityNameChild = entityNameChild;
 		this.entityAliasChild = buildAlias(entityNameChild);
 		
-		StringBuffer sql = new StringBuffer(200);
+		StringBuilder sql = new StringBuilder(200);
 		sql.append("select distinct " + entityAlias + "." + keyName + " from " + entityName + " " + entityAlias + " ");
 		selectSQL = sql.toString();
 	}

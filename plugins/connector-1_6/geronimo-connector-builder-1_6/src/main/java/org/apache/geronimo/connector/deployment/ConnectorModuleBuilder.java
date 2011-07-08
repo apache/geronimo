@@ -1131,7 +1131,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             gbeanData.setAttribute(name, getValue(type, configProperty.getStringValue().trim(), bundle));
         }
         if (unknownNames.size() > 0) {
-            StringBuffer buf = new StringBuffer("The plan is trying to set attributes: ").append(unknownNames).append("\n");
+            StringBuilder buf = new StringBuilder("The plan is trying to set attributes: ").append(unknownNames).append("\n");
             buf.append("Known attributes: \n");
             for (GAttributeInfo attributeInfo : gbeanData.getGBeanInfo().getAttributes()) {
                 buf.append(attributeInfo).append("\n");

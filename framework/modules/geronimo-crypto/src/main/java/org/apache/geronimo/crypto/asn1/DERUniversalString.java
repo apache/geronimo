@@ -78,7 +78,7 @@ public class DERUniversalString
 
     public String getString()
     {
-        StringBuffer    buf = new StringBuffer("#");
+        StringBuilder    buf = new StringBuilder("#");
         ByteArrayOutputStream    bOut = new ByteArrayOutputStream();
         ASN1OutputStream            aOut = new ASN1OutputStream(bOut);
 

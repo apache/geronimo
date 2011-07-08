@@ -335,7 +335,7 @@ public class ClassLoading {
      *         format.
      */
     public static String getClassName(Class type) {
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
 
         // we test these in reverse order from the resolution steps,
         // first handling arrays, then primitive types, and finally

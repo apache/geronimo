@@ -358,7 +358,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             Map<String, GerMessageDestinationType> destinations = messageDestinations.get(targetModule);
             // Hmmm...if we don't find the module then something is wrong in the deployment.
             if (destinations == null) {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (Object o : messageDestinations.keySet()) {
                     sb.append(o).append("\n");
                 }

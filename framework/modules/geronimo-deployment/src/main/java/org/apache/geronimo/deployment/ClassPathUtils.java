@@ -336,7 +336,7 @@ public class ClassPathUtils {
     }
 
     private static String printInfo(String message, URI moduleBaseUri, Collection<String> classpath, Collection<String> exclusions) {
-        StringBuffer buf = new StringBuffer(message).append("\n");
+        StringBuilder buf = new StringBuilder(message).append("\n");
         buf.append("    looking at: ").append(moduleBaseUri);
         buf.append("    current classpath: ").append(classpath);
         buf.append("    ignoring modules: ").append(exclusions);

@@ -354,7 +354,7 @@ public class LocalEntityResolver implements EntityResolver {
             final String publicId,
             final String systemId) {
 
-        StringBuffer buffer = new StringBuffer("entity with publicId '");
+        StringBuilder buffer = new StringBuilder("entity with publicId '");
         buffer.append(publicId);
         buffer.append("' and systemId '");
         buffer.append(systemId);

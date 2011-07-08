@@ -81,7 +81,7 @@ public class RMIClassLoaderSpiImpl
             if (null == urls) {
                 return delegate.getClassAnnotation(type);
             }
-            StringBuffer codebase = new StringBuffer();
+            StringBuilder codebase = new StringBuilder();
             for (int i = 0; i < urls.length; i++) {
                 URL url = normalizeURL(urls[i]);
                 if (codebase.length() != 0) {
@@ -133,8 +133,8 @@ public class RMIClassLoaderSpiImpl
     {
         assert input != null;
 
-        StringBuffer codebase = new StringBuffer();
-        StringBuffer working = new StringBuffer();
+        StringBuilder codebase = new StringBuilder();
+        StringBuilder working = new StringBuilder();
         StringTokenizer stok = new StringTokenizer(input, " \t\n\r\f", true);
         
         while (stok.hasMoreTokens()) {
@@ -168,7 +168,7 @@ public class RMIClassLoaderSpiImpl
         return codebase.toString();
     }
     
-    private static void updateCodebase(final StringBuffer working, final StringBuffer codebase)
+    private static void updateCodebase(final StringBuilder working, final StringBuilder codebase)
         throws MalformedURLException
     {
         if (working.length() != 0) {

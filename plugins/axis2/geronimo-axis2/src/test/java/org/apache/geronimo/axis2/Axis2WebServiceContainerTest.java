@@ -98,7 +98,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         InputStream request;
 
         for(int i = 0; i < nodeList.getLength(); i++){
-        	StringBuffer envelope = new StringBuffer("<soap:Envelope");
+        	StringBuilder envelope = new StringBuilder("<soap:Envelope");
         	Element element = (Element)nodeList.item(i);
         	NamedNodeMap attributes = element.getAttributes();
         	if(attributes != null){
@@ -174,7 +174,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     }
 
     private String getElementContent(Element e){
-    	StringBuffer content = new StringBuffer("<"+e.getNodeName());
+    	StringBuilder content = new StringBuilder("<"+e.getNodeName());
     	NamedNodeMap attributes = e.getAttributes();
 
     	if(attributes != null){

@@ -901,7 +901,7 @@ public class KernelDelegate implements Kernel {
             if (cause instanceof InstanceNotFoundException) {
                 throw new InternalKernelException("Kernel is not loaded", cause);
             } else if (cause instanceof NoSuchMethodException) {
-                StringBuffer buf = new StringBuffer("KernelDelegate is out of synch with Kernel on ");
+                StringBuilder buf = new StringBuilder("KernelDelegate is out of synch with Kernel on ");
                 buf.append(methodName).append("(");
                 if(types != null) {
                     for (int i = 0; i < types.length; i++) {

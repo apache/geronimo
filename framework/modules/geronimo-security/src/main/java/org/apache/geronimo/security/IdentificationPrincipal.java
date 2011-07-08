@@ -79,7 +79,7 @@ public class IdentificationPrincipal implements Principal, Serializable {
     public String getName() {
         if (name == null) {
 
-            StringBuffer buffer = new StringBuffer("");
+            StringBuilder buffer = new StringBuilder("");
             buffer.append(getClass().getName());
             buffer.append("[");
             buffer.append(id);

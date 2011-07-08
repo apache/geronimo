@@ -180,7 +180,7 @@ public class WSDescriptorParser {
                 //class name is the complex type QNMAne local part + "Holder", with the initial character uppercased.
                 String namespace = typeQName.getNamespaceURI();
                 String packageName = WSDescriptorParser.getPackageFromNamespace(namespace, mapping);
-                StringBuffer buf = new StringBuffer(packageName.length() + typeQName.getLocalPart().length() + 14);
+                StringBuilder buf = new StringBuilder(packageName.length() + typeQName.getLocalPart().length() + 14);
                 buf.append(packageName).append(".holders.").append(typeQName.getLocalPart()).append("Holder");
                 buf.setCharAt(packageName.length() + 9, Character.toUpperCase(typeQName.getLocalPart().charAt(0)));
                 holderName = buf.toString();
@@ -205,7 +205,7 @@ public class WSDescriptorParser {
                 //package same as type's package + ".holders"
                 //class name same as type name + "Holder"
                 String paramTypeName = paramJavaType.getName();
-                StringBuffer buf = new StringBuffer(paramTypeName.length() + 14);
+                StringBuilder buf = new StringBuilder(paramTypeName.length() + 14);
                 int dot = paramTypeName.lastIndexOf(".");
                 //foo.Bar >>> foo.holders.BarHolder
                 buf.append(paramTypeName.substring(0, dot)).append(".holders").append(paramTypeName.substring(dot)).append("Holder");
@@ -226,7 +226,7 @@ public class WSDescriptorParser {
             }
         }
         // Build list of available operations for exception
-        StringBuffer availOps = new StringBuffer(128);
+        StringBuilder availOps = new StringBuilder(128);
         for (ServiceEndpointMethodMapping mapping: methodMappings) {
             if (availOps.length() > 0) availOps.append(",");
             availOps.append(mapping.getWsdlOperation());

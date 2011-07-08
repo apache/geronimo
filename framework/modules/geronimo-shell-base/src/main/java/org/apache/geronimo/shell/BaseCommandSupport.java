@@ -90,7 +90,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     }
 
     private String readLine(String msg, char mask) throws IOException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (msg != null) {
             session.getConsole().print(msg);
             session.getConsole().flush();

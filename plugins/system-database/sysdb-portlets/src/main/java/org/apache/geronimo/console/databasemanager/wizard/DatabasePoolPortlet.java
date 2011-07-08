@@ -650,7 +650,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             return null;
         }
         Element first = (Element) list.item(0);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         NodeList all = first.getChildNodes();
         for (int i = 0; i < all.getLength(); i++) {
             Node node = all.item(i);
@@ -1272,7 +1272,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             } else {
                 if (value.indexOf('\\') != -1 || value.indexOf('$') != -1) {
                     // value contains backslash or dollar sign and needs preprocessing for replaceAll to work properly
-                    StringBuffer temp = new StringBuffer();
+                    StringBuilder temp = new StringBuilder();
                     char[] valueChars = value.toCharArray();
                     for (char valueChar : valueChars) {
                         if (valueChar == '\\' || valueChar == '$') {
@@ -1432,7 +1432,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private static String getPropertyName(String key) {
             int pos = key.indexOf('-');
             key = Character.toUpperCase(key.charAt(pos + 1)) + key.substring(pos + 2);
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             pos = 0;
             for (int i = 1; i < key.length(); i++) {
                  if(key.charAt(i)=='_')

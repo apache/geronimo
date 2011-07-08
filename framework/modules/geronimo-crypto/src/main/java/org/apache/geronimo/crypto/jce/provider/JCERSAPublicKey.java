@@ -145,7 +145,7 @@ public class JCERSAPublicKey
 
     public String toString()
     {
-        StringBuffer    buf = new StringBuffer();
+        StringBuilder    buf = new StringBuilder();
         String          nl = System.getProperty("line.separator");
 
         buf.append("RSA Public Key" + nl);

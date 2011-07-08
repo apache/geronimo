@@ -84,7 +84,7 @@ public abstract class AbstractEntryFactory<T, S> implements EntryFactory<T> {
         if (!clazz.isAssignableFrom(proxy.getClass())) {
             Class proxyClass = proxy.getClass();
             Class[] interfaces = proxyClass.getInterfaces();
-            StringBuffer message = new StringBuffer();
+            StringBuilder message = new StringBuilder();
             boolean namesMatch = false;
             for (Class anInterface : interfaces) {
                 if (clazz.getName().equals(anInterface.getName())) {

@@ -129,7 +129,7 @@ public class FileMessageFilter implements Filter {
         if (filterConfig == null) {
             return ("MessageFilter()");
         }
-        StringBuffer sb = new StringBuffer("MessageFilter()");
+        StringBuilder sb = new StringBuilder("MessageFilter()");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());

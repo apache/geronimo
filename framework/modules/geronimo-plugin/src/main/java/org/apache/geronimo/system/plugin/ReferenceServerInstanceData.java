@@ -81,7 +81,7 @@ public class ReferenceServerInstanceData extends ServerInstanceData {
 
     @Override
      public String toString() {
-         StringBuffer buf = new StringBuffer();
+         StringBuilder buf = new StringBuilder();
          buf.append("ReferenceServerInstanceData:\n");
          buf.append("  Name: ").append(getName()).append("\n");
          buf.append("  ConfigFile: ").append(getConfigFile()).append("\n");

@@ -175,7 +175,7 @@ public class TestUtils {
             is = conn.getErrorStream();
         }
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String inputLine;
         while ((inputLine = in.readLine()) != null) {

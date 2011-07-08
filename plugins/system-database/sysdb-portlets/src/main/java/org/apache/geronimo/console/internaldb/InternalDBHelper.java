@@ -173,7 +173,7 @@ public class InternalDBHelper {
      * Get a specific column data as a string separated by ','.
      */
     private String getColumnData(ResultSet rs, String colName) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         try {
             ResultSetMetaData rsmd = rs.getMetaData();
 

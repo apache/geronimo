@@ -61,7 +61,7 @@ public class ActiveMQConnectorHelper {
     private static final String DEPLOY_METHOD = "deploy";
 
     private static String getPlanTemplate() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\"?>\n");
         sb
                 .append("<connector xmlns=\"http://geronimo.apache.org/xml/ns/j2ee/connector-1.0\"\n");
@@ -157,7 +157,7 @@ public class ActiveMQConnectorHelper {
                 configurationManager.startConfiguration(configID);
             }
         } catch (DeploymentException e) {
-            StringBuffer buf = new StringBuffer(256);
+            StringBuilder buf = new StringBuilder(256);
             Throwable cause = e;
             while (cause != null) {
                 buf.append(cause.getMessage());

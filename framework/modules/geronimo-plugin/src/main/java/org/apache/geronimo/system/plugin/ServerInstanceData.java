@@ -132,7 +132,7 @@ public class ServerInstanceData {
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("ServerInstanceData:\n");
         buf.append("  Name: ").append(getName()).append("\n");
         buf.append("  AttributeManagerFrom: ").append(getAttributeManagerFrom()).append("\n");

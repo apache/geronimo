@@ -77,7 +77,7 @@ public class DeployUtils extends ConfigIDExtractor {
             throw new IllegalArgumentException("Need at least 10 spaces for " +
                 "printing, but indent=" + indent + " and endCol=" + endCol);
         }
-        StringBuffer buf = new StringBuffer((int) (source.length() * 1.1));
+        StringBuilder buf = new StringBuilder((int) (source.length() * 1.1));
         String prefix = indent == 0 ? "" : buildIndent(indent);
         try {
             BufferedReader in = new BufferedReader(new StringReader(source));
@@ -136,7 +136,7 @@ public class DeployUtils extends ConfigIDExtractor {
     }
 
     private static String buildIndent(int indent) {
-        StringBuffer buf = new StringBuffer(indent);
+        StringBuilder buf = new StringBuilder(indent);
         for (int i = 0; i < indent; i++) {
             buf.append(' ');
         }

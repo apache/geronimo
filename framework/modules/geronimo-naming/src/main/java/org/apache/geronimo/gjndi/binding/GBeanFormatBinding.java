@@ -32,19 +32,14 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.spi.ObjectFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -88,9 +83,9 @@ public class GBeanFormatBinding extends KernelContextGBean {
         map.put("version", artifact.getVersion().toString());
         map.put("type", artifact.getType());
         String fullName = format(format, map);
-        
+
         Name parsedName = getContext().getNameParser("").parse(getNameInNamespace()+"/" + fullName);
-    
+
         // create intermediate contexts
         for (int i = 1; i < parsedName.size(); i++) {
             Name contextName = parsedName.getPrefix(i);

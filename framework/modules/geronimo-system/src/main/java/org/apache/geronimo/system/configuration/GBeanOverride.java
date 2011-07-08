@@ -115,7 +115,7 @@ public class GBeanOverride implements Serializable {
             return original;
         }
         int last = -1;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while (pos > -1) {
             buf.append(original.substring(last + 1, pos));
             buf.append(newArtifact);

@@ -51,7 +51,7 @@ public class CertificateChainCallbackHandler implements CallbackHandler {
                     CertificateCallback cc = (CertificateCallback) callback;
                     cc.setCertificate((X509Certificate) certificateChain[0]);
                 } else {
-                    StringBuffer buf = new StringBuffer("Invalid certificate chain: \n");
+                    StringBuilder buf = new StringBuilder("Invalid certificate chain: \n");
                     if (certificateChain == null) {
                         buf.append("certificate chain is null");
                     } else {

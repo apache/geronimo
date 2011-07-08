@@ -253,7 +253,7 @@ public class BundleResolver {
     }
 
     private void logError(BundleDescription bundle, int level, Object object) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         for (int i = 0; i < level; i++) {
             msg.append("--");
         }
@@ -452,7 +452,7 @@ public class BundleResolver {
     }
 
     public String reportErrors(BundleDescription desc) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         msg.append("Bundle ").append(desc.getSymbolicName()).append(" cannot be resolved: \n");
         BundleDescription[] bundles = state.getBundles();
         int index = 0;

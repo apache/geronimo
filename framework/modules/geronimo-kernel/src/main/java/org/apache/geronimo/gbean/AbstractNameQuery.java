@@ -151,7 +151,7 @@ public class AbstractNameQuery implements Serializable {
     }
 
     private static URI createURI(Artifact artifact, Map name, Set interfaceTypes) {
-        StringBuffer queryString = new StringBuffer();
+        StringBuilder queryString = new StringBuilder();
         TreeMap treeMap = new TreeMap(name);
         for (Iterator iterator = treeMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
@@ -162,7 +162,7 @@ public class AbstractNameQuery implements Serializable {
                 queryString.append(',');
             }
         }
-        StringBuffer fragmentString = new StringBuffer();
+        StringBuilder fragmentString = new StringBuilder();
         TreeSet treeSet = new TreeSet(interfaceTypes);
         for (Iterator iterator = treeSet.iterator(); iterator.hasNext();) {
             String interfaceType = (String) iterator.next();

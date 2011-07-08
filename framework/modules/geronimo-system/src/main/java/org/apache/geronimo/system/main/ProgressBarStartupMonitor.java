@@ -154,7 +154,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     }
 
     private synchronized void repaint() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("\r[");
         buf.append(kernel == null ? STATUS_NOT_READY : STATUS_STARTED);
         for (int i = 0; i < moduleStatus.length; i++) {

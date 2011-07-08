@@ -298,7 +298,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
     private void printServiceInfo(Response response,String serviceName) throws IOException{
         response.setContentType("text/html; charset=utf-8");
-        StringBuffer output = new StringBuffer("<h1>")
+        StringBuilder output = new StringBuilder("<h1>")
                 .append(serviceName).append("</h1>\n");
 
         output.append("<p>").append(Messages.getMessage("axisService00"))

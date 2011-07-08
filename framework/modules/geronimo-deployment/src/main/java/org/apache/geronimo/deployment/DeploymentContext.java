@@ -542,7 +542,7 @@ public class DeploymentContext {
     public ConfigurationData getConfigurationData() throws DeploymentException {
         List<String> failures = verify(configuration);
         if (!failures.isEmpty()) {
-            StringBuffer message = new StringBuffer();
+            StringBuilder message = new StringBuilder();
             for (String failure : failures) {
                 if (message.length() > 0) message.append("\n");
                 message.append(failure);

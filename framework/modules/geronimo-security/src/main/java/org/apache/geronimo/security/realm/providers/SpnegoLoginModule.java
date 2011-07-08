@@ -294,7 +294,7 @@ public class SpnegoLoginModule implements LoginModule {
      * Converts a binary SID to a string
      */
     private static String binaryToStringSID(byte[] sidBytes) {
-        StringBuffer sidString = new StringBuffer();
+        StringBuilder sidString = new StringBuilder();
         sidString.append("S-");
         // Add SID revision
         sidString.append(Byte.toString(sidBytes[0]));

@@ -234,7 +234,7 @@ public class XSRFHandler
      * @return String containing the JavaScript content, else null
      */
     private String getFile(String filename) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         InputStream is = getClass().getResourceAsStream(filename);
         if (is != null) {
             try {

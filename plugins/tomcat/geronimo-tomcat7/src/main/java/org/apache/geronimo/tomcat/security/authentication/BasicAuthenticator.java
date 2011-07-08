@@ -117,7 +117,7 @@ public class BasicAuthenticator implements Authenticator {
         // Send an "unauthorized" response and an appropriate challenge
         if (isAuthMandatory) {
             try {
-                StringBuffer authenticateCC = new StringBuffer();
+                StringBuilder authenticateCC = new StringBuilder();
                 authenticateCC.append("Basic realm=\"");
                 authenticateCC.append((realmName == null) ? "<unspecified>" : realmName);
                 authenticateCC.append('\"');

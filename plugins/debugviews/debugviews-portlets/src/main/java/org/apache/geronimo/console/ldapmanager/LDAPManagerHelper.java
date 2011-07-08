@@ -264,7 +264,7 @@ public class LDAPManagerHelper {
     public String listJSON(String name, String commonFields) throws Exception {
         // JSON: [{title:"Title1",isFolder:true}, {title:"Title2"}]
 
-        StringBuffer json = new StringBuffer();
+        StringBuilder json = new StringBuilder();
         List list = (List) list(name);
 
         json.append('[');
@@ -393,7 +393,7 @@ public class LDAPManagerHelper {
      * Create an LDAP url using host, port, and base DN
      */
     private String createLDAPURL(String host, String port, String baseDN) {
-        StringBuffer url = new StringBuffer();
+        StringBuilder url = new StringBuilder();
         url.append("ldap://");
         url.append(host);
         url.append(':');

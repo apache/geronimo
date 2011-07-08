@@ -106,7 +106,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                 }
                 String[] parts = start.split("/");
                 if(parts.length > 2) {
-                    StringBuffer buf = new StringBuffer();
+                    StringBuilder buf = new StringBuilder();
                     for (int i = 0; i < parts.length-1; i++) {
                         String part = parts[i];
                         if(i > 0) buf.append('.');

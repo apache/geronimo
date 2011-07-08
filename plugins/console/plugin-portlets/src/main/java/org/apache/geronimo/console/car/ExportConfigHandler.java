@@ -222,7 +222,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         if (strings == null || strings.size() == 0) {
             return null;
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         boolean first = true;
         for (String string : strings) {
             if (!first) {
@@ -252,7 +252,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         if (artifacts == null || artifacts.size() == 0) {
             return null;
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         boolean first = true;
         for (ArtifactType artifactType : artifacts) {
             if (!first) {

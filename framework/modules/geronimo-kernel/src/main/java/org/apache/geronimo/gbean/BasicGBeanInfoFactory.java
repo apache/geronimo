@@ -50,7 +50,7 @@ public class BasicGBeanInfoFactory implements GBeanInfoFactory {
             }
         } catch (NoClassDefFoundError e) {
             String message = e.getMessage();
-            StringBuffer buf = new StringBuffer("Could not load gbean class ").append(clazz.getName()).append(" due to NoClassDefFoundError\n");
+            StringBuilder buf = new StringBuilder("Could not load gbean class ").append(clazz.getName()).append(" due to NoClassDefFoundError\n");
             if (message != null) {
                 message = message.replace('/', '.');
                 buf.append("    problematic class ").append(message);
@@ -95,7 +95,7 @@ public class BasicGBeanInfoFactory implements GBeanInfoFactory {
             }
         } catch (NoClassDefFoundError e) {
             String message = e.getMessage();
-            StringBuffer buf = new StringBuffer("Could not load gbean class ").append(className).append(" due to NoClassDefFoundError\n");
+            StringBuilder buf = new StringBuilder("Could not load gbean class ").append(className).append(" due to NoClassDefFoundError\n");
             if (message != null) {
                 message = message.replace('/', '.');
                 buf.append("    problematic class ").append(message);

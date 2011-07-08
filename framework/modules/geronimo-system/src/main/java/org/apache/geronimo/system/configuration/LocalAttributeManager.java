@@ -174,7 +174,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
             if (!datasByName.containsKey(name) && gbean.isLoad()) {
                 if (gbean.getGBeanInfo() == null || !(name instanceof AbstractName)) {
                     String sep = "";
-                    StringBuffer message = new StringBuffer("New GBeans must be specified with ");
+                    StringBuilder message = new StringBuilder("New GBeans must be specified with ");
                     if (gbean.getGBeanInfo() == null) {
                         message.append("a GBeanInfo ");
                         sep = "and ";

@@ -52,7 +52,7 @@ public class PersistenceBundleHelper {
             BundleDescription providerDescription = new BundleDescription(providerBundle.getHeaders());            
             if (needsProviderImports(persistenceBundle, providerDescription)) {
                 
-                StringBuffer providerConstraint = new StringBuffer();  
+                StringBuilder providerConstraint = new StringBuilder();  
                 providerConstraint.append(";");
                 providerConstraint.append(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE);
                 providerConstraint.append("=\"").append(providerBundle.getSymbolicName()).append("\"");
@@ -64,7 +64,7 @@ public class PersistenceBundleHelper {
                 if (BundleHelper.isBundleExtenderSet()) {
                     LOG.debug("Adding DynamicImport-Package for persistence bundle {}", persistenceBundle.getSymbolicName());
                     
-                    StringBuffer packageList = new StringBuffer();
+                    StringBuilder packageList = new StringBuilder();
                     Iterator<ExportPackage> iterator = providerDescription.getExportPackage().iterator();
                     while (iterator.hasNext()) {
                         ExportPackage exportPackage = iterator.next();

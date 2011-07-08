@@ -50,7 +50,7 @@ public class PrintHelper {
             throw new IllegalArgumentException("Need at least 10 spaces for " +
                 "printing, but indent=" + indent + " and endCol=" + endCol);
         }
-        StringBuffer buf = new StringBuffer((int)(source.length()*1.1));
+        StringBuilder buf = new StringBuilder((int)(source.length()*1.1));
         String prefix = indent == 0 ? "" : buildIndent(indent);
         try {
             BufferedReader in = new BufferedReader(new StringReader(source));
@@ -89,7 +89,7 @@ public class PrintHelper {
     }
 
     private static String buildIndent(int indent) {
-        StringBuffer buf = new StringBuffer(indent);
+        StringBuilder buf = new StringBuilder(indent);
         for(int i=0; i<indent; i++) {
             buf.append(' ');
         }
@@ -177,7 +177,7 @@ public class PrintHelper {
         // create a list for processed option groups
         ArrayList list = new ArrayList();
 
-        StringBuffer optionsBuff = new StringBuffer();
+        StringBuilder optionsBuff = new StringBuilder();
         
         // temp variable
         Option option;
@@ -252,19 +252,19 @@ public class PrintHelper {
     }
 
     public void printOptions(PrintWriter pw, int width, Options options, int leftPad, int descPad) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         renderOptions(sb, width, options, leftPad, descPad, true);
         pw.println(sb.toString());
     }
     
     public void printOptions(PrintWriter pw, Options options) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         renderOptions(sb, defaultWidth, options, defaultLeftPad, defaultDescPad, true);
         pw.println(sb.toString());
     }
     
     public void printOptionsNoDesc(PrintWriter pw, Options options) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         renderOptions(sb, defaultWidth, options, defaultLeftPad, defaultDescPad, false);
         pw.println(sb.toString());
     }
@@ -274,12 +274,12 @@ public class PrintHelper {
     }
 
     public void printWrapped(PrintWriter pw, int width, int nextLineTabStop, String text) {
-        StringBuffer sb = new StringBuffer(text.length());
+        StringBuilder sb = new StringBuilder(text.length());
         renderWrappedText(sb, width, nextLineTabStop, text);
         pw.println(sb.toString());
     }
 
-    protected StringBuffer renderOptions(StringBuffer sb, int width, Options options, int leftPad, int descPad, boolean displayDesc) {
+    protected StringBuilder renderOptions(StringBuilder sb, int width, Options options, int leftPad, int descPad, boolean displayDesc) {
         final String lpad = createPadding(leftPad);
         final String dpad = createPadding(descPad);
 
@@ -287,14 +287,14 @@ public class PrintHelper {
         //long opt; in parallel look for the longest opt string
         //this list will be then used to sort options ascending
         int max = 0;
-        StringBuffer optBuf;
+        StringBuilder optBuf;
         List prefixList = new ArrayList();
         Option option;
         List optList = new ArrayList(options.getOptions());
-        Collections.sort(optList, new StringBufferComparator());
+        Collections.sort(optList, new StringBuilderComparator());
         for (Iterator i = optList.iterator(); i.hasNext();) {
             option = (Option) i.next();
-            optBuf = new StringBuffer(8);
+            optBuf = new StringBuilder(8);
 
             if (option.getOpt().equals(" ")) {
                 optBuf.append(lpad).append("   " + defaultLongOptPrefix).append(option.getLongOpt());
@@ -320,7 +320,7 @@ public class PrintHelper {
         int x = 0;
         for (Iterator i = optList.iterator(); i.hasNext();) {
             option = (Option) i.next();
-            optBuf = new StringBuffer(prefixList.get(x++).toString());
+            optBuf = new StringBuilder(prefixList.get(x++).toString());
 
             if (optBuf.length() < max) {
                 optBuf.append(createPadding(max - optBuf.length()));
@@ -343,7 +343,7 @@ public class PrintHelper {
         return sb;
     }
 
-    protected StringBuffer renderWrappedText(StringBuffer sb, int width, int nextLineTabStop, String text) {
+    protected StringBuilder renderWrappedText(StringBuilder sb, int width, int nextLineTabStop, String text) {
         int pos = findWrapPos(text, width, 0);
         if (pos == -1) {
             sb.append(rtrim(text));
@@ -398,7 +398,7 @@ public class PrintHelper {
     }
 
     protected String createPadding(int len) {
-        StringBuffer sb = new StringBuffer(len);
+        StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; ++i) {
             sb.append(' ');
         }
@@ -417,7 +417,7 @@ public class PrintHelper {
         return s.substring(0, pos);
     }
 
-    private static class StringBufferComparator implements Comparator {
+    private static class StringBuilderComparator implements Comparator {
 
         public int compare(Object o1, Object o2) {
             String str1 = stripPrefix(o1.toString());

@@ -58,7 +58,7 @@ public class SubjectId implements Serializable {
 
     public String toString() {
         if (name == null) {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             buffer.append('[');
             buffer.append(subjectId);
             buffer.append(":0x");

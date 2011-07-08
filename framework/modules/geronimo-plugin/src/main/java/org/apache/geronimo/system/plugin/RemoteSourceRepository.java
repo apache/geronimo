@@ -265,12 +265,12 @@ public class RemoteSourceRepository implements SourceRepository {
      */
     private static String getText(Node target) {
         NodeList nodes = target.getChildNodes();
-        StringBuffer buf = null;
+        StringBuilder buf = null;
         for (int j = 0; j < nodes.getLength(); j++) {
             Node node = nodes.item(j);
             if (node.getNodeType() == Node.TEXT_NODE) {
                 if (buf == null) {
-                    buf = new StringBuffer();
+                    buf = new StringBuilder();
                 }
                 buf.append(node.getNodeValue());
             }
@@ -293,12 +293,12 @@ public class RemoteSourceRepository implements SourceRepository {
             Node check = children.item(i);
             if (check.getNodeType() == Node.ELEMENT_NODE && check.getNodeName().equals(property)) {
                 NodeList nodes = check.getChildNodes();
-                StringBuffer buf = null;
+                StringBuilder buf = null;
                 for (int j = 0; j < nodes.getLength(); j++) {
                     Node node = nodes.item(j);
                     if (node.getNodeType() == Node.TEXT_NODE) {
                         if (buf == null) {
-                            buf = new StringBuffer();
+                            buf = new StringBuilder();
                         }
                         buf.append(node.getNodeValue());
                     }

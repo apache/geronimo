@@ -152,7 +152,7 @@ public class AbstractName implements Serializable {
     }
 
     private static URI createURI(Artifact artifact, Map name) {
-        StringBuffer queryString = new StringBuffer();
+        StringBuilder queryString = new StringBuilder();
         TreeMap treeMap = new TreeMap(name);
         for (Iterator iterator = treeMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();

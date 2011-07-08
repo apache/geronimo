@@ -28,7 +28,7 @@ public class X509NameTokenizer
     private String          value;
     private int             index;
     private char            seperator;
-    private StringBuffer    buf = new StringBuffer();
+    private StringBuilder    buf = new StringBuilder();
 
     public X509NameTokenizer(
         String  oid)

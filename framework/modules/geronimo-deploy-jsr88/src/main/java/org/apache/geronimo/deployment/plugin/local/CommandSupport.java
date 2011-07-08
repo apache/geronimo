@@ -226,7 +226,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         }
 
         public String toString() {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append("DeploymentStatus[").append(command).append(',');
             buf.append(action).append(',');
             buf.append(state);

@@ -29,7 +29,7 @@ import org.w3c.dom.NodeList;
 public class XMLUtil {
     public static Object getContent(Element element) {
         NodeList nl = element.getChildNodes();
-        StringBuffer content = new StringBuffer();
+        StringBuilder content = new StringBuilder();
         for (int i = 0; i < nl.getLength(); i++) {
             Node node = nl.item(i);
             switch (node.getNodeType()) {

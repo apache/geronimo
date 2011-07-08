@@ -162,7 +162,7 @@ public class X509CRLEntryObject extends X509CRLEntry
 
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         String nl = System.getProperty("line.separator");
 
         buf.append("      userCertificate: " + this.getSerialNumber() + nl);

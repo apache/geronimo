@@ -148,7 +148,7 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (groupId != null) {
             buffer.append(groupId);

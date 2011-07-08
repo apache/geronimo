@@ -58,9 +58,9 @@ public class ReportTestSuite
     private NumberFormat numberFormat = NumberFormat.getInstance();
 
     /**
-     * @noinspection StringBufferField
+     * @noinspection StringBuilderField
      */
-    private StringBuffer currentElement;
+    private StringBuilder currentElement;
 
     private ReportTestCase testCase;
 
@@ -133,7 +133,7 @@ public class ReportTestSuite
             }
             else if ( "testcase".equals( qName ) )
             {
-                currentElement = new StringBuffer();
+                currentElement = new StringBuilder();
 
                 testCase = new ReportTestCase();
 

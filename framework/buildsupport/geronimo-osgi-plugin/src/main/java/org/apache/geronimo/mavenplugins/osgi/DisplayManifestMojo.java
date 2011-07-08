@@ -105,7 +105,7 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
         if (exportPackages != null && exportPackages.length > 0) {
             System.out.println("Exports:");
             for (ExportPackageDescription exportPackage : exportPackages) {
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 buf.append(TAB + exportPackage);
                 
                 Map attributes = exportPackage.getAttributes();
@@ -141,7 +141,7 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
         if (!imports.isEmpty()) {
             System.out.println(header);
             for (ImportPackageSpecification importPackage : imports) {
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 buf.append(TAB + importPackage);
                 
                 Map attributes = importPackage.getAttributes();

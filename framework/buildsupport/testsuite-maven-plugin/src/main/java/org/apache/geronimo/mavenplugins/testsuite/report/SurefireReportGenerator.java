@@ -58,7 +58,7 @@ public class SurefireReportGenerator
 
         sink.text( bundle.getString( "report.surefire.description" ) );
 
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         str.append( "<script type=\"text/javascript\">\n" );
         str.append( "function toggleDisplay(elementId) {\n" );
         str.append( " var elm = document.getElementById(elementId + 'error');\n" );
@@ -529,7 +529,7 @@ public class SurefireReportGenerator
 
                 sinkCell( sink, "" );
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append( type );
 
                 if ( message != null )

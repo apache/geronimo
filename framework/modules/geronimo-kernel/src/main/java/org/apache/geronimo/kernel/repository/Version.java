@@ -188,7 +188,7 @@ public class Version implements Comparable, Serializable {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (majorVersion != null) {
             buf.append(majorVersion);
         }

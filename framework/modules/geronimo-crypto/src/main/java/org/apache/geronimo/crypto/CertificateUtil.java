@@ -40,7 +40,7 @@ public class CertificateUtil {
         new HexEncoder().encode(digest, 0, digest.length, out);
         String all = new String(out.toByteArray(), "US-ASCII").toUpperCase();
         Matcher matcher = Pattern.compile("..").matcher(all);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while(matcher.find()) {
             if(buf.length() > 0) {
                 buf.append(":");

@@ -273,7 +273,7 @@ public abstract class Log4jService implements SystemLog {
         }
         Reader in = null;
         try {
-            StringBuffer configuration = new StringBuffer();
+            StringBuilder configuration = new StringBuilder();
             in = new InputStreamReader(new FileInputStream(file));
             char[] buffer = new char[4096];
             for (int size = in.read(buffer); size >= 0; size = in.read(buffer)) {
@@ -422,7 +422,7 @@ public abstract class Log4jService implements SystemLog {
     }
 
     private static String substituteSystemProps(String source) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int last = 0;
         Matcher m = VARIABLE_PATTERN.matcher(source);
         while(m.find()) {

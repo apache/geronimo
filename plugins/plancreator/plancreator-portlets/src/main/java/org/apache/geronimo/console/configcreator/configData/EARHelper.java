@@ -88,7 +88,7 @@ public class EARHelper {
         }
 
         private String mergeStrings(String[] strArray) {
-            StringBuffer str = new StringBuffer("");
+            StringBuilder str = new StringBuilder("");
             for (int i = 0; i < strArray.length; i++) {
                 str.append(strArray[i] + ";");
             }

@@ -216,7 +216,7 @@ public class BundleRecorderGBean implements BundleRecorder{
     private String getMvnLocationFromArtifact(Artifact artifact){
         if (artifact == null) return null;
         
-        StringBuffer bundleLocation = new StringBuffer();
+        StringBuilder bundleLocation = new StringBuilder();
         bundleLocation.append("mvn:");
         bundleLocation.append(artifact.getGroupId()).append('/').append(artifact.getArtifactId()).append('/').append(artifact.getVersion());
         
@@ -243,7 +243,7 @@ public class BundleRecorderGBean implements BundleRecorder{
     private String getRecordKey(Artifact artifact) {
         if (artifact == null) return null;
         
-        StringBuffer recordKey = new StringBuffer();
+        StringBuilder recordKey = new StringBuilder();
         recordKey.append(artifact.getGroupId().replace(".", "/")).append('/').append(artifact.getArtifactId()).append('/').append(artifact.getVersion());
         recordKey.append("/");
         recordKey.append(artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());

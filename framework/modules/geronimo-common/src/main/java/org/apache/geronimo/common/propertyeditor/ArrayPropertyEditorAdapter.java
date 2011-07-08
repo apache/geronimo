@@ -72,7 +72,7 @@ public final class ArrayPropertyEditorAdapter extends PropertyEditorSupport {
             return null;
         }
 
-        StringBuffer result = new StringBuffer(String.valueOf(objects[0]));
+        StringBuilder result = new StringBuilder(String.valueOf(objects[0]));
         for (int i = 1; i < objects.length; i++) {
             result.append(",").append(objects[i]);
         }

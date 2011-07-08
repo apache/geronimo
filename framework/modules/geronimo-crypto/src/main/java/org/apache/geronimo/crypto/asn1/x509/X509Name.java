@@ -683,8 +683,8 @@ public class X509Name
                 }
                 else
                 {
-                    StringBuffer    v1 = new StringBuffer();
-                    StringBuffer    v2 = new StringBuffer();
+                    StringBuilder    v1 = new StringBuilder();
+                    StringBuilder    v2 = new StringBuilder();
 
                     if (_val.length() != 0)
                     {
@@ -794,8 +794,8 @@ public class X509Name
                     }
                     else
                     {
-                        StringBuffer    v1 = new StringBuffer();
-                        StringBuffer    v2 = new StringBuffer();
+                        StringBuilder    v1 = new StringBuilder();
+                        StringBuilder    v2 = new StringBuilder();
 
                         if (_val.length() != 0)
                         {
@@ -865,7 +865,7 @@ public class X509Name
     }
 
     private void appendValue(
-        StringBuffer        buf,
+        StringBuilder        buf,
         Hashtable           oidSymbols,
         DERObjectIdentifier oid,
         String              value)
@@ -924,7 +924,7 @@ public class X509Name
         boolean     reverse,
         Hashtable   oidSymbols)
     {
-        StringBuffer            buf = new StringBuffer();
+        StringBuilder            buf = new StringBuilder();
         boolean                 first = true;
 
         if (reverse)

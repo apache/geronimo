@@ -48,13 +48,13 @@ import org.slf4j.LoggerFactory;
  */
 @GBean
 public class DatabaseInitializationGBean {
-    
+
     private static final Logger log = LoggerFactory.getLogger(DatabaseInitializationGBean.class);
 
-    public DatabaseInitializationGBean(@ParamAttribute(name="testSQL") String testSQL, 
+    public DatabaseInitializationGBean(@ParamAttribute(name="testSQL") String testSQL,
                                        @ParamAttribute(name="sql") String sql,
-                                       @ParamAttribute(name="path") String path, 
-                                       @ParamReference(name="DataSource", namingType=NameFactory.JCA_CONNECTION_MANAGER) ResourceSource<ResourceException> cfSource, 
+                                       @ParamAttribute(name="path") String path,
+                                       @ParamReference(name="DataSource", namingType=NameFactory.JCA_CONNECTION_MANAGER) ResourceSource<ResourceException> cfSource,
                                        @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) throws Exception {
 
         DataSource ds = (DataSource) cfSource.$getResource();
@@ -86,7 +86,7 @@ public class DatabaseInitializationGBean {
                     BufferedReader r = new BufferedReader(reader);
                     try {
                         String line;
-                        StringBuffer buf = new StringBuffer();
+                        StringBuilder buf = new StringBuilder();
                         while ((line = r.readLine()) != null) {
                             line = line.trim();
                             if (!line.startsWith("--") && line.length() > 0) {
@@ -96,7 +96,7 @@ public class DatabaseInitializationGBean {
                                     buf.delete(size - 2, size - 1);
                                     String sqlCmd = buf.toString();
                                     s.execute(sqlCmd);
-                                    buf = new StringBuffer();
+                                    buf.setLength(0);
                                 }
                             }
                         }

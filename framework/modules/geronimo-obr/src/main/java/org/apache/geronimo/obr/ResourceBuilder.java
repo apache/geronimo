@@ -129,7 +129,7 @@ public class ResourceBuilder {
         if (requiredEnvironments != null) {
             String[] envs = requiredEnvironments.split(",");
             if (envs.length > 0) {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append("(|");
                 for (String env : envs) {
                     sb.append("(ee=");

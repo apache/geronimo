@@ -507,7 +507,7 @@ public class AxisBuilder implements WebServiceBuilder {
         QName portTypeQName = portType.getQName();
         String portTypeNamespace = portTypeQName.getNamespaceURI();
         String portTypePackage = WSDescriptorParser.getPackageFromNamespace(portTypeNamespace, mappings);
-        StringBuffer shortInterfaceName = new StringBuffer(portTypeQName.getLocalPart());
+        StringBuilder shortInterfaceName = new StringBuilder(portTypeQName.getLocalPart());
         shortInterfaceName.setCharAt(0, Character.toUpperCase(shortInterfaceName.charAt(0)));
         //TODO just use one buffer!
         String fqcn = portTypePackage + "." + shortInterfaceName.toString();

@@ -64,7 +64,7 @@ public class StartupMonitorUtil {
                 if (stateValue != State.RUNNING_INDEX) {
                     GBeanData data = kernel.getGBeanData(name);
                     State state = State.fromInt(stateValue);
-                    StringBuffer buf = new StringBuffer();
+                    StringBuilder buf = new StringBuilder();
                     buf.append("(").append(state.getName());
                     // Since it's not unusual for a failure to be caused by a port binding failure
                     //    we'll see if there's a likely looking port attribute in the config data
@@ -144,7 +144,7 @@ public class StartupMonitorUtil {
             }
             for (int i = 0; i < ports.size(); i++) {
                 AddressHolder holder = (AddressHolder) ports.get(i);
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 buf.append("   ");
                 if (holder.getAddress().getPort() < 10) {
                     buf.append(' ');
@@ -204,7 +204,7 @@ public class StartupMonitorUtil {
             out.println();
         }
 
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         msg.append("Geronimo Application Server started");
         if (serverInfo != null) {
             msg.append(" (version ").append(serverInfo).append(")");
@@ -248,7 +248,7 @@ public class StartupMonitorUtil {
         if (s == null || s.equals("")) {
             return s;
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(Character.toUpperCase(s.charAt(0)));
         for (int i = 1; i < s.length(); i++) {
             if (Character.isUpperCase(s.charAt(i))) {
@@ -293,7 +293,7 @@ public class StartupMonitorUtil {
         }
         
         public String toString() {
-            StringBuffer buf = new StringBuffer(this.getClass().getSimpleName() + ":");
+            StringBuilder buf = new StringBuilder(this.getClass().getSimpleName() + ":");
             buf.append(" name=").append(name);
             buf.append(", address=").append(address.toString());
             return buf.toString();

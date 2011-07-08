@@ -83,7 +83,7 @@ public class CviewerFilter implements Filter {
        // if (filterConfig == null) {
        //      return ("NewFilter()");
        //  }
-        StringBuffer sb = new StringBuffer("NewFilter(");
+        StringBuilder sb = new StringBuilder("NewFilter(");
         //sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());

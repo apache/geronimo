@@ -287,7 +287,7 @@ public final class GBeanInfo implements Serializable {
 //    }
 
     public String toString() {
-        StringBuffer result = new StringBuffer("[GBeanInfo:");
+        StringBuilder result = new StringBuilder("[GBeanInfo:");
         result.append(" id=").append(super.toString());
         result.append(" sourceClass=").append(sourceClass);
         result.append(" name=").append(name);

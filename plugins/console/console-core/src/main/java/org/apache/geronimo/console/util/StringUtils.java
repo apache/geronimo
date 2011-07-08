@@ -20,7 +20,7 @@ package org.apache.geronimo.console.util;
 public abstract class StringUtils {
 
     public static String convertToCommaDelimited(String[] list) {
-        StringBuffer ret = new StringBuffer("");
+        StringBuilder ret = new StringBuilder("");
         for (int i = 0; list != null && i < list.length; i++) {
             ret.append(list[i]);
             if (i < list.length - 1) {

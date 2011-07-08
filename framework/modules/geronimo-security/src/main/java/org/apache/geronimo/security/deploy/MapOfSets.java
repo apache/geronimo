@@ -80,7 +80,7 @@ public class MapOfSets extends HashMap {
             if (map == null) {
                 return null;
             }
-            StringBuffer text = new StringBuffer();
+            StringBuilder text = new StringBuilder();
             for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 text.append(entry.getKey()).append("=");

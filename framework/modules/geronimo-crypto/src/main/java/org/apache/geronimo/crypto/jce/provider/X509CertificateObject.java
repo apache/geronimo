@@ -576,7 +576,7 @@ public class X509CertificateObject
 
     public String toString()
     {
-        StringBuffer    buf = new StringBuffer();
+        StringBuilder    buf = new StringBuilder();
         String          nl = System.getProperty("line.separator");
 
         buf.append("  [0]         Version: " + this.getVersion() + nl);

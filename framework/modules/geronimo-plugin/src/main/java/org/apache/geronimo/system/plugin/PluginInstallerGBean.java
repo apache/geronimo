@@ -1119,7 +1119,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         if (!missingPrereqs.isEmpty()) {
             PluginArtifactType metadata = plugin.getPluginArtifact().get(0);
             Artifact moduleId = toArtifact(metadata.getModuleId());
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append(moduleId.toString()).append(" requires ");
             Iterator<Dependency> iter = missingPrereqs.iterator();
             while (iter.hasNext()) {

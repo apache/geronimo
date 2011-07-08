@@ -481,7 +481,7 @@ public final class ConfigurationUtil {
                     }
                 }
                 if (!unstarted.isEmpty()) {
-                    StringBuffer message = new StringBuffer();
+                    StringBuilder message = new StringBuilder();
                     message.append("Configuration ").append(configuration.getId()).append(" failed to start due to the following reasons:\n");
                     for (String reason : unstarted) {
                         message.append("  ").append(reason).append("\n");

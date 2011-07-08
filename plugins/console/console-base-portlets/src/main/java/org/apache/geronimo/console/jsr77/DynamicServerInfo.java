@@ -84,7 +84,7 @@ public class DynamicServerInfo implements Serializable {
         secs = secs % 3600;
         int minutes = secs / 60;
         secs = secs % 60;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if(days > 1) {
             buf.append(' ').append(days).append(" days");
         } else if(days > 0) {

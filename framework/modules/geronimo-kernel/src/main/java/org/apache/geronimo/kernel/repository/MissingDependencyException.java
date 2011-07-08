@@ -67,7 +67,7 @@ public class MissingDependencyException extends Exception {
 
     public String getMessage() {
         String s = super.getMessage();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (s != null) {
             sb.append(s).append("\n");
         }

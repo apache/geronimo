@@ -78,7 +78,7 @@ public class RecordingLifecycleMonitor implements LifecycleMonitor{
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (Event event: events) {
             buf.append(event.toString()).append("\n");
         }

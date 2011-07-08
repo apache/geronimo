@@ -448,7 +448,7 @@ public class FrameworkLauncher {
             String classifier;
             String type;
             String artifactIdVersion = artifactId + "-" + version;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             if (p[p.length-1].charAt(artifactIdVersion.length()) == '-') {
                 classifier = p[p.length-1].substring(artifactIdVersion.length() + 1, p[p.length-1].lastIndexOf('.'));
             } else {

@@ -153,7 +153,7 @@ public class NavigationJsonGenerator {
         boolean isTreeAList=this.isTreeAList(pageConfigList, mode, threshold);
         
         
-        StringBuffer sb = new StringBuffer(10);
+        StringBuilder sb = new StringBuilder(10);
         sb.append("[");
         
         
@@ -211,7 +211,7 @@ public class NavigationJsonGenerator {
     }
     
     
-    private void appendNodeToTreeJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
+    private void appendNodeToTreeJSON(StringBuilder sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         sb.append("{");
 
@@ -247,7 +247,7 @@ public class NavigationJsonGenerator {
     }
     
     
-    private void appendBasicListJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
+    private void appendBasicListJSON(StringBuilder sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         sb.append("{");
 
@@ -273,7 +273,7 @@ public class NavigationJsonGenerator {
         
         Map<String, TreeNode> navigationTree=this.getNavigationTree(pageConfigList, mode);
 
-        StringBuffer sb = new StringBuffer(10);
+        StringBuilder sb = new StringBuilder(10);
         sb.append("[\n");
         
         for (TreeNode node : navigationTree.values()) {
@@ -291,7 +291,7 @@ public class NavigationJsonGenerator {
     }
     
     
-    private void appendNodeToQuickLauncherJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
+    private void appendNodeToQuickLauncherJSON(StringBuilder sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         if (node.isLeafNode()) {
             sb.append("\n{");

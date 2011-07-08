@@ -51,7 +51,7 @@ public class ClientTest extends TestSupport {
 
     private String toString(BufferedReader reader)
         throws IOException {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);

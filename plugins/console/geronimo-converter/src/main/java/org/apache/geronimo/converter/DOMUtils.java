@@ -38,7 +38,7 @@ public class DOMUtils {
     }
 
     public static String getText(Element element) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         NodeList list = element.getChildNodes();
         boolean found = false;
         for(int i=0; i<list.getLength(); i++) {

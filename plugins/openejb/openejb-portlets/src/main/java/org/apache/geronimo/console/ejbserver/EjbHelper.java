@@ -430,7 +430,7 @@ public class EjbHelper extends BaseRemoteProxy {
                 cls = Class.forName("org.apache.openejb.assembler.classic.JndiBuilder$Bindings");
                 Method method = cls.getMethod("getBindings");
                 List<String> jndiNames = (List) method.invoke(beanContext.get(cls));
-                StringBuffer names = new StringBuffer();
+                StringBuilder names = new StringBuilder();
                 for (String jndiName : jndiNames) {
                     if (jndiName.startsWith("openejb/local/")) {
                         jndiName = jndiName.replaceFirst("openejb/local/", "");
@@ -492,16 +492,16 @@ public class EjbHelper extends BaseRemoteProxy {
     }
 
     private String appendMultipleInterfaces(List<Class> multipleValues) {
-        StringBuffer multipleValuedStringBuffer = new StringBuffer();
+        StringBuilder multipleValuedStringBuilder = new StringBuilder();
         for (Class singleValue : multipleValues) {
-            multipleValuedStringBuffer.append(singleValue.getName())
+            multipleValuedStringBuilder.append(singleValue.getName())
                     .append(",");
         }
-        if (multipleValuedStringBuffer.length() == 0) {
+        if (multipleValuedStringBuilder.length() == 0) {
             return null;
         }
-        return multipleValuedStringBuffer.substring(0,
-                multipleValuedStringBuffer.length() - 1);
+        return multipleValuedStringBuilder.substring(0,
+                multipleValuedStringBuilder.length() - 1);
     }
 
     private String resolveContainerTypes(ContainerType cType) {

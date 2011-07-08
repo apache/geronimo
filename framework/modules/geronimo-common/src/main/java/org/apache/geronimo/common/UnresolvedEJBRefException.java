@@ -60,7 +60,7 @@ public class UnresolvedEJBRefException extends DeploymentException {
 
     private static String createMessage(String refName, boolean local, boolean session, String homeInterface,
                                      String beanInterface, boolean foundMultiple) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         if (foundMultiple) {
             msg.append("Two or more EJBs were found");
         } else {

@@ -130,7 +130,7 @@ public class JDKDSAPublicKey
 
     public String toString()
     {
-        StringBuffer    buf = new StringBuffer();
+        StringBuilder    buf = new StringBuilder();
         String          nl = System.getProperty("line.separator");
 
         buf.append("DSA Public Key" + nl);

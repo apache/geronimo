@@ -257,7 +257,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         final String END_CERT_REQ = "-----END CERTIFICATE REQUEST-----";
         final int CERT_REQ_LINE_LENGTH = 70;
 
-        StringBuffer sbuf = new StringBuffer(BEGIN_CERT_REQ).append('\n');
+        StringBuilder sbuf = new StringBuilder(BEGIN_CERT_REQ).append('\n');
 
         int idx = 0;
         while (idx < b64.length()) {

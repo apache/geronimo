@@ -72,7 +72,7 @@ public class DERObjectIdentifier
     DERObjectIdentifier(
         byte[]  bytes)
     {
-        StringBuffer    objId = new StringBuffer();
+        StringBuilder    objId = new StringBuilder();
         long            value = 0;
         boolean         first = true;
 

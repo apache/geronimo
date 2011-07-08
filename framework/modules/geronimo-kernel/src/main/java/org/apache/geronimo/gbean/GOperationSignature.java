@@ -96,7 +96,7 @@ public final class GOperationSignature {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer(name).append("(");
+        StringBuilder buffer = new StringBuilder(name).append("(");
         for (int i = 0; i < argumentTypes.length; i++) {
             if (i > 0) {
                 buffer.append(", ");

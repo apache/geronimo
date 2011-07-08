@@ -89,7 +89,7 @@ public class SetPropertyMojo extends AbstractLogEnabled implements Mojo {
     private ArtifactFactory artifactFactory;
         
     public void execute() throws MojoExecutionException, MojoFailureException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         
         if (classpath != null && classpath.length > 0) {
             if (propertyValuePrefix != null) {

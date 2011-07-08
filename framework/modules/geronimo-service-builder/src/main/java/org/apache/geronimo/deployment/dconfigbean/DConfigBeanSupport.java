@@ -66,7 +66,7 @@ public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConf
         String[] result = new String[xpathSegments.length];
         for (int i = 0; i < xpathSegments.length; i++) {
             String[] xpathSegmentArray = xpathSegments[i];
-            StringBuffer xpath = new StringBuffer();
+            StringBuilder xpath = new StringBuilder();
             for (int j = 0; j < xpathSegmentArray.length; j++) {
                 String segment = xpathSegmentArray[j];
                 if (prefix != null) {

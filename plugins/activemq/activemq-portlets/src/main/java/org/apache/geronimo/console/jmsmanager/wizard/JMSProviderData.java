@@ -338,14 +338,14 @@ public class JMSProviderData implements Serializable {
     }
 
     private static String getText(Node node) {
-        StringBuffer buf = null;
+        StringBuilder buf = null;
         NodeList list = node.getChildNodes();
         if(list != null) {
             for(int i=0; i<list.getLength(); i++) {
                 Node current = list.item(i);
                 if(current.getNodeType() == Node.TEXT_NODE) {
                     if(buf == null) {
-                        buf = new StringBuffer();
+                        buf = new StringBuilder();
                     }
                     buf.append(current.getNodeValue());
                 }

@@ -266,7 +266,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
         
     private String getHeaderValue(List<String> values) {
         Iterator iter = values.iterator();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while(iter.hasNext()) {
             buf.append(iter.next());
             if (iter.hasNext()) {

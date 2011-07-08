@@ -126,7 +126,7 @@ public final class JarUtils {
                 reader = new InputStreamReader(url.openStream());
             }
             char[] buffer = new char[4000];
-            StringBuffer out = new StringBuffer();
+            StringBuilder out = new StringBuilder();
             for (int count = reader.read(buffer); count >= 0; count = reader.read(buffer)) {
                 out.append(buffer, 0, count);
             }

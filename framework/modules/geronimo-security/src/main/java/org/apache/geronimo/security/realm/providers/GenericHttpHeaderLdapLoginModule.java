@@ -333,7 +333,7 @@ public class GenericHttpHeaderLdapLoginModule extends GenericHttpHeaderLoginmodu
     }
 
     protected String doRFC2254Encoding(String inputString) {
-        StringBuffer buf = new StringBuffer(inputString.length());
+        StringBuilder buf = new StringBuilder(inputString.length());
         for (int i = 0; i < inputString.length(); i++) {
             char c = inputString.charAt(i);
             switch (c) {

@@ -127,7 +127,7 @@ public class JAXWSTools {
     }
 
     public static String toString(File [] jars) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < jars.length; i++) {
             buf.append(jars[i].getAbsolutePath());
             if (i+1 < jars.length) {

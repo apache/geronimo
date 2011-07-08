@@ -79,7 +79,7 @@ public class TestServlet extends HttpServlet {
     }
     
     public String getOutput() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         
         buf.append("Bundle: " + bundle.getSymbolicName());
         buf.append(" ");

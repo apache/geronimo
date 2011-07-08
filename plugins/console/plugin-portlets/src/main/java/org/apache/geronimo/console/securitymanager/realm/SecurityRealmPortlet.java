@@ -1100,7 +1100,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
 
         public String getOptionString() {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (Iterator it = options.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
                 buf.append(key).append("=").append(options.get(key)).append("\n");

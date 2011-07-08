@@ -80,7 +80,7 @@ public class RealmPrincipal implements Principal, Serializable {
      */
     public String getName() {
         if (name == null) {
-            StringBuffer buffer = new StringBuffer("");
+            StringBuilder buffer = new StringBuilder("");
             buffer.append(realm);
             buffer.append("::");
             buffer.append(domain);

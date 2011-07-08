@@ -86,7 +86,7 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         // see if the plugin is installable.  if not then provide the details
         String validationOk = "All requirements for this plugin have been met.";
         for (PluginInfoBean plugin : plugins) {
-            StringBuffer validationNotOk = new StringBuffer();
+            StringBuilder validationNotOk = new StringBuilder();
             PluginType holder = PluginInstallerGBean.copy(plugin.getPlugin(), plugin.getPluginArtifact());
             try {
                 plugin.setInstallable(pluginInstaller.validatePlugin(holder));

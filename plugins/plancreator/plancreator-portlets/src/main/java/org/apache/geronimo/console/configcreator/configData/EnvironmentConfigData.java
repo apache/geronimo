@@ -131,7 +131,7 @@ public class EnvironmentConfigData {
     }
 
     public String getHiddenClassesString() {
-        StringBuffer str = new StringBuffer("");
+        StringBuilder str = new StringBuilder("");
         if (environment.isSetHiddenClasses()) {
             String[] hiddenClasses = environment.getHiddenClasses().getFilterArray();
             for (int i = 0; i < hiddenClasses.length; i++) {
@@ -142,7 +142,7 @@ public class EnvironmentConfigData {
     }
 
     public String getNonOverridableClassesString() {
-        StringBuffer str = new StringBuffer("");
+        StringBuilder str = new StringBuilder("");
         if (environment.isSetNonOverridableClasses()) {
             String[] nonOverridableClasses = environment.getNonOverridableClasses().getFilterArray();
             for (int i = 0; i < nonOverridableClasses.length; i++) {

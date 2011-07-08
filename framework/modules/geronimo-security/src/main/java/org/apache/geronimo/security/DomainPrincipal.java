@@ -79,7 +79,7 @@ public class DomainPrincipal implements Principal, Serializable {
     public String getName() {
         if (name == null) {
 
-            StringBuffer buffer = new StringBuffer("");
+            StringBuilder buffer = new StringBuilder("");
             buffer.append(domain);
             buffer.append("::");
             buffer.append(principal.getClass().getName());
