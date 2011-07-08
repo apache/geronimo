@@ -29,7 +29,7 @@ import org.apache.geronimo.system.serverinfo.ServerConstants;
  * number of lines output to the terminal.
  * <p/>
  * This implementation displays a fixed-size bar.
- * <p/> 
+ * <p/>
  * A summary will also be produced containing a list of ports
  * Geronimo is listening on, the configIds of application modules
  * that were started and the context roots of Web applications that were started.
@@ -42,7 +42,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
     private final static char STATUS_LOADED = '>';
     private final static char STATUS_STARTED = '*';
     private final static char STATUS_FAILED = 'x';
-    private final static int MAX_WIDTH = 79;
+    private final static int MAX_WIDTH = 110;
     private PrintStream out;
     private String currentOperation;
     private Artifact[] modules;
@@ -53,7 +53,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
     private int operationLimit = 50;
     private boolean finished = false;
     private UpdateThread thread;
-        
+
     private int barSize = 40;
     private int barProgress;
 
@@ -106,7 +106,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
                     break;
             }
         }
-        percent += Math.round(95f * (float) progress / (float) total);
+        percent += Math.round(95f * progress / total);
         this.percent = percent;
         this.barProgress =  (this.barSize * this.percent) / 100;
     }
@@ -164,15 +164,15 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
     }
 
     private synchronized void repaint() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("\r[");        
+        StringBuilder buf = new StringBuilder();
+        buf.append("\r[");
         for (int i = 0; i < barSize; i++) {
             if (i < barProgress) {
                 buf.append("*");
             } else {
                 buf.append(" ");
             }
-        }        
+        }
         buf.append("] ");
         if (percent < 10) {
             buf.append("  ");
@@ -180,7 +180,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
             buf.append(" ");
         }
         buf.append(percent).append("% ");
-        int time = Math.round((float) (System.currentTimeMillis() - started) / 1000f);
+        int time = Math.round((System.currentTimeMillis() - started) / 1000f);
         if (time < 10) {
             buf.append(' ');
         }

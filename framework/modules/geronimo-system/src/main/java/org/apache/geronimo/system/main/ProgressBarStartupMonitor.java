@@ -100,7 +100,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     break;
             }
         }
-        percent += Math.round(90f * (float) progress / (float) total);
+        percent += Math.round(90f * progress / total);
         this.percent = percent;
     }
 
@@ -166,7 +166,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             buf.append(' ');
         }
         buf.append(percent).append("% ");
-        int time = Math.round((float) (System.currentTimeMillis() - started) / 1000f);
+        int time = Math.round((System.currentTimeMillis() - started) / 1000f);
         if (time < 10) {
             buf.append(' ');
         }

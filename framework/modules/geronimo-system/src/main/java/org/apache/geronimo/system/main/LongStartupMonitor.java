@@ -67,7 +67,7 @@ public class LongStartupMonitor implements StartupMonitor {
      * Length of longest module name
      */
     private int longestModuleNameLength;
-    
+
     /**
      * Time Geronimo was started
      */
@@ -95,7 +95,7 @@ public class LongStartupMonitor implements StartupMonitor {
     public synchronized void foundModules(Artifact[] modules) {
         numModules = modules.length;
         numModulesDigits = Integer.toString(numModules).length();
-        
+
         for (int i = 0, len= 0; i < modules.length; i++) {
             len = modules[i].toString().length();
             if (len > longestModuleNameLength)
@@ -104,7 +104,7 @@ public class LongStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void moduleLoading(Artifact module) {
-        StringBuffer buf = new StringBuffer("Module ");
+        StringBuilder buf = new StringBuilder("Module ");
         // pad module index
         int configIndexDigits = Integer.toString(++moduleNum).length();
         for (; configIndexDigits < numModulesDigits; configIndexDigits++) {
@@ -130,27 +130,27 @@ public class LongStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void moduleStarted(Artifact module) {
-        long time = System.currentTimeMillis() - moduleStarted;        
-        StringBuffer buf = new StringBuffer();
+        long time = System.currentTimeMillis() - moduleStarted;
+        StringBuilder buf = new StringBuilder();
         buf.append(" started in ");
-        
+
         String formattedTime = getFormattedTime(time);
         if (formattedTime.startsWith("0.")) {
             // don't display zero seconds
             formattedTime = " " +formattedTime.substring(1);
         }
-        
+
         // if first number (e.g. seconds or minutes) is one digit,
         // pad it with a leading space to get times to line up nicely
         int index = formattedTime.indexOf(':'); // must look for colon first
         if (index == -1)
             index = formattedTime.indexOf('.');
-                
+
         if (index == 1)
             buf.append(' ');
-            
+
         buf.append(formattedTime);
-        
+
         out.println(buf.toString());
     }
 
@@ -166,7 +166,7 @@ public class LongStartupMonitor implements StartupMonitor {
         problem.printStackTrace(out);
     }
 
-    // time formatting method - thanks to Maven 
+    // time formatting method - thanks to Maven
     private static String getFormattedTime( long time )
     {
         String pattern = "s.SSS's'";
