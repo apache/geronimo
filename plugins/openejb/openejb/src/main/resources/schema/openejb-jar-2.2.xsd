@@ -18,7 +18,7 @@
   */
 -->
 
-<xs:schema elementFormDefault="qualified" version="1.0" targetNamespace="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:o="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:tns="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1" xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:ns1="http://geronimo.apache.org/xml/ns/security-2.0" xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-1.2" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema elementFormDefault="qualified" version="1.0" targetNamespace="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:o="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:tns="http://openejb.apache.org/xml/ns/openejb-jar-2.2" xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1" xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:ns1="http://geronimo.apache.org/xml/ns/security-2.0" xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-1.2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:per="http://java.sun.com/xml/ns/persistence">
 
   <xs:element name="jndi">
     <xs:complexType>
@@ -124,7 +124,7 @@
       <xs:element name="tss" type="naming:patternType" minOccurs="0"/>
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="naming:abstract-naming-entry"/>
-        <xs:element ref="naming:entity-manager-factory-ref"/>
+        <xs:element ref="naming:persistence-context-ref"/>
         <xs:element ref="naming:gbean-ref"/>
       </xs:choice>
       <xs:element ref="naming:persistence-context-ref" maxOccurs="unbounded" minOccurs="0"/>
@@ -141,6 +141,7 @@
     <xs:attribute name="id" type="xs:ID"/>
   </xs:complexType>
 
+<!--
   <xs:complexType name="ejb-refType">
     <xs:sequence>
       <xs:element ref="naming:ref-name"/>
@@ -152,6 +153,7 @@
       <xs:element ref="naming:ejb-link" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
+-->
 
   <xs:complexType name="web-service-securityType">
     <xs:sequence>
@@ -225,7 +227,7 @@
         <xs:element ref="sys:service"/>
         <xs:element ref="sys:gbean"/>
       </xs:choice>
-      <xs:element ref="persistence" maxOccurs="unbounded"/>
+      <xs:element ref="per:persistence" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -236,7 +238,7 @@
       <xs:element name="activation-config" type="tns:activation-configType" minOccurs="0"/>
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="naming:abstract-naming-entry"/>
-        <xs:element ref="naming:entity-manager-factory-ref"/>
+        <xs:element ref="naming:persistence-context-ref"/>
         <xs:element ref="naming:gbean-ref"/>
       </xs:choice>
       <xs:element ref="naming:persistence-context-ref" maxOccurs="unbounded" minOccurs="0"/>
@@ -294,7 +296,7 @@
       </xs:element>
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="naming:abstract-naming-entry"/>
-        <xs:element ref="naming:entity-manager-factory-ref"/>
+        <xs:element ref="naming:persistence-context-ref"/>
         <xs:element ref="naming:gbean-ref"/>
       </xs:choice>
       <xs:element ref="naming:persistence-context-ref" maxOccurs="unbounded" minOccurs="0"/>
