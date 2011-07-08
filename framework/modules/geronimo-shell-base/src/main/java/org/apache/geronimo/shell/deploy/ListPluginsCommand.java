@@ -65,6 +65,7 @@ public class ListPluginsCommand extends ConnectCommand {
 
             repo = (String) session.get("PluginRepository");
             if (refreshRepo || repo == null) {
+                session.put("AvailablePlugins", null);
                 repo = command.getRepository(this, (GeronimoDeploymentManager) connection
                         .getDeploymentManager());
                 session.put("PluginRepository", repo);
