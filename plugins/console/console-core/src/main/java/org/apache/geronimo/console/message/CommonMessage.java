@@ -52,4 +52,7 @@ public abstract class CommonMessage implements Serializable {
 
     public abstract String renderMessage();
 
+    protected String convertLineBreakToBR(String str){
+        return str.replaceAll("\r\n|[\r\n]", "<br />");
+    }
 }

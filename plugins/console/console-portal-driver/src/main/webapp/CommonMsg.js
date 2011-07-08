@@ -119,13 +119,23 @@ function addCommonMessage(namespace, msg){
             default:
                 span2.className="validation-info";
         }
-        var pre = document.createElement("pre");
-        span2.appendChild(pre);
-        pre.appendChild(document.createTextNode(msg.abbr));
-        pre.appendChild(document.createElement("br"));
-        pre.appendChild(document.createTextNode(msg.detail));
-        pre.appendChild(document.createElement("br"));
+        //var pre = document.createElement("pre");
+        //span2.appendChild(pre);
+        span2.appendChild(document.createTextNode(msg.abbr));
+        span2.appendChild(document.createElement("br"));
+        span2.appendChild(document.createTextNode(convertLineBreakToBR(msg.detail)));
+        span2.appendChild(document.createElement("br"));
     }
+}
+
+function convertLineBreakToBR(str) {
+    str = str.replace(/(\r\n|[\r\n])/g, "<br />");
+    return str;
+}
+
+function convertBRtoLineBreak (str) {
+    str = str.replace(/<br \/>/g, "\r\n");
+    return str;
 }
 
 function showConfirmMessage() {

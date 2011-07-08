@@ -50,8 +50,8 @@ public final class ErrorMessage extends CommonMessage {
         if (null != detail) {
             sb.append("<span id=\""
                             + timestamp
-                            + "org_apache_geronimo_detailedMessages\" style=\"display: none;\" class=\"validation-error\"><pre>"
-                            + detail + "</pre></span>");
+                            + "org_apache_geronimo_detailedMessages\" style=\"display: none;\" class=\"validation-error\">"
+                            + convertLineBreakToBR(detail) + "</span>");
         }
         sb.append("</td></tr>");
         return sb.toString();

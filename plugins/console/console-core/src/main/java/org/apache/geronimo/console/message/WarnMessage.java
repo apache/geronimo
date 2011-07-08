@@ -50,8 +50,8 @@ public final class WarnMessage extends CommonMessage {
         if (null != detail) {
             sb.append("<span id=\""
                             + timestamp
-                            + "org_apache_geronimo_detailedMessages\" style=\"display: none;\" class=\"validation-warn\"><pre>"
-                            + detail + "</pre></span>");
+                            + "org_apache_geronimo_detailedMessages\" style=\"display: none;\" class=\"validation-warn\">"
+                            + convertLineBreakToBR(detail) + "</span>");
         }
         sb.append("</td></tr>");
         return sb.toString();
