@@ -33,6 +33,7 @@ import org.apache.geronimo.corba.transaction.MappedServerTransactionPolicyConfig
 import org.apache.geronimo.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.openejb.EjbDeployment;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.transaction.TransactionType;
 
 import org.omg.CORBA.Policy;
@@ -103,7 +104,7 @@ public class TSSLink implements GBeanLifecycle {
         if (ejb.getHomeInterface() == null) {
             return null;
         }
-        Serializable policy = buildTransactionImportPolicy(ejb.getHomeInterface());
+        Serializable policy = buildTransactionImportPolicy(ejb.getHomeInterface(), InterfaceType.EJB_HOME);
         return policy;
     }
 
@@ -115,11 +116,11 @@ public class TSSLink implements GBeanLifecycle {
         if (ejb.getRemoteInterface() == null) {
             return null;
         }
-        Serializable policy = buildTransactionImportPolicy(ejb.getRemoteInterface());
+        Serializable policy = buildTransactionImportPolicy(ejb.getRemoteInterface(), InterfaceType.BUSINESS_REMOTE);
         return policy;
     }
 
-    private Serializable buildTransactionImportPolicy(Class intf) {
+    private Serializable buildTransactionImportPolicy(Class intf, InterfaceType interfaceType) {
 
         Map policies = new HashMap();
 
@@ -130,7 +131,7 @@ public class TSSLink implements GBeanLifecycle {
             String operation = (String) entry.getValue();
 
             if (!ejb.isBeanManagedTransaction()) {
-            	TransactionType transactionType = ejb.getTransactionType(method);
+            	TransactionType transactionType = ejb.getTransactionType(method, interfaceType);
                 OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getContainerTransactionPolicy(transactionType);
                 policies.put(operation, operationTxPolicy);
             } else {

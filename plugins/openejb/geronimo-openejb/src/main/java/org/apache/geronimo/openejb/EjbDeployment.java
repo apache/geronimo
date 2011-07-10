@@ -270,6 +270,10 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     public TransactionType getTransactionType(Method method) {
         return getDeploymentInfo().getTransactionType(method);
     }
+    
+    public TransactionType getTransactionType(Method method, InterfaceType interfaceType) {
+        return getDeploymentInfo().getTransactionType(method, interfaceType);
+    }
 
     public String getObjectName() {
         return objectName;
