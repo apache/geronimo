@@ -38,6 +38,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.osgi.framework.Bundle;
 
 /**
  * Simple login module that may help create subjects for run-as roles.  List the desired class as the principalClass and the
@@ -56,10 +57,10 @@ public class RunAsLoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
-        ClassLoader classLoader = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
+        Bundle bundle = (Bundle) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
         String principalClassName = (String) options.get("principalClass");
         try {
-            principalClass = (Class<Principal>) classLoader.loadClass(principalClassName);
+            principalClass = (Class<Principal>) bundle.loadClass(principalClassName);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(principalClassName + " not found", e);
         }
