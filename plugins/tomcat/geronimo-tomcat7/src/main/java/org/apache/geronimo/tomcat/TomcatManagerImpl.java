@@ -456,7 +456,7 @@ public class TomcatManagerImpl implements WebManager {
     // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), Messages.getString("TomcatManagerImpl.155"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, Messages.getString("TomcatManagerImpl.157"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("clientAuth", "false", Messages.getString("TomcatManagerImpl.157"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", Messages.getString("TomcatManagerImpl.160"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, Messages.getString("TomcatManagerImpl.162"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", KeystoreUtil.defaultType, Messages.getString("TomcatManagerImpl.165"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
