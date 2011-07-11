@@ -75,7 +75,7 @@ public class JACCRealm implements Realm {
     @Override
     public boolean hasRole(Wrapper wrapper, Principal principal, String role) {
         AccessControlContext acc = ContextManager.getCurrentContext();
-        String name = wrapper.getName();
+        String name = currentRequestWrapperName.get();
 
         /**
          * JACC v1.0 secion B.19
