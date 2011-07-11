@@ -68,6 +68,7 @@
                 <attribute name="pageTitle">0/Welcome</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[Welcome]</attribute>
+                <attribute name="icon">/images/ico_welcome_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -139,7 +140,7 @@
                 <attribute name="pageTitle">3-4/Resources/JAR Aliases</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[Artifact]</attribute>
-                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_alias_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -186,7 +187,7 @@
                 <attribute name="pageTitle">2-2-3/Applications/User Assets/EJB JARs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EJBModules]</attribute>
-                <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_ejb_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -195,7 +196,7 @@
                 <attribute name="pageTitle">2-2-4/Applications/User Assets/App Clients</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ClientModules]</attribute>
-                <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_appclient_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
