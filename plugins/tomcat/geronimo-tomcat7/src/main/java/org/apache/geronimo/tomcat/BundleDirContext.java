@@ -39,6 +39,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.naming.NamingEntry;
 import org.apache.naming.resources.BaseDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
@@ -245,13 +246,13 @@ public class BundleDirContext extends BaseDirContext {
     }
 
     @Override
-    protected NamingEnumeration<Binding> doListBindings(String name) throws NamingException {
+    protected List<NamingEntry> doListBindings(String name) throws NamingException {
         name = getName(name);
         Enumeration entries = BundleUtils.getEntryPaths(bundle, name);
         if (entries == null) {
             throw new NamingException("Resource not found: " + name);
         } else {
-            return new BindingEnumeration(bundle, name, entries);
+            return Collections.list(new BindingEnumeration(bundle, name, entries));
         }
     }
 
@@ -340,7 +341,7 @@ public class BundleDirContext extends BaseDirContext {
         }
     }
 
-    private static class BindingEnumeration implements NamingEnumeration<Binding> {
+    private static class BindingEnumeration implements NamingEnumeration<NamingEntry> {
 
         private Bundle bundle;
 
@@ -354,7 +355,7 @@ public class BundleDirContext extends BaseDirContext {
             this.entries = entries;
         }
 
-        public Binding next() throws NamingException {
+        public NamingEntry next() throws NamingException {
             return nextElement();
         }
 
@@ -369,13 +370,13 @@ public class BundleDirContext extends BaseDirContext {
             return (entries != null && entries.hasMoreElements());
         }
 
-        public Binding nextElement() {
+        public NamingEntry nextElement() {
             String name = (String) entries.nextElement();
             String relativeName = getRelativeName(name);
             if (name.endsWith("/")) {
-                return new Binding(removeSlash(relativeName), new BundleDirContext(bundle, name));
+                return new NamingEntry(removeSlash(relativeName), new BundleDirContext(bundle, name), NamingEntry.CONTEXT);
             } else {
-                return new Binding(relativeName, relativeName);
+                return new NamingEntry(relativeName, relativeName, NamingEntry.ENTRY);
             }
         }
 

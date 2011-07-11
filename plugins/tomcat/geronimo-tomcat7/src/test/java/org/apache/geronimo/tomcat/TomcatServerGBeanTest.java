@@ -45,7 +45,7 @@ public class TomcatServerGBeanTest extends TestSupport {
         FileReader in = new FileReader(server1);
         try {
             ServerType serverType = TomcatServerGBean.loadServerType(in);
-            assertEquals(4, serverType.getListener().size());
+            assertEquals(3, serverType.getListener().size());
             Server server = serverType.build(getClass().getClassLoader(), null);
             try {
                 ((Lifecycle) server).start();
