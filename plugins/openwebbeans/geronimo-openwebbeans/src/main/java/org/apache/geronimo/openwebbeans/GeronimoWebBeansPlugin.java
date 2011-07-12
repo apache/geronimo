@@ -44,7 +44,7 @@ import org.apache.webbeans.spi.TransactionService;
 import org.apache.webbeans.spi.plugins.AbstractOwbPlugin;
 import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
 
-public class GeronimoWebBeansPlugin extends AbstractOwbPlugin implements OpenWebBeansJavaEEPlugin, TransactionService {
+public class GeronimoWebBeansPlugin extends AbstractOwbPlugin implements OpenWebBeansJavaEEPlugin {
  //OpenWebBeansEjbPlugin,
     public <T> Bean<T> defineSessionBean(Class<T> clazz,
                                          ProcessAnnotatedType<T> processAnnotateTypeEvent) {

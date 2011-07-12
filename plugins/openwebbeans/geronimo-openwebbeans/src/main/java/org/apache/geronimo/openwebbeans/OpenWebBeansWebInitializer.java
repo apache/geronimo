@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.openwebbeans;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -28,7 +27,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
-import org.apache.webbeans.corespi.security.ManagedSecurityService;
 import org.apache.webbeans.el.el22.EL22Adaptor;
 import org.apache.webbeans.jsf.DefaultConversationService;
 import org.apache.webbeans.spi.ContainerLifecycle;
@@ -38,6 +36,8 @@ import org.apache.webbeans.spi.JNDIService;
 import org.apache.webbeans.spi.ResourceInjectionService;
 import org.apache.webbeans.spi.ScannerService;
 import org.apache.webbeans.spi.SecurityService;
+import org.apache.webbeans.spi.TransactionService;
+import org.apache.webbeans.spi.ValidatorService;
 import org.apache.webbeans.spi.adaptor.ELAdaptor;
 import org.apache.webbeans.util.WebBeansUtil;
 import org.apache.webbeans.web.context.WebContextsService;
@@ -52,11 +52,13 @@ public class OpenWebBeansWebInitializer {
         Properties properties = new Properties();
         Map<Class<?>, Object> services = new HashMap<Class<?>, Object>();
         properties.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
-        properties.setProperty(SecurityService.class.getName(), ManagedSecurityService.class.getName());
+        properties.setProperty(SecurityService.class.getName(), org.apache.geronimo.openwebbeans.ManagedSecurityService.class.getName());
         properties.setProperty(OpenWebBeansConfiguration.CONVERSATION_PERIODIC_DELAY, "1800000");
         properties.setProperty(OpenWebBeansConfiguration.APPLICATION_SUPPORTS_CONVERSATION, "true");
         properties.setProperty(OpenWebBeansConfiguration.IGNORED_INTERFACES, "org.apache.aries.proxy.weaving.WovenProxy");
 
+        services.put(ValidatorService.class, new GeronimoValidatorService());
+        services.put(TransactionService.class, new GeronimoTransactionService());
         services.put(JNDIService.class, new NoopJndiService());
         services.put(ELAdaptor.class, new EL22Adaptor());
         services.put(ConversationService.class, new DefaultConversationService());

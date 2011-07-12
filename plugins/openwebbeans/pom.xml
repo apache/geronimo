@@ -82,6 +82,11 @@
                 <artifactId>openwebbeans-resource</artifactId>
                 <version>${openwebbeansVersion}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.openwebbeans</groupId>
+                <artifactId>openwebbeans-ee</artifactId>
+                <version>${openwebbeansVersion}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
