@@ -55,11 +55,11 @@ import org.osgi.framework.ServiceReference;
 public class KernelContextGBean implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(KernelContextGBean.class);
 
-    private final Kernel kernel;
+    protected final Kernel kernel;
     private final AbstractNameQuery abstractNameQuery;
     private final LifecycleListener listener = new ContextLifecycleListener();
     private final Map<AbstractName, Set<Name>> bindingsByAbstractName = new HashMap<AbstractName, Set<Name>>();
-    private BundleContext bundleContext;
+    protected BundleContext bundleContext;
     private String nameInNamespace;
     private Context context;
     

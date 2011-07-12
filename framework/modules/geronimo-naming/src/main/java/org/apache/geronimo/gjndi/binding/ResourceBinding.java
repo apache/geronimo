@@ -16,19 +16,19 @@
  */
 package org.apache.geronimo.gjndi.binding;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.ResourceSource;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NamingException;
-
+import org.apache.geronimo.naming.reference.ResourceReference;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -62,6 +62,14 @@ public class ResourceBinding extends GBeanFormatBinding {
             return null;
         }
         try {
+            if (value.getClass().getAnnotation(OsgiService.class) != null) {
+                String osgiJndiName = kernel.getNaming().toOsgiJndiName(abstractName);
+                String query = "(osgi.jndi.service.name=" + osgiJndiName + ')';
+                ResourceReference reference = new ResourceReference(query, value.getClass().getName());
+                reference.setBundle(bundleContext.getBundle());
+                reference.setKernel(kernel);
+                return reference;
+            }
             return ((ResourceSource) value).$getResource();
         } catch (Throwable throwable) {
             log.info("Could not get resource from gbean at " + abstractName,throwable);
