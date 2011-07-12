@@ -34,7 +34,19 @@
     <packaging>car</packaging>
 
     <description>Geronimo OpenWebBeans 299 integration</description>
-    
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>myfaces</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -57,7 +69,14 @@
             <artifactId>geronimo-openwebbeans</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-bundle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

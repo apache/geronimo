@@ -21,9 +21,4 @@
         <artifactId>geronimo-openwebbeans-builder</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-jsf</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

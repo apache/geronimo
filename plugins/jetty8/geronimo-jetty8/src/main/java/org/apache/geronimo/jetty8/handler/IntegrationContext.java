@@ -56,9 +56,9 @@ public class IntegrationContext {
     private final Bundle bundle;
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
-    private final WebBeansContext owbContext;
+    private WebBeansContext owbContext;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, WebBeansContext webBeansContext) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
@@ -67,7 +67,6 @@ public class IntegrationContext {
         this.bundle = bundle;
         this.holder = holder;
         this.servletContainerInitializerMap = servletContainerInitializerMap == null? Collections.<ServletContainerInitializer, Set<Class<?>>>emptyMap(): servletContainerInitializerMap;
-        this.owbContext = webBeansContext;
     }
 
     public Context getComponentContext() {
@@ -184,6 +183,10 @@ public class IntegrationContext {
 
     public void contextExited(WebBeansContext oldOWBContext) {
         GeronimoSingletonService.contextExited(oldOWBContext);
+    }
+
+    public void setOwbContext(WebBeansContext owbContext) {
+        this.owbContext = owbContext;
     }
 
     public WebBeansContext getOWBContext() {

@@ -154,11 +154,6 @@
     
         <dependency>
             <groupId>org.apache.openwebbeans</groupId>
-            <artifactId>openwebbeans-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-web</artifactId>         
         </dependency>              
 
@@ -167,7 +162,30 @@
             <artifactId>openwebbeans-resource</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-jsf</artifactId>
+        </dependency>
+
     </dependencies>
-    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-SPI-Provider>org.apache.geronimo.openwebbeans.WebBeansConfigurationListener</Export-SPI-Provider>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
 
 </project>

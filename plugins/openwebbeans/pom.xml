@@ -59,6 +59,12 @@
                 <groupId>org.apache.openwebbeans</groupId>
                 <artifactId>openwebbeans-jsf</artifactId>
                 <version>${openwebbeansVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.myfaces.core</groupId>
+                        <artifactId>myfaces-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.openwebbeans</groupId>

@@ -220,9 +220,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
             }
         }
 
-        final WebBeansContext owbContext = (sharedOwbContext == null) ? new WebBeansContext() : sharedOwbContext.getOWBContext();
-
-        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, owbContext);
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
@@ -305,7 +303,16 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
         if (sharedOwbContext == null) {
             //we have to initialize the owb context
-            new OpenWebBeansWebInitializer(integrationContext.getOWBContext(), webAppContext.getServletContext());
+            Thread thread = Thread.currentThread();
+            ClassLoader cl = thread.getContextClassLoader();
+            thread.setContextClassLoader(classLoader);
+            try {
+                integrationContext.setOwbContext(OpenWebBeansWebInitializer.newWebBeansContext(webAppContext.getServletContext()));
+            } finally {
+                thread.setContextClassLoader(cl);
+            }
+        } else {
+            integrationContext.setOwbContext(sharedOwbContext.getOWBContext());
         }
     }
 

@@ -20,6 +20,11 @@
 
 package org.apache.geronimo.openejb;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.geronimo.openwebbeans.GeronimoResourceInjectionService;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.openwebbeans.OsgiMetaDataScannerService;
@@ -30,8 +35,19 @@ import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
+import org.apache.webbeans.corespi.security.ManagedSecurityService;
+import org.apache.webbeans.el.el22.EL22Adaptor;
+import org.apache.webbeans.jsf.DefaultConversationService;
 import org.apache.webbeans.spi.ContainerLifecycle;
+import org.apache.webbeans.spi.ContextsService;
+import org.apache.webbeans.spi.ConversationService;
+import org.apache.webbeans.spi.JNDIService;
 import org.apache.webbeans.spi.ResourceInjectionService;
+import org.apache.webbeans.spi.ScannerService;
+import org.apache.webbeans.spi.SecurityService;
+import org.apache.webbeans.spi.adaptor.ELAdaptor;
+import org.apache.webbeans.web.context.WebContextsService;
+import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
 
 /**
  * @version $Rev$ $Date$
@@ -54,13 +70,33 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
         Object old = contextEntered(null);
         try {
             if (old == null) {
-                webBeansContext = new WebBeansContext();
+                Properties properties = new Properties();
+                Map<Class<?>, Object> services = new HashMap<Class<?>, Object>();
+//                properties.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
+                properties.setProperty(OpenWebBeansConfiguration.USE_EJB_DISCOVERY, "true");
+                //from CDI builder
+                properties.setProperty(OpenWebBeansConfiguration.INTERCEPTOR_FORCE_NO_CHECKED_EXCEPTIONS, "false");
+
+                properties.setProperty(SecurityService.class.getName(), ManagedSecurityService.class.getName());
+                properties.setProperty(OpenWebBeansConfiguration.CONVERSATION_PERIODIC_DELAY, "1800000");
+                properties.setProperty(OpenWebBeansConfiguration.APPLICATION_SUPPORTS_CONVERSATION, "true");
+                properties.setProperty(OpenWebBeansConfiguration.IGNORED_INTERFACES, "org.apache.aries.proxy.weaving.WovenProxy");
+
+                services.put(JNDIService.class, new OpenWebBeansWebInitializer.NoopJndiService());
+                services.put(ELAdaptor.class, new EL22Adaptor());
+                services.put(ConversationService.class, new DefaultConversationService());
+                services.put(ContextsService.class, new CdiAppContextsService());
+                services.put(ResourceInjectionService.class, new CdiResourceInjectionService());
+                webBeansContext = new WebBeansContext(services, properties);
+                webBeansContext.registerService(ScannerService.class, new OsgiMetaDataScannerService(webBeansContext));
                 contextEntered(webBeansContext);
+                ContainerLifecycle lifecycle = new OpenEJBLifecycle();
+                webBeansContext.registerService(ContainerLifecycle.class, lifecycle);
                 try {
                     //not embedded. Are we the first ejb module to try this?
                     startupObject.getAppContext().set(WebBeansContext.class, webBeansContext);
-                    setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
-                    webBeansContext.getService(ContainerLifecycle.class).startApplication(startupObject);
+//                    setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
+                    lifecycle.startApplication(startupObject);
                 } catch (Exception e) {
                     throw new RuntimeException("couldn't start owb context", e);
                 } finally {
@@ -76,18 +112,18 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
         }
     }
 
-    private void setConfiguration(OpenWebBeansConfiguration configuration) {
-        configuration.setProperty(OpenWebBeansConfiguration.USE_EJB_DISCOVERY, "true");
-        //from CDI builder
-        configuration.setProperty(OpenWebBeansConfiguration.INTERCEPTOR_FORCE_NO_CHECKED_EXCEPTIONS, "false");
-
-        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, OpenEJBLifecycle.class.getName());
-        configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, OpenWebBeansWebInitializer.NoopJndiService.class.getName());
-        configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
-        configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, CdiAppContextsService.class.getName());
-        configuration.setProperty(ResourceInjectionService.class.getName(), CdiResourceInjectionService.class.getName());
-//        configuration.setProperty(ELAdaptor.class.getName(), EL22Adaptor.class.getName());
-    }
+//    private void setConfiguration(OpenWebBeansConfiguration configuration) {
+//        configuration.setProperty(OpenWebBeansConfiguration.USE_EJB_DISCOVERY, "true");
+//        //from CDI builder
+//        configuration.setProperty(OpenWebBeansConfiguration.INTERCEPTOR_FORCE_NO_CHECKED_EXCEPTIONS, "false");
+//
+//        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, OpenEJBLifecycle.class.getName());
+//        configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, OpenWebBeansWebInitializer.NoopJndiService.class.getName());
+//        configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
+//        configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, CdiAppContextsService.class.getName());
+//        configuration.setProperty(ResourceInjectionService.class.getName(), CdiResourceInjectionService.class.getName());
+////        configuration.setProperty(ELAdaptor.class.getName(), EL22Adaptor.class.getName());
+//    }
 
     @Override
     public Object contextEntered(WebBeansContext owbContext) {

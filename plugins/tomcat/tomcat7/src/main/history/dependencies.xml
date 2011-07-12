@@ -102,13 +102,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.myfaces.core</groupId>
-        <artifactId>myfaces-bundle</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-jee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-jee</artifactId>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-jsf</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
