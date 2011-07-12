@@ -121,6 +121,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-osgi-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>

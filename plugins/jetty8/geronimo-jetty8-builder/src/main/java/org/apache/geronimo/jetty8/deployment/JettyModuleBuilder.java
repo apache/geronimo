@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.openwebbeans.SharedOwbContext;
+import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;

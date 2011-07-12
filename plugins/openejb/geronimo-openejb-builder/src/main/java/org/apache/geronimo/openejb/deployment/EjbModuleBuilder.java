@@ -1369,7 +1369,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 return false;
             }
 
-            if (descriptors.containsKey("ejb-jar.xml")) {
+            if (descriptors.containsKey("ejb-jar.xml") || descriptors.containsKey("beans.xml")) {
                 return true;
             }
 

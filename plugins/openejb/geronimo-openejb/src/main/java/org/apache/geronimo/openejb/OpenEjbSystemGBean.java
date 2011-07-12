@@ -71,10 +71,12 @@ import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.mdb.InboundRecovery;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.osgi.core.BundleFinderFactory;
 import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.resource.GeronimoTransactionManagerFactory.GeronimoXAResourceWrapper;
 import org.apache.openejb.spi.ApplicationServer;
@@ -171,6 +173,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         // add our thread context listener
         GeronimoThreadContextListener.init();
 
+        SystemInstance.get().setComponent(FinderFactory.class, new BundleFinderFactory());
         SystemInstance.get().setComponent(ThreadSingletonService.class, new ThreadSingletonServiceAdapter());
         //probably should be in openejb...
         ThreadContext.addThreadContextListener(new OWBContextThreadListener());

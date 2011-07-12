@@ -19,3 +19,4 @@
 # JMS integration into OpenWebBeans
 # this file contains information for java.util.ServiceLoader
 org.apache.openejb.cdi.CdiPlugin
+org.apache.geronimo.openejb.cdi.GeronimoWebBeansPlugin

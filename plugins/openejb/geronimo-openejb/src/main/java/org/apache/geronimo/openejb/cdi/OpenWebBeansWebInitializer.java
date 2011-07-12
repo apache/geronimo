@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.cdi.CdiAppContextsService;
 import org.apache.openejb.cdi.CdiResourceInjectionService;
+import org.apache.openejb.cdi.CdiScanner;
 import org.apache.openejb.cdi.OpenEJBLifecycle;
 import org.apache.openejb.cdi.OpenEJBTransactionService;
 import org.apache.openejb.cdi.StartupObject;
@@ -50,9 +50,6 @@ import org.apache.webbeans.spi.TransactionService;
 import org.apache.webbeans.spi.ValidatorService;
 import org.apache.webbeans.spi.adaptor.ELAdaptor;
 import org.apache.webbeans.util.WebBeansUtil;
-import org.apache.webbeans.web.context.WebContextsService;
-import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
-import org.omg.PortableServer.THREAD_POLICY_ID;
 
 /**
  * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
@@ -76,10 +73,10 @@ public class OpenWebBeansWebInitializer {
         services.put(JNDIService.class, new NoopJndiService());
         services.put(ELAdaptor.class, new EL22Adaptor());
         services.put(ConversationService.class, new DefaultConversationService());
-        services.put(ContextsService.class, new CdiAppContextsService());
+        services.put(ContextsService.class, new CdiAppContextsService(true));
         services.put(ResourceInjectionService.class, new CdiResourceInjectionService());
+        services.put(ScannerService.class, new CdiScanner());
         WebBeansContext webBeansContext = new WebBeansContext(services, properties);
-        webBeansContext.registerService(ScannerService.class, new OsgiMetaDataScannerService(webBeansContext));
         //must be last since it idiotically copies stuff
         OpenEJBLifecycle lifecycle = new OpenEJBLifecycle(webBeansContext);
         webBeansContext.registerService(ContainerLifecycle.class, lifecycle);
