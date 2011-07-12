@@ -102,4 +102,6 @@
         </dependency>
     </gbean>
 
+    <gbean name="OWBSingletonServiceInitializer" class="org.apache.geronimo.openejb.cdi.SingletonServiceInitializerGBean"/>
+
 </module>

@@ -60,7 +60,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.openwebbeans.SharedOwbContext;
+import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;

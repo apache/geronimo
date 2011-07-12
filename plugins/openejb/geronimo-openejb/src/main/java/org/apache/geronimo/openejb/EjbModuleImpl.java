@@ -43,7 +43,7 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.openwebbeans.SharedOwbContext;
+import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.NoSuchApplicationException;

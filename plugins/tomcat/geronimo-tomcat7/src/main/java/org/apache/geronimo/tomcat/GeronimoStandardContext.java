@@ -68,7 +68,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
-import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
+import org.apache.geronimo.openejb.cdi.OpenWebBeansWebInitializer;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;

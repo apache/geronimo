@@ -18,14 +18,33 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
-import org.apache.webbeans.config.WebBeansContext;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import org.apache.webbeans.spi.ValidatorService;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public interface SharedOwbContext
-{
-    WebBeansContext getOWBContext();
+public class GeronimoValidatorService  implements ValidatorService {
+    @Override
+    public ValidatorFactory getDefaultValidatorFactory() {
+        try {
+            return (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Validator getDefaultValidator() {
+        try {
+            return (Validator)new InitialContext().lookup("java:comp/Validator");
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

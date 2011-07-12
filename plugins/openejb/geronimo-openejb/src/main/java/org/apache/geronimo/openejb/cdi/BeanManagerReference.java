@@ -18,33 +18,21 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import org.apache.webbeans.spi.ValidatorService;
+import org.apache.webbeans.container.InjectableBeanManager;
+import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
+ * Use this reference instead of directly binding the serializable InjectableBeanManager
+ * so we don't start a BeanManagerImpl at deploy time (with no owb context)
  * @version $Rev:$ $Date:$
  */
-public class GeronimoValidatorService  implements ValidatorService {
-    @Override
-    public ValidatorFactory getDefaultValidatorFactory() {
-        try {
-            return (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+public class BeanManagerReference extends SimpleReference {
 
     @Override
-    public Validator getDefaultValidator() {
-        try {
-            return (Validator)new InitialContext().lookup("java:comp/Validator");
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+    public Object getContent() throws NamingException {
+        return new InjectableBeanManager();
     }
 }

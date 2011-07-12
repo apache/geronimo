@@ -18,21 +18,14 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
-import javax.naming.NamingException;
-import org.apache.webbeans.container.InjectableBeanManager;
-import org.apache.xbean.naming.reference.SimpleReference;
+import org.apache.webbeans.config.WebBeansContext;
 
 /**
- * Use this reference instead of directly binding the serializable InjectableBeanManager
- * so we don't start a BeanManagerImpl at deploy time (with no owb context)
  * @version $Rev:$ $Date:$
  */
-public class BeanManagerReference extends SimpleReference {
-
-    @Override
-    public Object getContent() throws NamingException {
-        return new InjectableBeanManager();
-    }
+public interface SharedOwbContext
+{
+    WebBeansContext getOWBContext();
 }

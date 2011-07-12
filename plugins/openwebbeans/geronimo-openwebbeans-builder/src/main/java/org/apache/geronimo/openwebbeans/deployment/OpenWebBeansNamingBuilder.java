@@ -30,7 +30,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.openwebbeans.BeanManagerReference;
+import org.apache.geronimo.openejb.cdi.BeanManagerReference;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;

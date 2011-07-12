@@ -29,13 +29,13 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>openwebbeans</artifactId>
+                        <artifactId>openejb</artifactId>
                         <type>car</type>
                     </dependency>
                     <!-- The dependencies below is to help deployer to find configuration resources while the deployed application is of WAB type GERONIMO-5916 -->
                     <dependency>
                         <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-openwebbeans</artifactId>
+                        <artifactId>geronimo-openejb</artifactId>
                         <type>jar</type>
                     </dependency>
                     <dependency>

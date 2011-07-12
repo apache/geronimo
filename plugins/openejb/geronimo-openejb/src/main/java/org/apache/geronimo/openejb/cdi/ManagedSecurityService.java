@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;

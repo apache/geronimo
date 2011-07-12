@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.TransactionPhase;

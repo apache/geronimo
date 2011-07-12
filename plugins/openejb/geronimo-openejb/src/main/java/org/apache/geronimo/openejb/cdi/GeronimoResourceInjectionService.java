@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
 import java.io.IOException;
 import java.io.ObjectInput;

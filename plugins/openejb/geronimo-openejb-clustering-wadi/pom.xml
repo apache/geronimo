@@ -40,10 +40,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
         </dependency>
     </dependencies>
 

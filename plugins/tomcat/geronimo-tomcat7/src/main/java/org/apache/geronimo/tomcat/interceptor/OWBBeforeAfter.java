@@ -24,7 +24,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
+import org.apache.geronimo.openejb.cdi.GeronimoSingletonService;
 import org.apache.webbeans.config.WebBeansContext;
 
 /**

@@ -46,6 +46,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.openejb.cdi.ThreadSingletonServiceAdapter;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.openejb.AppContext;

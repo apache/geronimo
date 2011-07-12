@@ -29,7 +29,7 @@ import javax.naming.NamingException;
 
 import org.apache.tomcat.InstanceManager;
 import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
+import org.apache.geronimo.openejb.cdi.GeronimoSingletonService;
 import org.apache.webbeans.config.WebBeansContext;
 
 /**

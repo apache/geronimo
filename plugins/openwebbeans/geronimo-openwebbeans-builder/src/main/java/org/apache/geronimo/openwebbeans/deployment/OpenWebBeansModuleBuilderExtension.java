@@ -50,7 +50,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.openwebbeans.WebBeansConfigurationListener;
+import org.apache.geronimo.openejb.cdi.WebBeansConfigurationListener;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.BundleAnnotationFinder;

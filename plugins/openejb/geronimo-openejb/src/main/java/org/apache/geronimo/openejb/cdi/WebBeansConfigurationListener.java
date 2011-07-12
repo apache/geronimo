@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.openwebbeans;
+package org.apache.geronimo.openejb.cdi;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;

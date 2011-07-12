@@ -188,7 +188,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Export-SPI-Provider>org.apache.geronimo.openwebbeans.WebBeansConfigurationListener</Export-SPI-Provider>
+                        <Export-SPI-Provider>org.apache.geronimo.openejb.cdi.WebBeansConfigurationListener</Export-SPI-Provider>
                     </instructions>
                 </configuration>
             </plugin>
