@@ -82,6 +82,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-bundleutils</artifactId>
+        </dependency>
+
         <!-- g-security comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
