@@ -163,7 +163,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "holder") Holder holder,
             @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
             @ParamReference(name = "J2EEServer") J2EEServer server,
-            @ParamReference(name = "J2EEApplication") J2EEApplication application,
             @ParamReference(name = "ContextSource") ContextSource contextSource,
             @ParamReference(name = "applicationPolicyConfigurationManager") ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,

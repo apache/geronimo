@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -37,7 +38,6 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
@@ -179,15 +179,27 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         if (appContext == null) {
             throw new IllegalStateException("Not started");
         }
-        return appContext.get(WebBeansContext.class);
+        return appContext.getWebBeansContext();
+    }
+
+    public Map<String, EjbDeployment> getEjbDeploymentMap() {
+        return ejbs;
+    }
+
+    public AppInfo getAppInfo() {
+        return appInfo;
+    }
+
+    public AppContext getAppContext() {
+        return appContext;
     }
 
     public void doStart() throws Exception {
-        appContext = openEjbSystem.createApplication(appInfo, classLoader);
-        for (String deploymentId: ejbs.keySet()) {
-            BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
-            GeronimoThreadContextListener.get().getEjbDeployment((BeanContext) beanContext);
-        }
+        appContext = openEjbSystem.createApplication(appInfo, classLoader, false);
+//        for (String deploymentId: ejbs.keySet()) {
+//            BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
+//            GeronimoThreadContextListener.get().getEjbDeployment((BeanContext) beanContext);
+//        }
     }
 
     public void doStop() {

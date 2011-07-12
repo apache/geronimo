@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -28,8 +29,10 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -58,6 +61,7 @@ public abstract class Module<T, U> {
     private String originalSpecDD;
     private AbstractFinder classFinder;
 
+    private final Map<AbstractName, GBeanData> gbeans = new LinkedHashMap<AbstractName, GBeanData>();
     protected final Map sharedContext = new HashMap();
     protected final LinkedHashSet<Module<?, ?>> modules;
     protected final LinkedHashSet<String> moduleLocations;
@@ -200,6 +204,19 @@ public abstract class Module<T, U> {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
+        if (gbeans.containsKey(gbean.getAbstractName())) {
+            throw new GBeanAlreadyExistsException(gbean.getAbstractName().toString());
+        }
+        gbeans.put(gbean.getAbstractName(), gbean);
+    }
+
+    public void flushGBeansToContext() throws GBeanAlreadyExistsException {
+        for (GBeanData data: gbeans.values()) {
+            earContext.addGBean(data);
+        }
     }
 
     public int hashCode() {

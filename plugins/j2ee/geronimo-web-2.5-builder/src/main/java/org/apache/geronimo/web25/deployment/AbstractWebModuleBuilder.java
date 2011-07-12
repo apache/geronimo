@@ -251,15 +251,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected void addGBeanDependencies(EARContext earContext, GBeanData webModuleData) {
         log.debug("Adding dependencies to web module: " + webModuleData.getAbstractName());
-        Configuration earConfiguration = earContext.getConfiguration();
-        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_CONNECTION_FACTORY_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, STATELESS_SESSION_BEAN_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, STATEFUL_SESSION_BEAN_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, SINGLETON_BEAN_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_BEAN_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, ENTITY_BEAN_PATTERN), webModuleData);
-        addDependencies(earContext.findGBeanDatas(earConfiguration, EJB_MODULE_PATTERN), webModuleData);
+//        Configuration earConfiguration = earContext.getConfiguration();
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_CONNECTION_FACTORY_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, STATELESS_SESSION_BEAN_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, STATEFUL_SESSION_BEAN_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, SINGLETON_BEAN_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_BEAN_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, ENTITY_BEAN_PATTERN), webModuleData);
+//        addDependencies(earContext.findGBeanDatas(earConfiguration, EJB_MODULE_PATTERN), webModuleData);
     }
 
     private void addDependencies(LinkedHashSet<GBeanData> dependencies, GBeanData webModuleData) {
@@ -720,9 +720,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (moduleContext.getServerName() != null) {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
         }
-        if (!webModule.isStandAlone()) {
-            webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
-        }
+//        if (!webModule.isStandAlone()) {
+//            webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
+//        }
         webModuleData.setAttribute("holder", holder);
         //Add dependencies on managed connection factories and ejbs in this app
         //This is overkill, but allows for people not using java:comp context (even though we don't support it)

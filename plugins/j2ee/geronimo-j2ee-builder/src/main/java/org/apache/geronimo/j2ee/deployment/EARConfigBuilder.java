@@ -686,6 +686,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
             }
 
+            AbstractName appJndiName = naming.createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
+            earContext.getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
+            GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
+            appContexts.setAttribute("globalContextSegment", applicationInfo.getJndiContext().get(JndiScope.global));
+            appContexts.setAttribute("applicationContextMap", applicationInfo.getJndiContext().get(JndiScope.app));
+            appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
+            earContext.addGBean(appContexts);
+
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
                 serviceBuilders.build(geronimoApplication, earContext, earContext);
@@ -740,8 +748,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 namingBuilders.buildNaming(applicationInfo.getSpecDD(), applicationInfo.getVendorDD(), applicationInfo, earContext.getGeneralData());
             }
 
-            AbstractName appJndiName = naming.createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
-            earContext.getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
             // each module can now add it's GBeans
             for (Module<?,?> module : modules) {
                 if (createPlanMode.get()) {
@@ -760,12 +766,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 EARConfigBuilder.appInfo.set(applicationInfo);
                 throw new DeploymentException();
             }
-
-            GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
-            appContexts.setAttribute("globalContextSegment", applicationInfo.getJndiContext().get(JndiScope.global));
-            appContexts.setAttribute("applicationContextMap", applicationInfo.getJndiContext().get(JndiScope.app));
-            appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
-            earContext.addGBean(appContexts);
 
             // it's the caller's responsibility to close the context...
             return earContext;

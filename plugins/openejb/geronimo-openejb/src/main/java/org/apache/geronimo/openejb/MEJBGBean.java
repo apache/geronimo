@@ -48,7 +48,7 @@ public class MEJBGBean implements GBeanLifecycle {
         //A dummy URL MEJBGBean.class.getResource( "" ).toString() to avoid the "java.net.MalformedURLException: no protocol: MEJBGBean" when startup
         EjbJarInfo ejbJarInfo = openEjbSystem.configureApplication(new EjbModule(cl, getClass().getSimpleName(), MEJBGBean.class.getResource( "" ).toString(), ejbJar, null));
         GeronimoEjbInfo ejbInfo = new GeronimoEjbInfo(ejbJarInfo, null);
-        openEjbSystem.createApplication(ejbInfo.createAppInfo(), cl);
+        openEjbSystem.createApplication(ejbInfo.createAppInfo(), cl, true);
 	}
 
     static {

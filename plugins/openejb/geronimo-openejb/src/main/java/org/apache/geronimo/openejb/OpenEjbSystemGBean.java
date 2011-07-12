@@ -441,7 +441,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
     }
 
-    public AppContext createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+    public AppContext createApplication(AppInfo appInfo, ClassLoader classLoader, boolean start) throws NamingException, IOException, OpenEJBException {
         Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
         for (AbstractName name : names) {
             try {
@@ -454,7 +454,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            return assembler.createApplication(appInfo, classLoader);
+            return assembler.createApplication(appInfo, classLoader, start);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

@@ -87,6 +87,7 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImpl;
+import org.apache.geronimo.openejb.EjbModuleStarter;
 import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.cdi.SharedOwbContext;
@@ -814,9 +815,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
        
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
+        AbstractName starterName = earContext.getNaming().createChildName(ejbModule.getModuleName(), "EjbModuleStarter", "EjbModuleStarter");
+        GBeanData ejbModuleStarterGBeanData = new GBeanData(starterName, EjbModuleStarter.class);
+        ejbModuleStarterGBeanData.setReferencePattern("EjbModule", ejbModule.getModuleName());
+        ejbModuleStarterGBeanData.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
         try {
 
-          earContext.addGBean(ejbModuleGBeanData);
+            //sets up the openejb infrastructure; happens before web modules start
+            earContext.addGBean(ejbModuleGBeanData);
+            //starts the ejbs; happens in module order (which may be before or after web modules)
+            ejbModule.addGBean(ejbModuleStarterGBeanData);
             
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add ejb module gbean", e);
@@ -1156,6 +1164,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         EjbModule ejbModule = (EjbModule) module;
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
+        //push the gbeans into the configuration
+        try {
+            ejbModule.flushGBeansToContext();
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Name conflict between ejb modules", e);
+        }
         // add enc
         String moduleName = module.getName();
         

@@ -491,7 +491,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             contextPath = "/" + contextPath;
         }
         try {
-            moduleContext.addGBean(webModuleData);
+            module.addGBean(webModuleData);
             Map<String, String> contextAttributes = new HashMap<String, String>();
             webModuleData.setAttribute("contextPath", contextPath);
             // unsharableResources, applicationManagedSecurityResources
@@ -735,6 +735,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 earContext.addFile(module.getTargetPathURI().resolve("WEB-INF/web.xml"), specDeploymentPlan);
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+            module.flushGBeansToContext();
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;

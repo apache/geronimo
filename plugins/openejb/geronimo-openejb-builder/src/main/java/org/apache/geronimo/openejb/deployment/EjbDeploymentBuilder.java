@@ -184,7 +184,7 @@ public class EjbDeploymentBuilder {
             gbean.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
 
             try {
-                earContext.addGBean(gbean);
+                ejbModule.addGBean(gbean);
             } catch (GBeanAlreadyExistsException e) {
                 throw new DeploymentException("Could not add entity bean to context", e);
             }

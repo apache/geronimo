@@ -136,7 +136,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,   //holder
                 null,   //contextCustomizer
                 null,   //server
-                null,   //application
                 contextSource,  //contextSource
                 (ApplicationPolicyConfigurationManager)runAsSource,   //applicationPolicyConfigurationManager
                 //listenerClassNames

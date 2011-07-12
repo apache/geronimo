@@ -54,7 +54,7 @@ public interface OpenEjbSystem {
 
     BeanContext getDeploymentInfo(String deploymentId);
 
-    AppContext createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
+    AppContext createApplication(AppInfo appInfo, ClassLoader classLoader, boolean start) throws NamingException, IOException, OpenEJBException;
     
     void removeApplication(AppInfo appInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
     
