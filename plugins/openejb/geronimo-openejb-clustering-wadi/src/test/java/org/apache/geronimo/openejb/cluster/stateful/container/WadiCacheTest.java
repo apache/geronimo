@@ -42,6 +42,7 @@ import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.stateful.Cache.CacheListener;
 import org.apache.openejb.core.stateful.Instance;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.persistence.JtaEntityManagerRegistry;
 
 /**
  * @version $Rev$ $Date$
@@ -112,7 +113,7 @@ public class WadiCacheTest extends RMockTestCase {
 
         try {
             VMID primaryKey = new VMID();
-            Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, EntityManager>) null);
+            Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, JtaEntityManagerRegistry.EntityManagerTracker>) null);
             manager.add(primaryKey, instance);
             fail();
         } catch (IllegalStateException e) {
@@ -128,7 +129,7 @@ public class WadiCacheTest extends RMockTestCase {
 
         manager.addSessionManager(deploymentId, sessionManager);
 
-        Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, EntityManager>) null);
+        Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, JtaEntityManagerRegistry.EntityManagerTracker>) null);
         manager.add(primaryKey, instance);
     }
 
@@ -218,7 +219,7 @@ public class WadiCacheTest extends RMockTestCase {
     private FutureTask<Instance> newBeanEntryTask(final VMID primaryKey, Session session) {
         final FutureTask<Instance> newBeanEntryTask = new FutureTask<Instance>(new Callable<Instance>() {
             public Instance call() throws Exception {
-                Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, EntityManager>) null);
+                Instance instance = new Instance(deploymentInfo, primaryKey, new Object(), null, (Map<EntityManagerFactory, JtaEntityManagerRegistry.EntityManagerTracker>) null);
                 manager.add(primaryKey, instance);
                 return instance;
             }
