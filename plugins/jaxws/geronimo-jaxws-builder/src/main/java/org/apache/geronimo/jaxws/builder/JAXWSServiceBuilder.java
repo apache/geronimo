@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.jaxws.JAXWSEJBApplicationContext;
@@ -276,8 +277,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         try {
             //TODO Now we share the same DeploymentContext in the ear package, which means all the gbeans are saved in the one EARContext
             //Might need to update while we have real EAR support
-            GBeanData moduleGBean = context.getGBeanInstance(module.getModuleName());
-            moduleHolder = (Holder) moduleGBean.getAttribute("holder");
+            moduleHolder = (Holder) module.getSharedContext().get(NamingBuilder.INJECTION_KEY);
             GBeanData contextSourceGBean = context.getGBeanInstance(context.getNaming().createChildName(module.getModuleName(), "ContextSource", "ContextSource"));
             componentContext = (Map) contextSourceGBean.getAttribute("componentContext");
         } catch (GBeanNotFoundException e) {
