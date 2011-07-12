@@ -14,7 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.monitoring;
+
+package org.apache.geronimo.monitoring.ejb;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,9 +50,11 @@ import javax.management.j2ee.statistics.TimeStatistic;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.geronimo.monitoring.MonitorConstants;
+import org.apache.geronimo.monitoring.MBeanHelper;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
-import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
+import org.apache.geronimo.monitoring.ejb.snapshot.SnapshotProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

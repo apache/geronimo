@@ -25,6 +25,11 @@
         xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2"
         xmlns:cs="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
 
+    <environment>
+        <export-package>
+            org.apache.geronimo.monitoring.ejb
+        </export-package>
+    </environment>
 
     <enterprise-beans>
         <session>

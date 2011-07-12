@@ -30,19 +30,24 @@
     
     <artifactId>agent-sql</artifactId>
     <name>Geronimo Plugins, Monitoring :: Agent SQL</name>
-
+    <packaging>bundle</packaging>
+    
     <description>
        This module carries the Monitoring's SQL scripts for all databases.
     </description>
     
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main</directory>
-                <targetPath>META-INF</targetPath>
-                <!-- <filtering>true</filtering> -->
-            </resource>
-        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.apache.geronimo.monitoring.sql</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
-
+    
 </project>

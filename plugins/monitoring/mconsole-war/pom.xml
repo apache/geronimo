@@ -40,6 +40,7 @@
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-filter</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -64,8 +65,15 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-core</artifactId>
@@ -77,7 +85,6 @@
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-ejb</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
 
@@ -90,10 +97,8 @@
 
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>pluto-support</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-taglib</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

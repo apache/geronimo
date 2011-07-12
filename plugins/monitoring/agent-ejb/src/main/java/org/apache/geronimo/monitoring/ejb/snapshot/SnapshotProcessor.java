@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.monitoring.snapshot;
+package org.apache.geronimo.monitoring.ejb.snapshot;
 
 import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -26,7 +26,10 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.monitoring.MBeanHelper;
-import org.apache.geronimo.monitoring.MasterRemoteControl;
+import org.apache.geronimo.monitoring.ejb.MasterRemoteControl;
+import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
+import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

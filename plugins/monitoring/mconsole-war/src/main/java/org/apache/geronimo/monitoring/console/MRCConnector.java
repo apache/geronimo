@@ -42,7 +42,7 @@ import javax.naming.InitialContext;
 
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.crypto.EncryptionManager;
-import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
+import org.apache.geronimo.monitoring.ejb.MasterRemoteControlRemote;
 import org.apache.geronimo.monitoring.console.data.Node;
 import org.apache.geronimo.system.jmx.RealMBeanServerReference;
 

@@ -91,8 +91,8 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         // Note: do not put this in the constructor...datasources are not injected by then
         try {
             InitialContext ic = new InitialContext();
-            activeDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAManagedConnectionFactory/jdbc/ActiveDS");
-            archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS");
+            activeDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAConnectionManager/jdbc/ActiveDS");
+            archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAConnectionManager/jdbc/ArchiveDS");
         } catch(Exception e) {
             log.error(e.getMessage());
         }

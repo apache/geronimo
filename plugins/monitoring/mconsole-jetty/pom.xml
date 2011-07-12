@@ -67,27 +67,27 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-jetty</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>mconsole-ds</artifactId>
-            <version>${pom.version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>mconsole-war</artifactId>
-            <version>${pom.version}</version>
+            <version>${project.version}</version>
             <type>war</type>
             <scope>provided</scope>
-        </dependency>
-	
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-jetty</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
         </dependency>
 
         <!-- see if openejb-client can be used -->
@@ -131,7 +131,7 @@
                     <module>
                         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
                         <artifactId>mconsole-war</artifactId>
-                        <version>${pom.version}</version>
+                        <version>${project.version}</version>
                         <type>war</type>
                     </module>
                     <category>Administration Monitoring</category>

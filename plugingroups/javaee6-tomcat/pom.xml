@@ -95,19 +95,19 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
-            <!--<artifactId>agent-car-ejb</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+            <artifactId>agent-car-ejb</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
         
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
-            <!--<artifactId>agent-car-jmx</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+            <artifactId>agent-car-jmx</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
         
         
         
