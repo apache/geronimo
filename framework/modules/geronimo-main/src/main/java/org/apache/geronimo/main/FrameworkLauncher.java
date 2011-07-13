@@ -44,6 +44,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 public class FrameworkLauncher {
@@ -353,8 +354,14 @@ public class FrameworkLauncher {
             info.bundle = bundle;
         }
         
+
+        // Retrieve the PackageAdmin service
+        PackageAdmin pa = (PackageAdmin) context.getService(context.getServiceReference(PackageAdmin.class.getName()));
+                
         for (BundleInfo info : startList) {
-            info.bundle.start();
+            if (pa.getBundleType(info.bundle) != PackageAdmin.BUNDLE_TYPE_FRAGMENT) { //Fragment bundle can not start
+                 info.bundle.start();
+            } 
         }
         
     }
