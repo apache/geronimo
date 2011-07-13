@@ -93,6 +93,14 @@
             <action class="org.apache.geronimo.shell.deploy.EncryptCommand">
             </action>
         </command>
+        <command name="deploy/install-bundle">
+            <action class="org.apache.geronimo.shell.deploy.InstallBundleCommand">
+            </action>
+        </command>
+        <command name="deploy/uninstall-bundle">
+            <action class="org.apache.geronimo.shell.deploy.UninstallBundleCommand">
+            </action>
+        </command>
         <command name="deploy/unlock-keystore">
             <action class="org.apache.geronimo.shell.deploy.UnlockKeystoreCommand">
             </action>
