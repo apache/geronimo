@@ -53,7 +53,7 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
         }
         
         if (0 == commandLine.getArgs().length) {
-            throw new CLParserException("Must specify a bundle location");
+            throw new CLParserException("Must specify a bundle file");
         }
     }
     

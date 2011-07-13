@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.cli.deployer;
 
+import org.apache.geronimo.cli.CLParserException;
+
 public class UninstallBundleCommandMetaData extends BaseCommandMetaData {
     public static final CommandMetaData META_DATA = new UninstallBundleCommandMetaData();
 
@@ -27,4 +29,10 @@ public class UninstallBundleCommandMetaData extends BaseCommandMetaData {
                 );
     }
 
+    public CommandArgs parse(String[] newArgs) throws CLParserException {
+        if (newArgs.length == 0) {
+            throw new CLParserException("Must specify a bundle id");
+        }
+        return new BaseCommandArgs(newArgs);
+    }
 }
