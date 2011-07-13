@@ -179,7 +179,7 @@
         <!--<module>ca-helper</module>-->
         <module>uddi</module>
         <module>mejb</module>
-        <!--<module>monitoring</module>-->
+        <module>monitoring</module>
         <module>remote-deploy</module>
         <!--<module>sharedlib</module>-->
         <module>welcome</module>
