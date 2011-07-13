@@ -84,8 +84,12 @@ public class XBeanJndiFactory implements JndiFactory {
 
     public void addGlobals(Map<String, Object> globals) {
         for (Map.Entry<String, Object> entry: globals.entrySet()) {
+            //No need to bind/unbind the empty global/env context built in ApplicationJndi 
+            if (entry.getKey().equals("global/env")) {
+                continue;
+            }
             String name = "openejb/global/" + entry.getKey();
-            try {
+            try {                
                 rootContext.bind(name, entry.getValue());
             } catch (NamingException e) {
                 //??
@@ -95,6 +99,9 @@ public class XBeanJndiFactory implements JndiFactory {
 
     public void removeGlobals(Map<String, Object> globals) {
         for (Map.Entry<String, Object> entry: globals.entrySet()) {
+            if(entry.getKey().equals("global/env")) {
+                continue;
+            }
             String name = "openejb/global/" + entry.getKey();
             try {
                 rootContext.unbind(name);
