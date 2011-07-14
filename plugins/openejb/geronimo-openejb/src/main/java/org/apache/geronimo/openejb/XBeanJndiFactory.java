@@ -21,15 +21,13 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import org.apache.geronimo.gjndi.FederatedContext;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
-import org.apache.geronimo.j2ee.jndi.JndiScope;
+import javax.naming.Reference;
+
+import org.apache.geronimo.datasource.DataSourceService;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.core.JndiFactory;
 import org.apache.xbean.naming.context.ImmutableFederatedContext;
@@ -84,29 +82,32 @@ public class XBeanJndiFactory implements JndiFactory {
 
     public void addGlobals(Map<String, Object> globals) {
         for (Map.Entry<String, Object> entry: globals.entrySet()) {
-            //No need to bind/unbind the empty global/env context built in ApplicationJndi 
-            if (entry.getKey().equals("global/env")) {
-                continue;
-            }
-            String name = "openejb/global/" + entry.getKey();
-            try {                
-                rootContext.bind(name, entry.getValue());
-            } catch (NamingException e) {
-                //??
+            if (entry.getValue() instanceof Reference) {
+                Reference ref = (Reference)entry.getValue();
+                if(ref.getClassName().equals(DataSourceService.class.getName())) {
+                    String name = "openejb/global/" + entry.getKey();
+                    try {
+                        rootContext.bind(name, entry.getValue());
+                    } catch (Exception ignore) {
+                        //??
+                    }
+                }
             }
         }
     }
 
     public void removeGlobals(Map<String, Object> globals) {
         for (Map.Entry<String, Object> entry: globals.entrySet()) {
-            if(entry.getKey().equals("global/env")) {
-                continue;
-            }
-            String name = "openejb/global/" + entry.getKey();
-            try {
-                rootContext.unbind(name);
-            } catch (NamingException e) {
-                //??
+            if (entry.getValue() instanceof Reference) {
+                Reference ref = (Reference)entry.getValue();
+                if(ref.getClassName().equals(DataSourceService.class.getName())) {
+                    String name = "openejb/global/" + entry.getKey();
+                    try {
+                        rootContext.unbind(name);
+                    } catch (NamingException e) {
+                        //??
+                    }
+                }
             }
         }
     }
