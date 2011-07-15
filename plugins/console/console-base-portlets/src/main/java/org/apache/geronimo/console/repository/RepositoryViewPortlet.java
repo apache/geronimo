@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 import javax.portlet.ActionRequest;
@@ -58,6 +59,8 @@ import java.util.SortedSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @version $Rev$ $Date$
@@ -66,6 +69,9 @@ public class RepositoryViewPortlet extends BasePortlet {
 
     private static final Logger log = LoggerFactory.getLogger(RepositoryViewPortlet.class);
 
+    // This regular expression for repository filename is taken from PluginInstallerGBean
+    private static final Pattern MAVEN_1_PATTERN_PART = Pattern.compile("(.+)-([0-9].+)\\.([^0-9]+)");
+   
     private Kernel kernel;
 
     private PortletContext ctx;
@@ -80,16 +86,15 @@ public class RepositoryViewPortlet extends BasePortlet {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
         ctx = portletConfig.getPortletContext();
-        normalView = ctx
-                .getRequestDispatcher("/WEB-INF/view/repository/normal.jsp");
-        helpView = ctx
-                .getRequestDispatcher("/WEB-INF/view/repository/help.jsp");
-        usageView = ctx
-                .getRequestDispatcher("/WEB-INF/view/repository/usage.jsp");
+        normalView = ctx.getRequestDispatcher("/WEB-INF/view/repository/normal.jsp");
+        helpView = ctx.getRequestDispatcher("/WEB-INF/view/repository/help.jsp");
+        usageView = ctx.getRequestDispatcher("/WEB-INF/view/repository/usage.jsp");
     }
 
-    public void processAction(ActionRequest actionRequest,
-                              ActionResponse actionResponse) throws PortletException, IOException {
+    public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
+        
+        actionResponse.setRenderParameter("message", ""); // set to blank first
+        
         String action = actionRequest.getParameter("action");
         if(action != null && action.equals("usage")) {
             // User clicked on a repository entry to view usage
@@ -101,17 +106,17 @@ public class RepositoryViewPortlet extends BasePortlet {
 
         try {
 
-            WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
-
-            File uploadFile = null;
             File file = null;
             String name = null;
             String basename = null;
-            String fileType = null;
-            String artifact = null;
+            
+            String specify = null;
+            
+            String groupId = null;
+            String artifactId = null;
             String version = null;
-            String group = null;
-            String jarName = null;
+            String fileType = null;
+            String replacedArtifactString = null;
 
             PortletFileUpload uploader = new PortletFileUpload(new DiskFileItemFactory());
             try {
@@ -119,7 +124,6 @@ public class RepositoryViewPortlet extends BasePortlet {
                 for (Iterator i = items.iterator(); i.hasNext();) {
                     FileItem item = (FileItem) i.next();
                     if (!item.isFormField()) {
-                        String fieldName = item.getFieldName().trim();
                         name = item.getName().trim();
 
                         if (name.length() == 0) {
@@ -147,10 +151,6 @@ public class RepositoryViewPortlet extends BasePortlet {
                             log.debug("Writing repository import file to " + file.getAbsolutePath());
                         }
 
-                        if ("local".equals(fieldName)) {
-                            uploadFile = file;
-                        }
-
                         if (file != null) {
                             try {
                                 item.write(file);
@@ -162,69 +162,45 @@ public class RepositoryViewPortlet extends BasePortlet {
                     } else {
                         String fieldName = item.getFieldName().trim();
                         if ("group".equals(fieldName)) {
-                            group = item.getString().trim();
+                            groupId = item.getString().trim();
                         } else if ("artifact".equals(fieldName)) {
-                            artifact = item.getString().trim();
+                            artifactId = item.getString().trim();
                         } else if ("version".equals(fieldName)) {
                             version = item.getString().trim();
                         } else if ("fileType".equals(fieldName)) {
                             fileType = item.getString().trim();
                         } else if ("jarName".equals(fieldName)) {
-                            jarName = item.getString().trim();
+                            replacedArtifactString = item.getString().trim();
+                        } else if ("specify".equals(fieldName)) {
+                            specify = item.getString().trim();
                         }
                     }
                 }
-                if (jarName != null && jarName.length() > 0) {
+                
+                if (groupId == null || groupId.isEmpty()) groupId = "default";
+                PluginInstallerGBean installer = KernelRegistry.getSingleKernel().getGBean(PluginInstallerGBean.class);
+                Artifact artifact = null;
+                if ("yes".equals(specify)) {
+                    artifact = new Artifact(groupId, artifactId, version, fileType);
+                } else {
+                    artifact = installer.calculateArtifact(file, basename, groupId);
+                }
+                if (artifact==null) {
+                    addErrorMessage(actionRequest, "Can not calculate the Artifact string automatically. Please manually specify one.");
+                    return;
+                }
+                
+                installer.installLibrary(file, artifact);
+                addInfoMessage(actionRequest, "File is successfully added to repository with artifact string: " + artifact.toString());
+                
+                // add alias
+                if (replacedArtifactString != null && replacedArtifactString.length() > 0) {
                     ExplicitDefaultArtifactResolver instance = KernelRegistry.getSingleKernel().getGBean(ExplicitDefaultArtifactResolver.class);
                     Properties set = new Properties();
-                    set.put(jarName, group + "/" + artifact + "/" + version + "/" + fileType);
+                    set.put(replacedArtifactString, artifact.toString());
                     instance.addAliases(set);
+                    addInfoMessage(actionRequest, "Replaced artifact: " + replacedArtifactString + " with: " + artifact.toString());
                 }
-
-                JarFile jar = new JarFile(file);
-                try {
-                    // only handle non OSGi jar
-                    Manifest manifest = jar.getManifest();
-                    if (manifest != null &&
-                        manifest.getMainAttributes().getValue(new Attributes.Name("Bundle-SymbolicName")) != null &&
-                        manifest.getMainAttributes().getValue(new Attributes.Name("Bundle-Version")) != null) {
-
-                        URL wrap = new URL("wrap", null, file.toURI().toURL().toExternalForm() + "$Bundle-SymbolicName=" + artifact + "&Bundle-Version=" + version.replace("-", "."));
-                        InputStream in = wrap.openStream();
-                        try {
-                            repo.copyToRepository(in, (int)file.getTotalSpace(), new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
-                                public void writeStarted(String fileDescription, int fileSize) {
-                                    log.info("Copying into repository " + fileDescription + "...");
-                                }
-
-                                public void writeProgress(int bytes) {
-                                }
-
-                                public void writeComplete(int bytes) {
-                                    log.info("Finished.");
-                                }
-                            });
-                        } finally {
-                            in.close();
-                        }
-                    } else {
-                        repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
-                            public void writeStarted(String fileDescription, int fileSize) {
-                                log.info("Copying into repository " + fileDescription + "...");
-                            }
-
-                            public void writeProgress(int bytes) {
-                            }
-
-                            public void writeComplete(int bytes) {
-                                log.info("Finished.");
-                            }
-                        });
-                    }
-                } finally {
-                    jar.close();
-                }
-
 
             } catch (FileUploadException e) {
                 throw new PortletException(e);
@@ -239,7 +215,7 @@ public class RepositoryViewPortlet extends BasePortlet {
             throw e;
         }
     }
-
+        
     protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         // i think generic portlet already does this

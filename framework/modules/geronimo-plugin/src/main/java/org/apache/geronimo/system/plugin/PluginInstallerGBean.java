@@ -52,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
@@ -1134,19 +1135,107 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
-        Matcher matcher = MAVEN_1_PATTERN_PART.matcher("");
-        matcher.reset(libFile.getName());
-        if (matcher.matches()) {
-            String artifactId = matcher.group(1);
-            String version = matcher.group(2);
-            String type = matcher.group(3);
-            Artifact artifact = new Artifact(groupId != null ? groupId : Artifact.DEFAULT_GROUP_ID, artifactId, version, type);
-            writeableRepo.copyToRepository(libFile, artifact, null);
-            return artifact;
+        Artifact artifact = calculateArtifact(libFile, libFile.getName(), groupId);
+        if (artifact == null)
+            throw new IllegalArgumentException("Can not calculate Artifact string, file should be:\n"
+                    + "(1) a file with filename in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar;"
+                    + "(2) or an OSGi bundle");
+        installLibrary(libFile, artifact);
+        return artifact;
+    }
+
+    public void installLibrary(File libFile, Artifact artifact) throws IOException {
+        if (artifact == null || !artifact.isResolved())
+            throw new IllegalArgumentException("Artifact is not valid when install library");
+        
+        if (identifyOSGiBundle(libFile) != null) {
+            writeableRepo.copyToRepository(libFile, artifact, new RepoFileWriteMonitor());
         } else {
-            throw new IllegalArgumentException("Filename " + libFile.getName() + " is not in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar.");
+            // convert to osgi bundle jars using wrap url handler
+            URL wrap = new URL("wrap", null, libFile.toURI().toURL().toExternalForm() 
+                    + "$Bundle-SymbolicName=" + artifact.getArtifactId() 
+                    + "&Bundle-Version=" + artifact.getVersion().toString().replace("-", "."));
+            InputStream in = null;
+            try {
+                in = wrap.openStream();
+                writeableRepo.copyToRepository(in, (int) libFile.getTotalSpace(), artifact, new RepoFileWriteMonitor());
+            } finally {
+                if (in != null)
+                    in.close();
+            }
         }
     }
+    
+    private String[] identifyOSGiBundle(File file) throws IOException{
+        JarFile jar = null;
+        try {
+            jar = new JarFile(file);
+            Manifest manifest = jar.getManifest();
+            if (manifest != null &&
+                    manifest.getMainAttributes().getValue("Bundle-SymbolicName") != null &&
+                    manifest.getMainAttributes().getValue("Bundle-Version") != null) {
+                return new String[]{
+                        manifest.getMainAttributes().getValue("Bundle-SymbolicName"),
+                        manifest.getMainAttributes().getValue("Bundle-Version")
+                        };
+            } 
+        } finally {
+            if (jar!=null) jar.close();
+        }
+        return null;
+    }
+        
+    private class RepoFileWriteMonitor implements FileWriteMonitor {
+        public void writeStarted(String fileDescription, int fileSize) {
+            log.info("Copying into repository " + fileDescription + "...");
+        }
+
+        public void writeProgress(int bytes) {
+        }
+
+        public void writeComplete(int bytes) {
+            log.info("Finished.");
+        }
+    }
+    
+    public Artifact calculateArtifact(File file, String fileName, String groupId) throws IOException  {
+        if (groupId == null || groupId.isEmpty()) groupId = Artifact.DEFAULT_GROUP_ID;
+
+        if (fileName == null || fileName.isEmpty()) fileName = file.getName();
+        
+        String artifactId = null;
+        String version = null;
+        String fileType = null;
+        
+        // firstly, try calculate artifact string from the file name
+        Matcher matcher = MAVEN_1_PATTERN_PART.matcher(fileName);
+        if (matcher.matches()) {
+            artifactId = matcher.group(1);
+            version = matcher.group(2);
+            fileType = matcher.group(3);
+            
+            return new Artifact(groupId,artifactId,version,fileType);
+            
+        } else { //else try calculate if it is an OSGi bundle
+            String[] bundleKey = identifyOSGiBundle(file);
+            if (bundleKey != null){
+                artifactId = bundleKey[0]; //Bundle-SymbolicName
+                version = bundleKey[1]; //Bundle-Version
+
+                if (fileName.lastIndexOf(".") != -1) {
+                    fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+                } else {
+                    fileType = "jar";
+                }
+
+                return new Artifact(groupId, artifactId, version, fileType);
+                
+            } else {
+                return null;
+            }
+        }
+    }
+    
 
     /**
      * Download (if necessary) and install something, which may be a Configuration or may

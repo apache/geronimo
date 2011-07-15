@@ -20,6 +20,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
@@ -32,14 +33,20 @@
 	
     div.Shown {
         display: block;
-    font-size: 10px;
+        font-size: 10px;
     }
 </style>  
 
 <script language="JavaScript">
-var <portlet:namespace/>formName = "<portlet:namespace/>fileSelect";
-var <portlet:namespace/>requiredFields = new Array("local", "group", "artifact", "version", "fileType");
+
 function <portlet:namespace/>validateForm() {
+    var <portlet:namespace/>formName = "<portlet:namespace/>fileSelect";
+    var <portlet:namespace/>requiredFields = new Array("local");
+    
+    if(document.getElementById("specify").checked){
+        <portlet:namespace/>requiredFields = new Array("local", "artifact", "version", "fileType");
+    }
+    
     if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
         addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.emptyText"/>');
         return false;    
@@ -112,57 +119,83 @@ function <portlet:namespace/>parse(localFile) {
         document.<portlet:namespace/>fileSelect.group.value = '';
     }
 }
-
 </script>
 
-<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+<script>
+function showHideByCheckbox(cb,target){
+    if (cb.checked)
+	    document.getElementById(target).style.display='block';
+	else
+	    document.getElementById(target).style.display='none';
+}
+</script>
 
-<table width="100%">
-<tr>
-  <td align="center">
-  <form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL/>">
+<!-- js's common msg -->
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
+<!-- portlet's common msg -->
+<CommonMsg:commonMsg/>
+<br/>
+<form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL/>">
   <input type="hidden" value="deploy" name="action"/>
-  <table width="80%">
-    <tr>
-      <th colspan="2" align="center"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
+  <table width="100%" class="TableLine">
+    <tr class="DarkBackground">
+        <th scope="col" colspan="3" width="40" align="center"><fmt:message key="repository.normal.addArchiveToRepository"/></th>   
     </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label></td>
-      <td align="left" width="60%"><input name="local" id="<portlet:namespace/>local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
+    <tr class="LightBackground">
+      <td align="right" width="20%"><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label>:</td>
+      <td><input type="file" name="local" id="<portlet:namespace/>local" onchange="<portlet:namespace/>parse(value)"></td>
+      <td>If the file is a normal jar file, it will be automatically convert to an OSGi bundle</td>
     </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label>:</td>
-      <td align="left" width="60%"><input type="text" name="group" id="<portlet:namespace/>group" value="${group}"/></td>
+    <tr class="MediumBackground">
+      <td align="right" width="20%">Artifact string:</td>
+      <td>
+        <table width="100%">
+            <tr>
+              <td align="right" width="50"><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label>:</td>
+              <td align="left"><input type="text" name="group" id="<portlet:namespace/>group" value="${group}" /></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td align="left">
+                <input type="checkbox" name="specify" id="specify" value="yes" onChange="showHideByCheckbox(this,'specifyTb')"/> Specify other parts
+              </td>
+            </tr>
+        </table>
+        <table width="100%" id="specifyTb" style="display:none">
+            <tr>
+              <td align="right" width="50"><label for="<portlet:namespace/>artifact"><fmt:message key="repository.normal.artifact"/></label>:</td>
+              <td align="left"><input type="text" name="artifact" id="<portlet:namespace/>artifact" value="${artifact}"/></td>
+            </tr>
+            <tr>
+              <td align="right" width="50"><label for="<portlet:namespace/>version"><fmt:message key="consolebase.common.version"/></label>:</td>
+              <td align="left"><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
+            </tr>
+            <tr>
+              <td align="right" width="50"><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
+              <td align="left"><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
+            </tr>
+         </table>
+      </td>
+      <td>
+        The default groupId is "default".<br/>
+        The other parts could be calculated automatically, if:<br/>
+        (1) the file name has the following form: &lt;artifact&gt;-&lt;version&gt;.&lt;type&gt;, for e.g. mylib-1.0.jar;<br/>
+        (2) or the file is an OSGi bundle, then the artifactId is its Bundle-SymbolicName and the version is its Bundle-Version; <br/>
+      </td>
     </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>artifact"><fmt:message key="repository.normal.artifact"/></label>:</td>
-      <td align="left" width="60%"><input type="text" name="artifact" id="<portlet:namespace/>artifact" value="${artifact}"/></td>
+    <tr class="LightBackground">
+      <td align="right" width="20%"><label for="<portlet:namespace/>jarName"><fmt:message key="repository.normal.replacedName"/></label>:</td>
+      <td><input type="text" name="jarName" id="<portlet:namespace/>jarName" value="${jarName}" style="width:230px" /></td>
+      <td><fmt:message key="repository.normal.replacedNameDescription"/></td>
     </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>version"><fmt:message key="consolebase.common.version"/></label>:</td>
-      <td align="left" width="60%"><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
-    </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
-      <td align="left" width="60%"><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
-    </tr>
-    <tr>
-      <td align="right" width="40%"><label for="<portlet:namespace/>jarName"><fmt:message key="repository.normal.replacedName"/></label>:</td>
-      <td align="left" width="60%"><input type="text" name="jarName" id="<portlet:namespace/>jarName" value="${jarName}"/></td>
-    </tr>
-    <tr>
-      <td align="right" width="40%">&nbsp;</td>
-      <td align="left" width="60%"><fmt:message key="repository.normal.replacedNameDescription"/></td>
-    </tr>    
-    <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
-    <tr>
-      <td colspan="2" align="center"><input type="submit" value='<fmt:message key="consolebase.common.install"/>' /></td>
+    <tr class="MediumBackground">
+      <td width="20%"></td>
+      <td><input type="submit" value='<fmt:message key="consolebase.common.install"/>' /></td>
+      <td></td>
     </tr>
   </table>
-  </form>
-  </td>
-</tr>
-</table>
+</form>
+
 
 <b><fmt:message key="repository.normal.currentRepositoryEntries"/></b>
 <p><fmt:message key="repository.normal.toViewUsage"/></p>
