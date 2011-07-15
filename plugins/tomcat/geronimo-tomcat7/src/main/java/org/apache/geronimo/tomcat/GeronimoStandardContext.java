@@ -245,8 +245,10 @@ public class GeronimoStandardContext extends StandardContext {
 
         WebBeansContext owbContext = ctx.getOWBContext();
         if (owbContext == null) {
-            owbContext = OpenWebBeansWebInitializer.newWebBeansContext(servletContext);
+            //hopefully for tests only
+            owbContext = OpenWebBeansWebInitializer.newWebBeansContext(null);
         }
+        OpenWebBeansWebInitializer.initializeServletContext(owbContext, servletContext);
         if (getInstanceManager() instanceof TomcatInstanceManager) {
             ((TomcatInstanceManager) getInstanceManager()).setOWBContext(owbContext);
         }

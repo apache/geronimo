@@ -80,30 +80,40 @@ public class OpenWebBeansWebInitializer {
         //must be last since it idiotically copies stuff
         OpenEJBLifecycle lifecycle = new OpenEJBLifecycle(webBeansContext);
         webBeansContext.registerService(ContainerLifecycle.class, lifecycle);
-        if (startup != null) {
-            GeronimoSingletonService.contextEntered(webBeansContext);
+
+        WebBeansContext oldContext = GeronimoSingletonService.contextEntered(webBeansContext);
+        try {
+            //from OWB's WebBeansConfigurationListener
+
             try {
-                //from OWB's WebBeansConfigurationListener
-
-                try {
-                    if (startup instanceof ServletContext) {
-                        StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(), Collections.<BeanContext>emptyList());
-                        lifecycle.startApplication(startupObject);
-                        lifecycle.startServletContext((ServletContext)startup);
-                    } else if (startup instanceof StartupObject) {
-                        lifecycle.startApplication(startup);
+                if (startup == null) {
+                    //this should only be used for servlet tests
+                    StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(), Collections.<BeanContext>emptyList());
+                    lifecycle.startApplication(startupObject);
+//                        lifecycle.startServletContext((ServletContext)startup);
+                } else if (startup instanceof StartupObject) {
+                    lifecycle.startApplication(startup);
 //                        ((StartupObject)startup).getAppContext().setWebBeansContext(webBeansContext);
-                    }
-                } catch (Exception e) {
-                    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-                    WebBeansUtil.throwRuntimeExceptions(e);
                 }
-
-            } finally {
-                GeronimoSingletonService.contextExited(null);
+            } catch (Exception e) {
+                //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+                WebBeansUtil.throwRuntimeExceptions(e);
             }
+
+        } finally {
+            GeronimoSingletonService.contextExited(oldContext);
         }
         return webBeansContext;
+    }
+
+    public static void initializeServletContext(WebBeansContext webBeansContext, ServletContext servletContext) {
+        WebBeansContext oldContext = GeronimoSingletonService.contextEntered(webBeansContext);
+        try {
+            OpenEJBLifecycle lifecycle = (OpenEJBLifecycle) webBeansContext.getService(ContainerLifecycle.class);
+            lifecycle.startServletContext(servletContext);
+        } finally {
+            GeronimoSingletonService.contextExited(oldContext);
+        }
     }
 
 //    public OpenWebBeansWebInitializer(WebBeansContext webBeansContext, ServletContext servletContext) {

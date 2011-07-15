@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.jetty8;
 
+import java.beans.beancontext.BeanContext;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -301,19 +303,21 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
+        WebBeansContext webBeansContext;
         if (sharedOwbContext == null) {
-            //we have to initialize the owb context
-            Thread thread = Thread.currentThread();
-            ClassLoader cl = thread.getContextClassLoader();
-            thread.setContextClassLoader(classLoader);
-            try {
-                integrationContext.setOwbContext(OpenWebBeansWebInitializer.newWebBeansContext(webAppContext.getServletContext()));
-            } finally {
-                thread.setContextClassLoader(cl);
-            }
+            webBeansContext = OpenWebBeansWebInitializer.newWebBeansContext(null);
         } else {
-            integrationContext.setOwbContext(sharedOwbContext.getOWBContext());
+            webBeansContext= sharedOwbContext.getOWBContext();
         }
+        Thread thread = Thread.currentThread();
+        ClassLoader cl = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            OpenWebBeansWebInitializer.initializeServletContext(webBeansContext, webAppContext.getServletContext());
+        } finally {
+            thread.setContextClassLoader(cl);
+        }
+        integrationContext.setOwbContext(webBeansContext);
     }
 
 

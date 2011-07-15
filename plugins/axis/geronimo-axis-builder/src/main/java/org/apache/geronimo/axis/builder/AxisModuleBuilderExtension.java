@@ -129,7 +129,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
 
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {
@@ -192,7 +192,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
 
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {

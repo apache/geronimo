@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.openejb;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +24,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -43,13 +43,11 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
-import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
-import org.apache.openejb.NoSuchApplicationException;
-import org.apache.openejb.UndeployException;
-import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.webbeans.config.WebBeansContext;
+import org.apache.openejb.Container;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.assembler.classic.EjbResolver;
+import org.apache.openejb.loader.SystemInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,29 +56,31 @@ import org.slf4j.LoggerFactory;
  */
 
 @GBean(j2eeType = NameFactory.EJB_MODULE)
-public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContext {
+public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
     private final String objectName;
+    private URI moduleURI;
     private final Map<String, EjbDeployment> ejbs = new HashMap<String, EjbDeployment>();
     private final ClassLoader classLoader;
 
     private final OpenEjbSystem openEjbSystem;
-    private final AppInfo appInfo;
-    private AppContext appContext;
+    private final AppInfoGBean appInfoGBean;
 
     public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                          @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
                          @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
+                         @ParamAttribute(name = "moduleURI") URI moduleURI,
                          @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
                          @ParamAttribute(name = "isStandalone") boolean isStandalone,
                          @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
-                         @ParamAttribute(name = "ejbInfo") GeronimoEjbInfo ejbInfo) throws NamingException {
+                         @ParamReference(name = "AppInfo") AppInfoGBean appInfoGBean) throws NamingException {
         this.objectName = objectName;
+        this.moduleURI = moduleURI;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -106,10 +106,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         this.classLoader = classLoader;
 
         this.openEjbSystem = openEjbSystem;
-        
-        this.appInfo = ejbInfo.createAppInfo();
-        
-        this.appInfo.standaloneModule = isStandalone;
+        this.appInfoGBean = appInfoGBean;
     }
     
     private void removeEjb(EjbDeployment ejb) {
@@ -174,38 +171,48 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         return result;
     }
 
-    @Override
-    public WebBeansContext getOWBContext() {
-        if (appContext == null) {
-            throw new IllegalStateException("Not started");
-        }
-        return appContext.getWebBeansContext();
-    }
-
-    public Map<String, EjbDeployment> getEjbDeploymentMap() {
-        return ejbs;
-    }
-
-    public AppInfo getAppInfo() {
-        return appInfo;
-    }
-
-    public AppContext getAppContext() {
-        return appContext;
-    }
-
     public void doStart() throws Exception {
-        appContext = openEjbSystem.createApplication(appInfo, classLoader, false);
-//        for (String deploymentId: ejbs.keySet()) {
-//            BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
-//            GeronimoThreadContextListener.get().getEjbDeployment((BeanContext) beanContext);
-//        }
+        List<BeanContext> allDeployments = appInfoGBean.getModuleBeanContexts(moduleURI);
+        //start code from openejb assembler
+
+                // deploy
+                for (BeanContext deployment : allDeployments) {
+                    try {
+                        Container container = deployment.getContainer();
+                        container.deploy(deployment);
+                        log.info("createApplication.createdEjb" + deployment.getDeploymentID() + deployment.getEjbName() + container.getContainerID());
+                        if (log.isDebugEnabled()) {
+                            for (Map.Entry<Object, Object> entry : deployment.getProperties().entrySet()) {
+                                log.info("createApplication.createdEjb.property" + deployment.getEjbName() + entry.getKey() + entry.getValue());
+                            }
+                        }
+                    } catch (OpenEJBException e) {
+                        log.warn("Apparent double start of ejb?? ", e);
+                    } catch (Throwable t) {
+                        throw new OpenEJBException("Error deploying '"+deployment.getEjbName()+"'.  Exception: "+t.getClass()+": "+t.getMessage(), t);
+                    }
+                }
+
+                // start
+                for (BeanContext deployment : allDeployments) {
+                    try {
+                        Container container = deployment.getContainer();
+                        container.start(deployment);
+                        log.info("createApplication.startedEjb" + deployment.getDeploymentID() + deployment.getEjbName() + container.getContainerID());
+                    } catch (Throwable t) {
+                        throw new OpenEJBException("Error starting '"+deployment.getEjbName()+"'.  Exception: "+t.getClass()+": "+t.getMessage(), t);
+                    }
+                }
+        EjbResolver globalEjbResolver = SystemInstance.get().getComponent(EjbResolver.class);
+        globalEjbResolver.add(appInfoGBean.getEjbJarInfo(moduleURI));
+
+        for (String deploymentId: ejbs.keySet()) {
+            BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
+            GeronimoThreadContextListener.get().getEjbDeployment(beanContext);
+        }
     }
 
     public void doStop() {
-        try {
-            openEjbSystem.removeApplication(appInfo, classLoader);
-            
             Iterator<EjbDeployment> it= ejbs.values().iterator();
             while(it.hasNext())
             {
@@ -213,15 +220,6 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
                 it.remove();
             }
 
-        } catch (NoSuchApplicationException e) {
-            log.error("Module does not exist.", e);
-        } catch (UndeployException e) {
-            List<Throwable> causes = e.getCauses();
-            log.error(e.getMessage() + ": Encountered " + causes.size() + " failures.");
-            for (Throwable throwable : causes) {
-                log.info(throwable.toString(), throwable);
-            }
-        }
     }
 
     public void doFail() {

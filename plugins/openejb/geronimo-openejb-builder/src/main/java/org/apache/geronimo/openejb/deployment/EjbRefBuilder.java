@@ -44,7 +44,6 @@ import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
-import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
@@ -137,15 +136,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         Set<String> ejbLocalRefNames = new HashSet<String>();
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
-            Collection<GeronimoEjbInfo> ejbInfos = Collections.emptySet();
-            if (earData != null) {
-                ejbInfos = earData.getEjbInfos();
+            if (earData == null) {
+                //no ejbs anywhere?
+                return;
             }
 
-            AppInfo appInfo = new AppInfo();
-            for (GeronimoEjbInfo ejbInfo : ejbInfos) {
-                appInfo.ejbJars.add(ejbInfo.getEjbJarInfo());
-            }
+            AppInfo appInfo = earData.getAppInfo();
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
             JndiEncInfo moduleJndi = new JndiEncInfo();

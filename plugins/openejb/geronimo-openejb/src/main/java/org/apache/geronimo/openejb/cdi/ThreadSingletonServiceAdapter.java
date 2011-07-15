@@ -75,6 +75,7 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
             contextExited(old);
         }
     }
+
     @Override
     public Object contextEntered(WebBeansContext owbContext) {
         return GeronimoSingletonService.contextEntered(owbContext);

@@ -245,4 +245,13 @@ public class EARContext extends DeploymentContext {
             return (AbstractName) context.get(this);
         }
     };
+
+    public static final EARContext.Key<AbstractName> APPINFO_GBEAN_NAME_KEY = new Key<AbstractName>() {
+
+        @Override
+        public AbstractName get(Map<Key, Object> context) {
+            return (AbstractName) context.get(this);
+        }
+    };
+
 }

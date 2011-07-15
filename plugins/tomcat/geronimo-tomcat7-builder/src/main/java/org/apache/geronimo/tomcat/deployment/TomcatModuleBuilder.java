@@ -30,11 +30,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
-import javax.xml.bind.JAXBException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
@@ -73,10 +70,6 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
-import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
@@ -714,13 +707,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 //                }
 //            }
             //This shares a single OWB context for the whole ear
-            Module<?,?> m = module;
-            while (m.getParentModule() != null) {
-                m = m.getParentModule();
-            }
-            if (m.getSharedContext().get(SharedOwbContext.class) != null) {
-                GBeanData data = (GBeanData) m.getSharedContext().get(SharedOwbContext.class);
-                AbstractName name = data.getAbstractName();
+            AbstractName name = EARContext.APPINFO_GBEAN_NAME_KEY.get(earContext.getGeneralData());
+            if (name != null) {
                 webModuleData.setReferencePattern("SharedOwbContext", name);
             }
 

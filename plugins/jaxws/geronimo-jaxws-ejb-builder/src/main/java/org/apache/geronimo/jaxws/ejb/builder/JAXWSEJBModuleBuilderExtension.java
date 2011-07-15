@@ -127,7 +127,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
 
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
 
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {
@@ -192,7 +192,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {
                 j2eeType = NameFactory.STATELESS_SESSION_BEAN;

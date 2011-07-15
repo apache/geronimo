@@ -19,7 +19,6 @@ package org.apache.geronimo.openejb.deployment;
 
 import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +41,6 @@ import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -403,7 +401,7 @@ public class EjbDeploymentBuilder {
             parentModule = parentModule.getParentModule();
         }
         
-        EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
         for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName();
             String deploymentId = getDeploymentId(ejbName, ejbJarInfo);
