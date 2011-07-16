@@ -136,12 +136,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         Set<String> ejbLocalRefNames = new HashSet<String>();
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
-            if (earData == null) {
-                //no ejbs anywhere?
-                return;
-            }
 
-            AppInfo appInfo = earData.getAppInfo();
+            AppInfo appInfo = new AppInfo();
+            
+            if (earData != null) {
+               appInfo = earData.getAppInfo();
+            }
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
             JndiEncInfo moduleJndi = new JndiEncInfo();
