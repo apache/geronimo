@@ -41,6 +41,7 @@ import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -200,6 +201,7 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
         EARContext moduleContext = module.getEarContext();
         AbstractName abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
         GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
+        gbeanData.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
         gbeanData.setAttribute("moduleName", moduleName);
         gbeanData.setAttribute("validationConfig", validationConfig);
         try {

@@ -43,6 +43,7 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -264,6 +265,9 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         gbeanData.setAttribute("persistenceUnitName", persistenceUnitName);
         gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
+        
+        //try to start PU GBean firstly to init the transformer before the entity classes get loaded.
+        gbeanData.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
 
         //set defaults:
         gbeanData.setAttribute("persistenceProviderClassName", defaultPersistenceProviderClassName);
