@@ -77,7 +77,7 @@ public class OpenWebBeansWebInitializer {
         services.put(ResourceInjectionService.class, new CdiResourceInjectionService());
         services.put(ScannerService.class, new CdiScanner());
         WebBeansContext webBeansContext = new WebBeansContext(services, properties);
-        //must be last since it idiotically copies stuff
+        //must be last since it copies stuff
         OpenEJBLifecycle lifecycle = new OpenEJBLifecycle(webBeansContext);
         webBeansContext.registerService(ContainerLifecycle.class, lifecycle);
 

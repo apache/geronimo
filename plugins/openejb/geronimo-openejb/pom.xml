@@ -194,6 +194,14 @@
             <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-ee</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-ee-common</artifactId>
+        </dependency>
 
     </dependencies>
 
