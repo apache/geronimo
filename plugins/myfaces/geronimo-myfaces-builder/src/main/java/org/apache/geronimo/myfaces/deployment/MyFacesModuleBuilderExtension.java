@@ -200,7 +200,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
 
-        AbstractName moduleName = moduleContext.getModuleName();
+        AbstractName moduleName = module.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
