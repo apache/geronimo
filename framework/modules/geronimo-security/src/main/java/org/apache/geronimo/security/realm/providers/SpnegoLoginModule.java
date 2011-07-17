@@ -168,6 +168,7 @@ public class SpnegoLoginModule implements LoginModule {
                 }
             }
         } catch (GSSException e) {
+            log.error(e.getMessage());
             throw (LoginException) new LoginException().initCause(e);
         }
         return loginSucceeded;
