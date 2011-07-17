@@ -52,11 +52,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-bval</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>console-core</artifactId>
         <type>jar</type>
@@ -70,11 +65,6 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>pluto-support</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jms_1.1_spec</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>

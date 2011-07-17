@@ -56,4 +56,14 @@
         <artifactId>plancreator-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent-car-ejb</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent-car-jmx</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>

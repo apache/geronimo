@@ -7,16 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>commons-digester</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>
@@ -28,7 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openwebbeans</artifactId>
+        <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -58,17 +48,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.javamail</groupId>
-        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee-schema</artifactId>
+        <artifactId>geronimo-persistence-jpa20</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -93,17 +88,42 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxr_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+        <artifactId>geronimo-jms_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-jee</artifactId>
+        <artifactId>openejb-ejbd</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-multicast</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-osgi-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-server</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-ee-common</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -113,22 +133,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-resource</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-web</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
