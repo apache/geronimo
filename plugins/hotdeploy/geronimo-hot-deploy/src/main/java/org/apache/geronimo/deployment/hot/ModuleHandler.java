@@ -109,7 +109,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
                 if (deletedFile.getModified() < getModuleLastModified(moduleId)) {
                     fileRemoved(new File(deletedFile.getPath()), moduleId);
                 } else {
-                    log.debug("File {} was removed but {} module was not undeployed since the deployed module is newer", deletedFile.getPath(), moduleId);
+                    log.warn("File: {} was removed, but module: {} was not undeployed, since the deployed one is newer", deletedFile.getPath(), moduleId);
                 }
             }
         }
@@ -125,7 +125,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
                         addedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
                     }
                 } else {
-                    log.debug("File {} was added but {} module was not redeployed since the deployed module is newer", addedFile.getPath(), moduleId);                    
+                    log.warn("File: {} was added, but module: {} was not redeployed, since the deployed one is newer", addedFile.getPath(), moduleId);                    
                 }
             } else {
                 String newModuleId = fileAdded(moduleFile);
@@ -146,7 +146,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
                         modifiedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
                     }
                 } else {
-                    log.debug("File {} was modified but {} module was not redeployed since the deployed module is newer", modifiedFile.getPath(), moduleId);                                    
+                    log.warn("File: {} was modified, but module: {} was not redeployed, since the deployed one is newer", modifiedFile.getPath(), moduleId);                                    
                 }
             } else {
                 String newModuleId = fileAdded(moduleFile);
@@ -173,7 +173,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
             try {
                 moduleId = DeployUtils.extractModuleIdFromPlan(module);
             } catch (Exception e2) {
-                log.debug("Unable to calculate module ID for file " + module.getAbsolutePath() + " [" + e2.getMessage() + "]");
+                log.error("Unable to calculate module ID for file " + module.getAbsolutePath() + " [" + e2.getMessage() + "]");
             }
         }
         if (moduleId == null) {
@@ -218,7 +218,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
             DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
-            log.debug("Found new file in deploy directory on startup with ID " + configId);
+            log.error("Found new file in deploy directory on startup with ID " + configId);
         } catch (Exception e) {
             log.error("Unable to check status", e);
         } finally {
