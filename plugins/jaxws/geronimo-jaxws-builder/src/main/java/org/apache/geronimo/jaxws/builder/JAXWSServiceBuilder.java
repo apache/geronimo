@@ -270,6 +270,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             servletNamePortInfoMap = new HashMap<String, PortInfo>();
             jaxwsWebApplicationContextGBeanData.setAttribute("servletNamePortInfoMap", servletNamePortInfoMap);
         }
+        targetGBean.addDependency(jaxwsWebApplicationContextName);
         servletNamePortInfoMap.put(servletName, portInfo);
 
         Map componentContext = null;
@@ -367,6 +368,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             ejbNamePortInfoMap = new HashMap<String, PortInfo>();
             jaxwsEJBApplicationContextGBeanData.setAttribute("ejbNamePortInfoMap", ejbNamePortInfoMap);
         }
+        targetGBean.addDependency(jaxwsEJBApplicationContextName);
         ejbNamePortInfoMap.put(ejbName, portInfo);
 
         LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
