@@ -185,12 +185,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
                 ReferenceType referenceType = ejbLocalRefNames.contains(name) ? ReferenceType.EJB_LOCAL : ReferenceType.EJB;
 
-                List<InjectionTarget> injections = injectionsMap.get(name);
+                String fullName = "java:" + name;
+                List<InjectionTarget> injections = injectionsMap.get(fullName);
                 if(injections == null) {
                     injections = Collections.<InjectionTarget>emptyList();
                 }
 
-                String fullName = "java:" + name;
                 if (lookupJndiContextMap(module, fullName) != null) {
                     addInjections(name, referenceType, injections, NamingBuilder.INJECTION_KEY.get(sharedContext));
                     continue;
