@@ -114,7 +114,11 @@ public class JndiRefsConfigData {
                 referenceNotResolved = true;
             }
             dependenciesSet.add(getDependencyString(referenceLink));
-            webApp.getEjbRefArray(index).setPattern(createPattern(referenceLink));
+            GerPatternType pattern = createPattern(referenceLink);
+            // GERONIMO-5981
+            // OpenEJB requires the type of the ejb for jndi binding
+            pattern.setArtifactId(pattern.getArtifactId() + ".jar");
+            webApp.getEjbRefArray(index).setPattern(pattern);
             index++;
         }
         index = 0;
