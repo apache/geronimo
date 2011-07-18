@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.ReferenceType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
@@ -116,7 +116,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if ((module != null) && (module.getClassFinder() != null)) {
             processAnnotations(specDD, module);
         }
-        
+
         addRefs(specDD, refMap, localRefMap, sharedContext);
 
         Map<String, List<InjectionTarget>> injectionsMap = new HashMap<String, List<InjectionTarget>>();
@@ -138,7 +138,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
 
             AppInfo appInfo = new AppInfo();
-            
+
             if (earData != null) {
                appInfo = earData.getAppInfo();
             }
@@ -163,18 +163,15 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, moduleId, module.getModuleURI(), moduleId, getClass().getClassLoader());
 
             map = jndiEncBuilder.buildMap();
-            
+
             for (EjbLocalReferenceInfo ejbLocalReferenceInfo : ejbEncInfo.ejbLocalReferences) {
                 ejbLocalRefNames.add(ejbLocalReferenceInfo.referenceName);
             }
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
         }
-        
 
-        
         Map<JndiKey,Map<String,Object>> moduleJndiContext = module.getJndiContext();
-        
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String name = entry.getKey();
@@ -185,26 +182,37 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     name.startsWith("app/") ||
                     name.startsWith("module/") ||
                     name.startsWith("comp/")) {
+
                 ReferenceType referenceType = ejbLocalRefNames.contains(name) ? ReferenceType.EJB_LOCAL : ReferenceType.EJB;
+
+                List<InjectionTarget> injections = injectionsMap.get(name);
+                if(injections == null) {
+                    injections = Collections.<InjectionTarget>emptyList();
+                }
+
+                String fullName = "java:" + name;
+                if (lookupJndiContextMap(module, fullName) != null) {
+                    addInjections(name, referenceType, injections, NamingBuilder.INJECTION_KEY.get(sharedContext));
+                    continue;
+                }
                 if (uri != null) {
                     //handle ejb ref for application client module
                     value = createClientRef(value);
                     handleJndiUrlReference(value, referenceType, moduleJndiContext, injectionsMap, sharedContext);
                 }
-                name = "java:" + name;
                 if (value instanceof Serializable) {
-                    List<InjectionTarget> injections = injectionsMap.get(name);
-                    if (injections == null) {
-                        log.warn("No entry in ejb-jar.xml for name:\n " + name + "\n Known names:\n " + injectionsMap.keySet());
-                        injections = Collections.emptyList();
+                    if (injections.size() == 0) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("No entry in deployment descriptor for name:\n " + fullName + "\n Known names:\n " + injectionsMap.keySet());
+                        }
                     }
-                    put(name, value, referenceType, module.getJndiContext(), injections, sharedContext);
+                    put(fullName, value, referenceType, module.getJndiContext(), injections, sharedContext);
                 }
             }
         }
-        
+
         if (uri != null) {
-            
+
             Map<String, Object> appclientAppContext = new HashMap<String, Object>();
             Map<String, Object> sharedAppScopeContext = module.getJndiScope(JndiScope.app);
             for (Entry<String, Object> entry : sharedAppScopeContext.entrySet()) {
@@ -214,10 +222,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         }
     }
-    
+
     /*
      * In following cases,
-     * 
+     *
      * <application-client>
      * ...
      * <ejb-ref>
@@ -225,10 +233,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
      *   <lookup-name>java:app/xxxx</lookup-name>
      * </ejb-ref>
      * </application-client>
-     * 
+     *
      * we need to convert the corresponding app ejb ref into ClientEjbReference
      * so that they could be used in application client.
-     * 
+     *
      */
     private void handleJndiUrlReference(Object value, ReferenceType ReferenceType, Map<JndiKey, Map<String, Object>> moduleJndiContext, Map<String, List<InjectionTarget>> injectionsMap,
             Map<EARContext.Key, Object> sharedContext) {
@@ -254,14 +262,14 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         valueToConvert = createClientRef(valueToConvert);
 
         name = "java:" + name;
-        
+
         List<InjectionTarget> injections = injectionsMap.get(name);
         if (injections == null) {
             injections = Collections.emptyList();
         }
         put(name, valueToConvert, ReferenceType, moduleJndiContext, injections, sharedContext);
     }
-        
+
 
     private Object createClientRef(Object value) {
         if (value instanceof IntraVmJndiReference) {
@@ -294,7 +302,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             // merge info in alt-DD to spec DD.
             if (ejbRefType != null) {
-                
+
                 if (ejbRefType.getNsCorbaloc() != null) {
                    continue;
                 }
@@ -325,7 +333,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 spec_ejbRef.setMappedName(getStringValue(spec_ejbRef.getMappedName()));
 
                 // handle external refs
-                
+
                 if (ejbRefType.getPattern() != null) {
                     // external ear ref
                     // set mapped name to the deploymentId of the external ref
@@ -342,12 +350,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 if (ejbRefType.getEjbLink() != null) {
                     spec_ejbRef.setEjbLink(getStringValue(ejbRefType.getEjbLink()));
                 }
-                    
+
 
 
                 // openejb handling of injection-targets
                 if (spec_ejbRef.getInjectionTarget() != null) {
-                    
+
                     List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
                     for (InjectionTarget injectionTargetType : spec_ejbRef.getInjectionTarget()) {
                         InjectionTarget newInjectionTarget = new InjectionTarget();
@@ -417,7 +425,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 // openejb handling of injection-targets
                 if (localRefFromSpecDD.getInjectionTarget() != null) {
                     List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
-                    
+
                     for (InjectionTarget injectionTargetType : localRefFromSpecDD.getInjectionTarget()) {
                         InjectionTarget injectionTarget = new InjectionTarget();
                         injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
@@ -426,7 +434,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                                 .getInjectionTargetName()));
                         injectionTargetsToAdd.add(injectionTarget);
                     }
-                    
+
                     localRefFromSpecDD.getInjectionTarget().addAll(injectionTargetsToAdd);
                 }
                 // TODO: geronimo's handling of injection-target
