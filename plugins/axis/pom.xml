@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis</artifactId>
-                <version>1.4_2-SNAPSHOT</version>
+                <version>1.4_2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

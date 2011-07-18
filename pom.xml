@@ -82,11 +82,11 @@
         <txmanagerVersion>3.1</txmanagerVersion>
         <tranqlVersion>1.7</tranqlVersion>
         <tranqlDerbyVersion>1.7</tranqlDerbyVersion>
-        <jaxbImplVersion>2.2.3-1_1-SNAPSHOT</jaxbImplVersion>
+        <jaxbImplVersion>2.2.3-1_1</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
         <pax.logging.version>1.6.1</pax.logging.version>
-        <woodstoxVersion>4.1.1_1-SNAPSHOT</woodstoxVersion>
+        <woodstoxVersion>4.1.1_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.2-SNAPSHOT</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
@@ -694,7 +694,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>scout</artifactId>
-                <version>1.2.3_1-SNAPSHOT</version>
+                <version>1.2.3_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1389,7 +1389,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axiom-all</artifactId>
-                <version>${axiomVersion}_1-SNAPSHOT</version>
+                <version>${axiomVersion}_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
@@ -2279,6 +2279,20 @@ only found in cxf
             </releases>
         </pluginRepository>
     </pluginRepositories>   
+    
+    <repositories>            
+        <repository>
+            <id>geronimo-bundle-staging</id>
+            <name>geronimo-bundle-staging</name>
+            <url>https://repository.apache.org/content/repositories/orgapachegeronimo-002/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+     </repositories>                
 
     <profiles>
         <profile>
