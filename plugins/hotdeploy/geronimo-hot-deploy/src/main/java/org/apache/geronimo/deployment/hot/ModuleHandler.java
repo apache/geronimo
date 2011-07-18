@@ -103,13 +103,22 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
     @Override
     public void scanComplete(Collection<DirectoryMonitor.FileInfo> addedFiles, Collection<DirectoryMonitor.FileInfo> modifiedFiles, Collection<DirectoryMonitor.FileInfo> deletedFiles) {       
         for (DirectoryMonitor.FileInfo deletedFile : deletedFiles) {
-            String moduleId = getModuleId(deletedFile);
-            if (isModuleDeployed(moduleId)) {
-                // check if deployed module is older
-                if (deletedFile.getModified() < getModuleLastModified(moduleId)) {
-                    fileRemoved(new File(deletedFile.getPath()), moduleId);
+            if (deletedFile.getConfigId() == null) {
+                // This means the file was never deployed, and now we are deleting it from the hot deploy folder.
+                // We should not use getModuleId(addedFile) here, because we can not calculate the configId from a non-exist file.
+                log.info("File: {} was removed", deletedFile.getPath());
+            } else {
+                String moduleId = deletedFile.getConfigId();
+                if (isModuleDeployed(moduleId)) {
+                    // check if deployed module is older
+                    if (deletedFile.getModified() < getModuleLastModified(moduleId)) {
+                        fileRemoved(new File(deletedFile.getPath()), moduleId);
+                    } else {
+                        log.warn("File: {} was removed, but module: {} was not undeployed, since the deployed one is newer.", deletedFile.getPath(), moduleId);
+                    }
                 } else {
-                    log.warn("File: {} was removed, but module: {} was not undeployed, since the deployed one is newer", deletedFile.getPath(), moduleId);
+                    //should not happen
+                    log.warn("Module: {} has been already undeployed in other ways", moduleId);
                 }
             }
         }
@@ -125,7 +134,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
                         addedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
                     }
                 } else {
-                    log.warn("File: {} was added, but module: {} was not redeployed, since the deployed one is newer", addedFile.getPath(), moduleId);                    
+                    log.warn("File: {} was added, but module: {} was not redeployed, since the deployed one is newer.", addedFile.getPath(), moduleId);                    
                 }
             } else {
                 String newModuleId = fileAdded(moduleFile);
@@ -146,7 +155,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
                         modifiedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
                     }
                 } else {
-                    log.warn("File: {} was modified, but module: {} was not redeployed, since the deployed one is newer", modifiedFile.getPath(), moduleId);                                    
+                    log.warn("File: {} was modified, but module: {} was not redeployed, since the deployed one is newer.", modifiedFile.getPath(), moduleId);                                    
                 }
             } else {
                 String newModuleId = fileAdded(moduleFile);
