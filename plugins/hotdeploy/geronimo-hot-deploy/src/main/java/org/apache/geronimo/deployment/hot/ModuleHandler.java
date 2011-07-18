@@ -218,7 +218,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
             DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
-            log.error("Found new file in deploy directory on startup with ID " + configId);
+            log.warn("Found new file in deploy directory on startup with ID " + configId);
         } catch (Exception e) {
             log.error("Unable to check status", e);
         } finally {
