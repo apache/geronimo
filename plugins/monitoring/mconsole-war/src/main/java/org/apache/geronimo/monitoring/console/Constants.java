@@ -25,4 +25,5 @@ package org.apache.geronimo.monitoring.console;
  */
 public interface Constants {
     static String DOJO_JS = "/console/dojo/dojo/dojo.js";
+    static String DOJOX_JS = "/console/dojo/dojox/dojox.js";
 }

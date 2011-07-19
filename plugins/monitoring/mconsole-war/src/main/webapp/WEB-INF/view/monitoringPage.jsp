@@ -34,6 +34,8 @@
 <!-- <head> -->
     <script type='text/javascript' src='<%=Constants.DOJO_JS%>' djConfig='isDebug: false, parseOnLoad: true'>
     </script>
+    <script type='text/javascript' src='<%=Constants.DOJOX_JS%>'>
+    </script>
         <script type = "text/javascript">
 <!--
 function hide(x) {
@@ -54,6 +56,12 @@ makeObjects = function(){
        out.println(graph.getJS());
 
     %>
+    var nodes = dojo.query('div[id $= Container]');
+    nodes.forEach(function(node, index, arr) {
+    	dojo.attr(node, 'style', {
+    		'float': 'left'
+    	})
+    })
 };
 
 dojo.addOnLoad(makeObjects);

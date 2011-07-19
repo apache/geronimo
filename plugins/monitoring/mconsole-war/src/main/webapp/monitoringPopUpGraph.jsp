@@ -29,6 +29,7 @@ String divNameString = graph.getName();
 %>
 
 <script type='text/javascript' src='<%=Constants.DOJO_JS%>' djConfig='isDebug: false, parseOnLoad: true'></script>
+<script type='text/javascript' src='<%=Constants.DOJOX_JS%>'></script>
 <script type='text/javascript'>
     dojo.require("dojox.charting.Chart2D");
     dojo.require("dojox.charting.themes.PlotKit.blue");
@@ -36,6 +37,12 @@ String divNameString = graph.getName();
 
     makeObjects = function() {
         <%=graphString%>
+        var nodes = dojo.query('div[id $= Container]');
+        nodes.forEach(function(node, index, arr) {
+        	dojo.attr(node, 'style', {
+        		'float': 'left'
+        	})
+        })
     };
     dojo.addOnLoad(makeObjects);
     function refreshPeriodic() {
