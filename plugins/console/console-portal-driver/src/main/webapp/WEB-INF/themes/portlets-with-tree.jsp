@@ -140,57 +140,49 @@ setInterval('autoCheckIframe()',500);
     </ul>
 </div>
 <!-- end accessibility prolog -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" id="rootfragment">
 
-    <!-- Header -->
-    <%@ include file="./banner.jsp" %>
-
+<!-- Header -->
+<table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
     <tr>
-        <td>
-            <table width="100%"  border="0" cellpadding="0" cellspacing="0">
-                <!-- Spacer -->
-                <tr> 
-                    <td class="Gutter">&nbsp;</td> 
-                    <td>&nbsp;</td> 
-                    <td class="Gutter">&nbsp;</td> 
-                    <td>&nbsp;</td> 
-                    <td class="Gutter">&nbsp;</td> 
-                </tr> 
-                
-                <!-- Start of Body -->
-                <tr>
-                    <!-- Navigation Column -->
-                    <td class="Gutter">&nbsp;</td> <!-- Spacer -->
-                    <td width="200px" class="Selection" valign="top"> 
-                        <div id="left-nav"> 
-                            <table width="100%"  border="0" cellpadding="0" cellspacing="0"> 
-                                <tr> 
-                                    <td >
-                                        <!-- Include Navigation.jsp here -->
-                                        <jsp:include page="navigation.jsp"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-
-                    <!-- Portlet Section -->
-                    <td class="Gutter">&nbsp;</td> <!-- Spacer -->
-                    <td valign="top">
-                
-                    <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0">
-                    
-                    </iframe>
-                    </td>
-
-                    <td class="Gutter">&nbsp;</td> <!-- Spacer -->
-                    <td class="Gutter">&nbsp;</td> <!-- Spacer -->
-                </tr>
-                <!-- End of Body -->
-            </table>
+        <td height="86" class="Logo" border="0"></td>
+        <td height="86" class="Top" border="0">&nbsp;</td>
+        <td height="86" class="Top" border="0" width="40"></td>
+        <td height="86" class="Top" border="0" width="40">
+            <a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif" alt="Logout"/></a>
         </td>
     </tr>
 </table>
+
+<p style="margin-top:5px;margin-bottom:5px" />
+
+<!-- Body -->
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <!-- Spacer -->
+        <td class="Gutter">&nbsp;</td> 
+        
+        <!-- Navigation Column -->
+        <td width="260px" class="Selection" valign="top"> 
+            <div id="left-nav"> 
+                <!-- Include Navigation.jsp here -->
+                <jsp:include page="navigation.jsp"/>
+            </div>
+        </td>
+        
+        <!-- Spacer -->
+        <td class="Gutter">&nbsp;</td> 
+        
+        <!-- Portlet Section -->
+        <td valign="top">
+            <iframe src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0">
+            </iframe>
+        </td>
+
+        <!-- Spacer -->
+        <td class="Gutter">&nbsp;</td> 
+    </tr>
+</table>
+
 </body>
 <script type="text/javascript">
     <% 

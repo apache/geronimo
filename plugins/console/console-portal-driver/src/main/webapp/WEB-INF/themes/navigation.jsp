@@ -54,29 +54,30 @@ limitations under the License.
 
 %>
 
-<table class="claro" width="200px" border="0" cellpadding="0" cellspacing="0">
+<table class="claro" width="260px" border="0" cellpadding="0" cellspacing="0">
     <tr>
-        <td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message    key="Console Navigation"/></strong></td>
+        <td class="ReallyDarkBackground"><strong>&nbsp;<fmt:message key="Console Navigation"/></strong></td>
     </tr>
     <tr>
         <td>
-		<div id="modeSwitcher" class="<%=isBasicTreeHasValidItem?"modeSwitcher":"hidden"%>">
-		&nbsp;<input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
-                  <input type="radio"  name="mode" id ="mode" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
-				  </div>
-        </td>
-    </tr>
-    <tr><td>&nbsp;&nbsp;</td></tr>
-    <tr id="tquickLauncher" style="display:none;">
-        <td>&nbsp;&nbsp;<input id="quickLauncher"></td>
-    </tr>
-    <tr>
-        <td>&nbsp;&nbsp;
-			<div id="navigationTreeBasic">
-			
-			
+            <!-- mode div -->
+		    <div id="modeSwitcher" class="<%=isBasicTreeHasValidItem?"padding4":"hidden"%>">
+		        <input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
+                &nbsp;
+                <input type="radio" name="mode" id ="mode" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
 			</div>
+		    
+		    
+		    <!-- quick launcher div -->
+			<div id="tquickLauncher" class="padding4" style="display:none;">
+			    <input id="quickLauncher">
+			</div>
+            
+            
+            <!-- tree div -->
+			<div id="navigationTreeBasic"></div>
 			<div id="navigationTreeAdvanced"></div>
+		    
         </td>
     </tr>
 </table>

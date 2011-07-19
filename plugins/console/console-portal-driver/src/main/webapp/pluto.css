@@ -158,7 +158,7 @@ a.tooltip:hover span.tooltip {
 .portlet {
   margin: 0px 0px 10px 0px;
   padding: 0px;
-  border: 1.5px solid #CCCCCC;
+  
 }
 
 .portlet .header {
@@ -167,21 +167,17 @@ a.tooltip:hover span.tooltip {
   background-color: #000000;
   color: #FFFFFF;
   font-weight: bold;
-  border-width: 0px 0px 1px 0px;
-  border-style: solid;
-  border-color: #2E6794;
 }
 
 .portlet .header h2 {
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    /*font-size: 12px;*/
     height: 18px;
     line-height: 18px;
     margin: 0px;
     padding: 0px;
-    /*font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;*/
-    font-size: 100%;
+    font-size: 14px;
     float: none;
+    font-weight: bold;
 }
 
 .portlet .header span {
@@ -219,6 +215,9 @@ a.tooltip:hover span.tooltip {
 
 .portlet .body {
   padding: 10px;
+  border-width: 0px 1px 1px 1px;
+  border-style: solid;
+  border-color: #cccccc;
 }
 
 

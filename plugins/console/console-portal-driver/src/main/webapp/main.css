@@ -149,23 +149,16 @@ a:hover
     font-size: 1.5em !important;
 }
 
-.modeSwitcher {
-    margin-bottom: 2px;
-    margin-left: 12px;
-    margin-right: 5px;
-    margin-top: 6px;
-    padding-bottom: 2px;
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-top: 2px;
+.padding4 {
+    padding: 4px;
 }
 
 #navigationTreeAdvanced {
-    padding-left: 4px;
+    padding: 4px;
 }
 
 #navigationTreeBasic {
-    padding-left: 4px;
+    padding: 4px;
 }
 
  
@@ -185,6 +178,7 @@ a:hover
     color: #FFFFFF;
     height: 18px;
     line-height: 18px;
+    font-weight: bold;
 }
 
 .Content .Title a:link, 

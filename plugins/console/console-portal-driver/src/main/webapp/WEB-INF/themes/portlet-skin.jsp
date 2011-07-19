@@ -33,14 +33,11 @@ limitations under the License.
       <pluto:modeAnchor portletMode="edit"/>
       <pluto:modeAnchor portletMode="help"/>
       <!-- Window State Controls -->
-      <pluto:windowStateAnchor windowState="minimized" icon='<%= (request.getContextPath() + "/images/controls/min.png")%>' />
-      <pluto:windowStateAnchor windowState="maximized" icon='<%= request.getContextPath() + "/images/controls/max.png"%>'/>
-      <pluto:windowStateAnchor windowState="normal" icon='<%= request.getContextPath() + "/images/controls/norm.png"%>'/>
-      <a href="<pluto:url windowState="minimized"/>"><span class="min"></span></a>
-      <a href="<pluto:url windowState="maximized"/>"><span class="max"></span></a>
-      <a href="<pluto:url windowState="normal"/>"><span class="norm"></span></a>
+      <a href="<pluto:url windowState="minimized"/>"><span class="minimized"></span></a>
+      <a href="<pluto:url windowState="maximized"/>"><span class="maximized"></span></a>
+      <a href="<pluto:url windowState="normal"/>"><span class="normal"></span></a>
       <!-- Portlet Title -->
-      <h2 class="title"><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
+      <h2><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
     </div>
     <div class="body">
       <pluto:render/>
