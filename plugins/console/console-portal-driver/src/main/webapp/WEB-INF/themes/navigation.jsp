@@ -23,8 +23,9 @@ limitations under the License.
 <fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 <%response.setContentType("text/html; charset=UTF-8");%>
 
-<%@ page import="java.util.List,java.util.ArrayList,java.util.HashMap,
+<%@ page import="java.util.List,java.util.ArrayList,java.util.Map,
                 org.apache.geronimo.pluto.impl.PageConfig,
+                org.apache.geronimo.console.navigation.TreeNode,
                 org.apache.geronimo.console.navigation.NavigationJsonGenerator"%>
 
 <%
@@ -41,16 +42,16 @@ limitations under the License.
 <%
 	
 	List<PageConfig> filteredPageConfigList = NavigationJsonGenerator.filterPagesByRole(pageConfigList,request);
-	    
-
     NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
 
-
-    String treeJson = generator.generateTreeJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
-    String treeJsonBasic = generator.generateTreeJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic", 8);
-    String listJson = generator.generateQuickLauncherJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
-    String listJsonBasic = generator.generateQuickLauncherJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
-    boolean isBasicTreeHasValidItem=generator.isTreeHasValidItem(filteredPageConfigList,"basic");
+    Map<String, TreeNode> treeBasic = generator.getNavigationTree(filteredPageConfigList, "basic");
+    String treeJsonBasic = generator.generateTreeJSON(treeBasic, request.getContextPath(), "/images/ico_doc_16x16.gif", "basic", 8);
+    String listJsonBasic = generator.generateQuickLauncherJSON(treeBasic, request.getContextPath(), "/images/ico_doc_16x16.gif", "basic");
+    boolean isBasicTreeHasValidItem=generator.isTreeHasValidItem(treeBasic, "basic");
+        
+    Map<String, TreeNode> treeAll = generator.getNavigationTree(filteredPageConfigList, "all");
+    String treeJson = generator.generateTreeJSON(treeAll, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
+    String listJson = generator.generateQuickLauncherJSON(treeAll, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
 
 %>
 

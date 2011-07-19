@@ -309,8 +309,8 @@ limitations under the License.
       <url-pattern>/portal/1-1-2/Application Server/System Information/Java System Info/*</url-pattern>
       <url-pattern>/portal/1-1-4/Application Server/System Information/Thread Pools</url-pattern>
       <url-pattern>/portal/1-1-4/Application Server/System Information/Thread Pools/*</url-pattern>
-      <url-pattern>/portal/1-8/Server/Monitoring</url-pattern>
-      <url-pattern>/portal/1-8/Server/Monitoring/*</url-pattern>
+      <url-pattern>/portal/5-1/Monitoring and Troubleshooting/Monitoring</url-pattern>
+      <url-pattern>/portal/5-1/Monitoring and Troubleshooting/Monitoring/*</url-pattern>
       <url-pattern>/forwards/*</url-pattern>
       <url-pattern>/dwr/*</url-pattern>
       <http-method>GET</http-method>
