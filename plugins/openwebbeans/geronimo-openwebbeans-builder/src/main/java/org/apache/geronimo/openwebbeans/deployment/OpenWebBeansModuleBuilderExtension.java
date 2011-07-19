@@ -19,6 +19,7 @@ package org.apache.geronimo.openwebbeans.deployment;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
+import javax.ejb.EJB;
 import javax.enterprise.inject.Produces;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -213,15 +215,19 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
                 }
 
             });
-            Set<Class<?>> classes = new HashSet<Class<?>>();
-            List<Method> methods = bundleAnnotationFinder.findAnnotatedMethods(Produces.class);
-            for (Method method: methods) {
-                classes.add(method.getDeclaringClass());
+
+            final List<Member> members = new ArrayList<Member>();
+
+            members.addAll(bundleAnnotationFinder.findAnnotatedMethods(Produces.class));
+            members.addAll(bundleAnnotationFinder.findAnnotatedFields(Produces.class));
+            members.addAll(bundleAnnotationFinder.findAnnotatedFields(EJB.class));
+            members.addAll(bundleAnnotationFinder.findAnnotatedMethods(EJB.class));
+
+            final Set<Class<?>> classes = new HashSet<Class<?>>();
+            for (Member member : members) {
+                classes.add(member.getDeclaringClass());
             }
-            List<Field> fields = bundleAnnotationFinder.findAnnotatedFields(Produces.class);
-            for (Field field: fields) {
-                classes.add(field.getDeclaringClass());
-            }
+
             return new ArrayList<Class<?>>(classes);
         } catch (Exception e) {
             throw new DeploymentException("Fail to scan jsr299 annotations", e);
