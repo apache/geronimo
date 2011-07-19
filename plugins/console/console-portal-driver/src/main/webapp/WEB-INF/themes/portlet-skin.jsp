@@ -40,6 +40,8 @@ limitations under the License.
       <h2><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
     </div>
     <div class="body">
+      <script language="Javascript" src="/console/dojo/dojo/dojo.js" type="text/javascript"></script>
+      <script language="Javascript" src="/console/dojo/dijit/dijit.js" type="text/javascript"></script>
       <pluto:render/>
     </div>
   </div>

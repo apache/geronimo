@@ -141,7 +141,7 @@ function convertBRtoLineBreak (str) {
 function showConfirmMessage() {
     dojo.require("dijit.Dialog");
     dojo.require("dijit.form.Button");
-    document.body.className = "soria";
+    document.body.className = "claro";
     var target = arguments[0];
     var submit = new dojo.Deferred();
     submit.addCallback(function(){

@@ -45,7 +45,6 @@ public final class ConfirmMessageTag extends TagSupport {
             out.println(".claro .dijitDialogTitleBar {display:none;}");
             out.println(".claro .dijitButtonNode {background:#F7F7F7; border:2px solid #88A4D7; padding:0.2em; font-family:Verdana,Helvetica,sans-serif;}");
             out.println("</style>");
-            out.println(" <script type=\"text/javascript\" src=\"" + DOJO_BASE + "/dojo/dojo.js\" djConfig=\"parseOnLoad:true\"></script>");
         } catch (IOException e) {
             log.error("Unable to display confirm messages");
         }
