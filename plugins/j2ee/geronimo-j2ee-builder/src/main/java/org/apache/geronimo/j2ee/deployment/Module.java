@@ -217,6 +217,7 @@ public abstract class Module<T, U> {
         for (GBeanData data: gbeans.values()) {
             earContext.addGBean(data);
         }
+        gbeans.clear();
     }
 
     public int hashCode() {

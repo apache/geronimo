@@ -692,7 +692,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             appContexts.setAttribute("globalContextSegment", applicationInfo.getJndiContext().get(JndiScope.global));
             appContexts.setAttribute("applicationContextMap", applicationInfo.getJndiContext().get(JndiScope.app));
             appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
-            earContext.addGBean(appContexts);
+            if (!initModulesInDDOrder) {
+                earContext.addGBean(appContexts);
+            }
 
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
@@ -760,6 +762,16 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 } else {
                     getBuilder(module).addGBeans(earContext, module, bundle, repositories);
                 }
+            }
+
+            for(Module<?, ?> module : modules) {
+                module.flushGBeansToContext();
+            }
+
+            //ApplicationJndi is added as the last GBean, as it is a common dependency GBean by each EJB GBean and web module GBean
+            //With doing this, it  makes the modules in the ear are started in order, while init-order is configured.
+            if (initModulesInDDOrder) {
+                earContext.addGBean(appContexts);
             }
 
             if (createPlanMode.get()) {

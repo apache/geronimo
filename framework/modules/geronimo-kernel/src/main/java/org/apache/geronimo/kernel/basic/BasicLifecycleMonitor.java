@@ -17,33 +17,34 @@
 
 package org.apache.geronimo.kernel.basic;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.ArrayList;
-import java.util.Collection;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
     private static final Logger log = LoggerFactory.getLogger(BasicLifecycleMonitor.class);
-    
+
     // todo we should only hold weak references to the listeners
     /**
      * Map of AbstractName to set of Listeners interested in this name.
@@ -53,7 +54,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
     /**
      * Map of listener to patterns they are interested in.
      */
-    private final Map listenerPatterns = new HashMap();
+    private final Map listenerPatterns = new LinkedHashMap();
 
     public BasicLifecycleMonitor(Kernel kernel) {
 
