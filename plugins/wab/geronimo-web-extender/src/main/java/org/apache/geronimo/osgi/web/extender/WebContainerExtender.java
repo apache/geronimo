@@ -62,9 +62,11 @@ import org.slf4j.LoggerFactory;
 @GBean
 public class WebContainerExtender implements GBeanLifecycle {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WebContainerExtender.class);
 
+    private static final String SYNCHRONOUS_HEADER = "Synchronous-Deploy";
+    private static final String SYNCHRONOUS_PROPERTY = "org.apache.geronimo.osgi.web.extender.synchronous";
+    
     private final Kernel kernel;
     private final BundleContext bundleContext;
     private final Environment defaultEnvironment;
@@ -307,10 +309,25 @@ public class WebContainerExtender implements GBeanLifecycle {
             this.waiting = new LinkedList<WebApplication>();
         }
         
+        private boolean isSynchronous(Bundle bundle) {
+            String property = (String) bundle.getHeaders().get(SYNCHRONOUS_HEADER);           
+            if (property == null) {
+                property = bundle.getBundleContext().getProperty(SYNCHRONOUS_PROPERTY);
+            }
+            return Boolean.parseBoolean(property);
+        }
+        
         public synchronized Collection<Long> register(WebApplication webApp) {
             if (deployed == null) {
                 deployed = webApp;
-                deployed.schedule();
+                Bundle bundle = webApp.getBundle();
+                if (isSynchronous(bundle)) {
+                    LOGGER.debug("Deploying web application bundle {} synchronously.", bundle.getSymbolicName());
+                    deployed.run();
+                } else {
+                    LOGGER.debug("Deploying web application bundle {} asynchronously.", bundle.getSymbolicName());
+                    deployed.schedule();
+                }
                 return Collections.emptyList();
             } else {
                 waiting.add(webApp);
