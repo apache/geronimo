@@ -259,6 +259,8 @@
                             <config-substitution key="MultipointServers" />
                             <config-substitution key="ClusterName">cluster1</config-substitution>                            
                             <copy-file relative-to="geronimo" dest-dir="schema">schema/</copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="etc">etc/</copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="repository">repository/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

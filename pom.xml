@@ -90,6 +90,10 @@
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.2-SNAPSHOT</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
+        <javamail.version>1.8.3-SNAPSHOT</javamail.version>
+        <geronimoel.version>1.0.2-SNAPSHOT</geronimoel.version>
+        <geronimoosgiregistry.version>1.1-SNAPSHOT</geronimoosgiregistry.version>
+        <myfacesVersion>2.0.8-SNAPSHOT</myfacesVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -161,7 +165,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-osgi-registry</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>${geronimoosgiregistry.version}</version>
             </dependency>
 
             <dependency>
@@ -197,7 +201,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-el_2.2_spec</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${geronimoel.version}</version>
             </dependency>
 
             <dependency>
@@ -244,7 +248,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.8.3-SNAPSHOT</version>
+                <version>${javamail.version}</version>
             </dependency>
 
             <dependency>

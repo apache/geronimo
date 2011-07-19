@@ -189,6 +189,7 @@
         <dependency>
             <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-jsf</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.openwebbeans</groupId>
@@ -204,5 +205,22 @@
         </dependency>
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>
+                            org.apache.webbeans.jsf;resolution:="optional",
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
 
+        </plugins>
+    </build>
 </project>

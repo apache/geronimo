@@ -33,9 +33,9 @@
         MyFaces plugin
     </description>
 
-    <properties>
-        <myfacesVersion>2.0.8-SNAPSHOT</myfacesVersion>
-    </properties>
+    <!--<properties>-->
+        <!--<myfacesVersion>2.0.8-SNAPSHOT</myfacesVersion>-->
+    <!--</properties>-->
     
     <modules>
         <module>geronimo-myfaces</module>
