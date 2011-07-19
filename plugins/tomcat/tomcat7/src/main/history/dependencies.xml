@@ -57,6 +57,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
         <type>jar</type>
@@ -108,6 +113,21 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-javaagent</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-jee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-loader</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-multicast</artifactId>
         <type>jar</type>
     </dependency>
@@ -119,6 +139,11 @@
     <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-server</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-ee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

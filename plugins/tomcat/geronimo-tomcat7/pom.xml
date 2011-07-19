@@ -81,6 +81,12 @@
             <version>${openwebbeansVersion}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-ejb</artifactId>
+            <version>${openwebbeansVersion}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.xbean</groupId>
