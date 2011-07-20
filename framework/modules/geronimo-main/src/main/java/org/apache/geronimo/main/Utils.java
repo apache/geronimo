@@ -43,7 +43,7 @@ public class Utils {
         // Use the system property if specified.
         String path = System.getProperty(HOME_DIR_SYS_PROP);
         if (path != null) {
-            rc = validateDirectoryExists(path, "Invalid " + HOME_DIR_SYS_PROP + " system property");
+            rc = validateDirectory(path, "Invalid Geronimo home directory.", false);
         }
 
         // Try to figure it out using the jar file this class was loaded from.
@@ -89,7 +89,7 @@ public class Utils {
             }
         }
 
-        validateDirectoryExists(baseServerDir, "The Geronimo server directory could not be determined");
+        validateDirectory(baseServerDir, "Invalid Geronimo server directory.", false);
         
         return baseServerDir;
     }
@@ -101,8 +101,8 @@ public class Utils {
             tmpDir = new File(base, tmpDirPath);
         }
         
-        validateDirectoryExists(tmpDir, "The temporary directory could not be determined");
-        
+        validateDirectory(tmpDir, "Invalid temporary directory.", true);
+
         System.setProperty("java.io.tmpdir", tmpDir.getAbsolutePath());
     }
     
@@ -117,11 +117,11 @@ public class Utils {
         }        
     }
     
-    public static File validateDirectoryExists(String path, String errPrefix) {
-        return validateDirectoryExists(new File(path), errPrefix);
+    public static File validateDirectory(String path, String errPrefix, boolean checkWritable) {
+        return validateDirectory(new File(path), errPrefix, checkWritable);
     }
     
-    public static File validateDirectoryExists(File path, String errPrefix) {
+    public static File validateDirectory(File path, String errPrefix, boolean checkWritable) {
         File rc;
         try {
             rc = path.getCanonicalFile();
@@ -129,10 +129,16 @@ public class Utils {
             throw new IllegalArgumentException(errPrefix + " '" + path + "' : " + e.getMessage());
         }
         if (!rc.exists()) {
-            throw new IllegalArgumentException(errPrefix + " '" + rc + "' " + " derived from: '" + path + "' : does not exist");
+            throw new IllegalArgumentException(errPrefix + " The '" + path + "' path does not exist.");
         }
         if (!rc.isDirectory()) {
-            throw new IllegalArgumentException(errPrefix + " '" + path + "' : is not a directory");
+            throw new IllegalArgumentException(errPrefix + " The '" + path + "' path is not a directory.");
+        }
+        if (!rc.canRead()) {
+            throw new IllegalArgumentException(errPrefix + " The '" + path + "' directory is not readable.");
+        }
+        if (checkWritable && !rc.canWrite()) {
+            throw new IllegalArgumentException(errPrefix + " The '" + path + "' directory is not writable.");
         }
         return rc;
     }
