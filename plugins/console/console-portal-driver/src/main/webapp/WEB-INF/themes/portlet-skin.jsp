@@ -26,8 +26,9 @@ limitations under the License.
 <pluto:portlet portletId="${portlet}">
 
   <!-- Assemble the rendering result -->
-  <div class="portlet" id='<c:out value="${portlet}"/>'>
-    <div class="header">
+  <table cellspacing="0" cellpadding="0" width="100%" class="portlet" id='<c:out value="${portlet}"/>'>
+    <tr>
+      <td class="header">
       <!-- Portlet Mode Controls -->
       <pluto:modeAnchor portletMode="view"/>
       <pluto:modeAnchor portletMode="edit"/>
@@ -38,13 +39,16 @@ limitations under the License.
       <a href="<pluto:url windowState="normal"/>"><span class="normal"></span></a>
       <!-- Portlet Title -->
       <h2><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
-    </div>
-    <div class="body">
+      </td>
+    </tr>
+    <tr>
+      <td class="body">
       <script language="Javascript" src="/console/dojo/dojo/dojo.js" type="text/javascript"></script>
       <script language="Javascript" src="/console/dojo/dijit/dijit.js" type="text/javascript"></script>
       <pluto:render/>
-    </div>
-  </div>
+      </td>
+    </tr>
+  </table>
 
 </pluto:portlet>
 

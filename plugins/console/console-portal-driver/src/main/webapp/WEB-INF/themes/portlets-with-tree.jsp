@@ -32,8 +32,8 @@ limitations under the License.
 
 
 <script>
-<%-- we have to use dojo.hash to maintain the hash change history because browser does not 
-recogonize a hash change when users click back/forward button.--%>
+//we have to use dojo.hash to maintain the hash change history because browser does not 
+//recogonize a hash change when users click back/forward button.
 
 dojo.require("dojo.hash");
 dojo.require("dojox.collections.Dictionary");
@@ -64,17 +64,8 @@ function onHashChange(current_hash) {
     }
 }
 
-
-
-
-</script>
-
-
-<script language="JavaScript">
-
-<%-- When there's hash in current page url
-redirect the page with noxxsPage hash as the query string,
-the server side will get the real redirect target page based on the value of noxxsPage--%>
+//When there's hash in current page url, redirect the page with noxxsPage hash as the query string,
+//the server side will get the real redirect target page based on the value of noxxsPage
 if(document.location.hash!='') {
        var href = document.location.href;
        var newHref = href.substring(0,href.lastIndexOf("#"));
@@ -82,50 +73,7 @@ if(document.location.hash!='') {
             newHref = newHref.substring(0,href.indexOf("&noxssPage"));
        }
        document.location.href =  newHref + "&noxssPage=" +document.location.hash.substr(11,document.location.hash.length);
-    }
-
-
-<%-- get the real iframe object to resize--%>    
-function getIframeObjectToResize(){
-
-        frame = document.getElementById("portletsFrame");
-        frame_document = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-        objToResize = (frame.style) ? frame.style : frame;     
-        return objToResize;  
 }
-    
-
-function autoResizeIframe(){
-
-  try{
-      <%-- reset the height of index page each time the new portlet is loaded--%>
-      document.body.height = 400; 
-      iframeObjectToResize=getIframeObjectToResize();
-      iframeObjectToResize.height = frame_document.body.scrollHeight;
-      }
-  catch(err){
-    window.status = err.message;
-  }
-
-}
-
-function autoCheckIframe(){
-
-    var iFrameDocument=document.getElementById("portletsFrame").contentWindow.document;
-    var LoginForm=iFrameDocument.getElementsByName('login');
-
-    if(LoginForm.length!=0){
-        window.location.reload();
-    }
-
-}
-
-<%-- ensure the iframe height could be adjusted according to the content--%>
-setInterval('autoResizeIframe()',500); 
-
-<%-- ensure login page is not displayed in the iframe after the timeout--%>
-setInterval('autoCheckIframe()',500); 
-
 
 </script>
 
@@ -153,7 +101,7 @@ setInterval('autoCheckIframe()',500);
     </tr>
 </table>
 
-<p style="margin-top:5px;margin-bottom:5px" />
+<p style="margin-top:5px;margin-bottom:5px"></p>
 
 <!-- Body -->
 <table width="100%"  border="0" cellpadding="0" cellspacing="0">
@@ -192,4 +140,43 @@ setInterval('autoCheckIframe()',500);
     %>
     var pageName = "<fmt:message key="<%=pageName%>"/>";
     quickLaunchPortlets(pageName);
+</script>
+<script language="JavaScript">
+
+function autoResizeIframe(){
+    // reset the height of index page each time the new portlet is loaded
+    document.body.height = 400; 
+  
+    try{
+        var iframe = document.getElementById("portletsFrame");
+        var iframeDocument = iframe.contentWindow.document;
+        
+        var toHeight; 
+        toHeight = (iframeDocument.height) ? iframeDocument.height : iframeDocument.body.scrollHeight;
+        
+        (iframe.style) ? iframe.style.height = toHeight : iframe.height = toHeight; 
+        
+    }catch (ex){
+        window.status = ex.message;
+    }
+
+
+}
+
+function autoCheckIframe(){
+    var iFrameDocument=document.getElementById("portletsFrame").contentWindow.document;
+    var LoginForm=iFrameDocument.getElementsByName('login');
+
+    if(LoginForm.length!=0){
+        window.location.reload();
+    }
+}
+
+//Ensure the iframe height could be adjusted according to the content
+setInterval('autoResizeIframe()',500); 
+
+//Ensure login page is not displayed in the iframe after the timeout
+setInterval('autoCheckIframe()',500); 
+
+
 </script>
