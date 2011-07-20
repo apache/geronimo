@@ -74,6 +74,7 @@ import org.apache.openejb.jee.Tag;
 import org.apache.openejb.jee.Taglib;
 import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
+import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -158,10 +159,12 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, Bundle> tldLocationBundleMap = getTldFiles(webApp, webModule);
         LinkedHashSet<Class<?>> classes = getListenerClasses(webApp, webModule, tldLocationBundleMap, listenerNames);
+        
+        AbstractFinder originalClassFinder = webModule.getClassFinder();
         ClassFinder classFinder = new ClassFinder(new ArrayList<Class<?>>(classes));
         webModule.setClassFinder(classFinder);
-
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
+        webModule.setClassFinder(originalClassFinder);
 
         //only try to install it if reference will work.
         //Some users (tomcat?) may have back doors into jasper that make adding this gbean unnecessary.
