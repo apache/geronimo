@@ -18,9 +18,7 @@
 package org.apache.geronimo.openwebbeans.deployment;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +53,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.cdi.WebBeansConfigurationListener;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
+import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
@@ -156,12 +155,14 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
 
         WebApp webApp = webModule.getSpecDD();
-        XmlObject jettyWebApp = webModule.getVendorDD();
+        XmlObject geronimoWebApp = webModule.getVendorDD();
 
+        AbstractFinder originalFinder = webModule.getClassFinder();
         ClassFinder classFinder = createOpenWebBeansClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
-
-        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
+        namingBuilders.buildNaming(webApp, geronimoWebApp, webModule, buildingContext);
+        webModule.setClassFinder(originalFinder);
+        
 
 //        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
 //        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
