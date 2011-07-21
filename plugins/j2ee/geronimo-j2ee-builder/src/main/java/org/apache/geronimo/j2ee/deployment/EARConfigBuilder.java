@@ -1026,6 +1026,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         applicationInfo.getModules().add(module);
                     }
                 }
+
+                discoverWebBeans(earFile, application,environment, applicationInfo, idBuilder, altVendorDDs);
             }
 
             //all the modules in the geronimo plan should have been found by now.
@@ -1139,6 +1141,42 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             for (Object altVendorDD : altVendorDDs.values()) {
                 if (altVendorDD instanceof File) {
                     ((File) altVendorDD).delete();
+                }
+            }
+        }
+    }
+
+    private void discoverWebBeans(JarFile earFile, Application application, Environment environment, Module applicationInfo, ModuleIDBuilder idBuilder, Map<String, Object> altVendorDDs) throws DeploymentException {
+        Enumeration<JarEntry> entries = earFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            if (entry.getName().endsWith(".jar") && isLibraryEntry(application, entry)) {
+                try {
+                    NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
+
+                    if (moduleFile.getEntry("META-INF/beans.xml") == null) continue;
+
+                    //ask the ejb builder if its an ejb module
+                    ModuleBuilder builder = getEjbConfigBuilder();
+                    if (builder == null) {
+                        continue;
+                    }
+
+                    Module module = builder.createModule(altVendorDDs.get(entry.getName()),
+                            moduleFile,
+                            entry.getName(),
+                            null,
+                            environment,
+                            null,
+                            applicationInfo,
+                            naming, idBuilder);
+
+                    if (module != null) {
+                        applicationInfo.getModuleLocations().add(entry.getName());
+                        applicationInfo.getModules().add(module);
+                    }
+                } catch (IOException e) {
+                    throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
                 }
             }
         }
