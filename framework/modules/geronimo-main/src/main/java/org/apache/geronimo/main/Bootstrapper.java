@@ -113,6 +113,7 @@ public class Bootstrapper extends FrameworkLauncher {
             BundleInfo info = new BundleInfo();
             info.location = file;
             info.mvnLocation = mvnLocation;
+            info.startLevel = 60;
             
             startList.add(info);            
         }
