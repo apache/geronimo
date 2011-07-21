@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.openwebbeans.deployment;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.net.URL;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import javax.ejb.EJB;
 import javax.enterprise.inject.Produces;
@@ -57,6 +59,8 @@ import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.XmlObject;
@@ -200,20 +204,63 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         // we should only be scanning the jars that contain beans.xml files
         // Obviously, this conflicts with the Bundle concept somewhat
 
-        if (webApp.isMetadataComplete()) return Collections.EMPTY_LIST;
+       /* if (webApp.isMetadataComplete()) return Collections.EMPTY_LIST;*/
 
 
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         try {
             PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+            
+            //1. Generated the jar file list, which contains META-INF/beans.xml file
+            final Set<String> annotationScanRequiredJarFiles = new HashSet<String>();
+            String moduleNamePrefix = webModule.isStandAlone() ? "" : webModule.getTargetPath() + "/";
+            final String libDirectory = moduleNamePrefix + "WEB-INF/lib";
+            BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", "beans.xml", new ResourceDiscoveryFilter() {
+
+                @Override
+                public boolean directoryDiscoveryRequired(String directoryName) {
+                    return false;
+                }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange == DiscoveryRange.BUNDLE_CLASSPATH;
+                }
+
+                @Override
+                public boolean zipFileDiscoveryRequired(String zipFileName) {
+                    return zipFileName.startsWith(libDirectory) && zipFileName.endsWith(".jar");
+                }
+
+            });
+            resourceFinder.find(new ResourceFinderCallback() {
+
+                @Override
+                public boolean foundInDirectory(Bundle arg0, String arg1, URL arg2) throws Exception {
+                    return false;
+                }
+
+                @Override
+                public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
+                    String zipEntryName = zipEntry.getName();
+                    if (zipEntryName.equals("META-INF/beans.xml")) {
+                        annotationScanRequiredJarFiles.add(zipFileName);
+                    }
+                    return true;
+                }
+            });
+            
+            final String webInfClassesFolder = moduleNamePrefix + "WEB-INF/classes";
+            final boolean webInfClassesScanRequired = bundle.getResource(moduleNamePrefix + "WEB-INF/beans.xml") != null;
+
+            //2. Scan annotations
             Map<Class<? extends Annotation>, Set<Class>> annotationClassSetMap = new HashMap<Class<? extends Annotation>, Set<Class>>();
             BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(packageAdmin, bundle, new ResourceDiscoveryFilter() {
 
                 @Override
-                public boolean directoryDiscoveryRequired(String directory) {
-                    //TODO WEB-INF/classes ???
-                    return true;
+                public boolean directoryDiscoveryRequired(String directory) {                    
+                    return directory.equals(webInfClassesFolder) && webInfClassesScanRequired;
                 }
 
                 @Override
@@ -223,10 +270,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String jarFile) {
-                    //????
-                    return true;
+                    return annotationScanRequiredJarFiles.contains(jarFile);
                 }
-
             });
 
             final List<Member> members = new ArrayList<Member>();
