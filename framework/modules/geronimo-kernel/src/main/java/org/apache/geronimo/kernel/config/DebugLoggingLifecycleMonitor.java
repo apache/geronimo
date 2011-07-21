@@ -67,7 +67,7 @@ public class DebugLoggingLifecycleMonitor implements LifecycleMonitor {
     }
 
     public void failed(Artifact configurationId, Throwable cause) {
-        log.debug("failed module: {}", configurationId);
+        log.debug("failed module: {}", configurationId, cause);
     }
 
     public void finished() {

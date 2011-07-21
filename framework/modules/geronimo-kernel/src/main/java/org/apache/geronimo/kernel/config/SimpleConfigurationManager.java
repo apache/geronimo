@@ -696,7 +696,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 configurationId = unstartedConfiguration;
                 Configuration configuration = getConfiguration(configurationId);
                 if (configuration == null) {
-                    throw new NoSuchConfigException(configurationId, "trying to start ancestor config, but not found");
+                    throw new NoSuchConfigException(configurationId, "trying to start ancestor config for config " + id + ", but not found");
                 }
                 monitor.starting(configurationId);
                 start(configuration);
