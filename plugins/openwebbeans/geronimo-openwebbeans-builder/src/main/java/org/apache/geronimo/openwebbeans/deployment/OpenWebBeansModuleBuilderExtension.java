@@ -22,6 +22,7 @@ import java.lang.reflect.Member;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -191,6 +192,17 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     }
 
     private List<Class<?>> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
+
+        // Technically a CDI jar can never be meta-data complete
+        // But without this check we fail some EE TCK tests
+
+        // It would seem we are scanning too much of the classpath in this method
+        // we should only be scanning the jars that contain beans.xml files
+        // Obviously, this conflicts with the Bundle concept somewhat
+
+        if (webApp.isMetadataComplete()) return Collections.EMPTY_LIST;
+
+
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         try {
