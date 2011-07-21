@@ -66,7 +66,7 @@
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
                ie. you have a hundred dependencies that all use the same version.
         -->
-        <tomcatVersion>7.0.19.1-SNAPSHOT</tomcatVersion>
+        <tomcatVersion>7.0.19.1</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>4.0.0-SNAPSHOT</openejbVersion>
@@ -2314,7 +2314,18 @@ only found in cxf
                 <module>assemblies</module>
             </modules>
 
-            <repositories>            
+            <repositories>
+                <repository>
+                    <id>Tomcat 7.0.19.1 Stage respository</id>
+                    <name>Tomcat 7.0.19.1 Stage respository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-019</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
                 <repository>
                     <id>geronimo-svn-repo</id>
                     <name>Geronimo 3rd Party libraries</name>
