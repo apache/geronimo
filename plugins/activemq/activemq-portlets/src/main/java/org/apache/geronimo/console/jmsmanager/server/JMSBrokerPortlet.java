@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -41,18 +39,13 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.activemq.broker.BrokerService;
-import org.apache.geronimo.activemq.BrokerServiceGBeanImpl;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
