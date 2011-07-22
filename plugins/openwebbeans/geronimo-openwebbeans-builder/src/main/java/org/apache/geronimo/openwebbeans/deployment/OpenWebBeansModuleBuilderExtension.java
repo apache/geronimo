@@ -215,7 +215,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             //1. Generated the jar file list, which contains META-INF/beans.xml file
             final Set<String> annotationScanRequiredJarFiles = new HashSet<String>();
             String moduleNamePrefix = webModule.isStandAlone() ? "" : webModule.getTargetPath() + "/";
-            final String libDirectory = moduleNamePrefix + "WEB-INF/lib";
             BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", "beans.xml", new ResourceDiscoveryFilter() {
 
                 @Override
@@ -230,7 +229,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String zipFileName) {
-                    return zipFileName.startsWith(libDirectory) && zipFileName.endsWith(".jar");
+                    return zipFileName.endsWith(".jar");
                 }
 
             });
