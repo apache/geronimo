@@ -82,7 +82,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, Ser
     }
 
     // BTW, now we support EBA deployment. And if an EBA includes a WAB, which also has a configuration id during EBA deployment, 
-    // this method also can be called with the WAB id. And the WAB' so id will also go into the "toRemove" list.
+    // this method also can be called with the WAB id. And the WAB's id will also go into the "toRemove" list.
     public void undeployed(Artifact id) {
         if (monitor != null) {
             String moduleId = id.toString();

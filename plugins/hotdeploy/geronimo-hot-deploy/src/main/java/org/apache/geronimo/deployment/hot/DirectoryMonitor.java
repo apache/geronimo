@@ -53,7 +53,10 @@ public class DirectoryMonitor implements Runnable {
     private File directory;
     private boolean done = false;
     private MonitorListener listener; // a little cheesy, but do we really need multiple listeners?
-    private Map<String, FileInfo> files;
+    // This Map records the files in the hot deploy folder. 
+    // The FileInfo's configId could be null, which represents it was not successfully deployed 
+    // through this hot deployer.
+    private Map<String, FileInfo> fileRecords;
     private final ArrayList <String> toRemove = new ArrayList <String>();
     private File monitorFile;
 
@@ -121,12 +124,13 @@ public class DirectoryMonitor implements Runnable {
 
     private void doRemoves() {
         synchronized (toRemove) {
-            synchronized (files) {
+            synchronized (fileRecords) {
+                boolean changeMade = false;
                 for (Iterator<String> idItr = toRemove.iterator(); idItr.hasNext();) {
                     String configId = idItr.next();
-                    for (Iterator<String> filesItr = files.keySet().iterator(); filesItr.hasNext();) {
+                    for (Iterator<String> filesItr = fileRecords.keySet().iterator(); filesItr.hasNext();) {
                         String path = filesItr.next();
-                        FileInfo info = files.get(path);
+                        FileInfo info = fileRecords.get(path);
                         if (info.getConfigId() == null) {
                             // the file is new added, have not deployed yet, so its config id is not set.
                             continue;
@@ -138,12 +142,16 @@ public class DirectoryMonitor implements Runnable {
                                 if (!FileUtils.recursiveDelete(file)) {
                                     log.error("Hot deployer unable to delete " + path);
                                 }
-                                filesItr.remove();
                             }
+                            filesItr.remove();
+                            changeMade = true;
                         }
                     }
                     // remove the id form the toRemove list no matter if we found it in the "files" list
                     idItr.remove();
+                }
+                if (changeMade) {
+                    persistState();
                 }
             }
         }
@@ -158,7 +166,7 @@ public class DirectoryMonitor implements Runnable {
         ObjectOutputStream outputStream = null;
         try {
             outputStream = new ObjectOutputStream(new FileOutputStream(monitorFile));
-            outputStream.writeObject(files);
+            outputStream.writeObject(fileRecords);
         } catch (IOException ioe) {
             log.warn("Error persisting directory monitor state to " + monitorFile.getName(), ioe);
         } finally {
@@ -226,7 +234,7 @@ public class DirectoryMonitor implements Runnable {
     }
 
     private void initialize() {
-        files = readState();
+        fileRecords = readState();
     }
     
     /**
@@ -240,8 +248,8 @@ public class DirectoryMonitor implements Runnable {
             done = true;
             return;
         }
-        synchronized (files) {
-            Set<String> oldList = new HashSet<String>(files.keySet());
+        synchronized (fileRecords) {
+            Set<String> oldList = new HashSet<String>(fileRecords.keySet());
             
             Collection<FileInfo> addedFiles = new ArrayList<FileInfo>();
             Collection<FileInfo> modifiedFiles = new ArrayList<FileInfo>();
@@ -257,10 +265,10 @@ public class DirectoryMonitor implements Runnable {
                     continue;
                 }
                 FileInfo now = getFileInfo(child);
-                FileInfo last = files.get(now.getPath());
+                FileInfo last = fileRecords.get(now.getPath());
                 if (last == null) { // Brand new, wait a bit to make sure it's not still changing
                     now.setNewFile(true);
-                    files.put(now.getPath(), now);
+                    fileRecords.put(now.getPath(), now);
                     changeMade = true;
                     log.debug("New File: " + now.getPath());
                 } else {
@@ -284,7 +292,7 @@ public class DirectoryMonitor implements Runnable {
                         } else { // is replacing file
                             now.setConfigId(last.getConfigId());
                         }
-                        files.put(now.getPath(), now);
+                        fileRecords.put(now.getPath(), now);
                         changeMade = true;
                         log.debug("File Changed: " + now.getPath());
                     }
@@ -294,7 +302,7 @@ public class DirectoryMonitor implements Runnable {
             // Look for any files we used to know about but didn't find in this pass
             for (Iterator<String> it = oldList.iterator(); it.hasNext();) {
                 String name = it.next();
-                FileInfo info = files.remove(name);
+                FileInfo info = fileRecords.remove(name);
                 changeMade = true;
                 log.debug("File removed: " + name);
                 deletedFiles.add(info);
@@ -326,7 +334,7 @@ public class DirectoryMonitor implements Runnable {
             if (!listener.validateFile(new File(info.getPath()), info.getConfigId())) {
                 it.remove();
                 if (delete) {
-                    files.remove(info.getPath());
+                    fileRecords.remove(info.getPath());
                 }
             }
         }

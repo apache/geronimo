@@ -103,119 +103,151 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
     @Override
     public void scanComplete(Collection<DirectoryMonitor.FileInfo> addedFiles, Collection<DirectoryMonitor.FileInfo> modifiedFiles, Collection<DirectoryMonitor.FileInfo> deletedFiles) {       
         for (DirectoryMonitor.FileInfo deletedFile : deletedFiles) {
-            if (deletedFile.getConfigId() == null) {
+            // the ConfigId of the FileInfo of the file just deleted might be null 
+            // which means the file was not deployed successfully before
+            File file = new File(deletedFile.getPath());
+            String moduleId = deletedFile.getConfigId();
+            if (moduleId == null) {
                 // This means the file was never deployed, and now we are deleting it from the hot deploy folder.
-                // We should not use getModuleId(addedFile) here, because we can not calculate the configId from a non-exist file.
+                // We should not use getModuleId(addedFile) here, because we can not calculate the configId from a non-exist file,
+                // and if then we guess one, it might undeploy a module deployed by other files.
                 log.info("File: {} was removed", deletedFile.getPath());
+                
             } else {
-                String moduleId = deletedFile.getConfigId();
                 if (isModuleDeployed(moduleId)) {
-                    // check if deployed module is older
+                    // check if file is older
                     if (deletedFile.getModified() < getModuleLastModified(moduleId)) {
-                        fileRemoved(new File(deletedFile.getPath()), moduleId);
+                        // un-deploy
+                        if (fileRemoved(file, moduleId)) {
+                            log.info("File: {} was removed, and module: {} was succussfully undeployed.", deletedFile.getPath(), moduleId);
+                        } else {
+                            log.warn("File: {} was removed, but module: {} can not be undeployed.", deletedFile.getPath(), moduleId);
+                        }
                     } else {
-                        log.warn("File: {} was removed, but module: {} was not undeployed, since the deployed one is newer.", deletedFile.getPath(), moduleId);
+                        log.warn("File: {} was removed, but module: {} was not undeployed, "
+                                  + "since the deployed one is older, i.e the module was not deployed by the file you just deleted.", deletedFile.getPath(), moduleId);
                     }
                 } else {
-                    //should not happen
+                    // should not happen
                     log.warn("Module: {} has been already undeployed in other ways", moduleId);
                 }
             }
         }
 
         for (DirectoryMonitor.FileInfo addedFile : addedFiles) {
-            String moduleId = getModuleId(addedFile);
-            File moduleFile = new File(addedFile.getPath());
-            if (isModuleDeployed(moduleId)) {
-                // check if deployed module is newer
-                if (addedFile.getModified() > getModuleLastModified(moduleId)) {
-                    String newModuleId = fileUpdated(moduleFile, moduleId);
-                    if (newModuleId != null) {
-                        addedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
-                    }
+            // the ConfigId of the FileInfo of the file just added must be null
+            File file = new File(addedFile.getPath());
+            String moduleId = addedFile.getConfigId();
+            if (moduleId == null) {
+                moduleId = calculateModuleId(file);
+                if (isModuleDeployed(moduleId)) {
+                    log.warn("File: {} was added, but Module: {} has been deployed before. " +
+                             "Please undeploy the old one first, and then re-add this file.", addedFile.getPath(), moduleId);                    
                 } else {
-                    log.warn("File: {} was added, but module: {} was not redeployed, since the deployed one is newer.", addedFile.getPath(), moduleId);                    
+                    // new add
+                    String newModuleId = fileAdded(file);
+                    if (newModuleId != null) {
+                        moduleId = newModuleId.length() == 0 ? moduleId : newModuleId;
+                        addedFile.setConfigId(moduleId);
+                        log.info("File: {} was added, and Module: {} was succussfully deployed.", addedFile.getPath(), moduleId);
+                    } else {
+                        log.warn("File: {} was added, but can not be deployed.", addedFile.getPath());
+                    }
                 }
             } else {
-                String newModuleId = fileAdded(moduleFile);
-                if (newModuleId != null) {
-                    addedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
-                }
+                log.error("File: {} is not a new added file!", addedFile.getPath());
             }
         }
 
         for (DirectoryMonitor.FileInfo modifiedFile : modifiedFiles) {
-            String moduleId = getModuleId(modifiedFile);
-            File moduleFile = new File(modifiedFile.getPath());
-            if (isModuleDeployed(moduleId)) {
-                // check if deployed module is newer
-                if (modifiedFile.getModified() > getModuleLastModified(moduleId)) {
-                    String newModuleId = fileUpdated(moduleFile, moduleId);
-                    if (newModuleId != null) {
-                        modifiedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
-                    }
+            // the ConfigId of the FileInfo of the file just modified might be null
+            // which means the file was not deployed successfully before
+            File file = new File(modifiedFile.getPath());
+            String moduleId = modifiedFile.getConfigId();
+            if (moduleId == null) {
+                moduleId = calculateModuleId(file);
+                if (isModuleDeployed(moduleId)) {
+                    log.warn("File: {} was modified, but Module: {} has been deployed before by other means. " +
+                            "Please undeploy the old one first, and then re-add this file.", modifiedFile.getPath(), moduleId);    
                 } else {
-                    log.warn("File: {} was modified, but module: {} was not redeployed, since the deployed one is newer.", modifiedFile.getPath(), moduleId);                                    
+                    // new add
+                    String newModuleId = fileAdded(file);
+                    if (newModuleId != null) {
+                        moduleId = newModuleId.length() == 0 ? moduleId : newModuleId;
+                        modifiedFile.setConfigId(moduleId);
+                        log.info("File: {} was modified, and Module: {} was succussfully deployed.", modifiedFile.getPath(), moduleId);
+                    } else {
+                        log.warn("File: {} was modified, but can not be deployed.", modifiedFile.getPath());
+                    }
                 }
             } else {
-                String newModuleId = fileAdded(moduleFile);
-                if (newModuleId != null) {
-                    modifiedFile.setConfigId(newModuleId.length() == 0 ? moduleId : newModuleId);
+                if (isModuleDeployed(moduleId)) {
+                    // redeploy
+                    String newModuleId = fileUpdated(file, moduleId);
+                    if (newModuleId != null) {
+                        moduleId = newModuleId.length() == 0 ? moduleId : newModuleId;
+                        modifiedFile.setConfigId(moduleId);
+                        log.info("File: {} was modified, and Module: {} was succussfully re-deployed.", modifiedFile.getPath(), moduleId);
+                    } else {
+                        log.warn("File: {} was modified, but Module: {} can not be re-deployed.", modifiedFile.getPath(), moduleId);
+                    }
+                } else {
+                    // new add
+                    String newModuleId = fileAdded(file);
+                    if (newModuleId != null) {
+                        moduleId = newModuleId.length() == 0 ? moduleId : newModuleId;
+                        modifiedFile.setConfigId(moduleId);
+                        log.info("File: {} was modified, and Module: {} was succussfully deployed.", modifiedFile.getPath(), moduleId);
+                    } else {
+                        log.warn("File: {} was modified, but can not be deployed.", modifiedFile.getPath());
+                    }
                 }
             }
-        }
-    }
 
-    private String getModuleId(DirectoryMonitor.FileInfo fileInfo) {
-        String moduleId = fileInfo.getConfigId();
-        if (moduleId == null) {
-            moduleId = calculateModuleId(new File(fileInfo.getPath()));
         }
-        return moduleId;
     }
     
-    private String calculateModuleId(File module) {
+    private String calculateModuleId(File moduleFile) {
         String moduleId = null;
         try {
-            moduleId = DeployUtils.extractModuleIdFromArchive(module);
+            moduleId = DeployUtils.extractModuleIdFromArchive(moduleFile);
         } catch (Exception e) {
             try {
-                moduleId = DeployUtils.extractModuleIdFromPlan(module);
+                moduleId = DeployUtils.extractModuleIdFromPlan(moduleFile);
             } catch (Exception e2) {
-                log.error("Unable to calculate module ID for file " + module.getAbsolutePath() + " [" + e2.getMessage() + "]");
+                log.debug("Unable to calculate module ID for file " + moduleFile.getAbsolutePath() + " [" + e2.getMessage() + "]");
             }
         }
         if (moduleId == null) {
-            int pos = module.getName().lastIndexOf('.');
-            moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
-            moduleId = getModuleId(moduleId);
+            int pos = moduleFile.getName().lastIndexOf('.');
+            moduleId = pos > -1 ? moduleFile.getName().substring(0, pos) : moduleFile.getName();
+            moduleId = guessModuleId(moduleId);
         }
         return moduleId;
     }
 
-    public String getModuleId(String config) {
+    private String guessModuleId(String moduleId) {
         DeploymentManager mgr = null;
         try {
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             for (int j = 0; j < ids.length; j++) {
-                String moduleId = ids[j].getModuleID();
-                String[] parts = moduleId.split("/", -1);
+                String[] parts = ids[j].getModuleID().split("/", -1);
                 if (parts.length != 4) {
                     continue;
                 }
-                if (parts[1] != null && parts[1].equals(config))
+                if (parts[1] != null && parts[1].equals(moduleId))
                     return ids[j].getModuleID();
             }
         } catch (Exception ex) {
-            log.error("Unable to getModuleId", ex);
+            log.debug("Unable to guessModuleId", ex);
         } finally {
             if (mgr != null) {
                 mgr.release();
             }
         }
-        return config;
+        return moduleId;
     }
 
     public boolean isModuleDeployed(String configId) {
@@ -227,7 +259,7 @@ public class ModuleHandler implements DirectoryMonitor.MonitorListener {
             DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
-            log.warn("Found new file in deploy directory on startup with ID " + configId);
+            log.debug("Found new file in deploy directory on startup with ID " + configId);
         } catch (Exception e) {
             log.error("Unable to check status", e);
         } finally {
