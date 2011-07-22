@@ -252,7 +252,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public ConfigurationStore[] getStores() {
-            return null;
+            return new ConfigurationStore[0];
         }
 
         @Override
