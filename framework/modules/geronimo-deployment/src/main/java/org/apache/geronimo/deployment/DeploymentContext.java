@@ -68,6 +68,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -103,7 +105,7 @@ public class DeploymentContext {
     private final BundleContext bundleContext;
     protected Configuration configuration;
     private Bundle tempBundle;
-    //private File tempBundleFile;
+    private File tempBundleFile;
 
 
     public DeploymentContext(File baseDir,
@@ -144,7 +146,7 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
+        this.configurationManager = configurationManager;
         this.bundleContext = bundleContext;
 
         if (null == inPlaceConfigurationDir) {
@@ -173,15 +175,12 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
+        this.configurationManager = configurationManager;
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
 
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
-        if(configurationManager instanceof DeploymentConfigurationManager) {
-            return configurationManager;
-        }
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
 
@@ -197,11 +196,11 @@ public class DeploymentContext {
         LinkedHashSet<Artifact> resolvedParentIds = null;
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
-            //tempBundleFile = FileUtils.createTempFile();
+            tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
             createPluginMetadata();
-            //JarUtils.jarDirectory(this.getConfigurationDir(), tempBundleFile);
-            String location = "reference:" + this.getConfigurationDir().toURI().toURL();
+            JarUtils.jarDirectory(this.getConfigurationDir(), tempBundleFile);
+            String location = "reference:" + tempBundleFile.toURI().toURL();
             tempBundle = bundleContext.installBundle(location);
             if (BundleUtils.canStart(tempBundle)) {
                 tempBundle.start(Bundle.START_TRANSIENT);
@@ -523,12 +522,12 @@ public class DeploymentContext {
             } catch (BundleException e) {
             }
         }
-        /*if (tempBundleFile != null) {
+        if (tempBundleFile != null) {
             try {
                 tempBundleFile.delete();
             } catch (Exception e) {
             }
-        }*/
+        }
     }
 
     public void addChildConfiguration(String moduleName, ConfigurationData configurationData) {
