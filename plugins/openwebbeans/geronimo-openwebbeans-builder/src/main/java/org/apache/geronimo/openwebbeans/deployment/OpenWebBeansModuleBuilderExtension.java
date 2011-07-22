@@ -32,8 +32,11 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Produces;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -229,6 +232,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String zipFileName) {
+                    // There is no path information here so we can only go by file name
+                    // We were attempting to filter down to only jars in WEB-INF/lib/
                     return zipFileName.endsWith(".jar");
                 }
 
@@ -242,6 +247,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
+                    // TODO This line is never reached, we end up scanning all jar files by default
+                    // this will no doubt cause a lot of issues in the EE TCK
                     String zipEntryName = zipEntry.getName();
                     if (zipEntryName.equals("META-INF/beans.xml")) {
                         annotationScanRequiredJarFiles.add(zipFileName);
@@ -250,11 +257,10 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
                 }
             });
             
-            final String webInfClassesFolder = moduleNamePrefix + "WEB-INF/classes";
-            final boolean webInfClassesScanRequired = bundle.getResource(moduleNamePrefix + "WEB-INF/beans.xml") != null;
+            final String webInfClassesFolder = moduleNamePrefix + "WEB-INF/classes/";
+            final boolean webInfClassesScanRequired = bundle.getEntry(moduleNamePrefix + "WEB-INF/beans.xml") != null;
 
             //2. Scan annotations
-            Map<Class<? extends Annotation>, Set<Class>> annotationClassSetMap = new HashMap<Class<? extends Annotation>, Set<Class>>();
             BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(packageAdmin, bundle, new ResourceDiscoveryFilter() {
 
                 @Override
@@ -275,10 +281,21 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
             final List<Member> members = new ArrayList<Member>();
 
-            members.addAll(bundleAnnotationFinder.findAnnotatedMethods(Produces.class));
-            members.addAll(bundleAnnotationFinder.findAnnotatedFields(Produces.class));
-            members.addAll(bundleAnnotationFinder.findAnnotatedFields(EJB.class));
-            members.addAll(bundleAnnotationFinder.findAnnotatedMethods(EJB.class));
+
+
+            final Class<? extends Annotation>[] annotation = new Class[]{
+                    Produces.class,
+                    EJB.class,
+                    PersistenceContext.class,
+                    PersistenceUnit.class,
+                    Resource.class,
+            };
+
+            for (Class<? extends Annotation> annotationClass : annotation) {
+                members.addAll(bundleAnnotationFinder.findAnnotatedMethods(annotationClass));
+                members.addAll(bundleAnnotationFinder.findAnnotatedFields(annotationClass));
+
+            }
 
             final Set<Class<?>> classes = new HashSet<Class<?>>();
             for (Member member : members) {
