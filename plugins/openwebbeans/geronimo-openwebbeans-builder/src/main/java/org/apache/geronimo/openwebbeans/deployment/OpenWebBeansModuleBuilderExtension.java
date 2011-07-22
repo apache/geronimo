@@ -232,8 +232,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String zipFileName) {
-                    // There is no path information here so we can only go by file name
-                    // We were attempting to filter down to only jars in WEB-INF/lib/
                     return zipFileName.endsWith(".jar");
                 }
 
@@ -247,8 +245,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
                 @Override
                 public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
-                    // TODO This line is never reached, we end up scanning all jar files by default
-                    // this will no doubt cause a lot of issues in the EE TCK
                     String zipEntryName = zipEntry.getName();
                     if (zipEntryName.equals("META-INF/beans.xml")) {
                         annotationScanRequiredJarFiles.add(zipFileName);
