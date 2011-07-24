@@ -114,5 +114,6 @@
         <bundle start-level="35">mvn:org.apache.openwebbeans/openwebbeans-jsf/${openwebbeansVersion}</bundle>
         <bundle start-level="35">mvn:org.apache.openjpa/openjpa/${openjpaVersion}</bundle>
         <bundle start-level="35">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.serp/1.13.1_2</bundle>
+        <bundle start-level="35">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/1.8.3_1</bundle>
     </feature>
 </features>
