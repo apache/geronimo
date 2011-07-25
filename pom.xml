@@ -91,8 +91,9 @@
         <yokoVersion>1.2</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
         <javamail.version>1.8.3-SNAPSHOT</javamail.version>
-        <geronimoel.version>1.0.2-SNAPSHOT</geronimoel.version>
-        <geronimoosgiregistry.version>1.1-SNAPSHOT</geronimoosgiregistry.version>
+        <geronimoel.version>1.0.2</geronimoel.version>
+        <geronimoosgiregistry.version>1.1</geronimoosgiregistry.version>
+        <geronimojaxws.version>1.1</geronimojaxws.version>
         <myfacesVersion>2.0.8-SNAPSHOT</myfacesVersion>
 
         <!-- Deployers -->
@@ -272,7 +273,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxws_2.2_spec</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>${geronimojaxws.version}</version>
             </dependency>
 
             <dependency>
@@ -2286,9 +2287,9 @@ only found in cxf
     
     <repositories>            
         <repository>
-            <id>geronimo-bundle-staging</id>
-            <name>geronimo-bundle-staging</name>
-            <url>https://repository.apache.org/content/repositories/orgapachegeronimo-005/</url>
+            <id>geronimo-specs-staging</id>
+            <name>geronimo-specs-staging</name>
+            <url>https://repository.apache.org/content/repositories/orgapachegeronimo-006/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>

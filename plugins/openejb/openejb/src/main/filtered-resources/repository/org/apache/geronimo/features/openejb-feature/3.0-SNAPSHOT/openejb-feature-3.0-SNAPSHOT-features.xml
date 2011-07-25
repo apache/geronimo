@@ -6,7 +6,7 @@
         <!--<bundle start-level="34">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_2</bundle>-->
         <!--<bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>-->
         <!--<bundle start-level="34">mvn:org.apache.geronimo.javamail/geronimo-javamail_1.4_mail/${javamail.version}</bundle>-->
-        <bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/1.1-SNAPSHOT</bundle>
+        <bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/${geronimojaxws.version}</bundle>
         <bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-jaxrs_1.1_spec/1.0</bundle>
         <bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-servlet_3.0_spec/1.0</bundle>
         <bundle start-level="34">mvn:org.apache.geronimo.specs/geronimo-jsp_2.2_spec/1.0</bundle>
