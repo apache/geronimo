@@ -21,7 +21,7 @@
 <fmt:setBundle basename="consolebase" />
 <portlet:defineObjects />
 
-<CommonMsg:confirmMsg/>
+<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
@@ -45,7 +45,7 @@
             <form action="<portlet:actionURL/>" method="POST">
                 <input type="hidden" name="shutdown" value="shutdown" />
                 <input type="button" value='<fmt:message key="servermanager.normal.shutdown"/>' 
-                       onClick="showConfirmMessage(this, '<fmt:message key="servermanager.normal.comfirmMsg01"/>', '<fmt:message key="servermanager.normal.ok"/>', '<fmt:message key="servermanager.normal.cancel"/>');" />
+                       onClick="showGlobalConfirmMessage('<fmt:message key="servermanager.normal.comfirmMsg01"/>')" />
             </form>
             </td>
         </tr>

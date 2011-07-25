@@ -21,7 +21,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<CommonMsg:confirmMsg/>
+<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
 
 <script>
 var EXPERT_COOKIE = "org.apache.geronimo.configmanager.expertmode";
@@ -36,15 +36,15 @@ var SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependenci
 function promptIfUnsafeToStop(target, configId, expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg01"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg01"/>');
     }
     // if the component is the web console provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg02"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg02"/>');
     }
     // if the component is any other Geronimo "expert" component provide an appropriate warning
     if (expertConfig == 'true') {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg03"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg03"/>');
     }
     // otherwise don't challenge the stop operation
     return true;
@@ -60,15 +60,15 @@ function promptIfUnsafeToStop(target, configId, expertConfig, type) {
 function promptIfUnsafeToRestart(target, configId, expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg04"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg04"/>');
     }
     // if the component is the web console provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg05"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg05"/>');
     }
     // if the component is a Geronimo "expert" component then provide an appropriate warning
     if (expertConfig == 'true') {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg06"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg06"/>');
     }
     // otherwise don't challenge the restart operation
     return true;
@@ -84,18 +84,18 @@ function promptIfUnsafeToRestart(target, configId, expertConfig, type) {
 function uninstallPrompt(target, configId, expertConfig, type) {
     // if the component is a geronimo "expert" service always provide the most stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg07"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg07"/>');
     }
     // if the component is a the web console itself then provide an appropriate warning
     if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg08"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg08"/>');
     }
     // if the component is any other Apache Geronimo "expert" component then provide an appropriate warning
     if (expertConfig == 'true') {
-        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg09"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+        return showGlobalConfirmMessage(configId + '<fmt:message key="configmanager.normal.confirmMsg09"/>');
     }
     // if the component is none of the above provide a standard warning
-    return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg10"/>' + configId + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+    return showGlobalConfirmMessage('<fmt:message key="configmanager.normal.confirmMsg10"/>' + configId + '?');
 }
 
 // Toggle expert mode on and off with onClick
@@ -197,18 +197,18 @@ function toggleShowDependenciesMode() {
 
 <table width="100%" class="TableLine" summary="Config Manager">
     <tr class="DarkBackground">
-        <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>   
+        <th scope="col"><fmt:message key="configmanager.normal.componentName" /></th>   
         <c:if test="${showDisplayName}">    
-               <th scope="col"><fmt:message key="configmanager.normal.displayName" /></th> 
+            <th scope="col"><fmt:message key="configmanager.normal.displayName" /></th> 
         </c:if>
         <c:if test="${showWebInfo}">          
-          <th scope="col">URL</th>
+            <th scope="col">URL</th>
         </c:if>
-        <th scope="col">&nbsp;<fmt:message key="consolebase.common.state"/></th>
-        <th scope="col" align="center" colspan="3"><fmt:message key="consolebase.common.commands"/></th>
+        <th scope="col"><fmt:message key="consolebase.common.state"/></th>
+        <th scope="col" colspan="3"><fmt:message key="consolebase.common.commands" /></th>
         <c:if test="${showDependencies}">
-          <th scope="col" align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
-          <th scope="col" align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
+            <th scope="col"><fmt:message key="configmanager.normal.parentComponents" /></th>
+            <th scope="col"><fmt:message key="configmanager.normal.childComponents" /></th>
         </c:if>
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>

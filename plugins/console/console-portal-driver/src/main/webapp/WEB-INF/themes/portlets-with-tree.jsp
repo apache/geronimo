@@ -23,13 +23,36 @@ limitations under the License.
 <fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 <%@ page import="org.apache.geronimo.pluto.impl.PageConfig"%>
 
-<body id="admin-console" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
+<%-- Confirm Message Definition: Start --%>
+<style type="text/css">
+#darkCover {
+  position:fixed;
+  z-index:1000; 
+  width:100%; 
+  height:100%; 
+  top:0; 
+  left:0; 
+  background-color:#333333;
+  filter:alpha(opacity=70);
+  opacity:0.7;
+}
+</style>
+<div id="darkCover" style="display:none"></div>
+<script type="text/javascript">
+function globalConfirm(msg){
+    document.getElementById("darkCover").style.display='block';
+    var result = confirm(msg);
+    document.getElementById("darkCover").style.display='none';
+    return result;
+}
+</script>
+<%-- Confirm Message Definition: End --%>
 
+<body id="admin-console">
 
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 <script type="text/javascript" src="/console/dojo/dojox/dojox.js" ></script>
-
 
 <script>
 //we have to use dojo.hash to maintain the hash change history because browser does not 
@@ -132,7 +155,7 @@ if(document.location.hash!='') {
     var pageName = "<fmt:message key="<%=pageName%>"/>";
     quickLaunchPortlets(pageName);
 </script>
-<script language="JavaScript">
+<script type="text/javascript">
 
 function autoResizeIframe(){
     // reset the height of index page each time the new portlet is loaded
@@ -145,7 +168,7 @@ function autoResizeIframe(){
         var toHeight; 
         toHeight = (iframeDocument.height) ? iframeDocument.height : iframeDocument.body.scrollHeight;
         
-        (iframe.style) ? iframe.style.height = toHeight : iframe.height = toHeight; 
+        iframe.height = toHeight; 
         
     }catch (ex){
         window.status = ex.message;

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%--
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +20,6 @@ limitations under the License.
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 
-
 <%@ page language="java" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page session="true" buffer="none" %>
@@ -30,14 +30,20 @@ limitations under the License.
 <html lang="en">
 <head>
     <title><fmt:message key="console.head.title"/></title>
-    <link rel="stylesheet" href="/console/dojo/dijit/themes/claro/claro.css" type="text/css"/>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/CommonMsg.css" type="text/css"/>
     <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/console/dojo/dijit/themes/claro/claro.css" type="text/css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/CommonMsg.css" type="text/css"/>
     <script language="Javascript" src="<%=request.getContextPath()%>/js/forms.js" type="text/javascript"></script>
     <script language="Javascript" src="<%=request.getContextPath()%>/CommonMsg.js" type="text/javascript"></script>
 </head>
+<style type="text/css">
+body{
+  padding:0;
+  margin:0;
+}
+</style>
 <c:choose>
     <c:when test="${param.noxssShowTree!=null}">
          <jsp:include page="portlets-with-tree.jsp" />

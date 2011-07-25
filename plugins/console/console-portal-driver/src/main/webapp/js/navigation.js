@@ -127,7 +127,7 @@
         try {
             //reset the height of iframe page each time the new portlet is loaded
             var iframe = document.getElementById("portletsFrame");
-            (iframe.style) ? iframe.style.height = 400 : iframe.height = 400; 
+            iframe.height = 400; 
         }catch(err){
             window.status = err.message;
         }

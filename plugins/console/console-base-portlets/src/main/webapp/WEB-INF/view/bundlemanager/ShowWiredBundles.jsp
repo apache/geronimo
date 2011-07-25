@@ -44,7 +44,8 @@
         }
     }
 </script>
-<table width="100%" class="TableLine" summary="OSGi install">
+<br/>
+<table width="100%" class="BlankTableLine" summary="OSGi install">
     <tr>
         <td>
             The Wired Bundles of Bundle:

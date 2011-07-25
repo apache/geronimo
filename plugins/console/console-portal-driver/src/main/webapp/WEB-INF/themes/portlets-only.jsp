@@ -18,24 +18,21 @@ limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
-<body id="portlets" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
-<!-- Content block: portlets are divided into two columns/groups -->
-<!--<div id="body-block" style="height:100%">-->
-<div id="content"><pluto:isMaximized var="isMax" />
+<body id="portlets">
 
-<c:forEach var="portlet" varStatus="status" items="${currentPage.portletIds}">
-    <c:set var="portlet" value="${portlet}" scope="request" />
-    <jsp:include page="portlet-skin.jsp" />
-</c:forEach>
+<div id="content">
+    <pluto:isMaximized var="isMax" />
+    <c:forEach var="portlet" varStatus="status" items="${currentPage.portletIds}">
+        <c:set var="portlet" value="${portlet}" scope="request" />
+        <jsp:include page="portlet-skin.jsp" />
+    </c:forEach>
 </div>
 
 <script type="text/javascript">
     if(parent){
-       
         if(!(parent.location.hash=="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>"))
-        parent.location.hash="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>";
+            parent.location.hash="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>";
         <!--window.parent.dojo.hash("#noxssPage=<c:out value='${hashOfCurrentPortalPage}'/>",true);-->
-        
     }
 </script>
 </body>

@@ -43,8 +43,6 @@ limitations under the License.
     </tr>
     <tr>
       <td class="body">
-      <script language="Javascript" src="/console/dojo/dojo/dojo.js" type="text/javascript"></script>
-      <script language="Javascript" src="/console/dojo/dijit/dijit.js" type="text/javascript"></script>
       <pluto:render/>
       </td>
     </tr>

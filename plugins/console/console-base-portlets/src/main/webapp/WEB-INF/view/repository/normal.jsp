@@ -196,6 +196,7 @@ function showHideByCheckbox(cb,target){
   </table>
 </form>
 
+<br/>
 
 <b><fmt:message key="repository.normal.currentRepositoryEntries"/></b>
 <p><fmt:message key="repository.normal.toViewUsage"/></p>

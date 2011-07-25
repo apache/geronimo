@@ -23,7 +23,7 @@
 
 <a href="<portlet:actionURL/>" >OSGi Manager</a> > Show Bundle Manifest
 <br/><br/>
-<table width="100%" class="TableLine" summary="OSGi install">
+<table width="100%" class="BlankTableLine" summary="OSGi install">
     <tr>
         <td>
             The Manifest of Bundle:

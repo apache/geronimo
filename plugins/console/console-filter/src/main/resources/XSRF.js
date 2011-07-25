@@ -17,23 +17,17 @@
 <script language="JavaScript">
 var formID = '<%XSRF_UNIQUEID%>';
 function updateLinks() {
-    var elements = document.all ? document.all : document.getElementsByTagName('*');
+    var elements = document.getElementsByTagName('*');
     for (var i=0; i<elements.length; i++) {   
         var link = elements[i].getAttribute('href');
         if (link != null && isURL(link) && link.indexOf('?') != -1) {
             // add formId only if other attributes are present in link
-            // Note: we cannot use setAttribute due to IE issues so we are using element.*=
-            elements[i].href = link + '&formId=' + formID;
+            elements[i].setAttribute('href', link + '&formId=' + formID);
         }
         
+        // this is not for XSS/XSRF defense. this is only because we are using iframe...
         if(link != null && isURL(link) && link.indexOf("/console/portal/")==-1){
-        
-            if (document.all) {    //IE
-                elements[i].target="_parent";   
-            } else if (document.getElementById) {  //firefox
-               elements[i].setAttribute("target", "_parent");
-            }      
-             
+            elements[i].setAttribute("target", "_parent");
         }        
     }
 }
@@ -46,9 +40,9 @@ function updateForms() {
             var link = forms[i].getAttribute('action');
             if (link != null && isURL(link)) {
                 if (link.indexOf('?') == -1) {
-                    forms[i].action = link + '?formId=' + formID;
+                    forms[i].setAttribute('action', link + '?formId=' + formID);
                 } else {
-                    forms[i].action = link + '&formId=' + formID;
+                    forms[i].setAttribute('action', link + '&formId=' + formID);
                 }
             }
         } else {

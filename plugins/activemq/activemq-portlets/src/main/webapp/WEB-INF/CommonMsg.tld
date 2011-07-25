@@ -34,12 +34,6 @@ limitations under the License.
         <tagclass>org.apache.geronimo.console.message.CommonMessageTag</tagclass>
         <bodycontent>empty</bodycontent>
     </tag>
-
-    <tag>
-        <name>confirmMsg</name>
-        <tagclass>org.apache.geronimo.console.message.ConfirmMessageTag</tagclass>
-        <bodycontent>empty</bodycontent>
-    </tag>
     
 </taglib>
 

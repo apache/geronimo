@@ -23,7 +23,7 @@
 
 <a href="<portlet:actionURL/>" >OSGi Manager</a> > Find Packages 
 <br/><br/>
-<table width="100%" class="TableLine" summary="Find Packages">
+<table width="100%" class="BlankTableLine" summary="Find Packages">
     <tr>
         <td>
             The Packages with Keyword: "<b>${packageStringValue}</b>"

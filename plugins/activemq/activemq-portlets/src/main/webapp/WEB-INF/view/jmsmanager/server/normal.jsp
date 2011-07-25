@@ -20,8 +20,9 @@
 <%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
+    
+<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
 
-<CommonMsg:confirmMsg/>
 <CommonMsg:commonMsg/>
 
 <p><fmt:message key="jmsmanager.server.normal.title" />:</p>
@@ -68,7 +69,7 @@
                  <portlet:param name="brokerName" value="${entry.brokerName}" />   
                </portlet:renderURL>"><fmt:message key="jmsmanager.common.edit"/></a>
                <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="delete" /><portlet:param name="brokerURI" value="${entry.brokerURI}" /><portlet:param name="brokerName" value="${entry.brokerName}" /></portlet:actionURL>"
-                   onClick="return showConfirmMessage(this, '<fmt:message key="jmsmanager.broker.confirmMsg01"/>${entry.brokerName}?', '<fmt:message key="jmsmanager.broker.ok"/>', '<fmt:message key="jmsmanager.broker.cancel"/>');">
+                   onClick="return showGlobalConfirmMessage('<fmt:message key="jmsmanager.broker.confirmMsg01"/>${entry.brokerName}?');">
                    <fmt:message key="jmsmanager.common.delete"/>
                </a>
              </td>

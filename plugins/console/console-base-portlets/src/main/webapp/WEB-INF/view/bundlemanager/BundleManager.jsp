@@ -21,56 +21,29 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<CommonMsg:confirmMsg/>
-
+<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
+      
 <script>
-
-// Check to see if a component is "safe" to stop within a running server.
-// Service components with names that begin with "org.apache.geronimo.configs/", for example,
-// may not be safe to stop because doing so might prevent other components
-// that depend on them (like the console itself) from functioning properly.
-// If the component is not safe to stop then prompt to make sure that
-// the user really intends to stop the component prior to any action.
-function promptIfUnsafeToStop(target, bundleId, bundleName) {
-    // otherwise don't challenge the stop operation
-    return true;
-}
-function promptIfUnsafeToRestart(target, bundleId, bundleName) {
-    // otherwise don't challenge the restart operation
-    return true;
-}
-function promptIfUnsafeToUpdate(target, bundleId, bundleName) {
-    return true;
-}
-
-// Uninstall is always a potentially dangerous action, so we should prompt the
-// the user to ensure that they really indent to do this.  Uninistalling
-// some modules is more destructive than others (such as modules which are
-// dependencies of the web console or dependencies of other core server 
-// modules.  In such cases. it may leave the server in a state where it 
-// cannot be restarted.  These situations require more stringent warnings.
 function uninstallPrompt(target, bundleId, bundleName) {
-    // if the component is none of the above provide a standard warning
-    return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg10"/> ' + bundleName + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+    var msg = '<fmt:message key="configmanager.normal.confirmMsg10"/>: ' + bundleName + '?';
+    return showGlobalConfirmMessage(msg);
 }
 
 function refreshPrompt(target, bundleId, bundleName) {
-    // if the component is none of the above provide a standard warning
-    return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg11"/> ' + bundleName + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+    var msg = '<fmt:message key="configmanager.normal.confirmMsg11"/>: ' + bundleName + '?';
+    return showGlobalConfirmMessage(msg);
 }
-
-
 </script>
 
 <CommonMsg:commonMsg/>
 
 <br/>
-<table width="100%" class="TableLine" summary="OSGi install">
+<table width="100%" class="BlankTableLine" summary="OSGi install">
     <tr>
         <td>
             <form id="installForm" enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name='action' value='install'/></portlet:actionURL>">
                 Install New:
-                <input type="file" name="bundleFile" />
+                <input type="file" name="bundleFile"/>
                             
                 Start:
                 <input type="checkbox" name="startAfterInstalled" value="yes"/>
@@ -100,10 +73,9 @@ function refreshPrompt(target, bundleId, bundleName) {
     </tr>
 </table>
 
-<br/>
 
 
-<table width="100%" class="TableLine" summary="OSGi filter">
+<table width="100%" class="BlankTableLine" summary="OSGi filter">
     <tr>
         <td>
             <form id="listForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='list'/></portlet:actionURL>">
@@ -147,11 +119,10 @@ function refreshPrompt(target, bundleId, bundleName) {
     </tr>
 </table>
 
-<br/>
 
 <table width="100%" class="TableLine" summary="OSGi Manager">
     <tr class="DarkBackground">
-        <th scope="col" width="40">Id</th>   
+        <th scope="col" width="35">Id</th>   
         <th scope="col">Symbolic Name</th> 
         <th scope="col" width="150">Version</th>
         <th scope="col" width="150">Type</th>

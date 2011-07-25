@@ -245,15 +245,27 @@ a:hover
     font-size: 12px;
 }
 
+.InputField
+{
+    width: 150px;
+}
+
+.TableLine {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DDDDDD;	
+}
+
+.BlankTableLine
+{
+    border:0px;
+    padding:0;
+}
+
 .LightBackground
 {
     background-color: #FFFFFF;
     color:#000000;
-}
-
-.LightBackground .InputField
-{
-  width: 150px;
 }
 
 .MediumBackground
@@ -269,15 +281,29 @@ a:hover
 {
     background-color: #2581C7;
     color:#FFFFFF;
-    font-size: 15px;
+    font-size: 14px;
+    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+}
+
+.DarkBackground th
+{
+    color:#FFFFFF;
+    font-size: 14px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .ReallyDarkBackground
 {
-    color: #FFFFFF;
     background-color: #000000;
-    font-size: 15px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+}
+
+.ReallyDarkBackground th
+{
+    color: #FFFFFF;
+    font-size: 14px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
@@ -433,10 +459,4 @@ a:hover
     padding: 5px;
     border: 2px solid #000000;
     font-weight: bold;
-}
-
-.TableLine {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #DDDDDD;	
 }
