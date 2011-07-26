@@ -59,14 +59,15 @@ public class ClientCommandLine extends CommandLine {
     }
     
     public int execute(ClientCLParser parser) {
-        log.info("Client startup begun");
+        String applicationClientConfiguration = parser.getApplicationClientConfiguration();
+        log.info("Client startup begun of configuration: " + applicationClientConfiguration);
         try {
-            Artifact configuration = Artifact.create(parser.getApplicationClientConfiguration());
+            Artifact configuration = Artifact.create(applicationClientConfiguration);
             return startClient(configuration, parser.getApplicationClientArgs());
         } catch (Exception e) {
             ExceptionUtil.trimStackTrace(e);
-            if (e instanceof LifecycleException && ((LifecycleException)e).getCause() instanceof NoSuchConfigException) {
-                log.error("The client is not found in server: " + ((NoSuchConfigException)((LifecycleException)e).getCause()).getConfigId());
+            if (e instanceof LifecycleException && e.getCause() instanceof NoSuchConfigException) {
+                log.error("The client is not found in server: " + ((NoSuchConfigException) e.getCause()).getConfigId());
             } else {
                 log.error("Client failed with exception: ", e);
             }
