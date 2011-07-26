@@ -90,7 +90,7 @@
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.2</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
-        <javamail.version>1.8.3-SNAPSHOT</javamail.version>
+        <javamail.version>1.8.3</javamail.version>
         <geronimoel.version>1.0.2</geronimoel.version>
         <geronimoosgiregistry.version>1.1</geronimoosgiregistry.version>
         <geronimojaxws.version>1.1</geronimojaxws.version>
