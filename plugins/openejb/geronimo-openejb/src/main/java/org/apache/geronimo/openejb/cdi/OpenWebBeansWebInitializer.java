@@ -38,7 +38,7 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.el.el22.EL22Adaptor;
-import org.apache.webbeans.jsf.DefaultConversationService;
+import org.apache.webbeans.logger.WebBeansLogger;
 import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.ContextsService;
 import org.apache.webbeans.spi.ConversationService;
@@ -55,6 +55,9 @@ import org.apache.webbeans.util.WebBeansUtil;
  * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
  */
 public class OpenWebBeansWebInitializer {
+    
+    /**Logger instance*/
+    private static final WebBeansLogger logger = WebBeansLogger.getLogger(OpenWebBeansWebInitializer.class);
 
     public static WebBeansContext newWebBeansContext(Object startup) {
         Properties properties = new Properties();
@@ -72,7 +75,17 @@ public class OpenWebBeansWebInitializer {
         services.put(TransactionService.class, new OpenEJBTransactionService());
         services.put(JNDIService.class, new NoopJndiService());
         services.put(ELAdaptor.class, new EL22Adaptor());
-        services.put(ConversationService.class, new DefaultConversationService());
+        
+        if (startup != null && startup instanceof StartupObject){
+            
+            ClassLoader cl=((StartupObject)startup).getAppContext().getClassLoader();
+            try {
+                services.put(ConversationService.class, Class.forName("org.apache.webbeans.jsf.DefaultConversationService", true, cl).newInstance());
+            } catch (Exception e1) {
+                logger.info("openWebbeans-jsf is not in the classpath because the app does not contain webbean, conversationService will not be available.");
+            }
+        }
+  
         services.put(ContextsService.class, new CdiAppContextsService(true));
         services.put(ResourceInjectionService.class, new CdiResourceInjectionService());
         services.put(ScannerService.class, new CdiScanner());

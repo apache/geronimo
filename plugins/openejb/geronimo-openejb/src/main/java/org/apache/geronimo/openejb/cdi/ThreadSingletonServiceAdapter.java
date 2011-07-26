@@ -19,31 +19,10 @@
 
 
 package org.apache.geronimo.openejb.cdi;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.openejb.cdi.CdiAppContextsService;
-import org.apache.openejb.cdi.CdiResourceInjectionService;
-import org.apache.openejb.cdi.OpenEJBLifecycle;
-import org.apache.openejb.cdi.OpenEJBTransactionService;
 import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
-import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
-import org.apache.webbeans.el.el22.EL22Adaptor;
-import org.apache.webbeans.jsf.DefaultConversationService;
-import org.apache.webbeans.spi.ContainerLifecycle;
-import org.apache.webbeans.spi.ContextsService;
-import org.apache.webbeans.spi.ConversationService;
-import org.apache.webbeans.spi.JNDIService;
-import org.apache.webbeans.spi.ResourceInjectionService;
-import org.apache.webbeans.spi.ScannerService;
-import org.apache.webbeans.spi.SecurityService;
-import org.apache.webbeans.spi.TransactionService;
-import org.apache.webbeans.spi.ValidatorService;
-import org.apache.webbeans.spi.adaptor.ELAdaptor;
+
 
 /**
  * @version $Rev$ $Date$

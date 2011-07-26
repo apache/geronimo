@@ -73,6 +73,7 @@
                     <dependency>
                         <groupId>org.apache.openwebbeans</groupId>
                         <artifactId>openwebbeans-jsf</artifactId>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
                <!-- Import added so that MyFaces can discover 
