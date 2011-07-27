@@ -995,6 +995,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                    
+                    <exclusion>
                         <groupId>org.apache.geronimo.javamail</groupId>
                         <artifactId>geronimo-javamail_1.4_mail</artifactId>
                     </exclusion>
@@ -1100,6 +1104,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1124,6 +1132,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1146,6 +1158,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
                 </exclusions>
             </dependency>
 
@@ -1158,6 +1174,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
@@ -1196,6 +1216,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1220,6 +1244,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1238,6 +1266,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api-embedded</artifactId>
+                    </exclusion>                      
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
