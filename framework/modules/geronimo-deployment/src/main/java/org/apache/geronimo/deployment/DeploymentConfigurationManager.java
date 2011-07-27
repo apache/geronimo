@@ -17,6 +17,7 @@
 package org.apache.geronimo.deployment;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
     private final ConfigurationManager configurationManager;
 
     public DeploymentConfigurationManager(ConfigurationManager configurationManager, Collection<? extends Repository> repositories, BundleContext bundleContext) {
-        super(Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver(), repositories, Collections.<DeploymentWatcher>emptySet(), bundleContext, getConfigurationModel(configurationManager));
+        super(Arrays.asList(configurationManager.getStores()), configurationManager.getArtifactResolver(), mergeRepositories(repositories, configurationManager), Collections.<DeploymentWatcher>emptySet(), bundleContext, getConfigurationModel(configurationManager));
         this.configurationManager = configurationManager;
     }
 
@@ -62,6 +63,17 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
             return ((SimpleConfigurationManager)configurationManager).getConfigurationModel();
         }
         return new ConfigurationModel();
+    }
+
+    private static Collection<? extends Repository> mergeRepositories(Collection<? extends Repository> repositories, ConfigurationManager configurationManager) {
+        List<Repository> mergedRepositories = new ArrayList<Repository>();        
+        if (repositories != null) {
+            mergedRepositories.addAll(repositories);
+        }
+        if (configurationManager.getRepositories() != null) {
+            mergedRepositories.addAll(configurationManager.getRepositories());
+        }
+        return mergedRepositories;
     }
 
     //

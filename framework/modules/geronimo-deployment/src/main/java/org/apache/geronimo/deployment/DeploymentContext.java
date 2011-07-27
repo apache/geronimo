@@ -146,7 +146,7 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = configurationManager;
+        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.bundleContext = bundleContext;
 
         if (null == inPlaceConfigurationDir) {
@@ -175,12 +175,15 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = configurationManager;
+        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
 
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
+        if (configurationManager instanceof DeploymentConfigurationManager) {
+            return configurationManager;
+        }
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
 
