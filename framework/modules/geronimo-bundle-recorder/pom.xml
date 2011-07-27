@@ -45,6 +45,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-bundleutils</artifactId>
         </dependency>

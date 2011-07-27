@@ -22,8 +22,18 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>plugin</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-osgi-registry</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.ant</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

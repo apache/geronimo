@@ -21,8 +21,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -34,6 +32,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -52,6 +51,7 @@ public class BundleRecorderGBean implements BundleRecorder{
     StartLevel startLevelService;
     int defaultBundleStartLevel;
         
+    private final PluginInstallerGBean pluginInstaller;
     private final WritableListableRepository writeableRepo;
     
     private File startupFile;
@@ -59,12 +59,14 @@ public class BundleRecorderGBean implements BundleRecorder{
     public BundleRecorderGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                                 @ParamReference(name = "ServerInfo") final ServerInfo serverInfo,
+                                @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean installer,
                                 @ParamReference(name = "Repository", namingType = "Repository") WritableListableRepository repository) throws DeploymentException, IOException {
         
         bundleContext = bundle.getBundleContext();
         startLevelService = getStartLevelService(bundleContext);
         defaultBundleStartLevel = startLevelService.getInitialBundleStartLevel();
         
+        pluginInstaller = installer;
         writeableRepo = repository;
                 
         startupFile = serverInfo.resolveServer("etc/startup.properties");
@@ -98,7 +100,6 @@ public class BundleRecorderGBean implements BundleRecorder{
         } catch (BundleException e) {
             log.error("Bundle installation failed: " + location);
         }
-
         
         return null;
     }
@@ -109,38 +110,10 @@ public class BundleRecorderGBean implements BundleRecorder{
             throw new IllegalArgumentException("The bundle File is not exist "+ bundleFile.getPath());
         }
         
-        // 1. copy to repo
-        Artifact artifact = null;
-        JarFile bundleJar = null;
-        try {
-            bundleJar = new JarFile(bundleFile);
-            Manifest mf = bundleJar.getManifest();
-            if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null && mf.getMainAttributes().getValue("Bundle-Version") != null) {
+        // 1. copy to repo. If the file is not an osgi bundle, pluginInstaller can convert it automatically.
+        if (groupId == null || groupId.isEmpty()) groupId = Artifact.DEFAULT_GROUP_ID;
+        Artifact artifact = pluginInstaller.installLibrary(bundleFile, groupId);
                 
-                groupId = groupId != null ? groupId : Artifact.DEFAULT_GROUP_ID;
-                String artifactId = mf.getMainAttributes().getValue("Bundle-SymbolicName");
-                String version = mf.getMainAttributes().getValue("Bundle-Version");
-                String type = "jar";
-                artifact = new Artifact(groupId, artifactId, version, type);
-                
-                // check if the artifact exists
-                File target = writeableRepo.getLocation(artifact);
-                if (target!=null && target.exists()){
-                    throw new IllegalArgumentException("The target artifact exists in repo: " + artifact);
-                }
-                
-                // copy
-                writeableRepo.copyToRepository(bundleFile, artifact, null);
-
-            } else { // else not a bundle
-                throw new IllegalArgumentException("The file is not an OSGi bundle: " + bundleFile.getPath());
-            }
-        } finally {
-            if (bundleJar != null)
-                bundleJar.close();
-        }
-
-        
         // 2. install the bundle
         String bundleLocation = getMvnLocationFromArtifact(artifact);
         
@@ -151,7 +124,6 @@ public class BundleRecorderGBean implements BundleRecorder{
         
         Bundle bundle = this.installBundleRecord(bundleLocation, startLevel);
         if (bundle == null) return -1;
-
         
         // 3. record in startup.properties
         String recordKey = getRecordKey(artifact);

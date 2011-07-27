@@ -26,7 +26,11 @@ public class InstallBundleCommandMetaData extends BaseCommandMetaData {
                 "2. Other Commands", 
                 "[--groupId groupId] [--startLevel number] [--start] bundleFile",
                 "Install and record an OSGi bundle file in Geronimo so that it can be automatically started " + 
-                "even after you cleaned the cache directory of the OSGi framework."
+                "even after you cleaned the cache directory of the OSGi framework.\n" +
+                "If the file is a normal jar file, then will automatically try convert the jar file to an OSGi bundle.\n" +
+                "The Artifact will be calculated based on the rules which same with the install-library command, that is:\n" +
+                "(1) a file with filename in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar;\n"+
+                "(2) or if it is an OSGi bundle, will use its Bundle-SymbolicName and Bundle-Version."
                 );
     }
     

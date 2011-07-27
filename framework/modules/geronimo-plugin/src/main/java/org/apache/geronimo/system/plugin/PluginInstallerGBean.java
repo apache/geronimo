@@ -1138,7 +1138,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         Artifact artifact = calculateArtifact(libFile, libFile.getName(), groupId);
         if (artifact == null)
             throw new IllegalArgumentException("Can not calculate Artifact string, file should be:\n"
-                    + "(1) a file with filename in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar;"
+                    + "(1) a file with filename in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar;\n"
                     + "(2) or an OSGi bundle");
         installLibrary(libFile, artifact);
         return artifact;

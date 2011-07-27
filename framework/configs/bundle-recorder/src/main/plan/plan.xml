@@ -19,11 +19,14 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="GeronimoBundleRecorder" class="org.apache.geronimo.system.bundle.BundleRecorderGBean">
-        <reference name="Repository">
-            <name>Repository</name>
-        </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
+        </reference>
+        <reference name="PluginInstallerGBean">
+            <name>PluginInstaller</name>
+        </reference>
+        <reference name="Repository">
+            <name>Repository</name>
         </reference>
     </gbean>
 

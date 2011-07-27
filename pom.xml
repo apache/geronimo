@@ -1735,14 +1735,14 @@ only found in cxf
                 <version>${karaf.version}</version>
             </dependency>
             
-             <dependency>
+            <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.utils</artifactId>
                 <version>${aries.util.version}</version>
                 <exclusions>
                     <exclusion>
-                       <groupId>org.apache.aries.testsupport</groupId>
-        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                        <groupId>org.apache.aries.testsupport</groupId>
+                        <artifactId>org.apache.aries.testsupport.unit</artifactId>
                     </exclusion>
                 </exclusions>                
             </dependency>
@@ -1753,8 +1753,8 @@ only found in cxf
                 <version>${aries.util.version}</version>
                  <exclusions>
                     <exclusion>
-                       <groupId>org.apache.aries.testsupport</groupId>
-        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                        <groupId>org.apache.aries.testsupport</groupId>
+                        <artifactId>org.apache.aries.testsupport.unit</artifactId>
                     </exclusion>
                 </exclusions> 
             </dependency>
@@ -1817,8 +1817,8 @@ only found in cxf
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                     <exclusion>
-                       <groupId>org.apache.aries.testsupport</groupId>
-                       <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                        <groupId>org.apache.aries.testsupport</groupId>
+                        <artifactId>org.apache.aries.testsupport.unit</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

@@ -60,15 +60,29 @@ public class Utils {
             reader = new BufferedReader(new FileReader(file));
             writer = new BufferedWriter(new FileWriter(tmpFile));
             String line = null;
+            boolean emptyLineFlag = false;
             while (( line = reader.readLine()) != null){
                 if (line.startsWith("#")) { // comments line
                     writer.append(line);
                     writer.newLine();
                     continue;
                 }
-                                
-                if (line.contains(keyword)) continue;
                 
+                if (line.contains(keyword)) {
+                    continue;
+                }
+                                
+                if (line.isEmpty()){
+                    // this can help reduce multi empty lines to one
+                    emptyLineFlag = true;
+                    continue;
+                }
+                
+                if (emptyLineFlag) {
+                    writer.append("");
+                    writer.newLine();
+                    emptyLineFlag = false;
+                }
                 writer.append(line);
                 writer.newLine();
             }

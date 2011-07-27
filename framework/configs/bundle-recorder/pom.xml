@@ -45,6 +45,13 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>plugin</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>
