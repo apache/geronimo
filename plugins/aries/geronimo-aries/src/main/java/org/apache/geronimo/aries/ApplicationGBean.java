@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -494,8 +495,10 @@ public class ApplicationGBean implements GBeanLifecycle {
             if (getFailOnStartError()) {
                 throw be;
             } else {
-                LOG.error("Error starting {} application. Bundle {} failed to start: {}", 
-                           new Object[] { application.getApplicationMetadata().getApplicationScope(), currentBundle, be });
+                String message = MessageFormat.format("Error starting {0} application. Bundle {1} failed to start.", 
+                                                      application.getApplicationMetadata().getApplicationScope(), 
+                                                      currentBundle);
+                LOG.error(message, be);
             }
         }        
     }    
