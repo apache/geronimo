@@ -2283,21 +2283,7 @@ only found in cxf
                 <enabled>false</enabled>
             </releases>
         </pluginRepository>
-    </pluginRepositories>   
-    
-    <repositories>            
-        <repository>
-            <id>geronimo-specs-staging</id>
-            <name>geronimo-specs-staging</name>
-            <url>https://repository.apache.org/content/repositories/orgapachegeronimo-006/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-     </repositories>                
+    </pluginRepositories>                  
 
     <profiles>
         <profile>
@@ -2316,17 +2302,6 @@ only found in cxf
             </modules>
 
             <repositories>
-                <repository>
-                    <id>Tomcat 7.0.19.1 Stage respository</id>
-                    <name>Tomcat 7.0.19.1 Stage respository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-019</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
                 <repository>
                     <id>geronimo-svn-repo</id>
                     <name>Geronimo 3rd Party libraries</name>
