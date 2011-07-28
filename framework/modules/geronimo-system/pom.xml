@@ -186,8 +186,14 @@
                 <configuration>
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Import-Package>org.apache.log4j.helpers;resolution:=optional,
-                            *</Import-Package>
+                        <Import-Package>javax.security.auth,
+                        javax.security.auth.callback,
+                        javax.security.auth.kerberos,
+                        javax.security.auth.login,
+                        javax.security.auth.spi,
+                        javax.security.auth.x500,
+                        org.apache.log4j.helpers;resolution:=optional,
+                        *</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
