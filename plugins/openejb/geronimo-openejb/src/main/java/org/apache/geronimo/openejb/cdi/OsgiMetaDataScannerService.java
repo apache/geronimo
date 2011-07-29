@@ -65,7 +65,7 @@ public class OsgiMetaDataScannerService implements ScannerService
     private Set<Class<?>> beanClasses = new HashSet<Class<?>>();
 
     /** the URLs of all META-INF/beans.xml files */
-    private Set<String> beanXMLs = new HashSet<String>();
+    private Set<URL> beanXMLs = new HashSet<URL>();
 
     /**contains all the JARs we found with valid beans.xml in it */
     private Set<String> beanArchiveJarNames = new HashSet<String>();
@@ -97,7 +97,7 @@ public class OsgiMetaDataScannerService implements ScannerService
     public void release()
     {
         beanClasses = new HashSet<Class<?>>();
-        beanXMLs = new HashSet<String>();
+        beanXMLs = new HashSet<URL>();
         beanArchiveJarNames = new HashSet<String>();
     }    
     
@@ -193,7 +193,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception
             {
                 logger.info("adding the following beans.xml URL: " + url);
-                beanXMLs.add(url.toString());
+                beanXMLs.add(url);
                 return true;
             }
 
@@ -204,7 +204,7 @@ public class OsgiMetaDataScannerService implements ScannerService
 
                 logger.info("adding the following beans.xml URL: " + beansUrl);
 
-                beanXMLs.add(beansUrl.toString());
+                beanXMLs.add(beansUrl);
                 beanArchiveJarNames.add(jarName);
                 return true;
             }
@@ -230,7 +230,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             }
 
             logger.info("adding the following WEB-INF/beans.xml URL: " + webBeansXml);
-            beanXMLs.add(webBeansXml.toString());
+            beanXMLs.add(webBeansXml);
             webBeansXmlFound = true;
 
         }
@@ -238,7 +238,7 @@ public class OsgiMetaDataScannerService implements ScannerService
     }
 
     @Override
-    public Set<String> getBeanXmls()
+    public Set<URL> getBeanXmls()
     {
         return beanXMLs;
     }
