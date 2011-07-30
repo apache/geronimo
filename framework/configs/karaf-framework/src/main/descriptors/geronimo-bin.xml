@@ -61,7 +61,10 @@
             <outputDirectory>contents/etc/</outputDirectory>
             <lineEnding>unix</lineEnding>
         </fileSet>
-
+        <fileSet>
+            <directory>target/native/META-INF/native</directory>
+            <outputDirectory>contents/var/native/jansi</outputDirectory>
+        </fileSet>
         <!-- Copy over the examples -->
         <!--<fileSet>-->
             <!--<directory>../demos</directory>-->

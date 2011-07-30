@@ -548,6 +548,23 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.karaf.shell</groupId>
+                                    <artifactId>org.apache.karaf.shell.console</artifactId>
+                                    <outputDirectory>target/native</outputDirectory>
+                                    <includes>META-INF/native/**/*</includes>
+                                </artifactItem>
+                            </artifactItems>                                
+                        </configuration>
+                    </execution>                        
+                    <execution>
                         <id>copy</id>
                         <phase>generate-resources</phase>
                         <goals>
