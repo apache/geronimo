@@ -21,8 +21,6 @@
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
     
-<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
-
 <CommonMsg:commonMsg/>
 
 <p><fmt:message key="jmsmanager.server.normal.title" />:</p>

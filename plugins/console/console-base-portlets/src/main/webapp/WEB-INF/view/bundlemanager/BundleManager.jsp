@@ -20,9 +20,7 @@
 <%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-
-<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
-      
+ 
 <script>
 function uninstallPrompt(target, bundleId, bundleName) {
     var msg = '<fmt:message key="configmanager.normal.confirmMsg10"/>: ' + bundleName + '?';

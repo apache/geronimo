@@ -35,16 +35,6 @@
 <!------------------------>
 <!--     DOJO Stuff     -->
 <!------------------------>
-<style type="text/css">
-    @import "/console/dojo/dojo/resources/dojo.css";
-    @import "/console/dojo/dijit/themes/claro/claro.css";
-    
-    table thead th { 
-        background: #2581C7; 
-        color: #FFFFFF;    
-        font-weight: bold;
-    }
-</style>
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 
@@ -614,9 +604,9 @@
             <!-- Main tab container START -->
             <div dojoType="dijit.layout.TabContainer" style="width: 100%; height: 100px;">
                 <div dojoType="dijit.layout.ContentPane" title="<fmt:message key="jmxmanager.help.attributes"/>" selected="true">
-                    <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th width="10%"><fmt:message key="jmxmanager.help.name"/></th>
                                 <th width="20%"><fmt:message key="jmxmanager.help.value"/></th>
                                 <th width="10%"><fmt:message key="jmxmanager.help.type"/></th>
@@ -634,9 +624,9 @@
                     </table>
                 </div>
                 <div dojoType="dijit.layout.ContentPane" title="<fmt:message key="jmxmanager.help.operations"/>">
-                    <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th width="30%"><fmt:message key="jmxmanager.help.name"/></th>
                                 <th width="70%"><fmt:message key="jmxmanager.help.paramList"/></th>
                             </tr>
@@ -645,9 +635,9 @@
                     </table>
                 </div>
                 <div dojoType="dijit.layout.ContentPane" title="<fmt:message key="jmxmanager.help.info"/>">
-                    <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th width="30%"><fmt:message key="jmxmanager.help.name"/></th>
                                 <th width="70%"><fmt:message key="jmxmanager.help.value"/></th>
                             </tr>
@@ -656,9 +646,9 @@
                     </table>
                 </div>
                 <div dojoType="dijit.layout.ContentPane" title="<fmt:message key="jmxmanager.help.stats"/>">
-                    <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th width="30%"><fmt:message key="jmxmanager.help.name"/></th>
                                 <th width="70%"><fmt:message key="jmxmanager.help.value"/></th>
                             </tr>

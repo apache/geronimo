@@ -17,14 +17,14 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --%>
-<table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
     <tr>
-        <td height="86" class="Logo" border="0"></td>
-        <td height="86" class="Top" border="0">&nbsp;</td>
-        <td height="86" class="Top" border="0" width="40">
+        <td class="Logo">&nbsp;</td>
+        <td class="Top">&nbsp;</td>
+        <td class="Top" width="40">
             <a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" style="vertical-align:middle" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif" alt="Logout"/></a>
         </td>
-        <td height="86" class="Top" border="0" width="5"></td>
+        <td class="Top" width="5"></td>
     </tr>
 </table>
 

@@ -21,15 +21,8 @@
 <fmt:setBundle basename="consolebase" />
 <portlet:defineObjects />
 
-<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
+<CommonMsg:commonMsg />
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td width="25%">&nbsp;</td>
-        <td><CommonMsg:commonMsg /></td>
-        <td width="25%">&nbsp;</td>
-    </tr>
-</table>
 <%--   Removed until a better mechanism for rebooting the server is created
 <table width="100%">
 <form action="<portlet:actionURL/>">

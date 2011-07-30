@@ -24,10 +24,8 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/DependencyViewHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
-<style type="text/css">
-    @import "/console/dojo/dojo/resources/dojo.css";
-    @import "/console/dojo/dijit/themes/claro/claro.css";
-</style>
+
+
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad:true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 <script type="text/javascript">

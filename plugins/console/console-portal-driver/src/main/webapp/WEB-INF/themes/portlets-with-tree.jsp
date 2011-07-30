@@ -23,38 +23,21 @@ limitations under the License.
 <fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 <%@ page import="org.apache.geronimo.pluto.impl.PageConfig"%>
 
-<%-- Confirm Message Definition: Start --%>
 <style type="text/css">
-#darkCover {
-  position:fixed;
-  z-index:1000; 
-  width:100%; 
-  height:100%; 
-  top:0; 
-  left:0; 
-  background-color:#333333;
-  filter:alpha(opacity=70);
-  opacity:0.7;
+body {
+    padding:0;
+    margin:0;
+    height:100%;
+    scroll:no;
+    overflow:hidden;
 }
 </style>
-<div id="darkCover" style="display:none"></div>
-<script type="text/javascript">
-function globalConfirm(msg){
-    document.getElementById("darkCover").style.display='block';
-    var result = confirm(msg);
-    document.getElementById("darkCover").style.display='none';
-    return result;
-}
-</script>
-<%-- Confirm Message Definition: End --%>
-
-<body id="admin-console">
 
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 <script type="text/javascript" src="/console/dojo/dojox/dojox.js" ></script>
 
-<script>
+<script type="text/javascript">
 //we have to use dojo.hash to maintain the hash change history because browser does not 
 //recogonize a hash change when users click back/forward button.
 
@@ -90,62 +73,180 @@ function onHashChange(current_hash) {
 //When there's hash in current page url, redirect the page with noxxsPage hash as the query string,
 //the server side will get the real redirect target page based on the value of noxxsPage
 if(document.location.hash!='') {
-       var href = document.location.href;
-       var newHref = href.substring(0,href.lastIndexOf("#"));
-       if(newHref.indexOf("&noxssPage")>0){
-            newHref = newHref.substring(0,href.indexOf("&noxssPage"));
-       }
-       document.location.href =  newHref + "&noxssPage=" +document.location.hash.substr(11,document.location.hash.length);
+    var href = document.location.href;
+    var newHref = href.substring(0,href.lastIndexOf("#"));
+    if(newHref.indexOf("&noxssPage")>0){
+        newHref = newHref.substring(0,href.indexOf("&noxssPage"));
+    }
+    document.location.href = newHref + "&noxssPage=" +document.location.hash.substr(11,document.location.hash.length);
 }
 
 </script>
 
-<!-- start accessibility prolog -->
-<div class="skip"><a href="#left-nav" accesskey="1">Skip to navigation</a></div>
-<div class="skip"><a href="#content" accesskey="2">Skip to main content</a></div>
+<%-- Confirm Message Definition: Start --%>
+<style type="text/css">
+#darkCover {
+    position:fixed;
+    z-index:1000; 
+    width:100%; 
+    height:100%; 
+    top:0; 
+    left:0; 
+    background-color:#333333;
+    filter:alpha(opacity=70);
+    opacity:0.7;
+}
+</style>
+<div id="darkCover" style="display:none"></div>
+<script type="text/javascript">
+    function globalConfirm(msg){
+        document.getElementById("darkCover").style.display='block';
+        var result = confirm(msg);
+        document.getElementById("darkCover").style.display='none';
+        return result;
+    }
+</script>
+<%-- Confirm Message Definition: End --%>
+
+<%-- Loading Message Definition: Start --%>
+<style type="text/css">
+#statusDiv {
+    position:fixed;
+    z-index:999; 
+    width:100%; 
+    top:0; 
+    left:0; 
+    
+}
+#statusText {
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+    background-color: #FFC129;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    width: 100px;
+    padding: 3px;	
+    margin-left: auto;
+	margin-right: auto;
+
+}
+</style>
+<div id="statusDiv" style="display:none;filter:alpha(opacity=100);opacity: 1;">
+    <div id="statusText"></div>
+</div>
+<script type="text/javascript">
+    var to;
+    function showStatus(txt){
+        var showTarget = document.getElementById("statusDiv");
+        if (to) {
+            clearTimeout(to);
+            setOpacity(showTarget, 1);
+        }
+        document.getElementById("statusText").innerHTML = txt;
+        showTarget.style.display='block';
+    }
+    function hideStatus(){
+        var hideTarget = document.getElementById("statusDiv");
+        if (hideTarget.style.display=='block'){
+            hideGradually(hideTarget);
+        }
+    }
+    function hideGradually(obj) {
+        var i = getOpacity(obj);
+        i = i - 0.05;
+        if(i<=0){
+            obj.style.display = "none";
+            setOpacity(obj, 1);
+        } else {
+            setOpacity(obj, i);
+            to = setTimeout(function(){hideGradually(obj)}, 50);
+        }
+    }
+    function getOpacity(obj){
+        if (obj.style.opacity) return obj.style.opacity;
+        if (obj.filters) return obj.filters.alpha.Opacity/100;  //IE 8 and earlier
+    }
+    function setOpacity(obj, v) {
+        if (obj.style.opacity) obj.style.opacity = v;
+        if (obj.filters) obj.filters.alpha.Opacity = v*100;  //IE 8 and earlier
+    }
+    
+</script>
+<%-- Loading Message Definition: End --%>
+
+<%-- Calculate Size Definition: Start --%>
+<script type="text/javascript">
+    function getCombinedStyle(obj,attribute){
+        // IE 8 and earlier using obj.currentStyle
+	    return obj.currentStyle?obj.currentStyle[attribute]:document.defaultView.getComputedStyle(obj,false)[attribute];   
+    } 
+    function px2num(px){
+        return Number(px.replace(/[p|P][x|X]/g,""));
+    }
+    // the init height and width  values are in pluto.css
+    function calculateSize(){
+        try{
+            var header = document.getElementById("headerDiv");
+            
+            var navigation = document.getElementById("navigationDiv");
+            var panel = document.getElementById("panelDiv");
+            var tree = document.getElementById("treeDiv");
+            
+            var content = document.getElementById("contentDiv");
+            
+            var contentHeight = Number(document.body.clientHeight) - px2num(getCombinedStyle(header,"height"));
+            var contentWidth = Number(document.body.clientWidth) - px2num(getCombinedStyle(navigation,"width"));
+            var treeHeight = contentHeight - px2num(getCombinedStyle(panel,"height"));
+            
+            navigation.style.height = contentHeight+ "px";
+            tree.style.height = treeHeight+ "px";
+            content.style.height = contentHeight+ "px";
+            content.style.width = contentWidth+ "px";
+            
+        }catch (ex){
+            window.status = ex.message;
+        }
+    }
+    window.onresize=calculateSize;
+</script>
+<%-- Calculate Size Definition: End --%>
+
+<body id="admin-console" onload="calculateSize()">
+
+<%-- start accessibility prolog --%>
+<div class="skip"><a href="#navigationDiv" accesskey="1">Skip to navigation</a></div>
+<div class="skip"><a href="#contentDiv" accesskey="2">Skip to main content</a></div>
 <div id="access-info">
-    <p class="access" >The access keys for this page are:</p>
+    <p class="access">The access keys for this page are:</p>
     <ul class="access">
         <li>ALT plus 1 skips to navigation.</li>
         <li>ALT plus 2 skips to main content.</li>
     </ul>
 </div>
-<!-- end accessibility prolog -->
+<%-- end accessibility prolog --%>
+
 
 <!-- Header -->
-<jsp:include page="banner.jsp"/>
+<div id="headerDiv">
+    <jsp:include page="banner.jsp"/>
+</div>
 
-<p style="margin-top:5px;margin-bottom:5px"></p>
+<!-- Navigation -->
+<div id="navigationDiv" class="claro">
+    <jsp:include page="navigation.jsp"/>
+</div>
 
-<!-- Body -->
-<table width="100%"  border="0" cellpadding="0" cellspacing="0">
-    <tr>
-        <!-- Spacer -->
-        <td class="Gutter">&nbsp;</td> 
-        
-        <!-- Navigation Column -->
-        <td width="260px" class="Selection" valign="top"> 
-            <div id="left-nav"> 
-                <!-- Include Navigation.jsp here -->
-                <jsp:include page="navigation.jsp"/>
-            </div>
-        </td>
-        
-        <!-- Spacer -->
-        <td class="Gutter">&nbsp;</td> 
-        
-        <!-- Portlet Section -->
-        <td valign="top">
-            <iframe src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0">
-            </iframe>
-        </td>
-
-        <!-- Spacer -->
-        <td class="Gutter">&nbsp;</td> 
-    </tr>
-</table>
+<!-- Content -->
+<div id="contentDiv">
+    <iframe src="" id="portletsFrame" name="portletsFrame" width="100%" height="100%" scrolling="yes" style="overflow-x:hidden;overflow-y:scroll" frameborder="0">
+    </iframe>
+</div>
 
 </body>
+
 <script type="text/javascript">
     <% 
     PageConfig pc=(PageConfig)request.getAttribute("currentPage");
@@ -155,42 +256,4 @@ if(document.location.hash!='') {
     var pageName = "<fmt:message key="<%=pageName%>"/>";
     quickLaunchPortlets(pageName);
 </script>
-<script type="text/javascript">
 
-function autoResizeIframe(){
-    // reset the height of index page each time the new portlet is loaded
-    document.body.height = 400; 
-  
-    try{
-        var iframe = document.getElementById("portletsFrame");
-        var iframeDocument = iframe.contentWindow.document;
-        
-        var toHeight; 
-        toHeight = (iframeDocument.height) ? iframeDocument.height : iframeDocument.body.scrollHeight;
-        
-        iframe.height = toHeight; 
-        
-    }catch (ex){
-        window.status = ex.message;
-    }
-
-
-}
-
-function autoCheckIframe(){
-    var iFrameDocument=document.getElementById("portletsFrame").contentWindow.document;
-    var LoginForm=iFrameDocument.getElementsByName('login');
-
-    if(LoginForm.length!=0){
-        window.location.reload();
-    }
-}
-
-//Ensure the iframe height could be adjusted according to the content
-setInterval('autoResizeIframe()',500); 
-
-//Ensure login page is not displayed in the iframe after the timeout
-setInterval('autoCheckIframe()',500); 
-
-
-</script>

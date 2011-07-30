@@ -193,9 +193,10 @@ public class NavigationJsonGenerator {
         if (!node.isLeafNode()) {
             sb.append("label: \'" + getLocalizedString(node.getLabel()) + "\'");
         } else {
-            sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;");
-            sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
-                    + getLocalizedString(node.getLabel()) + "</a>\'");
+            sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;" + getLocalizedString(node.getLabel()) + "\'");
+            
+            sb.append(",");
+            sb.append("href: \'" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\'");
         }
 
         sb.append(",");
@@ -224,9 +225,10 @@ public class NavigationJsonGenerator {
         sb.append("{");
 
         if (node.isLeafNode()) {
-            sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;");
-            sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
-                    + getLocalizedString(node.getLabel()) + "</a>\'");
+            sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;" + getLocalizedString(node.getLabel()) + "\'");
+            
+            sb.append(",");
+            sb.append("href: \'" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\'");
         }
 
         sb.append(",");

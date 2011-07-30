@@ -14,32 +14,29 @@
 *   See the License for the specific language governing permissions and
 *   limitations under the License.
 ======================================================================*/
-body 
-{
-    /*background-color: #FFFFFF;*/
+
+/** override the dojo's claro style **/
+.claro .dijitLeaf {
+    display: none;
 }
 
-.BrightTitle
+.claro .dijitTreeNodeSelected {
+    font-size: 12px;
+}
+
+.claro .dijitTreeLabel {
+    font-size: 12px;
+}
+
+body
 {
-    color: #FFFFFF;
-    background-color: #5FA3D6;
-    font-size: 11px;
+    font-size: 12px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-}
-
-.BrightTitle a:hover
-{
-    color: #5FA3D6;
-}
-
-.BrightBox
-{
-    border: thin solid #5FA3D6;
 }
 
 td
 {
-    font-size: 11px;
+    font-size: 12px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
@@ -124,125 +121,8 @@ a:hover
 
 .Selection
 {
-    background-color: #F2F2F2;
     font-size: 12px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-}
-
-
-.Gutter
-{
-    width: 5px;
-}
-
-
-.claro .dijitLeaf {
-    display: none;
-}
-
-
-.claro .dijitTreeNodeSelected {
-    font-size: 1.2em;
-}
-
-.claro .dijitTreeLabel {
-    font-size: 1.5em !important;
-}
-
-.padding4 {
-    padding: 4px;
-}
-
-#navigationTreeAdvanced {
-    padding: 4px;
-}
-
-#navigationTreeBasic {
-    padding: 4px;
-}
-
- 
-.Content .TopLeft
-{
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    background-color: #000000;
-}
-
-.Content .Title
-{
-    font-size: 12px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    background-color: #000000;
-    color: #FFFFFF;
-    height: 18px;
-    line-height: 18px;
-    font-weight: bold;
-}
-
-.Content .Title a:link, 
-.Content .Title a:hover, 
-.Content .Title a:visited
-{
-    font-size: 12px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    background-color: #000000;
-    color: #FFFFFF;
-    height: 18px;
-    line-height: 18px;
-}
-
-.Content .Title .Indent
-{
-    width: 20px;
-}
-
-.Content .TopRight
-{
-    width: 18px;
-    height: 18px;
-    background-color:#000000;
-}
-
-.Content .CollapsedLeft
-{
-    width: 18px;
-    height: 18px;
-    background-color:#000000;
-}
-
-.Content .CollapsedRight
-{
-    width: 18px;
-    height: 18px;
-    background-color:#000000;
-}
-
-.Content .Left
-{
-    width: 18px;
-    background-color: #FFFFFF;
-}
-
-.Content .Body, .Content .Body td
-{
-    font-size: 12px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    background-color: #FFFFFF;
-    color: #1E1E52;
-}
-
-.Content .Body strong
-{
-    font-weight: bold;  
-    font-size: 12px;
-}
-
-.Content .Body th
-{
-    font-weight: bold;  
-    font-size: 12px;
 }
 
 .InputField
@@ -258,18 +138,20 @@ a:hover
 
 .BlankTableLine
 {
-    border:0px;
-    padding:0;
+    border: 0px;
+    padding: 0;
 }
 
 .LightBackground
 {
+    padding: 1px;
     background-color: #FFFFFF;
     color:#000000;
 }
 
 .MediumBackground
 {
+    padding: 1px;
     background-color: #F2F2F2;
     color:#000000;
 }
@@ -280,157 +162,42 @@ a:hover
 .DarkBackground a:hover
 {
     background-color: #2581C7;
+    padding: 2px;
     color:#FFFFFF;
     font-size: 14px;
+    font-weight: normal;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .DarkBackground th
 {
+    padding: 2px;
     color:#FFFFFF;
     font-size: 14px;
+    font-weight: normal;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .ReallyDarkBackground
 {
     background-color: #000000;
+    padding: 2px;
     color: #FFFFFF;
     font-size: 14px;
+    font-weight: bold;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .ReallyDarkBackground th
 {
+    padding: 2px;
     color: #FFFFFF;
     font-size: 14px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-}
-
-.IndentedTitle
-{
-    background-color: #919FBC;
-    color:#FFFFFF;
-}
-
-.LightIndentedBG
-{
-    background-color: #FFFFFF;
-    color:#000000;
-}
-
-.MediumIndentedBG
-{
-    background-color: #DDDDDD;
-    color:#000000;
-}
-
-
-.Content .Body a:link,
-.Content .Body a:visited
-{
-    font-size: 10px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    text-decoration: underline;
-    color: #546BC7;
     font-weight: bold;
-}
-
-.Content .Body a:hover
-{
-    color: #5FA3D6;
-}
-
-.Content .Buttons 
-{
-    border-top-width: thin;
-    border-right-width: thin;
-    border-bottom-width: thin;
-    border-left-width: thin;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: #7B7BAE;
-    border-right-color: #7B7BAE;
-    border-bottom-color: #141336;
-    border-left-color: #141336;
-    background-color: #23224C;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    text-decoration: underline;
-    color: #5FA3D6;
 }
 
-.Content .Right
-{
-    width: 18px;
-    background-color: #FFFFFF;
-}
-
-.Content .BottomLeft
-{
-    width: 18px;
-    height: 12px;
-    line-height: 12px;
-    background-color:#333366;
-}
-
-.Content .Footer
-{
-    line-height: 12px;
-    height: 12px;
-    font-size: 9px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    background-color:#333366;
-    color:#000000;
-}
-
-.Content .Footer a:link,
-.Content .Footer a:visited,
-.Content .Footer a:hover
-{
-    color: #5FA3D6;
-}
-
-.Content .BottomRight
-{
-    width: 18px;
-    line-height: 12px;
-    height: 12px;
-    background-color:#333366;
-}
-
-.Content .Spacer
-{
-    height: 10px;
-}
-
-.BottomSpacer
-{
-}
-
-.Footer
-{
-    font-size: 9px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    height: 20px;
-    background-color: #5FA3D6;
-}
-
-.Footer a:link, 
-.Footer a:visited, 
-.Footer a:hover
-{
-    color: #5FA3D6;
-    text-decoration: underline;    
-}
-
-.Box
-{
-    border: thin solid #000000;
-}
-
+/** Accessbility **/
 .access
 {
     display: none;
@@ -442,8 +209,8 @@ a:hover
 .skip a {
     position: absolute;
     overflow: hidden;
-    width: 0;
-    height: 0;
+    width: 0px;
+    height: 0px;
 }
 
 .skip a:active, .skip a:focus {

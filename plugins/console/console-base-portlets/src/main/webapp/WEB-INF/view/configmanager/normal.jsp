@@ -21,8 +21,6 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<script language="Javascript" src="/console/ConfirmMsg.js" type="text/javascript"></script>
-
 <script>
 var EXPERT_COOKIE = "org.apache.geronimo.configmanager.expertmode";
 var SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";

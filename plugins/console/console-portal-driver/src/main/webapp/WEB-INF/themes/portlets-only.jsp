@@ -18,15 +18,47 @@ limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
+
+<style type="text/css">
+body {
+    margin:0;
+    padding:10px;
+    overflow-x:hidden;
+    overflow-y:scroll;
+}
+</style>
+
+<%-- Transparent Line Definition : Start --%>
+<style type="text/css">
+#transparentLine{
+    background: url("/console/images/transparent_line.png") repeat-x;
+    position:fixed;
+    z-index:999; 
+    width: 100%; 
+    height: 9px;
+    top: 0; 
+    left: 0;
+}
+</style>
+<div id="transparentLine"></div>
+<%-- Transparent Line Definition : End --%>
+
+<script language="Javascript" src="/console/GlobalUtils.js" type="text/javascript"></script>
+
 <body id="portlets">
 
-<div id="content">
-    <pluto:isMaximized var="isMax" />
-    <c:forEach var="portlet" varStatus="status" items="${currentPage.portletIds}">
-        <c:set var="portlet" value="${portlet}" scope="request" />
-        <jsp:include page="portlet-skin.jsp" />
-    </c:forEach>
-</div>
+<pluto:isMaximized var="isMax" />
+<c:forEach var="portlet" varStatus="status" items="${currentPage.portletIds}">
+    <c:set var="portlet" value="${portlet}" scope="request" />
+    <jsp:include page="portlet-skin.jsp" />
+</c:forEach>
+
+</body>
+
+<script language="Javascript">
+    // we show the "Loading..." status in navigation.js
+    hideGlobalStatus();
+</script>
 
 <script type="text/javascript">
     if(parent){
@@ -35,5 +67,3 @@ limitations under the License.
         <!--window.parent.dojo.hash("#noxssPage=<c:out value='${hashOfCurrentPortalPage}'/>",true);-->
     }
 </script>
-</body>
-

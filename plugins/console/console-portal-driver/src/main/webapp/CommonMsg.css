@@ -15,10 +15,11 @@
 *   limitations under the License.
 ======================================================================*/
 .messagePortlet {
-	background-color:#F7F7F7;
-	border:1px solid #88A4D7;
+	background-color:#f3f3f3;
+	border:1px dashed #333333;
+	padding: 3px;
 	font-family:Verdana,Helvetica,sans-serif;
-	font-size:75%;
+	font-size:12px;
 }
 .expand-task {
 	color:#000000;

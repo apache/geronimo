@@ -27,17 +27,7 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/EjbHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
-<style type="text/css">
 
-@import "/console/dojo/dojo/resources/dojo.css";
-@import "/console/dojo/dijit/themes/claro/claro.css";
-
-table thead td, table thead th { 
-    background: #2581C7; /* #94BEFF */
-    color: #FFFFFF;    /* added */
-}
-
-</style>
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
     
@@ -163,41 +153,38 @@ table thead td, table thead th {
 		rootId="Ejb Containers" rootLabel="Ejb Containers" childrenAttrs="children"></div>
 
 	
-<div dojoType="dijit.layout.LayoutContainer"  id="mainLayout" style="width: 100%; height: 700px;">
-   <!-- Horizontal split container -->
+<div dojoType="dijit.layout.LayoutContainer" id="mainLayout" style="width: 100%; height: 700px;">
+    <!-- Horizontal split container -->
     <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
-       <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">       
-         <div class="claro" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
-	         <script type="dojo/method" event="onClick" args="item">
-			 if(item.id!="Ejb Containers") {             	        
-		        var ids = serverStore.getValues(item, "values");
-			    if(ids[1] != null) {
-		            EjbHelper.getDeploymentInfo(ids[0],ids[1],updateEjbInfoTable);		       
-			    } else {
-			        EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
-			    }
-			 } else {
-			    dwr.util.removeAllRows('ejbInfoTableBody');
-			 }
-             
-		     </script> 
-	      </div>
-      </div> 
+        <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">       
+            <div class="claro" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
+    	        <script type="dojo/method" event="onClick" args="item">
+        			if(item.id!="Ejb Containers") {             	        
+        		        var ids = serverStore.getValues(item, "values");
+        			    if(ids[1] != null) {
+        		            EjbHelper.getDeploymentInfo(ids[0],ids[1],updateEjbInfoTable);		       
+        			    } else {
+        			        EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
+        			    }
+        			} else {
+        			    dwr.util.removeAllRows('ejbInfoTableBody');
+        			}
+    		    </script> 
+	        </div>
+        </div> 
 	
-      <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="claro" >
-         <table id="ejbsTable",
-            cellpadding="0" 
-            cellspacing="2" 
-            border="0"
-            width="100%">
-            <thead>                      
-              <th width="40%"><B>&nbsp;<fmt:message key="portlet.openejb.view.name" />&nbsp;</B></th>
-              <th width="60%"><B>&nbsp;<fmt:message key="portlet.openejb.view.value" />&nbsp;</B></th>
-            </thead>
-            <tbody id="ejbInfoTableBody">
-            </tbody>
-         </table>
-      </div>
-   </div>
+        <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="claro" >
+            <table id="ejbsTable" class="TableLine" width="100%">
+                <thead>
+                    <tr class="DarkBackground">
+                        <th width="40%"><fmt:message key="portlet.openejb.view.name" />&nbsp;</th>
+                        <th width="60%"><fmt:message key="portlet.openejb.view.value" />&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody id="ejbInfoTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>   
 

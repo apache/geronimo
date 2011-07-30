@@ -39,7 +39,7 @@ public final class CommonMessageTag extends TagSupport {
         List<CommonMessage> messages = (List<CommonMessage>) pageContext.getRequest().getAttribute(COMMON_MESSAGES);
         if (null != messages && 0 != messages.size()) {
             try {
-                out.println("<table align=\"center\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" summary=\"Inline Messages\" valign=\"top\" class=\"messagePortlet\"><tbody>");
+                out.println("<table cellspacing=\"0\" width=\"100%\" summary=\"Inline Messages\" class=\"messagePortlet\"><tbody>");
                 for (CommonMessage message : messages) {
                     out.println(message.renderMessage());
                 }

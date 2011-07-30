@@ -40,8 +40,7 @@ limitations under the License.
 </c:forEach>
 
 <%
-	
-	List<PageConfig> filteredPageConfigList = NavigationJsonGenerator.filterPagesByRole(pageConfigList,request);
+    List<PageConfig> filteredPageConfigList = NavigationJsonGenerator.filterPagesByRole(pageConfigList,request);
     NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
 
     Map<String, TreeNode> treeBasic = generator.getNavigationTree(filteredPageConfigList, "basic");
@@ -52,51 +51,52 @@ limitations under the License.
     Map<String, TreeNode> treeAll = generator.getNavigationTree(filteredPageConfigList, "all");
     String treeJson = generator.generateTreeJSON(treeAll, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
     String listJson = generator.generateQuickLauncherJSON(treeAll, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
-
 %>
 
-<table class="claro" width="260px" border="0" cellpadding="0" cellspacing="0">
-    <tr>
-        <td class="ReallyDarkBackground"><strong>&nbsp;<fmt:message key="Console Navigation"/></strong></td>
-    </tr>
-    <tr>
-        <td>
-            <!-- mode div -->
-		    <div id="modeSwitcher" class="<%=isBasicTreeHasValidItem?"padding4":"hidden"%>">
-		        <input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
-                &nbsp;
-                <input type="radio" name="mode" id ="mode" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
-			</div>
-		    
-		    
-		    <!-- quick launcher div -->
-			<div id="tquickLauncher" class="padding4" style="display:none;">
-			    <input id="quickLauncher">
-			</div>
+<!-- panel div -->
+<div id="panelDiv">
+    <div style="height:10px"></div>
+    
+    <!-- quick launcher div -->
+    <div id="quickLauncherDiv">
+        <strong>&nbsp;Quick Launch:</strong>
+        <input id="quickLauncher" />
+    </div>
+    
+    <div style="height:5px"></div>
+    
+    <!-- mode div -->
+    <div id="modeSwitcherDiv" class="<%=isBasicTreeHasValidItem?"":"Hidden"%>">
+        <strong>&nbsp;Navigator:</strong>
+        <input type="radio" name="mode" id="mode" checked="checked" onclick="changeMode()"/>&nbsp;<fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>&nbsp;
+        <input type="radio" name="mode" id="mode" onclick="changeMode()"/>&nbsp;<fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
+    </div>
+    
+    <div style="height:5px"></div>
+</div>            
+           
+<!-- tree div -->
+<div id="treeDiv">
+    <div id="navigationTreeBasic"></div>
+    <div id="navigationTreeAdvanced"></div>
+</div>
             
-            
-            <!-- tree div -->
-			<div id="navigationTreeBasic"></div>
-			<div id="navigationTreeAdvanced"></div>
-		    
-        </td>
-    </tr>
-</table>
+
 <script language="Javascript" src="<%=request.getContextPath()%>/js/navigation.js" type="text/javascript"></script>
 <script language="Javascript">
-   dojo.require("dojo.data.ItemFileReadStore");
-   dojo.require("dijit.form.FilteringSelect");
-   dojo.require("dijit.Tree");
-   var treeData = <%=treeJson%>;
-   var treeDataBasic =<%=treeJsonBasic%>;
-   var listData = <%=listJson%>;
-   var listDataBasic = <%=listJsonBasic%>;
-   var treeModel="";
-   var navigationTreeBasic="";
-   var navigationTreeAdvanced="";
-   var filterSelect="";
+    dojo.require("dojo.data.ItemFileReadStore");
+    dojo.require("dijit.form.FilteringSelect");
+    dojo.require("dijit.Tree");
+    var treeData = <%=treeJson%>;
+    var treeDataBasic =<%=treeJsonBasic%>;
+    var listData = <%=listJson%>;
+    var listDataBasic = <%=listJsonBasic%>;
+    var treeModel="";
+    var navigationTreeBasic="";
+    var navigationTreeAdvanced="";
+    var filterSelect="";
    
-   var treeStore = new dojo.data.ItemFileReadStore
+    var treeStore = new dojo.data.ItemFileReadStore
     ({
          data: {
              identifier: 'id',
@@ -104,14 +104,14 @@ limitations under the License.
              items: treeData
              }
      });
-   var treeStoreBasic = new dojo.data.ItemFileReadStore
+    var treeStoreBasic = new dojo.data.ItemFileReadStore
     ({
          data: {
              identifier: 'id',
              label: 'label',
              items: treeDataBasic
              }
-     });
+    });
     var listStore = new dojo.data.ItemFileReadStore({
        data: {
            identifier: 'name',
@@ -125,15 +125,37 @@ limitations under the License.
             label: 'label',
             items: listDataBasic
             }
-     });
+    });
      
-     <% if(isBasicTreeHasValidItem) {%>
+    <% if(isBasicTreeHasValidItem) {%>
    
-		dojo.addOnLoad(function() { createNavigationTree(treeStoreBasic,listStoreBasic,"basic"); });
+        dojo.addOnLoad(function() { createNavigationTree(treeStoreBasic,listStoreBasic,"basic"); });
     
-	<%} else {%>
+    <%} else {%>
     
-		dojo.addOnLoad(function() { createNavigationTree(treeStore,listStore,"advanced"); });
+        dojo.addOnLoad(function() { createNavigationTree(treeStore,listStore,"advanced"); });
    
-   <% }%>
+    <%}%>
+    
+    
+    if(dijit.byId("quickLauncher")!=null){
+        dijit.byId("quickLauncher").store=listStore;
+    }else{
+        filterSelect = new dijit.form.FilteringSelect(
+                {
+                    store: listStore,
+                    searchAttr: "name",
+                    labelAttr: "label",
+                    labelType: "html",
+                    onKeyPress: function(event){        
+                        if(event.charCode!=dojo.keys.ENTER) return;
+                            quickLaunchPortlets(this.value);      
+                    },
+                    onChange: function(event){
+                        quickLaunchPortlets(this.value);
+                    }
+                },
+                dojo.byId("quickLauncher")
+         );
+    }
 </script>

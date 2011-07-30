@@ -33,17 +33,6 @@
 <!------------------------>
 <!--     DOJO Stuff     -->
 <!------------------------>
-<style type="text/css">
-    @import "/console/dojo/dojo/resources/dojo.css";
-    @import "/console/dojo/dijit/themes/claro/claro.css";
-    
-    table thead th { 
-        background: #2581C7; 
-        color: #FFFFFF;    
-        font-weight: bold;
-    }
-</style>
-
 <script type="text/javascript" src="/console/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/console/dojo/dijit/dijit.js"></script>
 
@@ -456,9 +445,9 @@ callOnLoad(init);
             
                 <!-- Attributes Tab START -->
                 <div dojoType="dijit.layout.ContentPane" title="<fmt:message key='ldapmanager.viewLDAPServer.attributes'/>" selected="true">
-                       <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th width="40%"><fmt:message key="ldapmanager.viewLDAPServer.name"/></th>
                                 <th width="60%"><fmt:message key="ldapmanager.viewLDAPServer.value"/></th>
                             </tr>
@@ -513,9 +502,9 @@ callOnLoad(init);
                             </td>
                         </tr>
                     </table>
-                    <table width="100%">
+                    <table class="TableLine" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="DarkBackground">
                                 <th><fmt:message key="ldapmanager.viewLDAPServer.DN" />&nbsp;<span id='searchResultCount'></span></th>
                             </tr>
                         </thead>

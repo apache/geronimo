@@ -31,6 +31,7 @@ limitations under the License.
 <head>
     <title><fmt:message key="console.head.title"/></title>
     <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/console/dojo/dojo/resources/dojo.css" type="text/css"/>
     <link rel="stylesheet" href="/console/dojo/dijit/themes/claro/claro.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
@@ -39,14 +40,13 @@ limitations under the License.
     <script language="Javascript" src="<%=request.getContextPath()%>/CommonMsg.js" type="text/javascript"></script>
 </head>
 <style type="text/css">
-body{
-  padding:0;
-  margin:0;
-}
+html { 
+    height: 100%;
+} 
 </style>
 <c:choose>
     <c:when test="${param.noxssShowTree!=null}">
-         <jsp:include page="portlets-with-tree.jsp" />
+        <jsp:include page="portlets-with-tree.jsp" />
     </c:when>
     <c:otherwise>
         <jsp:include page="portlets-only.jsp" />

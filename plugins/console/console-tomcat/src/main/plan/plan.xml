@@ -104,7 +104,7 @@
                 <attribute name="pageTitle">1-6/Application Server/Shutdown</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ServerManager]</attribute>
-                <attribute name="icon">/images/ico_x_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_shutdown_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>

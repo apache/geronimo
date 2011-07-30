@@ -77,7 +77,7 @@ public class NavigationJsonGeneratorTest extends TestCase {
         String json = navigationJsonGenerator.generateTreeJSON(navigationTree, "console",
                 "/images/ico_deploy_16x16.gif", "all", 3);
 
-        String expected = "[\n{label: \'cat1\',id: \'1\',children: [{label: \'cat1-1\',id: \'1-1\',children: [{label: \'cat1-1-1\',id: \'1-1-1\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a>\',id: \'1-1-1-1\'}]\n}]\n},{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a>\',id: \'1-2\'}]\n},\n{label: \'cat2\',id: \'2\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a>\',id: \'2-2\'}]\n}\n]";
+        String expected = "[\n{label: \'cat1\',id: \'1\',children: [{label: \'cat1-1\',id: \'1-1\',children: [{label: \'cat1-1-1\',id: \'1-1-1\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item1-1-1-1\',href: \'console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\',id: \'1-1-1-1\'}]\n}]\n},{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item1-2\',href: \'console/portal/1-2/cat1/item1-2\',id: \'1-2\'}]\n},\n{label: \'cat2\',id: \'2\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item2-2\',href: \'console/portal/2-2/cat2/item2-2\',id: \'2-2\'}]\n}\n]";
 
         System.out.println(json);
         Assert.assertEquals(expected, json);
@@ -86,7 +86,8 @@ public class NavigationJsonGeneratorTest extends TestCase {
         json = navigationJsonGenerator.generateTreeJSON(navigationTree, "console", "/images/ico_deploy_16x16.gif",
                 "all", 5);
 
-        expected = "[\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a>\',id: \'1-1-1-1\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a>\',id: \'1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a>\',id: \'2-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2-1/cat2/cat2-1/item2-2-1\">item2-2-1</a>\',id: \'2-2-1\'}\n]";
+        expected = "[\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item1-1-1-1\',href: \'console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\',id: \'1-1-1-1\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item1-2\',href: \'console/portal/1-2/cat1/item1-2\',id: \'1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item2-2\',href: \'console/portal/2-2/cat2/item2-2\',id: \'2-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;item2-2-1\',href: \'console/portal/2-2-1/cat2/cat2-1/item2-2-1\',id: \'2-2-1\'}\n]";
+        
         System.out.println(json);
         Assert.assertEquals(expected, json);
 

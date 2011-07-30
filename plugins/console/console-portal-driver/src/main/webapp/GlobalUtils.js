@@ -15,9 +15,21 @@
 //   limitations under the License.
 //======================================================================
 function showGlobalConfirmMessage(msg){
-    if (parent){
+    if (window.parent!=window.self){
         return parent.globalConfirm(msg);
     }else{
         return confirm(msg);
     }
 } 
+
+function showGlobalStatus(txt){
+    if (window.parent!=window.self) {
+        parent.showStatus(txt);
+    }
+}
+
+function hideGlobalStatus(){
+    if (window.parent!=window.self) {
+        setTimeout("parent.hideStatus()", 300);
+    }
+}

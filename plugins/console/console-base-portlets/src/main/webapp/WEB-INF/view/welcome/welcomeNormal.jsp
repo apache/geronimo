@@ -58,19 +58,17 @@
         <td valign="top">
         <%if(request.isUserInRole("admin")){ %>
 
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+            <table width="100%" class="TableLine">
                 <tr>
-                    <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.commonActions"/></font>
+                    <td class="DarkBackground" nowrap>
+                        <fmt:message key="welcome.welcomeNormal.commonActions"/>
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" nowrap>
-                        &nbsp;<br />
-                        <img src='/console/images/ico_list_16x16.gif' alt=""/><a href="/console/portal/2-3/Applications/Deployer"><fmt:message key="welcome.welcomeNormal.deployNew"/></a><br />
-                        <img src='/console/images/ico_servcomp_16x16.gif' alt=""/><a href="/console/portal/1-2/Application Server/Web Server"><fmt:message key="welcome.welcomeNormal.webServerPorts"/></a><br />
-                        <img src='/console/images/ico_look_16x16.gif' alt=""/><a href="/console/portal/1-1-1/Application Server/System%20Information/Server Information"><fmt:message key="welcome.welcomeNormal.serverInfo"/></a><br />
-                        &nbsp;<br />
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;<img src='/console/images/ico_list_16x16.gif' alt=""/>&nbsp;<a href="/console/portal/2-3/Applications/Deployer"><fmt:message key="welcome.welcomeNormal.deployNew"/></a><br />
+                        &nbsp;<img src='/console/images/ico_servcomp_16x16.gif' alt=""/>&nbsp;<a href="/console/portal/1-2/Application Server/Web Server"><fmt:message key="welcome.welcomeNormal.webServerPorts"/></a><br />
+                        &nbsp;<img src='/console/images/ico_look_16x16.gif' alt=""/>&nbsp;<a href="/console/portal/1-1-1/Application Server/System%20Information/Server Information"><fmt:message key="welcome.welcomeNormal.serverInfo"/></a><br />
                     </td>
                 </tr>
             </table>
@@ -79,21 +77,19 @@
             <br />
             <br />
 
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+            <table width="100%" class="TableLine">
                 <tr>
-                    <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.online"/></font>
+                    <td class="DarkBackground" nowrap>
+                        <fmt:message key="welcome.welcomeNormal.online"/>
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" nowrap>
-                        &nbsp;<br />
-                        <a href="http://geronimo.apache.org/"><fmt:message key="welcome.welcomeNormal.homePage"/></a><br />
-                        <a href="http://geronimo.apache.org/redirects/issues.html"><fmt:message key="welcome.welcomeNormal.problemTracker"/></a><br />
-                        <a href="http://geronimo.apache.org/redirects/userMailingList.html"><fmt:message key="welcome.welcomeNormal.userMaillist"/></a><br />
-                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html"><fmt:message key="welcome.welcomeNormal.devMaillist"/></a><br />
-                        <a href="irc://irc.freenode.net/#geronimo"><fmt:message key="welcome.welcomeNormal.irc"/></a><br />
-                        &nbsp;<br />
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/"><fmt:message key="welcome.welcomeNormal.homePage"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/issues.html"><fmt:message key="welcome.welcomeNormal.problemTracker"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/userMailingList.html"><fmt:message key="welcome.welcomeNormal.userMaillist"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/developerMailingList.html"><fmt:message key="welcome.welcomeNormal.devMaillist"/></a><br />
+                        &nbsp;-&nbsp;<a href="irc://irc.freenode.net/#geronimo"><fmt:message key="welcome.welcomeNormal.irc"/></a><br />
                     </td>
                 </tr>
             </table>
@@ -101,20 +97,18 @@
             <br />
             <br />
 
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+            <table width="100%" class="TableLine">
                 <tr>
-                    <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><fmt:message key="welcome.welcomeNormal.doc"/>&nbsp;&nbsp;&nbsp;</font>
+                    <td class="DarkBackground" nowrap>
+                        <fmt:message key="welcome.welcomeNormal.doc"/>
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" nowrap>
-                        &nbsp;<br />
-                        <a href="http://geronimo.apache.org/faq.html"><fmt:message key="welcome.welcomeNormal.faq"/></a><br />
-                        <a href="http://geronimo.apache.org/redirects/wiki.html"><fmt:message key="welcome.welcomeNormal.wiki"/></a><br />
-                        <a href="http://geronimo.apache.org/documentation.html"><fmt:message key="welcome.welcomeNormal.doc"/></a><br />
-                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html"><fmt:message key="welcome.welcomeNormal.addiDoc"/></a><br />
-                        &nbsp;<br />
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/faq.html"><fmt:message key="welcome.welcomeNormal.faq"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/wiki.html"><fmt:message key="welcome.welcomeNormal.wiki"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/documentation.html"><fmt:message key="welcome.welcomeNormal.doc"/></a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/additionalDocumentation.html"><fmt:message key="welcome.welcomeNormal.addiDoc"/></a><br />
                     </td>
                 </tr>
             </table>

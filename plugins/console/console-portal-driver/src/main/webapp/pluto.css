@@ -14,154 +14,51 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-body, th, td {
-    color:#1E1E52;
-    font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif;
-    font-size:12px;
+
+/** main layout definition **/
+#headerDiv {
+    width:100%;
+    height:86px;
 }
 
-/** 'tooltip' block **/
-
-a.tooltip {
-    position:relative;
-    z-index:24; 
-    background-color:#ccc;
-    color:#000;
-    text-decoration:none;
+#navigationDiv {
+    width:300px;
+    /*height need calculate*/ 
+    float:left; 
+    background-color:#f0f0f0
 }
 
-a.tooltip:hover {
-     z-index:25;
-     background-color:#ff0;
+#panelDiv {
+    height: 60px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-family: Verdana,Tahoma,Arial,Helvetica,sans-serif;
+    font-size: 12px;
 }
 
-a.tooltip span.tooltip {
-     display: none;
+#treeDiv {
+    /*height need calculate*/ 
+    padding-left: 4px;
+    padding-right: 4px;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    font-size: 12px;
 }
 
-a.tooltip:hover span.tooltip {
-    display:block;
-    position:float;  /*this line is wrong and ignored. what was it supposed to do? (options are: absolute, fixed, inherit, relative, static)? */
-    top:-2em; left:28em; width:5em;
-    border:1px solid #0cf;
-    background-color:#cff; color:#000;
-    text-align: center;
+#contentDiv {
+    /*width need calculate*/ 
+    /*height need calculate*/ 
+    float:left;
 }
 
-
-/** 'portal' block **/
-
-#portal {
-
-}
-
-/** 'header' block **/
-
-#header {
-/**  background: #8DB7DF url('images/banner.png') no-repeat top left;; **/
-  background: #8DB7DF url('imagesG/head_left_754x86.gif') no-repeat top left;;
-  border-bottom: 1px solid #2E6794;
-  width: auto;
-  height: 50px;
-  margin: 0px;
-  vertical-align: top;
-}
-
-#header h1 {
-  display: none;
-  margin: 5px 10px 5px 10px;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-size: 200%;
-}
-
-#header p {
-  display: none;
-  margin: 0px 10px 0px 10px;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-size: smaller;
-}
-
-#logout {
-  float:right;
-  font-size:smaller;
-}
-
-/** 'navigation' block **/
-
-#navigation {
-  clear: both;
-}
-
-#navigation h2 {
-  padding: 5px 10px 5px 10px;
-  margin: 0px;
-  color: #6D97BF;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-size: 100%;
-}
-
-#navigation ul {
-  margin: 0px;
-  padding: 5px 10px 5px 10px;
-  list-style: none;
-  position: absolute;
-  background-color: #F0F0F0;
-  border-width: 0px 1px 1px 1px;
-  border-style: solid;
-  border-color: #000000;
-}
-
-#navigation ul li {
-  color: #888888;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-size: smaller;
-}
-
-#navigation ul li a {
-  color: #888888;
-  text-decoration: none;
-}
-
-#navigation ul li a:hover {
-  color: #6D97BF;
-  text-decoration: underline;
-}
-
-#navigation .selected, #navigation .selected a {
-  color: #6D97BF;
-  font-weight: bold;
-}
-
-
-/** 'content' block **/
-
-#content {
-
-}
 
 /** 'portlet' block **/
-
-#portlets-left-column {
-  margin: 0;
-  padding: 0;
-  width: 49%;
-  float: left;
-}
-
-#portlets-right-column {
-  margin: 0;
-  padding: 0;
-  width: 49%;
-  float: right;
-}
-
 .portlet {
   margin: 0px 0px 10px 0px;
   padding: 0px;
-  
 }
 
-.portlet .header {
+.portlet .title {
   white-space: nowrap;
   padding-left: 0.25em;
   background-color: #000000;
@@ -169,7 +66,7 @@ a.tooltip:hover span.tooltip {
   font-weight: bold;
 }
 
-.portlet .header h2 {
+.portlet .title h2 {
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
     height: 18px;
     line-height: 18px;
@@ -180,36 +77,35 @@ a.tooltip:hover span.tooltip {
     font-weight: bold;
 }
 
-.portlet .header span {
+.portlet .title span {
   width: 16px;
   height: 16px;
   float: right;
 }
 
-
 /** 'portlet' block: portlet mode and window state controls **/
 
-.portlet .header span.minimized {
+.portlet .title span.minimized {
   background: url(images/controls/min.png) no-repeat;
 }
 
-.portlet .header span.maximized {
+.portlet .title span.maximized {
   background: url(images/controls/max.png) no-repeat;
 }
 
-.portlet .header span.normal {
+.portlet .title span.normal {
   background: url(images/controls/norm.png) no-repeat;
 }
 
-.portlet .header span.view {
+.portlet .title span.view {
   background: url(images/controls/view.png) no-repeat;
 }
 
-.portlet .header span.edit {
+.portlet .title span.edit {
   background: url(images/controls/edit.png) no-repeat;
 }
 
-.portlet .header span.help {
+.portlet .title span.help {
   background: url(images/controls/help.png) no-repeat;
 }
 
@@ -219,63 +115,4 @@ a.tooltip:hover span.tooltip {
   border-style: solid;
   border-color: #cccccc;
 }
-
-
-/** 'footer' block **/
-
-#footer {
-  clear: both;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-size: smaller;
-  color: #808080;
-  text-align: center;
-  margin: 0px;
-  padding: 4px 20px 4px 20px;
-  border-top-width: 1px;
-  border-top-color: #888888;
-  border-top-style: dotted;
-}
-
-/* navigation Tree */
-#navigationTreeBasic, #navigationTreeAdvanced {
-    font-size:8px !important;
-}
-
-/** Login page styles **/
-
-fieldset {
-  margin: 0.5em;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #2E6794;
-}
-
-legend {
-  color: #2E6794;
-  font-family: "Trebuchet MS", Trebuchet, Arial, Helvetica, Sans-serif;
-  font-weight: bold;
-}
-
-/* removed by GERONIMO-4204
-label {
-  clear: both;
-  width: 40%;
-  float: left;
-  text-align: right;
-  margin: 0px 5px 10px 0px;
-}
-*/
-/*
-input {
-  color: #2E6794;
-  background-color: #8DB7DF;
-  margin: 0px 0px 10px 5px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #2E6794;
-}
-*/
-
-
-
 
