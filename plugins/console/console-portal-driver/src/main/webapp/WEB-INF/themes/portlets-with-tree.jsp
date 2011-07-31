@@ -118,24 +118,23 @@ if(document.location.hash!='') {
     left:0; 
     
 }
-#statusText {
-    -moz-border-radius-bottomleft: 6px;
-    -moz-border-radius-bottomright: 6px;
-	border-bottom-right-radius: 6px;
-	border-bottom-left-radius: 6px;
-    background-color: #FFC129;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    width: 100px;
-    padding: 3px;	
-    margin-left: auto;
-	margin-right: auto;
-
+#statusText{
+    background-color:#ffc129; 
+    font-size:14px; 
+    font-weight:bold;
+    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+    text-align:center;
+    white-space: nowrap; 
 }
 </style>
-<div id="statusDiv" style="display:none;filter:alpha(opacity=100);opacity: 1;">
-    <div id="statusText"></div>
+<div id="statusDiv" style="display:none; filter:alpha(opacity=100); opacity:1;" align="center">
+    <table width="100px" height="24px" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td style="width:6px; background:url('/console/images/loading-left.png');"><img src="/console/images/spacer.gif" border="0" width="6px" /></td>
+            <td id="statusText"></td>
+            <td style="width:6px; background:url('/console/images/loading-right.png');"><img src="/console/images/spacer.gif" border="0" width="6px" /></td>
+        </tr>
+    </table>
 </div>
 <script type="text/javascript">
     var to;
