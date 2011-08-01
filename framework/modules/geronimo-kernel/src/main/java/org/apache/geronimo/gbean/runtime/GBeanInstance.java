@@ -76,9 +76,11 @@ import org.osgi.framework.BundleContext;
 public final class GBeanInstance implements StateManageable {
     private static final Logger log = LoggerFactory.getLogger(GBeanInstance.class);
 
+    private static final int MAX_DEPENDENCY_STATE_REASON_NUM = Integer.getInteger("org.apache.geronimo.gbean.runtime.max_state_reason_count", 5);
+
     private static final String ABSTRACT_NAME_PROPERTY = "org.apache.geronimo.abstractName";
     private static final String OSGI_JNDI_NAME_PROPERTY = "osgi.jndi.service.name";
-    
+
     private static final int DESTROYED = 0;
     private static final int CREATING = 1;
     private static final int RUNNING = 2;
@@ -254,7 +256,7 @@ public final class GBeanInstance implements StateManageable {
         } else {
             this.classLoader = new BundleClassLoader(bundleContext.getBundle());
         }
-        
+
         name = gbeanInfo.getName();
 
         // interfaces
@@ -610,8 +612,10 @@ public final class GBeanInstance implements StateManageable {
                         value = attribute.getValue(instance);
                     } catch (Throwable throwable) {
                         value = attribute.getPersistentValue();
-                        log.debug("Could not get the current value of persistent attribute.  The persistent " +
-                                "attribute will not reflect the current state attribute. " + attribute.getDescription(), throwable);
+                        if(log.isDebugEnabled()) {
+                            log.debug("Could not get the current value of persistent attribute.  The persistent " +
+                                    "attribute will not reflect the current state attribute. " + attribute.getDescription(), throwable);
+                        }
                     }
                 } else {
                     value = attribute.getPersistentValue();
@@ -809,7 +813,7 @@ public final class GBeanInstance implements StateManageable {
     }
 
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
-        Integer index = (Integer) attributeIndex.get(name);
+        Integer index = attributeIndex.get(name);
         if (index == null) {
             throw new NoSuchAttributeException("Unknown attribute \"" + name + "\" in gbean " + abstractName);
         }
@@ -859,7 +863,7 @@ public final class GBeanInstance implements StateManageable {
      */
     public Object invoke(String operationName, Object[] arguments, String[] types) throws Exception, NoSuchOperationException {
         GOperationSignature signature = new GOperationSignature(operationName, types);
-        Integer index = (Integer) operationIndex.get(signature);
+        Integer index = operationIndex.get(signature);
         if (index == null) {
             throw new NoSuchOperationException("Unknown operation " + signature);
         }
@@ -896,25 +900,39 @@ public final class GBeanInstance implements StateManageable {
             stateReason = null;
 
             // Call all start on every reference.  This way the dependecies are held until we can start
-            LinkedHashSet unstarted = new LinkedHashSet();
+            LinkedHashSet<AbstractName> unstarted = new LinkedHashSet<AbstractName>();
+            int actualUnstartedSize = 0;
             for (int i = 0; i < dependencies.length; i++) {
-                if (!dependencies[i].start()) {
+                if (dependencies[i].start()) {
+                    continue;
+                }
+                if (unstarted.size() < MAX_DEPENDENCY_STATE_REASON_NUM || MAX_DEPENDENCY_STATE_REASON_NUM == -1) {
                     unstarted.add(dependencies[i].getTargetName());
                 }
+                actualUnstartedSize++;
             }
             for (int i = 0; i < references.length; i++) {
-                if (!references[i].start()) {
-                    if (references[i] instanceof GBeanSingleReference) {
+                if (references[i].start()) {
+                    continue;
+                }
+                if (references[i] instanceof GBeanSingleReference) {
+                    if (unstarted.size() <= MAX_DEPENDENCY_STATE_REASON_NUM || MAX_DEPENDENCY_STATE_REASON_NUM == -1) {
                         GBeanSingleReference reference = (GBeanSingleReference) references[i];
                         unstarted.add(reference.getTargetName());
                     }
+                    actualUnstartedSize++;
                 }
             }
             if (!unstarted.isEmpty()) {
                 if (unstarted.size() == 1) {
                     stateReason = unstarted.iterator().next() + " did not start.";
                 } else {
-                    stateReason = "the following dependent services did not start: " + unstarted;
+                    if (actualUnstartedSize == unstarted.size()) {
+                        stateReason = "the following dependent services did not start: " + unstarted;
+                    } else {
+                        stateReason = "there are " + actualUnstartedSize + " dependent services did not start, and the first " + unstarted.size() + " are recored: \n" + unstarted
+                                + ". \n You might configure the system property org.apache.geronimo.gbean.runtime.max_state_reason_count to show more service names or -1 to show all the unstarted service names";
+                    }
                 }
                 return false;
             }
@@ -1017,7 +1035,9 @@ public final class GBeanInstance implements StateManageable {
                         serviceProperties.put(OSGI_JNDI_NAME_PROPERTY, kernel.getNaming().toOsgiJndiName(abstractName));
                     }
                     serviceRegistration = bundleContext.registerService(serviceInterfaces, instance, serviceProperties);
-                    log.debug("Registered gbean " + abstractName + " as osgi service under interfaces " + Arrays.asList(serviceInterfaces) + " with properties " + serviceProperties);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Registered gbean " + abstractName + " as osgi service under interfaces " + Arrays.asList(serviceInterfaces) + " with properties " + serviceProperties);
+                    }
                 }
                 instanceState = RUNNING;
                 this.notifyAll();
@@ -1202,7 +1222,9 @@ public final class GBeanInstance implements StateManageable {
             if (serviceRegistration != null) {
                 serviceRegistration.unregister();
                 serviceRegistration = null;
-                log.debug("unregistered gbean as osgi service: " + abstractName);
+                if (log.isDebugEnabled()) {
+                    log.debug("unregistered gbean as osgi service: " + abstractName);
+                }
             }
             startTime = 0;
         }
