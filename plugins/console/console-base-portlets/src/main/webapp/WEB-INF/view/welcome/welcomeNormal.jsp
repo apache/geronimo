@@ -21,11 +21,10 @@
 <portlet:defineObjects/>
 
 
-<table style="width:100%"> <!-- an IE rendering fix -->
+<table style="width:100%" cellpadding="10"> <!-- an IE rendering fix -->
     <tr>
-
         <!-- Body -->
-        <td width="90%" align="left" valign="top">
+        <td width="80%" align="left" valign="top">
             <p><font face="Verdana" size="+1"><center><b><fmt:message key="welcome.welcomeMaximized.title"/></b></center></font></p>
 
             <p><fmt:message key="welcome.welcomeNormal.about1"/></p>
@@ -36,14 +35,14 @@
 
             <p><fmt:message key="welcome.welcomeNormal.about4"/></p>
 
-           <ul>
+            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
                    (<a href="http://geronimo.apache.org/redirects/userMailingList.html"><fmt:message key="welcome.welcomeNormal.archive"/></a>)
                    <fmt:message key="welcome.welcomeNormal.forUsers"/></li>
                <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b>
                    (<a href="http://geronimo.apache.org/redirects/developerMailingList.html"><fmt:message key="welcome.welcomeNormal.archive"/></a>)
                    <fmt:message key="welcome.welcomeNormal.forDevelopers"/></li>
-           </ul>
+            </ul>
 
             <p><fmt:message key="welcome.welcomeNormal.about5"/></p>
 
@@ -52,12 +51,9 @@
 
         </td>
 
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-
         <!-- Geronimo Links -->
         <td valign="top">
-        <%if(request.isUserInRole("admin")){ %>
-
+            <%if(request.isUserInRole("admin")){ %>
             <table width="100%" class="TableLine">
                 <tr>
                     <td class="DarkBackground" nowrap>
@@ -72,10 +68,8 @@
                     </td>
                 </tr>
             </table>
-        <%} %>
-
             <br />
-            <br />
+            <%} %>
 
             <table width="100%" class="TableLine">
                 <tr>
@@ -93,8 +87,6 @@
                     </td>
                 </tr>
             </table>
-
-            <br />
             <br />
 
             <table width="100%" class="TableLine">
@@ -112,19 +104,18 @@
                     </td>
                 </tr>
             </table>
-
             <br />
-            <br />
-
-            <p align="right"><font size=-1>
-            <img src="/console/images/powered_by_100x30.gif" alt="Powered by Apache Geronimo"/>
-            </font><br />
-            &nbsp;
-            <font size=-1>Copyright &copy; 2003-2010 Apache Software Foundation</font><br />
-            <font size=-1>All Rights Reserved</font></p>
-
+            
         </td>
-
+    </tr>
+    <tr>
+        <td colspan="2" align="right">
+            <p align="right">
+            <img src="/console/images/powered_by_100x30.gif" alt="Powered by Apache Geronimo"/><br />
+            Copyright &copy; 2003-2011 Apache Software Foundation<br />
+            All Rights Reserved
+            </p>
+        </td>
     </tr>
 </table>
 

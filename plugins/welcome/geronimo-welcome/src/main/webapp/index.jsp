@@ -1,3 +1,5 @@
+<!doctype html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" session="false" %>
 <%--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -15,102 +17,89 @@
     limitations under the License.
 --%>
 <!-- $Rev$ $Date$ -->
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<%@ page language="java"
-         contentType="text/html; charset=UTF-8"
-         session="false" %>
+
 <html lang="en">
-    <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Apache Geronimo</title>
-    <link rel="stylesheet" href="main.css" type="text/css"/>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Apache Geronimo</title>
+<link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" href="main.css" type="text/css"/>
+<link rel="stylesheet" href="pluto.css" type="text/css"/>
 </head>
 
-<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
+<body style="margin:0px">
 
 <!-- Header -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td>
-      <table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
-        <tr>
-          <td height="86" class="WelcomeLogo" border="0"></td>
-          <td height="86" class="Top"  border="0">&nbsp;</TD>
-        </tr>
-        <tr>
-          <td algin="right" border="0">&nbsp;</td>
-          <td align="right" border="0"><b><%= application.getServerInfo() %>&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+<table class="Banner" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td class="Logo" border="0">
+        Welcome using Geronimo! (<%=application.getServerInfo()%> integrated)
+        </td>
+    </tr>
 </table>
 
-<br />
-
-<table>
+<table width="100%" border="0" cellspacing="0" cellpadding="10">
     <tr>
-
         <!-- Table of Contents -->
-        <td valign="top">
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+        <td valign="top" width="300px">
+            
+            <table width="100%" class="DarkTableLine">
                 <tr>
-                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1">Administration&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                    <td class="ReallyDarkBackground" nowrap>
+                        Administration
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
-                        <a href="/console">Console</a><br />
-                        &nbsp;
-                    </td>
-                </tr>
-            </table>
-            <br />
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
-                <tr>
-                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1">Documentation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
-                    </td>
-                </tr>
-                <tr>
-                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
-                        <a href="http://geronimo.apache.org/redirects/faq.html">FAQ</a><br />
-                        <a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
-                        <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
-                        &nbsp;
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;-&nbsp;<a href="/console">Console</a><br />
                     </td>
                 </tr>
             </table>
             <br />
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+            
+            <table width="100%" class="DarkTableLine">
                 <tr>
-                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1">Geronimo Online&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                    <td class="ReallyDarkBackground" nowrap>
+                        Documentation
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
-                        <a href="http://geronimo.apache.org/">The Geronimo Home Page</a><br />
-                        <a href="http://geronimo.apache.org/redirects/issues.html">Problem Tracking Database</a><br />
-                        <a href="http://geronimo.apache.org/redirects/userMailingList.html">Users Mailing List Archive</a><br />
-                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html">Developers Mailing List Archive</a><br />
-                        <a href="irc://irc.freenode.net/#geronimo">Geronimo IRC chat</a><br />
-                        &nbsp;
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/faq.html">FAQ</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
                     </td>
                 </tr>
             </table>
-
             <br />
-            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+            
+            <table width="100%" class="DarkTableLine">
                 <tr>
-                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1">Geronimo Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                    <td class="ReallyDarkBackground" nowrap>
+                        Geronimo Online
                     </td>
                 </tr>
                 <tr>
-                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
+                    <td class="MediumBackground" nowrap>
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/">The Geronimo Home Page</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/issues.html">Problem Tracking Database</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/userMailingList.html">Users Mailing List Archive</a><br />
+                        &nbsp;-&nbsp;<a href="http://geronimo.apache.org/redirects/developerMailingList.html">Developers Mailing List Archive</a><br />
+                        &nbsp;-&nbsp;<a href="irc://irc.freenode.net/#geronimo">Geronimo IRC chat</a><br />
+                    </td>
+                </tr>
+            </table>
+            <br />
+            
+            <table width="100%" class="DarkTableLine">
+                <tr>
+                    <td class="ReallyDarkBackground" nowrap>
+                        Geronimo Examples
+                    </td>
+                </tr>
+                <tr>
+                    <td class="MediumBackground" nowrap>
                         <!--<a href="/servlets-examples/">Servlet Examples </a><br />-->
                         <!--<a href="/jsp-examples/">JSP Examples </a><br />-->
                         <!--<a href="/ldap-demo/">LDAP Demo</a><br />-->
@@ -118,9 +107,16 @@
                     </td>
                 </tr>
             </table>
+            
+            <br />
+            <br />
+            <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif" alt="Powered by Geronimo"/><br />
+            Copyright &copy; 2003-2011 <br />
+            Apache Software Foundation <br />
+            All Rights Reserved <br />
+
         </td>
 
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 
         <!-- Body -->
         <td align="left" valign="top">
@@ -173,7 +169,7 @@ deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
                <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b> for developers working on Geronimo</li>
            </ul>
 
-            <p>Thanks for using Geronimo!</p>
+            
             <%-- Needs to be updated if we want to keep using it
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like a slimmer Geronimo installation?</b><br />
@@ -267,17 +263,8 @@ deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
             </div>
             --%>
 
-            <p align="right"><font size=-1>
-            <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif" alt="Powered by Geronimo"/>
-            </font><br />
-            &nbsp;
-            <font size=-1>Copyright &copy; 2003-2010 Apache Software Foundation</font><br />
-            <font size=-1>All Rights Reserved</font> <br />
-            &nbsp;</p>
-            <p align="right">&nbsp;</p>
 
         </td>
-
     </tr>
 </table>
 

@@ -28,16 +28,22 @@ limitations under the License.
     <!-- Assemble the rendering result -->
     <div class="portlet" id='<c:out value="${portlet}"/>'>
         <div class="title">
-            <!-- Portlet Mode Controls -->
-            <pluto:modeAnchor portletMode="view"/>
-            <pluto:modeAnchor portletMode="edit"/>
-            <pluto:modeAnchor portletMode="help"/>
-            <!-- Window State Controls -->
-            <a href="<pluto:url windowState="minimized"/>"><span class="minimized"></span></a>
-            <a href="<pluto:url windowState="maximized"/>"><span class="maximized"></span></a>
-            <a href="<pluto:url windowState="normal"/>"><span class="normal"></span></a>
-            <!-- Portlet Title -->
-            <h2><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
+            <table class="Caption" width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="Figure">
+                        <!-- Portlet Title -->
+                        <h2><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
+                        <!-- Portlet Mode Controls -->
+                        <pluto:modeAnchor portletMode="view"/>
+                        <pluto:modeAnchor portletMode="edit"/>
+                        <pluto:modeAnchor portletMode="help"/>
+                        <!-- Window State Controls -->
+                        <a href="<pluto:url windowState="minimized"/>"><span class="minimized"></span></a>
+                        <a href="<pluto:url windowState="maximized"/>"><span class="maximized"></span></a>
+                        <a href="<pluto:url windowState="normal"/>"><span class="normal"></span></a>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="body">
             <pluto:render/>
