@@ -74,8 +74,8 @@
         <openwebbeansVersion>1.1.1-SNAPSHOT</openwebbeansVersion>
         <derbyVersion>10.6.1.0_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
-        <axis2Version>1.6.1</axis2Version>
-        <axiomVersion>1.2.12</axiomVersion>
+        <axis2Version>1.6.1_1-SNAPSHOT</axis2Version>
+        <axiomVersion>1.2.12_1</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
         <xbeanVersion>3.8-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
@@ -149,8 +149,6 @@
         
         <!-- OSGI properties -->
         <felix.bundlerepository.version>1.6.6</felix.bundlerepository.version>
-        <!--karaf.version>2.2.1-SNAPSHOT</karaf.version>
-        <karaf.osgi.version>2.2.1.SNAPSHOT</karaf.osgi.version-->
         <karaf.version>2.2.1</karaf.version>
         <karaf.osgi.version>2.2.1</karaf.osgi.version>        
         <aries.blueprint.version>0.3</aries.blueprint.version>
@@ -1426,7 +1424,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axiom-all</artifactId>
-                <version>${axiomVersion}_1</version>
+                <version>${axiomVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
