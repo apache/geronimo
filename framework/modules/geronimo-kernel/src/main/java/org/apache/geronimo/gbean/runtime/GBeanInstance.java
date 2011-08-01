@@ -916,7 +916,7 @@ public final class GBeanInstance implements StateManageable {
                     continue;
                 }
                 if (references[i] instanceof GBeanSingleReference) {
-                    if (unstarted.size() <= MAX_DEPENDENCY_STATE_REASON_NUM || MAX_DEPENDENCY_STATE_REASON_NUM == -1) {
+                    if (unstarted.size() < MAX_DEPENDENCY_STATE_REASON_NUM || MAX_DEPENDENCY_STATE_REASON_NUM == -1) {
                         GBeanSingleReference reference = (GBeanSingleReference) references[i];
                         unstarted.add(reference.getTargetName());
                     }
