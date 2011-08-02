@@ -112,7 +112,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void moduleLoading(Artifact module) {
-        currentOperation = " Loading " + module;
+        currentOperation = " Loading " + module.getArtifactId();
         for (int i = 0; i < modules.length; i++) {
             if (modules[i].equals(module)) {
                 moduleStatus[i] = STATUS_LOADING;
@@ -134,7 +134,7 @@ public class SimpleProgressBarStartupMonitor implements StartupMonitor {
     }
 
     public synchronized void moduleStarting(Artifact module) {
-        currentOperation = "Starting " + module;
+        //currentOperation = " Starting " + module.getArtifactId();
     }
 
     public synchronized void moduleStarted(Artifact module) {
