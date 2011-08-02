@@ -24,14 +24,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -676,24 +672,10 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private static void storeConfigSubstitutions(File configSubstitutionsFile, Properties properties) {
         if (configSubstitutionsFile != null) {
             try {
-                OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(configSubstitutionsFile),
-                        "ISO-8859-1");
+                FileOutputStream out = new FileOutputStream(configSubstitutionsFile);
                 try {
-                    out.write(new String(INSTRUCTION));
-                    out.write("#" + (new Date()).toString() + "\n");
-                    
-                    ArrayList<String> keys2 = new ArrayList(properties.keySet());
-                    Collections.sort(keys2, new Comparator<String>() {
-                        public int compare(String o1, String o2) {
-                            return o1.toLowerCase().compareTo(o2.toLowerCase());
-                        }
-                    });
-                    for (Object o : keys2) {
-                        String key = (String) o;
-                        String value = properties.getProperty(key);
-                        out.write(processProperty(key, true) + "=" + processProperty(value, false) + "\n");
-                    }
-                    out.flush();
+                    out.write(INSTRUCTION);                    
+                    properties.store(out, null);
                 } finally {
                     out.close();
                 }
@@ -703,17 +685,6 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
     }
 
-    // process the value and element of property as what java.util.Properties.store(Writer writer, String comments) does
-    private static String processProperty(String str, boolean isKey) {
-        boolean hasLeadingSpace = str.startsWith(" ");
-        String temp0 = isKey ? str.replaceAll(" ", "\\\\ ") : (hasLeadingSpace ? str.replaceFirst(" ", "\\\\ ") : str);
-        String temp1 = temp0.replaceAll("!", "\\\\!");
-        String temp2 = temp1.replaceAll("#", "\\\\#");
-        String temp3 = temp2.replaceAll(":", "\\\\:");
-        String temp4 = temp3.replaceAll("=", "\\\\=");
-        return temp4;
-    }
-    
     private static void addGeronimoSubstitutions(Map<String, Object> vars, Map props, String prefix) {
         if (prefix != null) {
             int start = prefix.length();
