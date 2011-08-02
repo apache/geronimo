@@ -38,11 +38,11 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                     "<ns2:attributes xmlns:ns2=\"http://geronimo.apache.org/xml/ns/attributes-1.2\" xmlns=\"http://geronimo.apache.org/xml/ns/plugins-1.3\">\n" +
                     "    <ns2:comment>This is a test comment.  Without it, a default warning comment will be created</ns2:comment>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/ca-helper-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jasper/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-server/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/transaction/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/ca-helper-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jasper/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-server/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/transaction/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"JettyWebConnector\">\n" +
                     "            <ns2:attribute name=\"host\">${ServerHostname}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"port\">${HTTPPort + PortOffset}</ns2:attribute>\n" +
@@ -58,15 +58,15 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"port\">${HTTPSPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/clustering/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/clustering/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"Node\">\n" +
                     "            <ns2:attribute name=\"nodeName\">${clusterNodeName}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/webservices-common/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/myfaces-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/myfaces/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/webservices-common/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/myfaces-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/myfaces/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"WebBuilder\">\n" +
                     "            <ns2:attribute name=\"defaultNamespace\">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
@@ -74,12 +74,12 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/activemq-ra/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/activemq-ra/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"ActiveMQ RA\">\n" +
                     "            <ns2:attribute name=\"ServerUrl\">tcp://${ServerHostname}:${ActiveMQPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/activemq-broker/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/activemq-broker/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"ActiveMQ.tcp.default\">\n" +
                     "            <ns2:attribute name=\"host\">${ServerHostname}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"port\">${ActiveMQPort + PortOffset}</ns2:attribute>\n" +
@@ -89,13 +89,13 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"port\">${ActiveMQStompPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/system-database/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/system-database/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"DerbyNetwork\">\n" +
                     "            <ns2:attribute name=\"host\">${ServerHostname}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"port\">${DerbyPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/connector-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/connector-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"ResourceRefBuilder\">\n" +
                     "            <ns2:attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"defaultEnvironment\">\n" +
@@ -126,18 +126,18 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "        </environment:environment></ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jasper-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/client-security/2.1-SNAPSHOT/car\" load=\"false\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/client/2.1-SNAPSHOT/car\" load=\"false\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-ejb-deployer/2.1-SNAPSHOT/car\" condition=\"props['org.apache.geronimo.jaxws.provider'] == 'axis2'\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jasper-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/client-security/2.1-TEST/car\" load=\"false\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/client/2.1-TEST/car\" load=\"false\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-ejb-deployer/2.1-TEST/car\" condition=\"props['org.apache.geronimo.jaxws.provider'] == 'axis2'\">\n" +
                     "        <ns2:gbean name=\"Axis2ModuleBuilderExtension\">\n" +
                     "            <ns2:attribute name=\"listener\">?name=${webcontainer}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jaxws-ejb-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jaxws-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jaxws-ejb-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jaxws-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"EjbRefBuilder\">\n" +
                     "            <ns2:attribute name=\"eeNamespaces\">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
@@ -147,27 +147,27 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"port\">${OpenEJBPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"EJBNetworkService\">\n" +
                     "            <ns2:attribute name=\"port\">${OpenEJBPort + PortOffset}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"host\">${ServerHostname}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/openjpa/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-deployer/2.1-SNAPSHOT/car\" condition=\"props['org.apache.geronimo.jaxws.provider'] == 'axis2'\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-ejb/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/system-database-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/console-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/pluto-support/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/spring/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.framework/transformer-agent/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/remote-deploy-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-ejb/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/debugviews-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/dojo-jetty6/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/persistence-jpa10-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/openjpa/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-deployer/2.1-TEST/car\" condition=\"props['org.apache.geronimo.jaxws.provider'] == 'axis2'\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis2-ejb/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/system-database-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/console-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/pluto-support/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/spring/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.framework/transformer-agent/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/remote-deploy-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-ejb/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/debugviews-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/dojo-jetty6/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/persistence-jpa10-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"PersistenceUnitBuilder\">\n" +
                     "            <ns2:attribute name=\"defaultPersistenceProviderClassName\">org.apache.openjpa.persistence.PersistenceProviderImpl</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"defaultPersistenceUnitProperties\">openjpa.Log=commons\n" +
@@ -186,9 +186,9 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "        </environment:environment></ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/activemq-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-clustering-wadi/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/wadi-clustering/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/activemq-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-clustering-wadi/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/wadi-clustering/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"DefaultBackingStrategyFactory\">\n" +
                     "            <ns2:attribute name=\"nbReplica\">${ReplicaCount}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
@@ -197,9 +197,9 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"clusterName\">${ClusterName}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/uddi-jetty6/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/axis-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/uddi-jetty6/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/axis-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"AxisModuleBuilderExtension\">\n" +
                     "            <ns2:attribute name=\"listener\">?name=${webcontainer}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"defaultEnvironment\">\n" +
@@ -214,7 +214,7 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "        </environment:environment></ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-corba-yoko/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/j2ee-corba-yoko/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"NameServer\">\n" +
                     "            <ns2:attribute name=\"port\">${COSNamingPort + PortOffset}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"host\">${COSNamingHost}</ns2:attribute>\n" +
@@ -228,38 +228,38 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "            <ns2:attribute name=\"host\">${ORBHost}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/mejb/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-clustering-builder-wadi/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/mejb/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/jetty6-clustering-builder-wadi/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"JettyClusteringBuilder\">\n" +
                     "            <ns2:attribute name=\"defaultSweepInterval\">${DefaultWadiSweepInterval}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"defaultNumPartitions\">${DefaultWadiNumPartitions}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/hot-deployer/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/hot-deployer/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"HotDeployer\">\n" +
                     "            <ns2:attribute name=\"path\">deploy/</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"pollIntervalMillis\">2000</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb-corba-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/client-corba-yoko/2.1-SNAPSHOT/car\" load=\"false\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/javamail/2.1-SNAPSHOT/car\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/openejb-corba-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/client-corba-yoko/2.1-TEST/car\" load=\"false\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/javamail/2.1-TEST/car\">\n" +
                     "        <ns2:gbean name=\"SMTPTransport\">\n" +
                     "            <ns2:attribute name=\"host\">${SMTPHost}</ns2:attribute>\n" +
                     "            <ns2:attribute name=\"port\">${SMTPPort + PortOffset}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-deployer/2.1-SNAPSHOT/car\" condition=\"props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/welcome-jetty/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/sharedlib/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/client-deployer/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/client-transaction/2.1-SNAPSHOT/car\" load=\"false\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-ejb-deployer/2.1-SNAPSHOT/car\" condition=\"props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'\">\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-deployer/2.1-TEST/car\" condition=\"props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/welcome-jetty/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/sharedlib/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/client-deployer/2.1-TEST/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/client-transaction/2.1-TEST/car\" load=\"false\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.configs/cxf-ejb-deployer/2.1-TEST/car\" condition=\"props.getProperty('org.apache.geronimo.jaxws.provider', 'cxf') == 'cxf'\">\n" +
                     "        <ns2:gbean name=\"CXFModuleBuilderExtension\">\n" +
                     "            <ns2:attribute name=\"listener\">?name=${webcontainer}</ns2:attribute>\n" +
                     "        </ns2:gbean>\n" +
                     "    </ns2:module>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.plugins/plancreator-jetty/2.1-SNAPSHOT/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.plugins/plancreator-jetty/2.1-TEST/car\"/>\n" +
                     "</ns2:attributes>\n";
     
     public void testReadWrite() throws Exception {

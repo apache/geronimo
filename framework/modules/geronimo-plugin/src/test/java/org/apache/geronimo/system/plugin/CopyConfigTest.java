@@ -55,10 +55,10 @@ public class CopyConfigTest extends TestCase {
             "        <module-id>\n" +
             "            <groupId>org.apache.geronimo.configs</groupId>\n" +
             "            <artifactId>j2ee-deployer</artifactId>\n" +
-            "            <version>2.1-SNAPSHOT</version>\n" +
+            "            <version>2.1-TEST</version>\n" +
             "            <type>car</type>\n" +
             "        </module-id>\n" +
-            "        <geronimo-version>2.1-SNAPSHOT</geronimo-version>\n" +
+            "        <geronimo-version>2.1-TEST</geronimo-version>\n" +
             "        <jvm-version>1.5</jvm-version>\n" +
             "        <source-repository>http://www.geronimoplugins.com/repository/geronimo-1.1</source-repository>\n" +
             "        <source-repository>http://repo1.maven.org/maven2/</source-repository>\n" +

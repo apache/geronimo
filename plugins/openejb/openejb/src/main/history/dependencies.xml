@@ -88,11 +88,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>commons-dbcp-all</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
         <artifactId>mbean-annotation-api</artifactId>
         <type>jar</type>
     </dependency>
@@ -159,11 +154,6 @@
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-ejb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-jsf</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

@@ -158,11 +158,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-jsf</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-web</artifactId>
         <type>jar</type>
     </dependency>

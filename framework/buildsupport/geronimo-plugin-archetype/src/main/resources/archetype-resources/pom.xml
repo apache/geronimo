@@ -119,7 +119,7 @@
                             <!-- note the variable ${RollerContextPath} which is further specified in var/config/config-substitutions.properties -->
                             <!--
                                                         <config-xml-content server="default">
-                                                            <gbean name="org.apache.geronimo.plugins/roller-jetty/1.0-SNAPSHOT/car">
+                                                            <gbean name="org.apache.geronimo.plugins/roller-jetty/1.0/car">
                                                                 <attribute name="contextPath">${RollerContextPath}</attribute>
                                                             </gbean>
                                                         </config-xml-content>
