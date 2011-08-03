@@ -45,11 +45,11 @@ function showHideById(id) {
 </script>
 <script language="javascript"> 
 var oldcolor;
-function highlightTr(theTr){
+function highlightBg(theTr){
     oldcolor = theTr.style.backgroundColor;
     theTr.style.backgroundColor = '#e2ebfe';
 }
-function recoverTr(theTr){
+function recoverBg(theTr){
     theTr.style.backgroundColor = oldcolor;
 }
 </script> 
@@ -67,43 +67,43 @@ function recoverTr(theTr){
                 <c:set var="backgroundClass" value='MediumBackground'/>
             </c:otherwise>
         </c:choose>
-        <tr class="${backgroundClass}" style="cursor:pointer" onmouseover="highlightTr(this)" onmouseout="recoverTr(this)">
-            <td onclick="showHideById('eiTr-'+${status.index})">
-                ${pwb.packageInfo.packageName} (version=${pwb.packageInfo.packageVersion})
-            </td>
-        </tr>
-        <tr id="eiTr-${status.index}" style="background-color:#F0F8FF;display:none">
+        <tr class="${backgroundClass}">
             <td>
-                <table width="100%" cellpadding="3">
-                    <tr>
-                        <td valign="top" width="100px">
-                            - exporters:
-                        </td>
-                        <td>
-                            <c:forEach var="info" items="${pwb.exportBundleInfos}">
-                                ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services" style="vertical-align:middle"/></a>
-                                <br/>
-                            </c:forEach>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top" width="100px">
-                            - importers:
-                        </td>
-                        <td>
-                            <c:forEach var="info" items="${pwb.importBundleInfos}">
-                                ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-                                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services" style="vertical-align:middle"/></a>
-                                <br/>
-                            </c:forEach>
-                        </td>
-                    </tr>
-                </table>
+                <div style="cursor:pointer;clear:both;" onmouseover="highlightBg(this)" onmouseout="recoverBg(this)" onclick="showHideById('eiDiv-'+${status.index})">
+                    ${pwb.packageInfo.packageName} (version=${pwb.packageInfo.packageVersion})
+                </div>
+                <div id="eiDiv-${status.index}" style="background-color:#F0F8FF;display:none">
+                    <table width="100%" cellpadding="3">
+                        <tr>
+                            <td valign="top" width="100px">
+                                - exporters:
+                            </td>
+                            <td>
+                                <c:forEach var="info" items="${pwb.exportBundleInfos}">
+                                    ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services" style="vertical-align:middle"/></a>
+                                    <br/>
+                                </c:forEach>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" width="100px">
+                                - importers:
+                            </td>
+                            <td>
+                                <c:forEach var="info" items="${pwb.importBundleInfos}">
+                                    ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+                                    <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services" style="vertical-align:middle"/></a>
+                                    <br/>
+                                </c:forEach>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </td>
         </tr>
     </c:forEach>
