@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -66,6 +65,7 @@ import org.apache.geronimo.system.plugin.model.ModuleType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.xml.sax.SAXException;
 import org.osgi.framework.Bundle;
+import org.apache.felix.utils.properties.Properties;
 
 /**
  * Stores managed attributes in an XML file on the local filesystem.
@@ -257,8 +257,11 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         return expressionParser.parse(in);
     }
 
-    public void addConfigSubstitutions(Properties properties) {
-        localConfigSubstitutions.putAll(properties);
+    public void addConfigSubstitutions(java.util.Properties properties) {
+        for (Object key : properties.keySet()) {
+            String keyStr = (String) key;
+            localConfigSubstitutions.put(keyStr, properties.getProperty(keyStr));
+        }        
         Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
         storeConfigSubstitutions(configSubstitutionsFile, localConfigSubstitutions);
         expressionParser.setVariables(configSubstutions);
@@ -675,7 +678,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                 FileOutputStream out = new FileOutputStream(configSubstitutionsFile);
                 try {
                     out.write(INSTRUCTION);                    
-                    properties.store(out, null);
+                    properties.save(out);
                 } finally {
                     out.close();
                 }
