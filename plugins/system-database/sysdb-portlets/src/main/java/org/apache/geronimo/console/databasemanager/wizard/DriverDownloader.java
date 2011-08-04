@@ -41,6 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 
 /**
  * A utility that handles listing and downloading available JDBC driver JARs.
@@ -117,7 +120,7 @@ public class DriverDownloader {
     /**
      * Downloads a driver and loads it into the local repository.
      */
-    public void loadDriver(WriteableRepository repo, DriverInfo driver, FileWriteMonitor monitor) throws IOException {
+    public void loadDriver(PluginInstallerGBean installer, DriverInfo driver, FileWriteMonitor monitor) throws IOException {
         int urlIndex = 0;
         if (driver.urls.length > 1) {
             if (random == null) {
@@ -167,8 +170,7 @@ public class DriverDownloader {
                 if (entry == null) {
                     log.error("Cannot extract driver JAR " + driver.unzipPath + " from download file " + url);
                 } else {
-                    in = jar.getInputStream(entry);
-                    repo.copyToRepository(in, (int)entry.getSize(), Artifact.create(uri), monitor);
+                    install(installer, jar.getInputStream(entry), Artifact.create(uri));
                 }
             } finally {
                 if (jar != null) try {
@@ -183,9 +185,27 @@ public class DriverDownloader {
         } else {
             URLConnection con = url.openConnection();
             in = con.getInputStream();
-            repo.copyToRepository(in, con.getContentLength(), Artifact.create(uri), monitor);
+            install(installer, in, Artifact.create(uri));
         }
     }
+    
+    private void install(PluginInstallerGBean installer, InputStream is, Artifact artifact) throws IOException{
+        // convert input stream to file
+        File file = File.createTempFile("geronimo-driver-to-install", "");
+        file.deleteOnExit();
+        OutputStream os = new FileOutputStream(file);
+        int bytesRead = 0;
+        byte[] buffer = new byte[8192];
+        while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+        IOUtils.close(os);
+        IOUtils.close(is);
+        
+        // install
+        installer.installLibrary(file, artifact);
+    }
+    
 
     public static class DriverInfo implements Comparable, Serializable {
         private final static long serialVersionUID = -1202452382992975449L;

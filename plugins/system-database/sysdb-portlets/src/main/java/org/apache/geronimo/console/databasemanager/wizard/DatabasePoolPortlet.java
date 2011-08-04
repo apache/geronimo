@@ -96,6 +96,9 @@ import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -107,6 +110,7 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -249,7 +253,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         PortletSession session = request.getPortletSession(true);
         DriverDownloader.DriverInfo[] results = (DriverDownloader.DriverInfo[]) session.getAttribute(DRIVER_SESSION_KEY,
                 PortletSession.APPLICATION_SCOPE);
-        if (results == null) {
+        if (results == null || results.length ==0) {
             DriverDownloader downloader = new DriverDownloader();
             try {
                 results = downloader.loadDriverInfo(new URL(DRIVER_INFO_URL));
@@ -335,14 +339,23 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
             if (found != null) {
                 data.jars = new String[]{found.getRepositoryURI()};
-                WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
-                final PortletSession session = actionRequest.getPortletSession();
-                ProgressInfo progressInfo = new ProgressInfo();
-                progressInfo.setMainMessage("Downloading " + found.getName());
-                session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
-                // Start the download monitoring
-                new Thread(new Downloader(found, progressInfo, repo)).start();
-                actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_STATUS_MODE);
+                try {
+                    PluginInstallerGBean installer = KernelRegistry.getSingleKernel().getGBean(PluginInstallerGBean.class);
+                    //WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
+                    final PortletSession session = actionRequest.getPortletSession();
+                    ProgressInfo progressInfo = new ProgressInfo();
+                    progressInfo.setMainMessage("Downloading " + found.getName());
+                    session.setAttribute(ProgressInfo.PROGRESS_INFO_KEY, progressInfo, PortletSession.APPLICATION_SCOPE);
+                    // Start the download monitoring
+                    new Thread(new Downloader(found, progressInfo, installer)).start();
+                    actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_STATUS_MODE);
+                } catch (GBeanNotFoundException e) {
+                    throw new PortletException(e);
+                } catch (InternalKernelException e) {
+                    throw new PortletException(e);
+                } catch (IllegalStateException e) {
+                    throw new PortletException(e);
+                }
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, DOWNLOAD_MODE);
             }
@@ -440,20 +453,20 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private static class Downloader implements Runnable {
-        private WriteableRepository repo;
+        private PluginInstallerGBean installer;
         private DriverDownloader.DriverInfo driver;
         private ProgressInfo progressInfo;
 
-        public Downloader(DriverDownloader.DriverInfo driver, ProgressInfo progressInfo, WriteableRepository repo) {
+        public Downloader(DriverDownloader.DriverInfo driver, ProgressInfo progressInfo, PluginInstallerGBean installer) {
             this.driver = driver;
             this.progressInfo = progressInfo;
-            this.repo = repo;
+            this.installer = installer;
         }
 
         public void run() {
             DriverDownloader downloader = new DriverDownloader();
             try {
-                downloader.loadDriver(repo, driver, new FileWriteMonitor() {
+                downloader.loadDriver(installer, driver, new FileWriteMonitor() {
                     private int fileSize;
 
                     public void writeStarted(String fileDescription, int fileSize) {
