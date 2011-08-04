@@ -38,21 +38,7 @@
     </tr>
 </table>
 <br/>
-<script language="javascript">
-function showHideById(id) {
-    document.getElementById(id).style.display = (document.getElementById(id).style.display=='none')?'block':'none';
-}
-</script>
-<script language="javascript"> 
-var oldcolor;
-function highlightBg(theTr){
-    oldcolor = theTr.style.backgroundColor;
-    theTr.style.backgroundColor = '#e2ebfe';
-}
-function recoverBg(theTr){
-    theTr.style.backgroundColor = oldcolor;
-}
-</script> 
+
 <table width="100%" class="TableLine" summary="Find Packages Result">
     <tr class="DarkBackground">
         <th scope="col">Search Result (Click to see package's exporter and importer)</th>   
@@ -69,7 +55,7 @@ function recoverBg(theTr){
         </c:choose>
         <tr class="${backgroundClass}">
             <td>
-                <div style="cursor:pointer;clear:both;" onmouseover="highlightBg(this)" onmouseout="recoverBg(this)" onclick="showHideById('eiDiv-'+${status.index})">
+                <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('eiDiv-'+${status.index})">
                     ${pwb.packageInfo.packageName} (version=${pwb.packageInfo.packageVersion})
                 </div>
                 <div id="eiDiv-${status.index}" style="background-color:#F0F8FF;display:none">

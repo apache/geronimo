@@ -219,14 +219,14 @@ function toggleShowDependenciesMode() {
               <c:set var="backgroundClass" value='MediumBackground'/>
           </c:otherwise>
       </c:choose>
-      <tr>
+      <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">
         <!-- module id -->
         <c:choose>
             <c:when test="${moduleDetails.componentName != null}">
-                <td class="${backgroundClass}">&nbsp;${moduleDetails.componentName}&nbsp;</td>
+                <td>${moduleDetails.componentName}</td>
             </c:when>
             <c:otherwise>
-               <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}&nbsp;</td>
+                <td>${moduleDetails.configId}</td>
             </c:otherwise>   
         </c:choose>        
         
@@ -234,81 +234,81 @@ function toggleShowDependenciesMode() {
         <c:if test="${showDisplayName}">
             <c:choose>
                 <c:when test="${moduleDetails.displayName != null}">
-                    <td class="${backgroundClass}">&nbsp;${moduleDetails.displayName}&nbsp;</td>
+                    <td>${moduleDetails.displayName}</td>
                 </c:when>
                 <c:otherwise>
-                    <td class="${backgroundClass}">&nbsp;</td>
+                    <td></td>
                 </c:otherwise> 
             </c:choose>
         </c:if>
                 
         <!-- context path -->
         <c:if test="${showWebInfo}">
-            <td class="${backgroundClass}">
+            <td width="150">
             <c:if test="${moduleDetails.state.running}">
             	<c:forEach var="contextPath" items="${moduleDetails.contextPaths}">
-            		&nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
+            		<a href="${contextPath}">${contextPath}</a><br/>
             	</c:forEach>
             </c:if>
             </td>
         </c:if>
 
         <!-- state -->
-        <td width="100" class="${backgroundClass}">&nbsp;${moduleDetails.state}&nbsp;</td>
+        <td width="75">${moduleDetails.state}</td>
 
         <!-- Start/Stop actions -->
-        <td width="75" class="${backgroundClass}">
+        <td width="60">
             <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.stop"/></a>&nbsp;
+                    <a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.stop"/></a>
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
                 <span name=nonexpert> 
-                    &nbsp;<a><fmt:message key="consolebase.common.stop"/></a>&nbsp;
+                    <a><fmt:message key="consolebase.common.stop"/></a>
                 </span>
             </c:if>
             <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR' || moduleDetails.clientAppServerSide)}">
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>
             </c:if>
         </td>
 
         <!-- Restart action -->
-        <td width="75" class="${backgroundClass}">
+        <td width="60">
             <c:if test="${moduleDetails.state.running}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.restart"/></a>&nbsp;
+                    <a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.restart"/></a>
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
                 <span name=nonexpert> 
-                    &nbsp;<a><fmt:message key="consolebase.common.restart"/></a>&nbsp;
+                    <a><fmt:message key="consolebase.common.restart"/></a>
                 </span>
             </c:if>
         </td>
 
         <!-- Uninstall action -->
-        <td width="75" class="${backgroundClass}">
+        <td width="60">
             <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.uninstall"/></a>
             </span>
             <c:if test="${moduleDetails.expertConfig}">
                 <span name=nonexpert> 
-                    &nbsp;<a><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
+                    <a><fmt:message key="consolebase.common.uninstall"/></a>
                 </span>
             </c:if>
         </td>
 
         <c:if test="${showDependencies}">
            <!-- Parents -->
-           <td class="${backgroundClass}">
+           <td>
                <c:forEach var="parent" items="${moduleDetails.parents}">
                   ${parent} <br>
                </c:forEach>
            </td>
 
            <!-- Children -->
-           <td class="${backgroundClass}">
+           <td>
                <c:forEach var="child" items="${moduleDetails.children}">
                   ${child} <br>
                </c:forEach>

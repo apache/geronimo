@@ -14,6 +14,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 //======================================================================
+/**** Global Confirm ****/
 function showGlobalConfirmMessage(msg){
     if (window.parent!=window.self){
         return parent.globalConfirm(msg);
@@ -22,6 +23,7 @@ function showGlobalConfirmMessage(msg){
     }
 } 
 
+/**** Status Div ****/
 function showGlobalStatus(txt){
     if (window.parent!=window.self) {
         parent.showStatus(txt);
@@ -32,4 +34,20 @@ function hideGlobalStatus(){
     if (window.parent!=window.self) {
         setTimeout("parent.hideStatus()", 300);
     }
+}
+
+/**** highlight background-color ****/
+var oldBgColor;
+function highlightBgColor(target){
+    oldBgColor = target.style.backgroundColor;
+    target.style.backgroundColor = '#e2ebfe';
+}
+
+function recoverBgColor(target){
+    target.style.backgroundColor = oldBgColor;
+}
+
+/**** show hide by Id ****/
+function showHideById(id) {
+    document.getElementById(id).style.display = (document.getElementById(id).style.display=='none')?'block':'none';
 }

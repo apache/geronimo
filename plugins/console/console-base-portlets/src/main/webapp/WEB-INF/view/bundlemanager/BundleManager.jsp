@@ -136,16 +136,7 @@ function refreshPrompt(target, bundleId, bundleName) {
         </c:if>
         <th scope="col" width="100">Utilities</th>
     </tr>
-    <script language="javascript"> 
-        var oldcolor;
-        function highlightTr(theTr){
-            oldcolor = theTr.style.backgroundColor;
-            theTr.style.backgroundColor = '#e2ebfe';
-        }
-        function recoverTr(theTr){
-            theTr.style.backgroundColor = oldcolor;
-        }
-    </script> 
+
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="bundleInfo" items="${extendedBundleInfos}">
       <c:choose>
@@ -156,7 +147,7 @@ function refreshPrompt(target, bundleId, bundleName) {
               <c:set var="backgroundClass" value='MediumBackground'/>
           </c:otherwise>
       </c:choose>
-      <tr class="${backgroundClass}" onmouseover="highlightTr(this)" onmouseout="recoverTr(this)">
+      <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">
         <!-- bundle id -->
         <td>&nbsp;${bundleInfo.bundleId}&nbsp;</td>
         
