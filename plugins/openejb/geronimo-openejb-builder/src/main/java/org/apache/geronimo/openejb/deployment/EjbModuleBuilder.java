@@ -143,7 +143,6 @@ import org.apache.openejb.jee.MessageDestination;
 import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceUnitRef;
-import org.apache.openejb.jee.RepositoryRef;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -1571,15 +1570,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             return specMessageDestinations;
         }
 
-        @Override
-        public Collection<RepositoryRef> getRepositoryRef() {
-            throw notAllowedException;
-        }
-
-        @Override
-        public Map<String, RepositoryRef> getRepositoryRefMap() {
-            throw notAllowedException;
-        }
     }
 
 }

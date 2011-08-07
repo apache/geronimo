@@ -41,7 +41,6 @@ import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.MessageDestinationRef;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceUnitRef;
-import org.apache.openejb.jee.RepositoryRef;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -213,15 +212,6 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
             return new HashMap<String, DataSource>();
         }
 
-        @Override
-        public Collection<RepositoryRef> getRepositoryRef() {
-            return new ArrayList<RepositoryRef>();
-        }
-
-        @Override
-        public Map<String, RepositoryRef> getRepositoryRefMap() {
-            return new HashMap<String, RepositoryRef>();
-        }
     }
 
     private static class NamingBuilderComparator implements Comparator<NamingBuilder> {
