@@ -71,15 +71,81 @@
     // tree var
     var treeStore;
     var treeData;
+    var treeModel;
+    var tree;
     
-    JMXManagerHelper.getJMXInformation({callback:createTreeStore});    
-           
-    function createTreeStore(treeObj){    
-        treeData = {data:""};
-        treeData.data = treeObj;                    
-        treeStore = new dojo.data.ItemFileWriteStore(treeData);       
+    dojo.addOnLoad(
+        function() {
+            JMXManagerHelper.getJMXInformation({callback:createTree,async:false});    
+        }
+    );
+
+    function createTree(treeData){                 
+        treeStore = new dojo.data.ItemFileWriteStore({data:treeData});
+        treeModel = new dijit.tree.ForestStoreModel({
+            store:treeStore, childrenAttrs:["children"]});
+        tree = new dijit.Tree({
+            model: treeModel,
+            showRoot: false,
+            openOnClick: false,
+            onOpen: onOpen,
+            onClick: onClick
+            },
+            "treeContainer");
     }
 
+    function onOpen(item) {
+        document.body.style.cursor = "wait";
+        _selectItem = item;
+                
+        // if the node has place holder, we will try get its children by type
+        if (checkPlaceholderChild(item)){
+            var type = treeStore.getValue(item,"type");
+            if (type == "JavaEE" || type == "Geronimo") {        //how to use static final java var?
+                JMXManagerHelper.listByJ2EEType(treeStore.getValue(item,"name"), {callback:updateJMXTree});
+            }
+            if (type == "GeronimoService") {
+                JMXManagerHelper.listBySubstring("ServiceModule="+treeStore.getValue(item,"name"), {callback:updateJMXTree});
+            }
+            if (type == "All") {
+                // not worked
+                JMXManagerHelper.listByPattern(treeStore.getValue(item,"name")+":*", {callback:updateJMXTree});
+            }
+            if (type == "StatsProvider") {
+                // Get statistics provider MBeans
+                JMXManagerHelper.getStatsProviderMBeans({callback:updateJMXTree});
+            }
+        } 
+        
+        // if item has children, del the place holder. Otherwise keep the place holder
+        dealPlaceholderChild(item);
+
+        document.body.style.cursor = "";
+    }
+    
+    function onClick(item) {
+        document.body.style.cursor = "wait";
+        _selectItem = item;
+        
+        var type = treeStore.getValue(item, "type");
+        if (type == "leaf") {
+            // set abstract name
+            var values = treeStore.getValues(item,"values");
+            _abstractName = values[0];
+            JMXManagerHelper.getAttributes(_abstractName, updateAttributesTable);
+            JMXManagerHelper.getOperations(_abstractName, updateOperationsTable);
+            JMXManagerHelper.getMBeanInfo(_abstractName, updateInfoTable);
+            JMXManagerHelper.getMBeanStats(_abstractName, updateStatsTable);
+        } else {
+            // No marker means not an abstract name, clear tables
+            dwr.util.removeAllRows('attributesTableBody');
+            dwr.util.removeAllRows('operationsTableBody');
+            dwr.util.removeAllRows('infoTableBody');
+            dwr.util.removeAllRows('statsTableBody');
+        }
+
+        document.body.style.cursor = "";
+    }
 
     /*
      * Call back: Update JMXTree
@@ -394,9 +460,6 @@
 
 </script>
 
-<!-- Model for tree -->
-<div dojoType="dijit.tree.ForestStoreModel" jsId="treeModel" store="treeStore" childrenAttrs="children" />
-
 <!-- Search table -->
 <div dojoType="dijit.TitlePane" title="Search">
        <fmt:message key="jmxmanager.help.objectNamePattern"/>:
@@ -537,65 +600,9 @@
     <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
        
         <!-- left pane START -->
-        <div dojoType="dijit.layout.ContentPane" sizeShare="40" layoutAlign="left" style="background-color:white; overflow: auto;">       
-            
-            <!-- JMX tree START -->
-            <div dojoType="dijit.Tree" model="treeModel" showRoot="false" openOnClick="false">
-                <script type="dojo/method" event="onOpen" args="item">
-                        document.body.style.cursor = "wait";
-                        _selectItem = item;
-                        
-                        // if the node has place holder, we will try get its children by type
-                        if (checkPlaceholderChild(item)){
-                            var type = treeStore.getValue(item,"type");
-                            if (type == "JavaEE" || type == "Geronimo") {        //how to use static final java var?
-                                JMXManagerHelper.listByJ2EEType(treeStore.getValue(item,"name"), {callback:updateJMXTree});
-                            }
-                            if (type == "GeronimoService") {
-                                JMXManagerHelper.listBySubstring("ServiceModule="+treeStore.getValue(item,"name"), {callback:updateJMXTree});
-                            }
-                            if (type == "All") {
-                                // not worked
-                                JMXManagerHelper.listByPattern(treeStore.getValue(item,"name")+":*", {callback:updateJMXTree});
-                            }
-                            if (type == "StatsProvider") {
-                                // Get statistics provider MBeans
-                                JMXManagerHelper.getStatsProviderMBeans({callback:updateJMXTree});
-                            }
-                        } 
-                        
-                        // if item has children, del the place holder. Otherwise keep the place holder
-                        dealPlaceholderChild(item);
-
-                        document.body.style.cursor = "";
-                </script> 
-                <script type="dojo/method" event="onClick" args="item">
-                        document.body.style.cursor = "wait";
-                        _selectItem = item;
-                        
-                        var type = treeStore.getValue(item, "type");
-                        if (type == "leaf") {
-                            // set abstract name
-                            var values = treeStore.getValues(item,"values");
-                            _abstractName = values[0];
-                            JMXManagerHelper.getAttributes(_abstractName, updateAttributesTable);
-                            JMXManagerHelper.getOperations(_abstractName, updateOperationsTable);
-                            JMXManagerHelper.getMBeanInfo(_abstractName, updateInfoTable);
-                            JMXManagerHelper.getMBeanStats(_abstractName, updateStatsTable);
-                        } else {
-                            // No marker means not an abstract name, clear tables
-                            dwr.util.removeAllRows('attributesTableBody');
-                            dwr.util.removeAllRows('operationsTableBody');
-                            dwr.util.removeAllRows('infoTableBody');
-                            dwr.util.removeAllRows('statsTableBody');
-                        }
-
-                        document.body.style.cursor = "";
-                </script>
-            </div>
-            <!-- JMX tree END -->
-            
-        </div> 
+        <div dojoType="dijit.layout.ContentPane" sizeShare="40" layoutAlign="left" style="background-color:white; overflow: auto;">
+            <div id="treeContainer"></div>
+        </div>
         <!-- left pane END -->
         
         <!-- right pane START -->

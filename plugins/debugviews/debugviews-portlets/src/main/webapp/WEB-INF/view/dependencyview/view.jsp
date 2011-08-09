@@ -46,15 +46,30 @@
 <!--     Page Stuff     -->
 <!------------------------>
 <script type="text/javascript">
-
-    var debugStore = null; 
-    DependencyViewHelper.getTrees({callback:createStore,async:false});
-    function createStore(treeData){    
-    //      var treeData = dojo.fromJson(json);                    
-          debugStore=new dojo.data.ItemFileReadStore({data:treeData});       
-      }
-    var debugModel = new dijit.tree.ForestStoreModel({
-        store:debugStore, rootId:"Dependencies", rootLabel:"Dependencis", childrenAttrs:["children"]});
+    var debugStore = null;
+    var debugModel = null;
+    var debugTree = null;
+    
+    dojo.addOnLoad(
+        function() {
+            DependencyViewHelper.getTrees({callback:createTree,async:false});
+        }
+    );
+    
+    function createTree(treeData){
+        debugStore = new dojo.data.ItemFileReadStore({data:treeData});
+        debugModel = new dijit.tree.ForestStoreModel({
+            store:debugStore, rootId:"Dependencies", rootLabel:"Dependencis", childrenAttrs:["children"]});
+        debugTree = new dijit.Tree({
+            "class": "claro",
+            showRoot: false,
+            model: debugModel,
+            openOnClick: true,
+            style: "width: 100%;overflow: auto;overflow-y: hidden;",
+            _onDblClick: _onDblClick
+            },
+            "treeContainer");
+    }
 
     var lastFoundId = -1;
     var SearchOn = []; //For ignore the fake root it better be a array
@@ -189,9 +204,6 @@
         }
         dojo.stopEvent(e);
     }
-    dojo.addOnLoad(function(){
-        debugTree._onDblClick = _onDblClick;
-    });
 </script>
 <div dojoType="dijit.TitlePane" title="<fmt:message key="debugviews.common.find"/>" >
     <b><label for="searchText"><fmt:message key="dependencyview.view.searchText" /></label>: </b>
@@ -210,8 +222,5 @@
     <input type="checkbox" id="inSelected" onChange="javascript:searchReset()" />
 </div>
 <br />
-<div dojoType="dijit.Tree" jsId="debugTree" class="claro" showRoot="false"
-      model="debugModel" openOnClick="true"  style="width: 100%;overflow: auto;overflow-y: hidden;">
+<div id="treeContainer">
 </div>
-
-

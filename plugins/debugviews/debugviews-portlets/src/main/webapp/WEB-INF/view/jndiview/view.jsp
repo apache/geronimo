@@ -46,16 +46,30 @@
 <!--     Page Stuff     -->
 <!------------------------>
 <script type="text/javascript">
-    var debugStore = null; 
+    var debugStore = null;
+    var debugModel = null;
+    var debugTree = null;
     
-    JNDIViewHelper.getTrees({callback:createStore,async:false});
-    function createStore(treeData){    
-    //      var treeData = dojo.fromJson(json);                    
-          debugStore=new dojo.data.ItemFileReadStore({data:treeData});       
-      }
-    var debugModel = new dijit.tree.ForestStoreModel({
-        store:debugStore, rootId:"JNDI", rootLabel:"JNDI", childrenAttrs:["children"]});
-
+    dojo.addOnLoad(
+        function(){
+            JNDIViewHelper.getTrees({callback:createTree,async:false});
+        }
+    );
+    
+    function createTree(treeData){                    
+        debugStore = new dojo.data.ItemFileReadStore({data:treeData});
+        debugModel = new dijit.tree.ForestStoreModel({
+            store:debugStore, rootId:"JNDI", rootLabel:"JNDI", childrenAttrs:["children"]});
+        debugTree = new dijit.Tree({
+            "class": "claro",
+            showRoot: false,
+            model: debugModel,
+            openOnClick: true,
+            style: "width: 100%;overflow: auto;overflow-y: hidden;"
+            },
+            "treeContainer");
+    }
+    
     var lastFoundId = -1;
     var SearchOn = []; //For ignore the fake root it better be a array
     var caseSensitive = true;
@@ -174,7 +188,5 @@
 
 </div>
 <br />
-<div dojoType="dijit.Tree" jsId="debugTree" class="claro" showRoot="false"
-      model="debugModel" openOnClick="true"  style="width: 100%;overflow: auto;overflow-y: hidden;">
+<div id="treeContainer">
 </div>
-

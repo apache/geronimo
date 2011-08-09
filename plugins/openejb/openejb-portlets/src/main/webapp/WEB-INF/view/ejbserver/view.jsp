@@ -43,12 +43,18 @@
     
     var lastFound = '';
     var doCheck = false;
-    var serverStore=null;
+    var serverStore = null;
+    var storeModel = null;
+    var tree = null;
     var data = '';
     var containerPropertyValue = ''; 
 
-    EjbHelper.getEjbInformation({callback:createStore,async:false});    
-        
+    dojo.addOnLoad(
+        function () {
+            EjbHelper.getEjbInformation({callback:createTree,async:false});
+        }
+    );
+
     function check(curr,last) {
         var cr = curr.split(".");
         var ls = last.split(".");
@@ -58,14 +64,32 @@
         return true;
     }
        
-    function createStore(treeDat){    
-        var json = dojo.toJson(treeDat);
-        data = {data:""};
-        data.data = treeDat;                    
-        serverStore=new dojo.data.ItemFileReadStore(data);       
+    function createTree(treeDat){
+        serverStore = new dojo.data.ItemFileReadStore({data: treeDat});
+        storeModel = new dijit.tree.ForestStoreModel({
+            store: serverStore, rootId: "Ejb Containers", rootLabel: "Ejb Containers", childrenAttrs: ["children"]});
+        tree = new dijit.Tree({
+            "class": "claro",
+            model: storeModel,
+            openOnClick: false,
+            onClick: onClick
+            },
+            "treeContainer");
     }
-      
     
+    function onClick(item) {
+        if (item.id!="Ejb Containers") {
+            var ids = serverStore.getValues(item, "values");
+            if (ids[1] != null) {
+                EjbHelper.getDeploymentInfo(ids[0],ids[1],updateEjbInfoTable);
+            } else {
+                EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
+            }
+        } else {
+            dwr.util.removeAllRows('ejbInfoTableBody');
+        }
+    }
+
    /**
     * DWR table render option
     */
@@ -80,7 +104,7 @@
                td.style.backgroundColor = '#FFFFFF';
            } else {
                td.style.backgroundColor = '#F2F2F2';
-           }	   
+           }       
            return td;
        },
        escapeHtml:false
@@ -100,20 +124,20 @@
                        return "<div style='width:100%;display:inline;'><p id='" + info.id + "para' style='color: red'>" + info.name + "</p></div>";
                    } else { 
                        return "<div style='width:100%;display:inline;'><p id='" + info.id + "para'>" + info.name + "</p></div>";
-                   }		
+                   }        
                },
                function(info) {
-	               var value = info.value;
-		           var name = info.name;
+                   var value = info.value;
+                   var name = info.name;
                    if(info.id == "ContainerId"){
-		               containerId = info.value;  
-                   } 		
+                       containerId = info.value;  
+                   }         
                    if(info.editable == "true"){                                        
                        return "<div style='width:100%;display:inline;'><input type='text' id="+info.id + " name="+info.name + " value="+info.value+" widgetId="+info.id+" dojoType='Textbox' /><button dojoType='Button'  onclick=updateValues('"+escape(containerId)+"','"+info.id+"','"+info.value+"')><fmt:message key="portlet.openejb.view.update"/></button></div> "
                    } else {
-                       return "<div style='width:100%'>" + info.value + "</div>";		
+                       return "<div style='width:100%'>" + info.value + "</div>";        
                    } 
-	           }	   
+               }       
            ],
            tableOption
        );
@@ -147,32 +171,14 @@
   </script>
 
 <div id="<portlet:namespace/>CommonMsgContainer"></div><br>
-
-<div dojoType="dijit.tree.ForestStoreModel" jsId="storeModel" 
-		store="serverStore" 
-		rootId="Ejb Containers" rootLabel="Ejb Containers" childrenAttrs="children"></div>
-
-	
+    
 <div dojoType="dijit.layout.LayoutContainer" id="mainLayout" style="width: 100%; height: 700px;">
     <!-- Horizontal split container -->
     <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
-        <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">       
-            <div class="claro" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
-    	        <script type="dojo/method" event="onClick" args="item">
-        			if(item.id!="Ejb Containers") {             	        
-        		        var ids = serverStore.getValues(item, "values");
-        			    if(ids[1] != null) {
-        		            EjbHelper.getDeploymentInfo(ids[0],ids[1],updateEjbInfoTable);		       
-        			    } else {
-        			        EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
-        			    }
-        			} else {
-        			    dwr.util.removeAllRows('ejbInfoTableBody');
-        			}
-    		    </script> 
-	        </div>
+        <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">
+            <div id="treeContainer"></div>
         </div> 
-	
+
         <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="claro" >
             <table id="ejbsTable" class="TableLine" width="100%">
                 <thead>
