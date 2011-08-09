@@ -37,8 +37,8 @@
             <td align="center">
             <form action="<portlet:actionURL/>" method="POST">
                 <input type="hidden" name="shutdown" value="shutdown" />
-                <input type="button" value='<fmt:message key="servermanager.normal.shutdown"/>' 
-                       onClick="showGlobalConfirmMessage('<fmt:message key="servermanager.normal.comfirmMsg01"/>')" />
+                <input type="submit" value='<fmt:message key="servermanager.normal.shutdown"/>' 
+                       onClick="return showGlobalConfirmMessage('<fmt:message key="servermanager.normal.comfirmMsg01"/>')" />
             </form>
             </td>
         </tr>
