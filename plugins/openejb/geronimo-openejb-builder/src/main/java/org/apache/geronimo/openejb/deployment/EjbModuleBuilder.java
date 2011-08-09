@@ -1165,7 +1165,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // add enc
         String moduleName = module.getName();
         
-        if (earContext.getSubModuleNames().contains(moduleName)){
+        if (earContext.getSubModuleNames().size() > 1 && earContext.getSubModuleNames().contains(moduleName)){
             log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
                     "_duplicated' , please check your modules in application to make sure they don't share the same name");
             moduleName = moduleName +"_duplicated";
