@@ -56,6 +56,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xbean.osgi.bundle.util.BundleResourceClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleResourceHelper;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +116,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             }
         }
         
-        classLoader = new BundleResourceClassLoader(bundle);
+        classLoader = new BundleClassLoader(bundle, BundleResourceHelper.getSearchWiredBundles(false), BundleResourceHelper.getConvertResourceUrls(true));
         
         if (managedClassNames == null) {
             managedClassNames = NO_STRINGS;
