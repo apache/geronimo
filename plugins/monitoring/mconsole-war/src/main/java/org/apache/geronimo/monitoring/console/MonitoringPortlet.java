@@ -687,10 +687,14 @@ public class MonitoringPortlet extends BasePortlet {
     private void addServer(ActionRequest actionRequest,
                            ActionResponse actionResponse) {
         try {
-            userTransaction.begin();
             String name = actionRequest.getParameter("name");
             String host = actionRequest.getParameter("ip");
+            if (entityManager.find(Node.class, name) != null) {
+                final String message = "The server name already exists. Please use a different one.";
+                throw new Exception(message);
+            }
             try {
+                userTransaction.begin();
                 Node node = new Node();
                 node.setName(name);
                 node.setHost(host);
