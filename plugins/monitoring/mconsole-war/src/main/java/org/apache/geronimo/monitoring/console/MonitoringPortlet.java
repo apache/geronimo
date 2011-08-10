@@ -1159,7 +1159,7 @@ public class MonitoringPortlet extends BasePortlet {
         node.setUserName("");
         node.setPassword("");
         node.setPort(1099);
-        node.setProtocol("jmx");
+        node.setProtocol("JMX");
         entityManager.persist(node);
         return node;
     }

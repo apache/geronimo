@@ -47,22 +47,17 @@ boolean isOnline = true;
 
 if (node != null) {
     try {
-        mrc = new MRCConnector(node);
-    } catch (Exception e) {
-        // the password supplied by the user doesn't work
-        try {
-            if(retention.equals("") || snapshot.equals("")) {
-                mrc = new MRCConnector(node);
-                // get the snapshot on the first call or any subsequent valid connections
-                snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
-                // get the retention on the first call or any subsequent valid connection
-                retention = retention == "" ? "" + mrc.getSnapshotRetention() : retention;
-            }
-        } catch(Exception ee) {
-            // the password in the db does not work
-            isOnline = false;
+        if(retention.equals("") || snapshot.equals("")) {
+            mrc = new MRCConnector(node);
+            // get the snapshot on the first call or any subsequent valid connections
+            snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
+            // get the retention on the first call or any subsequent valid connection
+            retention = retention == "" ? "" + mrc.getSnapshotRetention() : retention;
         }
-    }finally{
+    } catch(Exception ee) {
+        // the password in the db does not work
+        isOnline = false;
+    } finally{
         if(null != mrc)
             mrc.dispose();
     }
@@ -83,31 +78,12 @@ function show(x) {
 }
 function validate() {
    if (! (document.editServer.name.value 
-      && document.editServer.ip.value 
-      && document.editServer.username.value
-      && document.editServer.snapshot.value 
-      && document.editServer.port.value ))
-   {
-      alert("Name, Address, Protocol, Port, Username, and Snapshot Duration are all required fields.");
-      return false;
-   }
-   if (document.editServer.password.value != document.editServer.password2.value)
-   {
-      alert("Passwords do not match");
-      return false;
-   }
-   return true;
-}
-
-function validateTest() {
-   if (! (document.editServer.name.value 
-      && document.editServer.ip.value 
-      && document.editServer.username.value
+      && document.editServer.ip.value
       && document.editServer.snapshot.value
-      && document.editServer.password.value
+      && document.editServer.retention.value
       && document.editServer.port.value ))
    {
-      alert("Name, Address, Protocol, Port, Username, and Snapshot Duration are all required fields.");
+      alert("Name, Address, Protocol, Port, Snapshot Duration and Snapshot Retention are all required fields.");
       return false;
    }
    if (document.editServer.password.value != document.editServer.password2.value)
@@ -296,7 +272,7 @@ function setPort() {
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a onclick="document.editServer.action.value='testEditServerConnection'; document.editServer.mode.value='edit'; if(validateTest()) document.editServer.submit();" href="#"><fmt:message key="monitor.server.testSetting"/></a></li>
+                        <li><a onclick="document.editServer.action.value='testEditServerConnection'; document.editServer.mode.value='edit'; if(validate()) document.editServer.submit();" href="#"><fmt:message key="monitor.server.testSetting"/></a></li>
                         <%
                         if(node.isEnabled()) {
                         %>

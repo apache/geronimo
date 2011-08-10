@@ -68,11 +68,9 @@ function show(x) {
 function validate() {
     if (! (document.addServer.name.value 
         && document.addServer.ip.value 
-        && document.addServer.username.value
-        && document.addServer.password.value
         && document.addServer.port.value ))
     {
-        alert("Name, Address, Protocol, Port, Username, and Password are all required fields");
+        alert("Name, Address, Protocol and Port are all required fields");
         return false;
     }
     if (document.addServer.password.value != document.addServer.password2.value)
