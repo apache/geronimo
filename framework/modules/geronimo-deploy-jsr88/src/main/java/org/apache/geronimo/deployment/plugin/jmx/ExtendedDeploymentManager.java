@@ -38,6 +38,7 @@ import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -347,6 +348,40 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
             return recorder.getBundleId(symbolicName, version);
         } finally {
             kernel.getProxyManager().destroyProxy(recorder);
+        }
+    }
+    
+    public State getModulesState(Artifact moduleID) {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        return getState(moduleID);
+    }
+    
+    public State[] getModulesState(Artifact[] moduleIDList) {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        if (moduleIDList == null) {
+            return null; 
+        }        
+        State[] states = new State[moduleIDList.length];
+        for (int i = 0; i < moduleIDList.length; i++) {
+            Artifact moduleID = moduleIDList[i];
+            states[i] = getState(moduleID);
+        }
+        return states;
+    }
+    
+    private State getState(Artifact moduleID) {
+        if (moduleID != null && configurationManager.isInstalled(moduleID)) {    
+            if (configurationManager.isRunning(moduleID)) {
+                return State.RUNNING;
+            } else {
+                return State.STOPPED;
+            }
+        } else {
+            return null;
         }
     }
 }
