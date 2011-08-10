@@ -218,9 +218,9 @@ public class DatabasePoolPortlet extends BasePortlet {
         rarPathMap.put("TranQL XA Resource Adapter for DB2", "tranql-connector-db2-xa");
         rarPathMap.put("TranQL Client Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-client-local");
         rarPathMap.put("TranQL Client XA Resource Adapter for Apache Derby", "tranql-connector-derby-client-xa");
-//      rarPathMap.put("TranQL Embedded Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
-//      rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-xa");
-        rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
+        rarPathMap.put("TranQL Embedded Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
+        rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-xa");
+//        rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
         rarPathMap.put("TranQL XA Resource Adapter for Informix", "tranql-connector-informix-xa");
         rarPathMap.put("TranQL Client Local Transaction Resource Adapter for MySQL", "tranql-connector-mysql-local");
         rarPathMap.put("TranQL Client XA Resource Adapter for MySQL", "tranql-connector-mysql-xa");
