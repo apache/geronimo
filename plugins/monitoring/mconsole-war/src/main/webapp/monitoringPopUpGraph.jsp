@@ -37,12 +37,6 @@ String divNameString = graph.getName();
 
     makeObjects = function() {
         <%=graphString%>
-        var nodes = dojo.query('div[id $= Container]');
-        nodes.forEach(function(node, index, arr) {
-        	dojo.attr(node, 'style', {
-        		'float': 'left'
-        	})
-        })
     };
     dojo.addOnLoad(makeObjects);
     function refreshPeriodic() {
@@ -54,7 +48,9 @@ timerID = setTimeout("refreshPeriodic()",300000);
 </script>
 </head>
 <body>
-<div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=divNameString%></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"></div></div>
+<div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; height: 20px;">
+    <span style="line-height:20px; vertical-align:middle;"><%=divNameString%></span>
+</div>
 <%=divImplString %>
 </body>
 </html>

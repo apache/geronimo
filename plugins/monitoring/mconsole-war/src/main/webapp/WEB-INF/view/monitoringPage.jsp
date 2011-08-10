@@ -56,12 +56,6 @@ makeObjects = function(){
        out.println(graph.getJS());
 
     %>
-    var nodes = dojo.query('div[id $= Container]');
-    nodes.forEach(function(node, index, arr) {
-    	dojo.attr(node, 'style', {
-    		'float': 'left'
-    	})
-    })
 };
 
 dojo.addOnLoad(makeObjects);
@@ -94,7 +88,22 @@ for (StatsGraph graph : statsGraphs)
 {
 %>
 <p>
-<div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=graph.getName() %></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"><a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/min-b.png" alt="hide"></a>&nbsp;<a href="#" onClick="show('<%=graph.getDivName()%>');show('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/max-b.png" alt="show"></a></div></div>
+<div id="<%=graph.getDivName()%>Head" style="background-color:#f2f2f2; height:20px;">
+    <span style="float:left; line-height:20px; vertical-align:middle;">
+        <%=graph.getName() %>
+    </span>
+    <span style="float:right;">
+        <a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Sub');">
+            <img border=0 src="/monitoring/images/min-b.png" alt="hide" style="vertical-align:middle;">
+        </a>
+    </span>
+    <span style="float:right;">&nbsp;</span>
+    <span style="float:right;">
+        <a href="#" onClick="show('<%=graph.getDivName()%>');show('<%=graph.getDivName()%>Sub');">
+            <img border=0 src="/monitoring/images/max-b.png" alt="show" style="vertical-align:middle;">
+        </a>
+    </span>
+</div>
 <%=graph.getDivImplement()%>
 <%
 }
