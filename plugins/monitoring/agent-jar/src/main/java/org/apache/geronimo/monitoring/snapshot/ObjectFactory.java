@@ -14,17 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.monitoring.snapshot;
 
 import javax.xml.bind.annotation.XmlRegistry;
-import org.apache.geronimo.monitoring.snapshot.SnapshotConfig;
-import org.apache.geronimo.monitoring.snapshot.SnapshotConfig.Mbeans;
 
 
 /**
  * This object contains factory methods for each 
  * Java content interface and Java element interface 
- * generated in the org.apache.geronimo package. 
+ * generated in the org.apache.geronimo.monitoring.snapshot package. 
  * <p>An ObjectFactory allows you to programatically 
  * construct new instances of the Java representation 
  * for XML content. The Java representation of XML 
@@ -40,18 +39,18 @@ public class ObjectFactory {
 
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.apache.geronimo
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.apache.geronimo.monitoring.snapshot
      * 
      */
     public ObjectFactory() {
     }
 
     /**
-     * Create an instance of {@link Mbeans }
+     * Create an instance of {@link SnapshotConfig.Mbeans }
      * 
      */
-    public Mbeans createSnapshotConfigMbeans() {
-        return new Mbeans();
+    public SnapshotConfig.Mbeans createSnapshotConfigMbeans() {
+        return new SnapshotConfig.Mbeans();
     }
 
     /**

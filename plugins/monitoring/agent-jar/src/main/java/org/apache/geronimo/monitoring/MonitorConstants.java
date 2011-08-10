@@ -31,4 +31,6 @@ public class MonitorConstants {
     // used in SnapshotConfigXMLBuilder and MasterRemoteControl classes
     public static final String RETENTION = "retention";
     public static final String DURATION = "duration";
+    public static final String STARTED = "started";
+
 }

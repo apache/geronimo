@@ -154,9 +154,17 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     }
     
     /**
-     * Stops the snapshot thread
+     * Stops the snapshot thread and save the started status
      */
     public boolean stopSnapshot() {
+        setSnapshotStarted(false);
+        return stopSnapshotThread();
+    }
+    
+    /**
+     * Stops the snapshot thread
+     */
+    private boolean stopSnapshotThread() {
         if(snapshotThread != null) {
             if(snapshotThread.getSnapshotDuration() != Long.MAX_VALUE) {
                 saveDuration(snapshotThread.getSnapshotDuration());
@@ -242,6 +250,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         saveRetention(retention.intValue());
     }
     
+    public void setSnapshotStarted(Boolean started) {
+        saveStarted(started.booleanValue());
+    }
+    
     /**
     * Begins the snapshot process given the time interval between snapshots
      *
@@ -251,6 +263,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @param interval
      */
     public boolean startSnapshot(Long interval) {
+        setSnapshotStarted(true);
         // get the saved/default retention period
         String retentionStr = null;
         try {
@@ -331,7 +344,23 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * Executes when the GBean starts up. Also starts the snapshot thread.
      */
     public void doStart() {
-    
+        boolean started = false;
+        try {
+            started = Boolean.parseBoolean(
+                    SnapshotConfigXMLBuilder.getAttributeValue(MonitorConstants.STARTED));
+        } catch (Exception e) {
+            log.warn("Failed to parse 'started', set to default value " + started, e);            
+        }
+        if (started) {
+            long duration = MonitorConstants.DEFAULT_DURATION;
+            try {
+                duration = Long.parseLong(
+                        SnapshotConfigXMLBuilder.getAttributeValue(MonitorConstants.DURATION));
+            } catch (Exception e) {
+                log.warn("Failed to parse 'duration', set to default value " + duration, e);
+            }
+            startSnapshot(duration);
+        }
     }
     
     /**
@@ -339,7 +368,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public void doStop() {
         if(SnapshotStatus() == 1) {
-            stopSnapshot();
+            stopSnapshotThread();
         }
     }
     
@@ -349,6 +378,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     
     private void saveRetention(int retention) {
         SnapshotConfigXMLBuilder.saveRetention(retention);
+    }
+    
+    private void saveStarted(boolean started) {
+        SnapshotConfigXMLBuilder.saveStarted(started);
     }
     
     /**

@@ -28,6 +28,8 @@
                              minOccurs="1"  maxOccurs="1"/>
                 <xsd:element name="retention" type="xsd:string"
                              minOccurs="1"  maxOccurs="1"/>
+                <xsd:element name="started" type="xsd:string"
+                             minOccurs="1" maxOccurs="1"/>
                 <xsd:element name="mbeans">
                     <xsd:complexType>
                         <xsd:sequence>

@@ -132,7 +132,7 @@ public class SnapshotConfigXMLBuilder {
      */
     public static void saveDuration(long duration) {
         SnapshotConfig sc = getSnapshotConfig();
-        sc.setDuration("" + duration);
+        sc.setDuration(String.valueOf(duration));
         saveDocument(sc);
     }
 
@@ -142,10 +142,16 @@ public class SnapshotConfigXMLBuilder {
      */
     public static void saveRetention(int retention) {
         SnapshotConfig sc = getSnapshotConfig();
-        sc.setRetention("" + retention);
+        sc.setRetention(String.valueOf(retention));
         saveDocument(sc);
     }
-       
+    
+    public static void saveStarted(boolean started) {
+        SnapshotConfig sc = getSnapshotConfig();
+        sc.setStarted(String.valueOf(started));
+        saveDocument(sc);
+    }
+    
     /**
      * Returns the value of the configuration attribute, defined by the key
      * @param key
@@ -157,6 +163,8 @@ public class SnapshotConfigXMLBuilder {
             return getSnapshotConfig().getDuration();
         } else if(key.equals( MonitorConstants.RETENTION )) {
             return getSnapshotConfig().getRetention();
+        } else if(key.equals( MonitorConstants.STARTED)) {
+            return getSnapshotConfig().getStarted();
         } else {
             // Houston, we have a problem
             throw new Exception("[WARNING] Attribute: " + key + " is not valid.");

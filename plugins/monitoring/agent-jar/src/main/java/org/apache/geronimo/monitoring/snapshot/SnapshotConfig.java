@@ -14,45 +14,46 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.monitoring.snapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for snapshot-config element declaration.
+ * <p>Java class for anonymous complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;element name="snapshot-config">
- *   &lt;complexType>
- *     &lt;complexContent>
- *       &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *         &lt;sequence>
- *           &lt;element name="duration" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *           &lt;element name="retention" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *           &lt;element name="mbeans">
- *             &lt;complexType>
- *               &lt;complexContent>
- *                 &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                   &lt;sequence>
- *                     &lt;element name="mbean" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
- *                   &lt;/sequence>
- *                 &lt;/restriction>
- *               &lt;/complexContent>
- *             &lt;/complexType>
- *           &lt;/element>
- *         &lt;/sequence>
- *       &lt;/restriction>
- *     &lt;/complexContent>
- *   &lt;/complexType>
- * &lt;/element>
+ * &lt;complexType>
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="duration" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="retention" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="started" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="mbeans">
+ *           &lt;complexType>
+ *             &lt;complexContent>
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                 &lt;sequence>
+ *                   &lt;element name="mbean" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *                 &lt;/sequence>
+ *               &lt;/restriction>
+ *             &lt;/complexContent>
+ *           &lt;/complexType>
+ *         &lt;/element>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 
@@ -61,14 +62,20 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "duration",
     "retention",
+    "started",
     "mbeans"
 })
 @XmlRootElement(name = "snapshot-config")
 public class SnapshotConfig {
 
+    @XmlElement(required = true)
     protected String duration;
+    @XmlElement(required = true)
     protected String retention;
-    protected Mbeans mbeans;
+    @XmlElement(required = true)
+    protected String started;
+    @XmlElement(required = true)
+    protected SnapshotConfig.Mbeans mbeans;
 
     /**
      * Gets the value of the duration property.
@@ -119,14 +126,38 @@ public class SnapshotConfig {
     }
 
     /**
+     * Gets the value of the started property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getStarted() {
+        return started;
+    }
+
+    /**
+     * Sets the value of the started property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setStarted(String value) {
+        this.started = value;
+    }
+
+    /**
      * Gets the value of the mbeans property.
      * 
      * @return
      *     possible object is
-     *     {@link Mbeans }
+     *     {@link SnapshotConfig.Mbeans }
      *     
      */
-    public Mbeans getMbeans() {
+    public SnapshotConfig.Mbeans getMbeans() {
         return mbeans;
     }
 
@@ -135,10 +166,10 @@ public class SnapshotConfig {
      * 
      * @param value
      *     allowed object is
-     *     {@link Mbeans }
+     *     {@link SnapshotConfig.Mbeans }
      *     
      */
-    public void setMbeans(Mbeans value) {
+    public void setMbeans(SnapshotConfig.Mbeans value) {
         this.mbeans = value;
     }
 
