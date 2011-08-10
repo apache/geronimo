@@ -137,7 +137,7 @@ limitations under the License.
    
     <%}%>
     
-    
+    var oldSelectedValue;
     if(dijit.byId("quickLauncher")!=null){
         dijit.byId("quickLauncher").store=listStore;
     }else{
@@ -147,13 +147,18 @@ limitations under the License.
                     searchAttr: "name",
                     labelAttr: "label",
                     labelType: "html",
-                    onKeyPress: function(event){        
-                        if(event.charCode!=dojo.keys.ENTER) return;
-                            quickLaunchPortlets(this.value);      
-                    },
                     onChange: function(event){
-                        quickLaunchPortlets(this.value);
+                        if(this.isValid(true) && this.value != oldSelectedValue) {
+                            oldSelectedValue = this.value;
+                            quickLaunchPortlets(this.value);
+                        }
+                    },
+                    onKeyPress: function(event){        
+                        if(event.keyCode!=dojo.keys.ENTER) return;
+                        if(this.isValid(true) && this.value == oldSelectedValue)
+                            quickLaunchPortlets(this.value);      
                     }
+                    
                 },
                 dojo.byId("quickLauncher")
          );
