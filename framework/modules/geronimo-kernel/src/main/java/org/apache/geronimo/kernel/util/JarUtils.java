@@ -41,10 +41,15 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class JarUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JarUtils.class);
 
     private JarUtils() {
     }
@@ -196,6 +201,35 @@ public final class JarUtils {
                 return tempFile.toURI().toURL();
             } else {
                 return new URL(urlString);
+            }
+        }
+    }
+
+    public static void deleteJarFileURL(JarFile jarFile, URL jarFileUrl) {
+        try {
+            if (jarFile instanceof NestedJarFile) {
+                NestedJarFile nestedJar = (NestedJarFile) jarFile;
+                if (nestedJar.isUnpacked()) {
+                    JarFile baseJar = nestedJar.getBaseJar();
+                    if (baseJar instanceof UnpackedJarFile) {
+                        return;
+                    }
+                }
+            }
+            if (jarFile instanceof UnpackedJarFile) {
+                //Leave it there, as the URL is from a unpacked jar file
+                return;
+            } else {
+                if (jarUrlRewrite) {
+                    new File(jarFileUrl.getFile()).delete();
+                } else {
+                    //Leave it there, as it is a jar entry URL
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("unable to delete jar file URL " + jarFileUrl + " created from " + jarFile.getName(), e);
             }
         }
     }

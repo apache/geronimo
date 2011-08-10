@@ -270,7 +270,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
         return module;
     }
-    
+
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -279,17 +279,19 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         // parse the spec dd
         String specDD = null;
         WebApp webApp = null;
+        boolean specDDUrlCleanUpRequired = false;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
+                specDDUrlCleanUpRequired = true;
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = JarUtils.readAll(specDDUrl);
-             
+
             InputStream in = null;
-            
+
             // firstly validate the DD xml file, if it is defined by a schema.
             if (identifySpecDDSchemaVersion(specDD) >= 2.4f){
                 in = specDDUrl.openStream();
@@ -321,7 +323,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             if (e instanceof DeploymentException) {
                 throw new DeploymentException(e);
             }
-           
+
             if (!moduleFile.getName().endsWith(".war")) {
                 //not for us
                 return null;
@@ -380,6 +382,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, shareJndi(parentModule), parentModule);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
+        }
+
+        if(specDDUrlCleanUpRequired && specDDUrl != null) {
+            JarUtils.deleteJarFileURL(moduleFile, specDDUrl);
         }
         return module;
     }

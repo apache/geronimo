@@ -329,7 +329,7 @@ public class Deployer implements GBeanLifecycle {
         return configID;
     }
 
-    private List install(File targetFile,
+    private List<String> install(File targetFile,
             boolean install,
             Manifest manifest,
             ConfigurationStore store,
@@ -346,7 +346,7 @@ public class Deployer implements GBeanLifecycle {
         Thread thread = Thread.currentThread();
         ClassLoader oldCl = thread.getContextClassLoader();
         //TODO OSGI fixme
-        thread.setContextClassLoader( new BundleClassLoader(context.getConfiguration().getBundle()));
+        thread.setContextClassLoader(new BundleClassLoader(context.getConfiguration().getBundle()));
         try {
             try {
                 configurationDatas.add(context.getConfigurationData());
@@ -384,7 +384,7 @@ public class Deployer implements GBeanLifecycle {
                 return deployedURIs;
             } else {
                 configsCleanupRequired = true;
-                return Collections.EMPTY_LIST;
+                return Collections.<String>emptyList();
             }
         } catch (DeploymentException e) {
             configsCleanupRequired = true;
@@ -403,6 +403,12 @@ public class Deployer implements GBeanLifecycle {
         } finally {
             thread.setContextClassLoader(oldCl);
             context.close();
+            //Clean up the temporary directory, now the deployment process is different with the old strategy
+            //Due to the applications installed in the repository folder is of archived type,
+            //the deployed application will be extracted to a temporary folder for analysis.
+            if (context.getBaseDir() != null && !FileUtils.recursiveDelete(context.getBaseDir())) {
+                reaper.delete(context.getBaseDir().getAbsolutePath(), "delete");
+            }
             if (configsCleanupRequired) {
                 // We do this after context is closed so the module jar isn't open
                 cleanupConfigurations(configurationDatas);

@@ -837,11 +837,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     private void cleanupContext(EARContext earContext) {
-        if (earContext != null) {
-            try {
-                earContext.close();
-            } catch (Exception e) {
-            }
+        if (earContext == null) {
+            return;
+        }
+        File tempDirectory = earContext.getBaseDir();
+        try {
+            earContext.close();
+        } catch (Exception e) {
+        }
+        try {
+            cleanupConfigurationDir(tempDirectory);
+        } catch (Exception e) {
         }
     }
 
