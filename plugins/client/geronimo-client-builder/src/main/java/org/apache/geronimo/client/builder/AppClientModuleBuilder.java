@@ -41,7 +41,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.datasource.deployment.DataSourceBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -157,7 +156,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                credentialStoreName, 
+                credentialStoreName,
                 globalContextAbstractName,
                 repositories,
                 new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
@@ -189,7 +188,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 transactionManagerObjectName,
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
-                credentialStoreName, 
+                credentialStoreName,
                 globalContextAbstractName,
                 repositories,
                 new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
@@ -257,7 +256,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     private ModuleBuilder getConnectorModuleBuilder() {
-        return (ModuleBuilder) connectorModuleBuilder.getElement();
+        return connectorModuleBuilder.getElement();
     }
 
     @Override
@@ -454,7 +453,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
         if (standAlone) {
             Map<JndiKey, Map<String, Object>> appJndiContext = Module.share(Module.APP, module.getJndiContext());
-            
+
             ApplicationInfo appInfo = new ApplicationInfo(ConfigurationModuleType.CAR,
                     serverEnvironment,
                     earName,
@@ -561,12 +560,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
         Environment clientEnvironment = appClientModule.getEnvironment();
-//        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
-//            Artifact earConfigId = earContext.getConfigID();
-//            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
-//            clientEnvironment.setConfigId(configId);
-//        }
-
+        //        if (!appClientModule.isStandAlone() || clientEnvironment.getConfigId() == null) {
+        //            Artifact earConfigId = earContext.getConfigID();
+        //            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
+        //            clientEnvironment.setConfigId(configId);
+        //        }
 
         try {
             targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
@@ -576,10 +574,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         // construct the app client deployment context... this is the same class used by the ear context
         EARContext appClientDeploymentContext = null;
-        
-        
+
         try {
-          //Use a temporary folder to hold the extracted files for analysis use
+            //Use a temporary folder to hold the extracted files for analysis use
             File tempDirectory = FileUtils.createTempDir();
 
             appClientDeploymentContext = new EARContext(tempDirectory,
@@ -591,97 +588,74 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
                     earContext);
-            
-            
+
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(earContext);
 
-
-      if (module.getParentModule() != null) {
-                
+            if (module.getParentModule() != null) {
                 Collection<String> libClasspath = module.getParentModule().getClassPath();
                 for (String libEntryPath : libClasspath) {
-                  if(libEntryPath.endsWith(".jar")){
-                    try {
-                        NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
-                        appClientDeploymentContext.addIncludeAsPackedJar(URI.create(libEntryPath), library);
-                    } catch (IOException e) {
-                        throw new DeploymentException("Could not add to app client library classpath: " + libEntryPath, e);
+                    if (libEntryPath.endsWith(".jar")) {
+                        try {
+                            NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
+                            appClientDeploymentContext.addIncludeAsPackedJar(URI.create(libEntryPath), library);
+                        } catch (IOException e) {
+                            throw new DeploymentException("Could not add to app client library classpath: " + libEntryPath, e);
+                        }
                     }
-                  }
                 }
                 module.getClassPath().addAll(libClasspath);
-            
-            
-            Enumeration<JarEntry> ear_entries = earFile.entries();
-            
-            //Copy non archive files from ear file to appclient configuration. These
-            // files are needed when caculating dir classpath in manifest.
-            while (ear_entries.hasMoreElements()) {
-                
-                ZipEntry ear_entry = ear_entries.nextElement();
-                URI targetPath = module.getParentModule().resolve(ear_entry.getName());
-                
-                if (!ear_entry.getName().endsWith(".jar") && !ear_entry.getName().endsWith(".war")
-                        && !ear_entry.getName().endsWith(".rar") && !ear_entry.getName().startsWith("META-INF")) 
-                {
-                    appClientDeploymentContext.addFile(targetPath, earFile, ear_entry);
+                Enumeration<JarEntry> ear_entries = earFile.entries();
+                //Copy non archive files from ear file to appclient configuration. These
+                // files are needed when caculating dir classpath in manifest.
+                while (ear_entries.hasMoreElements()) {
+                    ZipEntry ear_entry = ear_entries.nextElement();
+                    URI targetPath = module.getParentModule().resolve(ear_entry.getName());
+                    if (!ear_entry.getName().endsWith(".jar") && !ear_entry.getName().endsWith(".war") && !ear_entry.getName().endsWith(".rar") && !ear_entry.getName().startsWith("META-INF")) {
+                        appClientDeploymentContext.addFile(targetPath, earFile, ear_entry);
+                    }
                 }
             }
-            
-      }
-            
             Collection<String> appClientModuleClasspaths = module.getClassPath();
-            
             try {
                 // extract the client Jar file into a standalone packed jar file and add the contents to the output
                 URI moduleBase = new URI(module.getTargetPath());
                 appClientDeploymentContext.addIncludeAsPackedJar(moduleBase, moduleFile);
                 // add manifest class path entries to the app client context
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
-                
-                
             } catch (IOException e) {
                 throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Unable to get app client module base URI " + module.getTargetPath(), e);
             }
-            
-          if (module.getParentModule() != null) {      
-              
-            appClientModuleClasspaths.add(module.getTargetPath());
-            EARContext moduleContext = module.getEarContext();
-            Collection<String> moduleLocations = module.getParentModule().getModuleLocations();
-            URI baseUri = URI.create(module.getTargetPath());
-            moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), appClientModuleClasspaths, moduleLocations);
 
-            
-            for (String classpath: appClientModuleClasspaths){
-                appClientDeploymentContext.addToClassPath(classpath);
-                
-                //Copy needed jar from ear to appclient configuration.
-                if (classpath.endsWith(".jar")){
+            if (module.getParentModule() != null) {
+                appClientModuleClasspaths.add(module.getTargetPath());
+                EARContext moduleContext = module.getEarContext();
+                Collection<String> moduleLocations = module.getParentModule().getModuleLocations();
+                URI baseUri = URI.create(module.getTargetPath());
+                moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), appClientModuleClasspaths, moduleLocations);
 
-                    NestedJarFile library = new NestedJarFile(earFile, classpath);
-                    appClientDeploymentContext.addIncludeAsPackedJar(URI.create(classpath), library);
-                    
-                }                 
+                for (String classpath : appClientModuleClasspaths) {
+                    appClientDeploymentContext.addToClassPath(classpath);
+
+                    //Copy needed jar from ear to appclient configuration.
+                    if (classpath.endsWith(".jar")) {
+                        NestedJarFile library = new NestedJarFile(earFile, classpath);
+                        appClientDeploymentContext.addIncludeAsPackedJar(URI.create(classpath), library);
+                    }
+                }
             }
-            
-          }
-            
         } catch (DeploymentException e) {
             throw e;
         } catch (IOException e) {
-           throw new DeploymentException(e);
+            throw new DeploymentException(e);
         }
-        
         for (Module connectorModule : appClientModule.getModules()) {
             if (connectorModule instanceof ConnectorModule) {
                 getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
             }
         }
-
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.installModule(module.getModuleFile(), appClientDeploymentContext, module, configurationStores, targetConfigurationStore, repositories);
         }
@@ -705,7 +679,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         AbstractName appJndiName = module.getEarContext().getNaming().createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
         module.getEarContext().getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
-        
+
         GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
         appContexts.setAttribute("globalContextSegment", module.getJndiContext().get(JndiScope.global));
         appContexts.setAttribute("applicationContextMap", module.getJndiContext().get(JndiScope.app));
@@ -713,13 +687,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             module.getEarContext().addGBean(appContexts);
         } catch (GBeanAlreadyExistsException e1) {
-          throw new DeploymentException(e1);
+            throw new DeploymentException(e1);
         }
-        
+
         AppClientModule appClientModule = (AppClientModule) module;
         JarFile moduleFile = module.getModuleFile();
 
-        ApplicationClient appClient =  appClientModule.getSpecDD();
+        ApplicationClient appClient = appClientModule.getSpecDD();
         GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
         //First, the silly gbean on the server that says there's an app client
         // generate the object name for the app client
@@ -755,7 +729,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 break;
             }
         }
-        
+
         //Share the messageDestination info with the ear
         if (appClientDeploymentContext.getMessageDestinations() != null && earContext.getMessageDestinations() != null) {
             appClientDeploymentContext.getMessageDestinations().putAll(earContext.getMessageDestinations());
@@ -802,24 +776,24 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         // (or not)
                         appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
                     }
-                    
+
                     if (appClient.getMainClass() == null) {
                         //LifecycleMethodBuilder.buildNaming() need the main class info in appClient specDD.
                         appClient.setMainClass(appClientModule.getMainClassName());
                     }
-                    
-                    String moduleName =  module.getName();
-                    
-                    if (earContext.getSubModuleNames().contains(moduleName)){
-                        log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
-                                "_duplicated' , please check your modules in application to make sure they don't share the same name");
-                        moduleName = moduleName +"_duplicated";
+
+                    String moduleName = module.getName();
+
+                    if (earContext.getSubModuleNames().contains(moduleName)) {
+                        log.warn("Duplicated moduleName: '" + moduleName + "' is found ! deployer will rename it to: '" + moduleName
+                                + "_duplicated' , please check your modules in application to make sure they don't share the same name");
+                        moduleName = moduleName + "_duplicated";
                         earContext.getSubModuleNames().add(moduleName);
-                    } 
-                        
-                   earContext.getSubModuleNames().add(moduleName);                    
-                   appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
-                    
+                    }
+
+                    earContext.getSubModuleNames().add(moduleName);
+                    appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
+
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
                     if (!appClient.isMetadataComplete()) {
                         appClient.setMetadataComplete(true);
@@ -833,8 +807,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 } catch (DeploymentException e) {
                     throw e;
                 } catch (Exception e) {
-                    throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean " +
-                            appClientModule.getName(), e);
+                    throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean " + appClientModule.getName(), e);
                 }
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
@@ -869,13 +842,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     } else if (earContext.getSecurityConfiguration() != null) {
                         log.warn("Configuration of app client default subject from ear security configuration no longer supported.");
                         //beware a linkage error if we cast this to SubjectInfo
-//                        String realm = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectRealm();
-//                        String id = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectId();
-//                        if (realm != null) {
-//                            SubjectInfo subjectInfo = new SubjectInfo(realm, id);
-//                            appClientContainerGBeanData.setAttribute("defaultSubject", subjectInfo);
-//                            appClientContainerGBeanData.setReferencePattern("CredentialStore", credentialStoreName);
-//                        }
+                        //String realm = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectRealm();
+                        //String id = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectId();
+                        //if (realm != null) {
+                        //  SubjectInfo subjectInfo = new SubjectInfo(realm, id);
+                        //  appClientContainerGBeanData.setAttribute("defaultSubject", subjectInfo);
+                        //  appClientContainerGBeanData.setReferencePattern("CredentialStore", credentialStoreName);
+                        //}
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
                     appClientContainerGBeanData.setAttribute("holder", holder);
@@ -924,7 +897,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
         return context;
     }
-    
+
     private ClassFinder createAppClientClassFinder(ApplicationClient appClient, AppClientModule appClientModule) throws DeploymentException {
 
         //------------------------------------------------------------------------------------
@@ -994,7 +967,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
             String path = tokenizer.nextToken();
-
             URI pathUri;
             try {
                 pathUri = new URI(path);
@@ -1005,9 +977,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             if (pathUri.isAbsolute()) {
                 throw new DeploymentException("Manifest class path entries must be relative (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
             }
-            
-            Enumeration<JarEntry> ear_entries = earFile.entries();
 
+            Enumeration<JarEntry> ear_entries = earFile.entries();
             // determine the target file
             URI classPathJarLocation = jarFileLocation.resolve(pathUri);
             File classPathFile = deploymentContext.getTargetFile(classPathJarLocation);
@@ -1020,9 +991,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 if (entry == null) {
                     throw new DeploymentException("Cound not find manifest class path entry: jarFile=" + jarFileLocation + ", path=" + path);
                 }
-                
                 try {
-
                     if (!entry.getName().endsWith(".jar")) {
 
                         while (ear_entries.hasMoreElements()) {
@@ -1032,31 +1001,22 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                                 deploymentContext.addFile(targetPath, earFile, ear_entry);
                         }
                     } else {
-
                         // copy the file into the output context
                         deploymentContext.addFile(classPathJarLocation, earFile, entry);
                     }
                 } catch (IOException e) {
-                    throw new DeploymentException(
-                            "Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation
-                                    + ", path=" + path, e);
+                    throw new DeploymentException("Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation + ", path=" + path, e);
                 }
 
                 JarFile classPathJarFile;
-                
                 if (classPathFile.getName().endsWith(".jar")) {
-
                     try {
                         classPathJarFile = new JarFile(classPathFile);
                     } catch (IOException e) {
-                        throw new DeploymentException(
-                                "Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile="
-                                        + jarFileLocation + ", path=" + path, e);
+                        throw new DeploymentException("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path, e);
                     }
-
                     // add the client jars of this class path jar
                     addManifestClassPath(deploymentContext, earFile, classPathJarFile, classPathJarLocation);
-
                 }
             }
         }
