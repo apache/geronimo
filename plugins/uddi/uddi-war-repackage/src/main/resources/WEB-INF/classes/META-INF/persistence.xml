@@ -65,7 +65,8 @@
       
       <!-- derby connection properties -->
       <property name="openjpa.ConnectionDriverName" value="org.apache.derby.jdbc.ClientDriver"/>
-      <property name="openjpa.ConnectionURL" value="jdbc:derby://localhost:1527/UddiDatabase;create=false;"/>
+      <!-- openjpa.ConnectionURL is set in plan.xml of uddi-tomcat to enable PortOffset--> 
+      <!-- property name="openjpa.ConnectionURL" value="jdbc:derby://localhost:1527/UddiDatabase;create=false;"/-->
       <property name="openjpa.ConnectionUserName" value="app"/>
       <property name="openjpa.ConnectionPassword" value="app"/>
       

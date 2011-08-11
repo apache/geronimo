@@ -40,7 +40,7 @@
 
   <context-root>/juddi</context-root>
   
-  <naming:resource-ref>
+    <naming:resource-ref>
         <naming:ref-name>jdbc/juddiDB</naming:ref-name>
         <naming:resource-link>jdbc/juddiDB</naming:resource-link>
     </naming:resource-ref>
@@ -48,4 +48,11 @@
         <naming:ref-name>jdbc/NoTxJuddiDB</naming:ref-name>
         <naming:resource-link>jdbc/NoTxJuddiDB</naming:resource-link>
     </naming:resource-ref>
+    
+   <!-- System Properties -->
+    <gbean name="DerbyProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+             openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort}/UddiDatabase;create=false;
+        </attribute>
+    </gbean>
 </web-app>

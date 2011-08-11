@@ -20,6 +20,12 @@
 
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2">
   <context-root>/juddi</context-root>
+  <!-- System Properties -->
+ <gbean name="DerbyProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+     <attribute name="systemProperties">
+          openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort}/UddiDatabase;create=false;
+     </attribute>
+ </gbean>
   <!--<gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">-->
     <!-- copies uddi derby db files into specified location -->
     <!--<attribute name="prefix">META-INF/geronimo-uddi-db</attribute>-->

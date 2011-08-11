@@ -189,6 +189,17 @@
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="DerbyProperties">
+                                	<attribute name="systemProperties">
+                                		openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort + PortOffset}/UddiDatabase;create=false;
+                                	</attribute>
+                                </gbean>
+                            </config-xml-content>
+                        </plugin-artifact>
+                    </instance>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>uddi-war-repackage</artifactId>
