@@ -305,9 +305,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         String specDD = null;
         ApplicationClient appClient = null;
+        boolean cleanUpSpecDDUrlRequired = false;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "META-INF/application-client.xml");
+                cleanUpSpecDDUrlRequired = true;
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -451,6 +453,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
         }
+
+        if(cleanUpSpecDDUrlRequired && specDDUrl != null) {
+            JarUtils.deleteJarFileURL(moduleFile, specDDUrl);
+        }
         if (standAlone) {
             Map<JndiKey, Map<String, Object>> appJndiContext = Module.share(Module.APP, module.getJndiContext());
 
@@ -588,7 +594,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
                     earContext);
-
+            earContext.deleteFileOnExit(tempDirectory);
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(earContext);
 
@@ -646,32 +652,42 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                 }
             }
+            for (Module connectorModule : appClientModule.getModules()) {
+                if (connectorModule instanceof ConnectorModule) {
+                    getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
+                }
+            }
+            for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+                mbe.installModule(module.getModuleFile(), appClientDeploymentContext, module, configurationStores, targetConfigurationStore, repositories);
+            }
         } catch (DeploymentException e) {
+            closeAppClientContextOnException(appClientDeploymentContext);
             throw e;
         } catch (IOException e) {
+            closeAppClientContextOnException(appClientDeploymentContext);
             throw new DeploymentException(e);
-        }
-        for (Module connectorModule : appClientModule.getModules()) {
-            if (connectorModule instanceof ConnectorModule) {
-                getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
-            }
-        }
-        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.installModule(module.getModuleFile(), appClientDeploymentContext, module, configurationStores, targetConfigurationStore, repositories);
         }
     }
 
     public void initContext(EARContext earContext, Module clientModule, Bundle bundle) throws DeploymentException {
-        AppClientModule appClientModule = ((AppClientModule) clientModule);
-        namingBuilders.buildEnvironment(appClientModule.getSpecDD(), appClientModule.getVendorDD(), clientModule.getEnvironment());
+        try {
+            AppClientModule appClientModule = ((AppClientModule) clientModule);
+            namingBuilders.buildEnvironment(appClientModule.getSpecDD(), appClientModule.getVendorDD(), clientModule.getEnvironment());
 
-        for (Module connectorModule : appClientModule.getModules()) {
-            if (connectorModule instanceof ConnectorModule) {
-                getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, bundle);
+            for (Module connectorModule : appClientModule.getModules()) {
+                if (connectorModule instanceof ConnectorModule) {
+                    getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, bundle);
+                }
             }
-        }
-        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, clientModule, bundle);
+            for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+                mbe.initContext(earContext, clientModule, bundle);
+            }
+        } catch (DeploymentException e) {
+            closeAppClientContextOnException(clientModule.getEarContext());
+            throw e;
+        } catch (Exception e) {
+            closeAppClientContextOnException(clientModule.getEarContext());
+            throw new DeploymentException(e);
         }
     }
 
@@ -876,8 +892,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             }
 
         } catch (Throwable e) {
-            File appClientDir = appClientDeploymentContext.getBaseDir();
-            cleanupAppClientDir(appClientDir);
             if (e instanceof Error) {
                 throw (Error) e;
             } else if (e instanceof DeploymentException) {
@@ -1020,6 +1034,23 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 }
             }
         }
+    }
+
+    /**
+     * Close the application client context if any exception is thrown in the deployment process
+     * This method should only be called while any error occurs, as it will clean the temporary directory.
+     * In a successful deployment, the temporary directory will be used to package the final application to repository directory
+     * @param appClientContext
+     */
+    private void closeAppClientContextOnException(EARContext appClientContext) {
+        if (appClientContext == null) {
+            return;
+        }
+        try {
+            appClientContext.close();
+        } catch (Exception e) {
+        }
+        cleanupAppClientDir(appClientContext.getBaseDir());
     }
 
     private boolean cleanupAppClientDir(File configurationDir) {

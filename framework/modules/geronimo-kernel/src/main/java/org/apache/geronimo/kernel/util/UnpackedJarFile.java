@@ -61,13 +61,7 @@ public class UnpackedJarFile extends JarFile {
                     in = new FileInputStream(manifestFile);
                     manifest = new Manifest(in);
                 } finally {
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    }
+                    IOUtils.close(in);
                 }
             }
             manifestLoaded = true;

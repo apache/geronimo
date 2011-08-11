@@ -22,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -53,6 +53,14 @@ import org.slf4j.LoggerFactory;
 public class FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+
+    public static final long FILE_UTILS_INITIALIZATION_TIME_MILL = System.currentTimeMillis();
+
+    public static final String DEFAULT_TEMP_PREFIX = "geronimo-fileutils";
+
+    public static final String DEFAULT_TEMP_FILE_SUFFIX = ".tmpfile";
+
+    public static final String DEFAULT_TEMP_DIRECTORY_SUFFIX = ".tmpdir";
 
     public static void copyFile(File source, File destination) throws IOException {
         copyFile(source, destination, IOUtils.DEFAULT_COPY_BUFFER_SIZE);
@@ -80,7 +88,7 @@ public class FileUtils {
 
     // be careful to clean up the temp directory
     public static File createTempDir() throws IOException {
-        File tempDir = File.createTempFile("geronimo-fileutils", ".tmpdir");
+        File tempDir = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_DIRECTORY_SUFFIX);
         tempDir.delete();
         tempDir.mkdirs();
         deleteOnExit(tempDir);
@@ -90,7 +98,7 @@ public class FileUtils {
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     public static File createTempFile() throws IOException {
-        File tempFile = File.createTempFile("geronimo-fileutils", ".tmpfile");
+        File tempFile = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_FILE_SUFFIX);
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -98,7 +106,7 @@ public class FileUtils {
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     public static File createTempFile(String extension) throws IOException {
-        File tempFile = File.createTempFile("geronimo-fileutils", extension == null ? ".tmpdir" : extension);
+        File tempFile = File.createTempFile(DEFAULT_TEMP_PREFIX, extension == null ? DEFAULT_TEMP_DIRECTORY_SUFFIX : extension);
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -274,9 +282,9 @@ public class FileUtils {
                     }
                 } else {
                     Set<URL> matches = new LinkedHashSet<URL>();
-                    Enumeration entries = jarFile.entries();
+                    Enumeration<JarEntry> entries = jarFile.entries();
                     while (entries.hasMoreElements()) {
-                        ZipEntry entry = (ZipEntry) entries.nextElement();
+                        ZipEntry entry = entries.nextElement();
                         String fileName = entry.getName();
                         if (SelectorUtils.matchPath(pattern, fileName)) {
                             URL url = new URL(baseURL, fileName);

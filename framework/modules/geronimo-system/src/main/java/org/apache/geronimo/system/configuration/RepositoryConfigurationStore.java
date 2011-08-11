@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -308,8 +307,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                          out.write(buf, 0, count);
                  }
                  in.close();
-                 out.closeEntry();                 
-             }             
+                 out.closeEntry();
+             }
              input.close();
     	}
     }
@@ -340,10 +339,12 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
-        log.debug("Writing config: " + configurationData);
+        if (log.isDebugEnabled()) {
+            log.debug("Writing config: " + configurationData);
+        }
         File source = configurationData.getInPlaceConfigurationDir() == null ? configurationData.getConfigurationDir()
                 : configurationData.getInPlaceConfigurationDir();
-        
+
         if (!source.exists()) {
             throw new InvalidConfigException("Source does not exist " + source);
         } else if (!source.canRead()) {
@@ -358,14 +359,20 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         File destination = repository.getLocation(configId);
         if (!source.equals(destination)) {
             if (source.isFile()) {
-                log.debug("copying packed bundle from " + source + " to destination " + destination);
+                if (log.isDebugEnabled()) {
+                    log.debug("copying packed bundle from " + source + " to destination " + destination);
+                }
                 repository.copyToRepository(source, configId, null);
             } else {
-                log.debug("Packing bundle from " + source + " to destination " + destination);
+                if (log.isDebugEnabled()) {
+                    log.debug("Packing bundle from " + source + " to destination " + destination);
+                }
                 JarUtils.jarDirectory(source, destination);
             }
         } else {
-            log.debug("Plugin is already in location " + source);
+            if (log.isDebugEnabled()) {
+                log.debug("Plugin is already in location " + source);
+            }
         }
         // if directory in the correct place -- noop
        /*

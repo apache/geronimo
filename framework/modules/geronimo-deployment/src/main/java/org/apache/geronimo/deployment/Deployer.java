@@ -72,6 +72,8 @@ public class Deployer implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(Deployer.class);
 
     private final int REAPER_INTERVAL = 60 * 1000;
+    public static final String CLEAN_UP_ON_START_KEY = "org.apache.geronimo.deployer.cleanupOnStart";
+    private final boolean CLEAN_UP_ON_START = System.getProperty(CLEAN_UP_ON_START_KEY) == null ? true : Boolean.getBoolean(CLEAN_UP_ON_START_KEY);
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
     private final Collection builders;
@@ -275,15 +277,6 @@ public class Deployer implements GBeanLifecycle {
 //            if (targetFile != null) {
 //                targetFile.delete();
 //            }
-
-            //Clean Up the created deploymentContext, as some initial work might be done in the buildConfiguration invocation
-            if (context != null) {
-                try {
-                    context.close();
-                } catch (Exception ingore) {
-                }
-            }
-
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
                 throw (Error) e;
@@ -296,6 +289,14 @@ public class Deployer implements GBeanLifecycle {
             throw new Error(e);
         } finally {
             JarUtils.close(module);
+            if (context != null) {
+                List<File> deleteOnExitFiles = context.getDeleteOnExitFiles();
+                try {
+                    context.close();
+                } catch (Exception e) {
+                }
+                cleanUpTemporaryDirectories(deleteOnExitFiles);
+            }
         }
     }
 
@@ -333,7 +334,7 @@ public class Deployer implements GBeanLifecycle {
             boolean install,
             Manifest manifest,
             ConfigurationStore store,
-            DeploymentContext context) throws DeploymentException, IOException, Throwable {
+            DeploymentContext context) throws DeploymentException {
         List<ConfigurationData> configurationDatas = new ArrayList<ConfigurationData>();
 
         boolean configsCleanupRequired = false;
@@ -389,26 +390,12 @@ public class Deployer implements GBeanLifecycle {
         } catch (DeploymentException e) {
             configsCleanupRequired = true;
             throw e;
-        } catch (IOException e) {
-            configsCleanupRequired = true;
-            throw e;
-        } catch (InvalidConfigException e) {
-            configsCleanupRequired = true;
-            // unlikely as we just built this
-            throw new DeploymentException(e);
         } catch (Throwable e) {
             // Could get here if serialization of the configuration failed (GERONIMO-1996)
             configsCleanupRequired = true;
-            throw e;
+            throw new DeploymentException(e);
         } finally {
             thread.setContextClassLoader(oldCl);
-            context.close();
-            //Clean up the temporary directory, now the deployment process is different with the old strategy
-            //Due to the applications installed in the repository folder is of archived type,
-            //the deployed application will be extracted to a temporary folder for analysis.
-            if (context.getBaseDir() != null && !FileUtils.recursiveDelete(context.getBaseDir())) {
-                reaper.delete(context.getBaseDir().getAbsolutePath(), "delete");
-            }
             if (configsCleanupRequired) {
                 // We do this after context is closed so the module jar isn't open
                 cleanupConfigurations(configurationDatas);
@@ -482,6 +469,12 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
+    private void cleanUpTemporaryDirectories(List<File> temporaryDirectories) {
+        for (File temporaryDirectory : temporaryDirectories) {
+            reaper.delete(temporaryDirectory.getAbsolutePath(), "delete");
+        }
+    }
+
     private void notifyWatchers(List list) {
         Artifact[] arts = new Artifact[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -497,9 +490,8 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
-    private void cleanupConfigurations(List configurations) {
-        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+    private void cleanupConfigurations(List<ConfigurationData> configurations) {
+        for (ConfigurationData configurationData : configurations) {
             File configurationDir = configurationData.getConfigurationDir();
             if (!FileUtils.recursiveDelete(configurationDir)) {
                 reaper.delete(configurationDir.getAbsolutePath(), "delete");
@@ -532,19 +524,15 @@ public class Deployer implements GBeanLifecycle {
 
         public DeployerReaper(int reaperInterval) {
             this.reaperInterval = reaperInterval;
+            this.thread = new Thread(this, "Geronimo Config Store Reaper");
+            this.thread.setDaemon(true);
+            this.thread.start();
         }
 
         public void delete(String dir, String type) {
             pendingDeletionIndex.setProperty(dir, type);
-            log.debug("Queued deployment directory to be reaped " + dir);
-            startThread();
-        }
-
-        private synchronized void startThread() {
-            if (this.thread == null) {
-                this.thread = new Thread(this, "Geronimo Config Store Reaper");
-                this.thread.setDaemon(true);
-                this.thread.start();
+            if (log.isDebugEnabled()) {
+                log.debug("Queued deployment directory to be reaped " + dir);
             }
         }
 
@@ -573,6 +561,9 @@ public class Deployer implements GBeanLifecycle {
          * Reap any temporary directories left behind by previous runs.
          */
         private void reapBacklog() {
+            if (!CLEAN_UP_ON_START) {
+                return;
+            }
             try {
                 File tempFile = File.createTempFile("geronimo-deployer", ".tmpdir");
                 File tempDir = tempFile.getParentFile();
@@ -584,7 +575,28 @@ public class Deployer implements GBeanLifecycle {
                 for(String dir: backlog) {
                     File deleteDir = new File(tempDir, dir);
                     FileUtils.recursiveDelete(deleteDir);
-                    log.debug("Reaped deployment directory from previous runs " + deleteDir);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Reaped deployment directory from previous runs " + deleteDir);
+                    }
+                }
+            } catch (IOException ignored) {
+            }
+            try {
+                File tempFile = FileUtils.createTempFile();
+                File tempDir = tempFile.getParentFile();
+                tempFile.delete();
+                String[] backlog = tempDir.list(new FilenameFilter(){
+                    public boolean accept(File dir, String name) {
+                        File file = new File(dir, name);
+                        boolean validTempFile = name.startsWith(FileUtils.DEFAULT_TEMP_PREFIX) && ((file.isDirectory() && name.endsWith(FileUtils.DEFAULT_TEMP_DIRECTORY_SUFFIX)) || file.isFile());
+                        return validTempFile && (file.lastModified() < FileUtils.FILE_UTILS_INITIALIZATION_TIME_MILL);
+                    }});
+                for(String dir: backlog) {
+                    File deleteDir = new File(tempDir, dir);
+                    FileUtils.recursiveDelete(deleteDir);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Reaped deployment directory from previous runs " + deleteDir);
+                    }
                 }
             } catch (IOException ignored) {
             }
@@ -606,7 +618,9 @@ public class Deployer implements GBeanLifecycle {
 
                 if (FileUtils.recursiveDelete(deleteDir)) {
                     pendingDeletionIndex.remove(dirName);
-                    log.debug("Reaped deployment directory " + deleteDir);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Reaped deployment directory " + deleteDir);
+                    }
                 }
             }
         }

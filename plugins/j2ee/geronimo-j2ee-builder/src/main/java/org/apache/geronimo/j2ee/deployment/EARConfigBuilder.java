@@ -87,6 +87,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.util.NestedJarFile;
 import org.apache.geronimo.management.J2EEResource;
@@ -374,17 +375,17 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         String specDD;
         Application application = null;
         if (earFile != null) {
+            URL applicationXmlUrl = null;
             try {
-                URL applicationXmlUrl = JarUtils.createJarURL(earFile, "META-INF/application.xml");
+                applicationXmlUrl = JarUtils.createJarURL(earFile, "META-INF/application.xml");
                 specDD = JarUtils.readAll(applicationXmlUrl);
                 //we found something called application.xml in the right place, if we can't parse it it's an error
                 InputStream in = applicationXmlUrl.openStream();
                 try {
                     application = (Application) JaxbJavaee.unmarshalJavaee(Application.class, in);
                  } finally {
-                    in.close();
+                    IOUtils.close(in);
                 }
-
             } catch (ParserConfigurationException e) {
                 throw new DeploymentException("Could not parse application.xml", e);
              } catch (SAXException e) {
@@ -392,13 +393,16 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
              } catch (JAXBException e) {
                 throw new DeploymentException("Could not parse application.xml", e);
             } catch (Exception e) {
-//                ee5 spec allows optional application.xml, continue with application == null
+                //ee5 spec allows optional application.xml, continue with application == null
                 if (!earFile.getName().endsWith(".ear")) {
                     return null;
                 }
                 application = new Application();
+            } finally {
+                if (applicationXmlUrl != null) {
+                    JarUtils.deleteJarFileURL(earFile, applicationXmlUrl);
+                }
             }
-
         }
 
         GerApplicationType gerApplication = null;
@@ -586,6 +590,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     corbaGBeanObjectName,
                     new HashMap()
             );
+            earContext.deleteFileOnExit(tempDirectory);
             applicationInfo.setEarContext(earContext);
             applicationInfo.setRootEarContext(earContext);
             earContext.getGeneralData().put(EARContext.MODULE_LIST_KEY, applicationInfo.getModuleLocations());
@@ -782,23 +787,28 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // it's the caller's responsibility to close the context...
             return earContext;
         } catch (GBeanAlreadyExistsException e) {
-            cleanupContext(earContext);
             throw new DeploymentException(e);
         } catch (IOException e) {
-            cleanupContext(earContext);
             throw e;
         } catch (DeploymentException e) {
-            cleanupContext(earContext);
             throw e;
         } catch (RuntimeException e) {
-            cleanupContext(earContext);
             throw e;
         } catch (Error e) {
-            cleanupContext(earContext);
             throw e;
         } finally {
-            for (Module<?,?> module : applicationInfo.getModules()) {
+            for (Module<?, ?> module : applicationInfo.getModules()) {
                 module.close();
+                //In the non in-place deployment, a temporary file for each module in the ear will be created
+                if (!inPlaceDeployment) {
+                    try {
+                        FileUtils.recursiveDelete(new File(module.getModuleFile().getName()));
+                    } catch (Exception e) {
+                         if(log.isDebugEnabled()) {
+                             log.debug("Unable to delete the temporary file for module " + module.getName());
+                         }
+                    }
+                }
             }
         }
     }
@@ -833,21 +843,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // cleanup any other configurations generated (e.g. AppClient config dirs)
         for (ConfigurationData configurationData : configurations) {
             cleanupConfigurationDir(configurationData.getConfigurationDir());
-        }
-    }
-
-    private void cleanupContext(EARContext earContext) {
-        if (earContext == null) {
-            return;
-        }
-        File tempDirectory = earContext.getBaseDir();
-        try {
-            earContext.close();
-        } catch (Exception e) {
-        }
-        try {
-            cleanupConfigurationDir(tempDirectory);
-        } catch (Exception e) {
         }
     }
 
