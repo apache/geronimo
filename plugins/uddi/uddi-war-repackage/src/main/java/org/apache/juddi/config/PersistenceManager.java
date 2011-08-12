@@ -23,41 +23,40 @@ import javax.persistence.Persistence;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import java.util.Properties;
 
-public class PersistenceManager
-{
-  private static Log log = LogFactory.getLog(PersistenceManager.class);
-  public static final String PERSISTENCE_UNIT_NAME = "juddiDatabase";
-  private static EntityManagerFactory emf;
+public class PersistenceManager {
+    private static Log log = LogFactory.getLog(PersistenceManager.class);
+    public static final String PERSISTENCE_UNIT_NAME = "juddiDatabase";
+    private static EntityManagerFactory emf;
 
-  public static EntityManager getEntityManager()
-  {
-    try
-    {
-      if (emf == null)
-        AppConfig.getInstance();
+    public static EntityManager getEntityManager() {
+        try {
+            if (emf == null)
+                AppConfig.getInstance();
+        } catch (ConfigurationException e) {
+            log.error("Error initializing config in PersistenceManager", e);
+            throw new ExceptionInInitializerError(e);
+        }
+
+        return emf.createEntityManager();
     }
-    catch (ConfigurationException e) {
-      log.error("Error initializing config in PersistenceManager", e);
-      throw new ExceptionInInitializerError(e);
+
+    public static void closeEntityManager() {
+        if (emf.isOpen())
+            emf.close();
     }
 
-    return emf.createEntityManager();
-  }
-
-  public static void closeEntityManager() {
-    if (emf.isOpen())
-      emf.close();
-  }
-
-  protected static void initializeEntityManagerFactory(String persistenceUnitName) {
-    try {
-      if (emf == null)
-        emf = Persistence.createEntityManagerFactory(persistenceUnitName, System.getProperties());
+    protected static void initializeEntityManagerFactory(String persistenceUnitName) {
+        try {
+            if (emf == null) {
+                Properties properties = new Properties();
+                properties.put("openjpa.ConnectionURL", System.getProperty("uddi.openjpa.ConnectionURL"));
+                emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
+            }
+        } catch (Throwable t) {
+            log.error("entityManagerFactory creation failed", t);
+            throw new ExceptionInInitializerError(t);
+        }
     }
-    catch (Throwable t) {
-      log.error("entityManagerFactory creation failed", t);
-      throw new ExceptionInInitializerError(t);
-    }
-  }
 }

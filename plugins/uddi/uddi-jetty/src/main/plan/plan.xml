@@ -23,7 +23,7 @@
   <!-- System Properties -->
  <gbean name="DerbyProperties" class="org.apache.geronimo.system.properties.SystemProperties">
      <attribute name="systemProperties">
-          openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort}/UddiDatabase;create=false;
+          uddi.openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort}/UddiDatabase;create=false;
      </attribute>
  </gbean>
   <!--<gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">-->

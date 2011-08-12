@@ -151,7 +151,7 @@
                             <config-xml-content>
                                 <gbean name="DerbyProperties">
                                 	<attribute name="systemProperties">
-                                		openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort + PortOffset}/UddiDatabase;create=false;
+                                		uddi.openjpa.ConnectionURL=jdbc:derby://localhost:${DerbyPort + PortOffset}/UddiDatabase;create=false;
                                 	</attribute>
                                 </gbean>
                             </config-xml-content>
