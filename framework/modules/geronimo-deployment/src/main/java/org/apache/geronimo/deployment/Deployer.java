@@ -497,12 +497,16 @@ public class Deployer implements GBeanLifecycle {
     }
 
     public void doFail() {
-        if (reaper != null) {
-            reaper.close();
+        try {
+            doStop();
+        } catch (Exception e) {
         }
     }
 
     public void doStop() throws Exception {
+        if (reaper != null) {
+            reaper.close();
+        }
     }
 
     /**
