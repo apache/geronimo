@@ -54,7 +54,7 @@ public class FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
-    public static final long FILE_UTILS_INITIALIZATION_TIME_MILL = System.currentTimeMillis();
+    public static final long FILE_UTILS_INITIALIZATION_TIME_MILL = (System.currentTimeMillis()/1000) * 1000;
 
     public static final String DEFAULT_TEMP_PREFIX = "geronimo-fileutils";
 
