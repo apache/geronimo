@@ -398,10 +398,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     return null;
                 }
                 application = new Application();
-            } finally {
-                if (applicationXmlUrl != null) {
-                    JarUtils.deleteJarFileURL(earFile, applicationXmlUrl);
-                }
             }
         }
 
@@ -590,7 +586,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     corbaGBeanObjectName,
                     new HashMap()
             );
-            earContext.deleteFileOnExit(tempDirectory);
             applicationInfo.setEarContext(earContext);
             applicationInfo.setRootEarContext(earContext);
             earContext.getGeneralData().put(EARContext.MODULE_LIST_KEY, applicationInfo.getModuleLocations());
@@ -799,16 +794,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         } finally {
             for (Module<?, ?> module : applicationInfo.getModules()) {
                 module.close();
-                //In the non in-place deployment, a temporary file for each module in the ear will be created
-                if (!inPlaceDeployment && ConfigurationModuleType.EAR == applicationType) {
-                    try {
-                        FileUtils.recursiveDelete(new File(module.getModuleFile().getName()));
-                    } catch (Exception e) {
-                         if(log.isDebugEnabled()) {
-                             log.debug("Unable to delete the temporary file for module " + module.getName());
-                         }
-                    }
-                }
             }
         }
     }

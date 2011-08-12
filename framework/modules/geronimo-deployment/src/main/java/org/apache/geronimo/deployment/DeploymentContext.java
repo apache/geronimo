@@ -99,10 +99,6 @@ public class DeploymentContext {
     protected final LinkedHashSet<String> bundleClassPath = new LinkedHashSet<String>();
     protected final ConfigurationModuleType moduleType;
     protected final Environment environment;
-    //This temporary directories is used to hold all the folders created in the deployment process.
-    //Due to some folders are required until the target application is installed,  so for those creators (e.g. xxxBuilder) have no chance
-    //to delete them.
-    private List<File> deleteOnExitFiles;
     //This provides services such as loading more bundles, it is NOT for the configuration we are constructing here.
     //It should be a disposable nested framework so as to not pollute the main framework with stuff we load as deployment parents.
     private final BundleContext bundleContext;
@@ -684,40 +680,6 @@ public class DeploymentContext {
             }
         }
         return failures;
-    }
-
-    public void deleteFileOnExit(File file) {
-        if (deleteOnExitFiles == null) {
-            deleteOnExitFiles = new LinkedList<File>();
-        }
-        deleteOnExitFiles.add(file);
-    }
-
-    public boolean deleteFileOnExit(URL fileURL) {
-        if (!"file".equals(fileURL.getProtocol())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Only file protocol URL is suppor, fileURL = " + fileURL);
-            }
-            return false;
-        }
-        File file = null;
-        try {
-            file = new File(fileURL.toURI());
-        } catch (Exception e) {
-            file = new File(fileURL.getPath());
-        }
-        if (file.exists()) {
-            deleteFileOnExit(file);
-            return true;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Could not locate the target file based on the fileURL " + fileURL);
-        }
-        return false;
-    }
-
-    public List<File> getDeleteOnExitFiles() {
-        return deleteOnExitFiles == null ? Collections.<File>emptyList() : deleteOnExitFiles;
     }
 
     private String verifyReference(GBeanData gbean, String referenceName, ReferencePatterns referencePatterns, Configuration configuration) {

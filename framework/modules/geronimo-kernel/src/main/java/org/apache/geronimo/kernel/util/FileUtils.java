@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -62,10 +61,31 @@ public class FileUtils {
 
     public static final String DEFAULT_TEMP_DIRECTORY_SUFFIX = ".tmpdir";
 
+    private static final ThreadLocal<List<File>> TEMPORARY_FILES = new ThreadLocal<List<File>>();
+    
     public static void copyFile(File source, File destination) throws IOException {
         copyFile(source, destination, IOUtils.DEFAULT_COPY_BUFFER_SIZE);
     }
 
+    public static void beginRecordTempFiles() {
+        TEMPORARY_FILES.set(new LinkedList<File>());
+    }
+    
+    public static List<File> endRecordTempFiles() {
+        List<File> tempFiles = TEMPORARY_FILES.get();
+        TEMPORARY_FILES.remove();
+        return tempFiles;
+    }
+    
+    public static void addTempFile(File tempFile) {
+        List<File> tempFiles = TEMPORARY_FILES.get();
+        if(tempFiles != null) {
+            tempFiles.add(tempFile);
+        } else if(logger.isDebugEnabled()) {
+            logger.debug("Unable to record temporary file " + tempFile.getAbsolutePath() + " ,  it is required to call beginRecordTempFiles first");
+        }
+    }
+    
     public static void copyFile(File source, File destination, int bufferSizeInBytes) throws IOException {
         if (!source.exists() || source.isDirectory()) {
             throw new IllegalArgumentException("Source does not exist or it is not a file");
@@ -91,22 +111,30 @@ public class FileUtils {
         File tempDir = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_DIRECTORY_SUFFIX);
         tempDir.delete();
         tempDir.mkdirs();
-        deleteOnExit(tempDir);
+        addTempFile(tempDir);
         return tempDir;
     }
 
+    public static File createTempFile(boolean record) throws IOException {
+        File tempFile = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_FILE_SUFFIX);
+        if (record) {
+            addTempFile(tempFile);
+        }
+        tempFile.deleteOnExit();
+        return tempFile;
+    }
+    
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     public static File createTempFile() throws IOException {
-        File tempFile = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_FILE_SUFFIX);
-        tempFile.deleteOnExit();
-        return tempFile;
+        return createTempFile(true);
     }
 
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     public static File createTempFile(String extension) throws IOException {
         File tempFile = File.createTempFile(DEFAULT_TEMP_PREFIX, extension == null ? DEFAULT_TEMP_DIRECTORY_SUFFIX : extension);
+        addTempFile(tempFile);
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -420,37 +448,4 @@ public class FileUtils {
 
     private FileUtils() {
     }
-
-    // Shutdown hook for recurssive delete on tmp directories
-    static final List<String> delete = new ArrayList<String>();
-
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-            @Override
-            public void run() {
-                delete();
-            }
-        });
-    }
-
-    private static void deleteOnExit(File file) {
-        delete.add(file.getAbsolutePath());
-    }
-
-    private static void delete() {
-        for (String path : delete) {
-            delete(new File(path));
-        }
-    }
-
-    private static void delete(File file) {
-        if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                delete(f);
-            }
-        }
-
-        file.delete();
-    }
-
 }

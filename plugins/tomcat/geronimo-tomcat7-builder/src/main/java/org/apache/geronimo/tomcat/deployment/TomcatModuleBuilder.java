@@ -279,11 +279,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         // parse the spec dd
         String specDD = null;
         WebApp webApp = null;
-        boolean specDDUrlCleanUpRequired = false;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
-                specDDUrlCleanUpRequired = true;
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -382,10 +380,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, shareJndi(parentModule), parentModule);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
-        }
-
-        if(specDDUrlCleanUpRequired && specDDUrl != null) {
-            JarUtils.deleteJarFileURL(moduleFile, specDDUrl);
         }
         return module;
     }

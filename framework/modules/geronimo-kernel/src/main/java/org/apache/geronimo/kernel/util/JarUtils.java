@@ -61,7 +61,7 @@ public final class JarUtils {
         //Why not always set this with true ? Online deployer also lock the jar files
         jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.kernel.util.JarUtils.jarUrlRewrite", "true"));
         try {
-            DUMMY_JAR_FILE = FileUtils.createTempFile();
+            DUMMY_JAR_FILE = FileUtils.createTempFile(false);
             new JarOutputStream(new FileOutputStream(JarUtils.DUMMY_JAR_FILE), new Manifest()).close();
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
@@ -201,35 +201,6 @@ public final class JarUtils {
                 return tempFile.toURI().toURL();
             } else {
                 return new URL(urlString);
-            }
-        }
-    }
-
-    public static void deleteJarFileURL(JarFile jarFile, URL jarFileUrl) {
-        try {
-            if (jarFile instanceof NestedJarFile) {
-                NestedJarFile nestedJar = (NestedJarFile) jarFile;
-                if (nestedJar.isUnpacked()) {
-                    JarFile baseJar = nestedJar.getBaseJar();
-                    if (baseJar instanceof UnpackedJarFile) {
-                        return;
-                    }
-                }
-            }
-            if (jarFile instanceof UnpackedJarFile) {
-                //Leave it there, as the URL is from a unpacked jar file
-                return;
-            } else {
-                if (jarUrlRewrite) {
-                    new File(jarFileUrl.getFile()).delete();
-                } else {
-                    //Leave it there, as it is a jar entry URL
-                    return;
-                }
-            }
-        } catch (Exception e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("unable to delete jar file URL " + jarFileUrl + " created from " + jarFile.getName(), e);
             }
         }
     }

@@ -228,6 +228,7 @@ public class Deployer implements GBeanLifecycle {
 
         DeploymentContext context = null;
         try {
+            FileUtils.beginRecordTempFiles();
             Object plan = null;
             ConfigurationBuilder builder = null;
             for (Iterator i = builders.iterator(); i.hasNext();) {
@@ -268,15 +269,6 @@ public class Deployer implements GBeanLifecycle {
 
             return install(targetFile, install, manifest, store, context);
         } catch (Throwable e) {
-            //TODO not clear all errors will result in total cleanup
-//            File configurationDir = configurationData.getConfigurationDir();
-//            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-//                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
-//                log.debug("Queued deployment directory to be reaped " + configurationDir);
-//            }
-//            if (targetFile != null) {
-//                targetFile.delete();
-//            }
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
                 throw (Error) e;
@@ -288,14 +280,16 @@ public class Deployer implements GBeanLifecycle {
             }
             throw new Error(e);
         } finally {
-            JarUtils.close(module);
-            if (context != null) {
-                List<File> deleteOnExitFiles = context.getDeleteOnExitFiles();
+            JarUtils.close(module);            
+            if (context != null) {               
                 try {
                     context.close();
                 } catch (Exception e) {
-                }
-                cleanUpTemporaryDirectories(deleteOnExitFiles);
+                }                
+            }
+            List<File> tempFiles = FileUtils.endRecordTempFiles();
+            if (tempFiles != null) {
+                cleanUpTemporaryDirectories(tempFiles);
             }
         }
     }

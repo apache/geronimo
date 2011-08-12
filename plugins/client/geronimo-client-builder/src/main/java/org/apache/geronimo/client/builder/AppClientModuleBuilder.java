@@ -305,11 +305,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         String specDD = null;
         ApplicationClient appClient = null;
-        boolean cleanUpSpecDDUrlRequired = false;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "META-INF/application-client.xml");
-                cleanUpSpecDDUrlRequired = true;
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
@@ -453,10 +451,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
         }
-
-        if(cleanUpSpecDDUrlRequired && specDDUrl != null) {
-            JarUtils.deleteJarFileURL(moduleFile, specDDUrl);
-        }
         if (standAlone) {
             Map<JndiKey, Map<String, Object>> appJndiContext = Module.share(Module.APP, module.getJndiContext());
 
@@ -594,7 +588,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
                     earContext);
-            earContext.deleteFileOnExit(tempDirectory);
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(earContext);
 
