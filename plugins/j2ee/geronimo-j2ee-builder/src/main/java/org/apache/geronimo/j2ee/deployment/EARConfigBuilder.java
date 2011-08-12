@@ -800,7 +800,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             for (Module<?, ?> module : applicationInfo.getModules()) {
                 module.close();
                 //In the non in-place deployment, a temporary file for each module in the ear will be created
-                if (!inPlaceDeployment) {
+                if (!inPlaceDeployment && ConfigurationModuleType.EAR == applicationType) {
                     try {
                         FileUtils.recursiveDelete(new File(module.getModuleFile().getName()));
                     } catch (Exception e) {
