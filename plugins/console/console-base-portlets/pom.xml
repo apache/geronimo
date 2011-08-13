@@ -108,6 +108,13 @@
             <scope>provided</scope>
         </dependency>                
         
+        <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-aries</artifactId>  
+            <version>${project.version}</version>         
+            <scope>provided</scope>
+        </dependency>
+            
         <!-- FIXME : this should be replaced by org.apache.aries.util in next release -->
         <dependency>
             <groupId>org.apache.aries.application</groupId>

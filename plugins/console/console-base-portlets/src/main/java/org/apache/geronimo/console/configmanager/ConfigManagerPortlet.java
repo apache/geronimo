@@ -43,6 +43,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -60,6 +61,9 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.aries.ApplicationGBean;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,6 +303,31 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 }
                             }
                         }
+                    } else if (info.getType() == ConfigurationModuleType.EBA) {
+                        Configuration config = configManager.getConfiguration(info.getConfigID());
+                        if(config != null){
+                            for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {                               
+                                if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals("GBean")) {
+                                    try {
+                                        ApplicationGBean applicationGBean = (ApplicationGBean)PortletManager.getKernel().getGBean(entry.getKey());
+                                        long[] bundleIds = applicationGBean.getApplicationContentBundleIds();
+                                        BundleContext bundleContext = config.getBundleContext();
+                                        for (long id : bundleIds){
+                                            Bundle bundle = bundleContext.getBundle(id);
+                                            if (bundle != null && bundle.getHeaders().get("Web-ContextPath") != null){
+                                                details.getContextPaths().add((String)bundle.getHeaders().get("Web-ContextPath"));                                                
+                                            }
+                                        }                                        
+                                    } catch (GBeanNotFoundException e) {                                        
+                                        logger.error("Configuration not found", e);
+                                    } catch (InternalKernelException e) {                                        
+                                        logger.error("Configuration not found", e);
+                                    } catch (IllegalStateException e) {                                        
+                                        logger.error("Configuration not found", e);
+                                    } 
+                                }
+                            }
+                        }
                     } else if (info.getType().equals(ConfigurationModuleType.CAR)) {
                         Configuration config = configManager.getConfiguration(info.getConfigID());
                         details.setClientAppServerSide(config.getOwnedConfigurations().size() > 0);
@@ -423,7 +452,8 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private boolean showWebInfo() {
         return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
-               ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
+               ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType) ||
+               ConfigurationModuleType.EBA.getName().equalsIgnoreCase(moduleType);
     }
 
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
