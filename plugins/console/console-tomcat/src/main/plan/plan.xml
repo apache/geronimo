@@ -86,7 +86,7 @@
                 <attribute name="pageTitle">1-1-2/Application Server/System Information/Java System Info</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[JavaSysInfo]</attribute>
-                <attribute name="icon">/images/ico_info_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
