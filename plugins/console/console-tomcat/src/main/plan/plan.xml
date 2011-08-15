@@ -157,7 +157,7 @@
                 </reference>
             </gbean>
             <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-5/Resources/J2EE Connectors</attribute>
+                <attribute name="pageTitle">2-2-5/Applications/User Assets/J2EE Connectors</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[RARModules]</attribute>
                 <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
@@ -176,7 +176,7 @@
                 </reference>
             </gbean>
             <gbean name="OSGiBundles" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-3/Applications/User Assets/OSGi Bundles</attribute>
+                <attribute name="pageTitle">3-3/Resources/OSGi Bundles</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[BundleManagerPortlet]</attribute>
                 <attribute name="icon">/images/ico_osgibundles_16x16.gif</attribute>
