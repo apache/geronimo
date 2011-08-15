@@ -24,6 +24,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
+import jline.UnsupportedTerminal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +51,12 @@ public class StreamConsoleReader implements ConsoleReader {
 
     public StreamConsoleReader(InputStream in, PrintWriter out) {
         try {
-            jlineConsoleReader = new jline.console.ConsoleReader(in, out);
-        } catch (IOException e) {
+            if ("jline.UnsupportedTerminal".equals(System.getProperty("jline.terminal"))) {
+                jlineConsoleReader = new jline.console.ConsoleReader(in, out, new UnsupportedTerminal());
+            } else {
+                jlineConsoleReader = new jline.console.ConsoleReader(in, out);
+            }
+        } catch (Exception e) {
             logger.warn("Fail to create jline console, some features like password mask will be disabled", e);
             jlineConsoleEnabled = false;
             keyboard = new BufferedReader(new InputStreamReader(in));
