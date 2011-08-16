@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-
 import javax.naming.Binding;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -45,6 +44,8 @@ import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Directory Context implementation helper class.
@@ -53,20 +54,25 @@ import org.osgi.framework.Bundle;
  */
 public class BundleDirContext extends BaseDirContext {
 
+    private static final Logger logger = LoggerFactory.getLogger(BundleDirContext.class);
+
     private final Bundle bundle;
 
     private String nameInNamespace;
 
     private final String path;
 
-    public BundleDirContext(Bundle bundle, String path) {
-        this(bundle, path, Collections.<DirContext> emptyList());
+    private File rootDocPath;
+
+    public BundleDirContext(Bundle bundle, String path, File rootDocPath) {
+        this(bundle, path, Collections.<DirContext> emptyList(), rootDocPath);
     }
 
-    public BundleDirContext(Bundle bundle, String path, List<DirContext> altDirContext) {
+    public BundleDirContext(Bundle bundle, String path, List<DirContext> altDirContext, File rootDocPath) {
         this.bundle = bundle;
         this.path = path;
         this.altDirContexts.addAll(altDirContext);
+        this.rootDocPath = rootDocPath;
     }
 
     @Override
@@ -134,7 +140,7 @@ public class BundleDirContext extends BaseDirContext {
     @Override
     public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
         name = getName(name);
-        Enumeration entries = BundleUtils.getEntryPaths(bundle, name);
+        Enumeration<String> entries = BundleUtils.getEntryPaths(bundle, name);
         if (entries == null) {
             throw new NamingException("Resource not found: " + name);
         } else {
@@ -240,19 +246,18 @@ public class BundleDirContext extends BaseDirContext {
     }
 
     @Override
-    protected String doGetRealPath(String arg0) {
-        // TODO Auto-generated method stub
-        return null;
+    protected String doGetRealPath(String path) {
+        return rootDocPath == null ? null : new File(rootDocPath, path).getAbsolutePath();
     }
 
     @Override
     protected List<NamingEntry> doListBindings(String name) throws NamingException {
         name = getName(name);
-        Enumeration entries = BundleUtils.getEntryPaths(bundle, name);
+        Enumeration<String> entries = BundleUtils.getEntryPaths(bundle, name);
         if (entries == null) {
             throw new NamingException("Resource not found: " + name);
         } else {
-            return Collections.list(new BindingEnumeration(bundle, name, entries));
+            return Collections.list(new BindingEnumeration(bundle, name, entries, rootDocPath));
         }
     }
 
@@ -264,11 +269,12 @@ public class BundleDirContext extends BaseDirContext {
             return null;
         }
         if (url.toString().endsWith("/")) {
-            return new BundleDirContext(bundle, name);
+            return new BundleDirContext(bundle, name, rootDocPath == null ? null : new File(rootDocPath, name));
         } else {
             return new URLResource(url);
         }
     }
+
 
     private String getName(String name) {
         if (name.startsWith("/")) {
@@ -300,9 +306,9 @@ public class BundleDirContext extends BaseDirContext {
 
         private String basePath;
 
-        private Enumeration entries;
+        private Enumeration<String> entries;
 
-        public NameClassPairEnumeration(String basePath, Enumeration entries) {
+        public NameClassPairEnumeration(String basePath, Enumeration<String> entries) {
             this.basePath = getBasePath(basePath);
             this.entries = entries;
         }
@@ -323,7 +329,7 @@ public class BundleDirContext extends BaseDirContext {
         }
 
         public NameClassPair nextElement() {
-            String name = (String) entries.nextElement();
+            String name = entries.nextElement();
             String relativeName = getRelativeName(name);
             if (name.endsWith("/")) {
                 return new Binding(removeSlash(relativeName), DirContext.class.getName());
@@ -347,12 +353,15 @@ public class BundleDirContext extends BaseDirContext {
 
         private String basePath;
 
-        private Enumeration entries;
+        private Enumeration<String> entries;
 
-        public BindingEnumeration(Bundle bundle, String basePath, Enumeration entries) {
+        private File rootDocPath;
+
+        public BindingEnumeration(Bundle bundle, String basePath, Enumeration<String> entries, File rootDocPath) {
             this.bundle = bundle;
             this.basePath = getBasePath(basePath);
             this.entries = entries;
+            this.rootDocPath = rootDocPath;
         }
 
         public NamingEntry next() throws NamingException {
@@ -371,10 +380,10 @@ public class BundleDirContext extends BaseDirContext {
         }
 
         public NamingEntry nextElement() {
-            String name = (String) entries.nextElement();
+            String name = entries.nextElement();
             String relativeName = getRelativeName(name);
             if (name.endsWith("/")) {
-                return new NamingEntry(removeSlash(relativeName), new BundleDirContext(bundle, name), NamingEntry.CONTEXT);
+                return new NamingEntry(removeSlash(relativeName), new BundleDirContext(bundle, name, rootDocPath == null ? null : new File(rootDocPath, relativeName)), NamingEntry.CONTEXT);
             } else {
                 return new NamingEntry(relativeName, relativeName, NamingEntry.ENTRY);
             }

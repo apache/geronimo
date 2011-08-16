@@ -17,12 +17,19 @@
 package org.apache.geronimo.tomcat;
 
 import java.beans.PropertyChangeListener;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -88,6 +95,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
 import org.apache.geronimo.web.WebApplicationConstants;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
@@ -109,8 +117,6 @@ public class GeronimoStandardContext extends StandardContext {
     private static final long serialVersionUID = 3834587716552831032L;
 
     private static final boolean allowLinking = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking");
-
-    //private static final boolean FLUSH_STATIC_RESOURCES_ON_STARTUP = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.flushStaticResourcesOnStartup");
 
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
@@ -139,6 +145,23 @@ public class GeronimoStandardContext extends StandardContext {
         }
 
     };
+
+  //TODO Hack Support for getRealPath, use an internal map to prevent Geronimo application extracting the application contents
+    private static final Set<String> FILTERED_UNEXTRACTED_ARTIFACT_IDS = new HashSet<String>();
+    static {
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/remote-deploy-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/plugin-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/osgi-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/openejb-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/welcome-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins.monitoring/mconsole-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/activemq-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/debugviews-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/sysdb-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/plancreator-console-tomcat//car");
+    }
+    //
 
     public GeronimoStandardContext() {
         setXmlNamespaceAware(true);
@@ -595,45 +618,88 @@ public class GeronimoStandardContext extends StandardContext {
         return context;
     }
 
+    private boolean isSystemArtifact(Bundle bundle) {
+        String bundleLocation = bundle.getLocation();
+        if (bundleLocation.startsWith("mvn:")) {
+            String[] artifactFragments = bundleLocation.substring(4).split("[/]");
+            if (artifactFragments.length == 4) {
+                String noVersionArtifact = artifactFragments[0] + "/" + artifactFragments[1] + "//" + artifactFragments[3];
+                if (FILTERED_UNEXTRACTED_ARTIFACT_IDS.contains(noVersionArtifact)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
         List<DirContext> altDirContexts = new ArrayList<DirContext>();
-        Engine engine = (Engine)getParent().getParent();
+
+        Engine engine = (Engine) getParent().getParent();
         String serviceName = engine.getService().getName();
         String engineName = engine.getName();
         String hostName = getParent().getName();
         String tomcatHome = System.getProperty("catalina.home");
-        File resourceRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
+        File tempRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
                 + (getName().equals("/") ? "_" : getName()));
-        File completeFlagFile = new File(resourceRootDirectory, "complete.flag");
 
-        boolean extractionRequired = true;
-        if (completeFlagFile.exists()) {
-            String extractedTimeString = FileUtils.readFileAsString(completeFlagFile, "iso-8859-1", "");
-            if (extractedTimeString != null) {
-                try {
-                    long extractedTime = Long.parseLong(extractedTimeString);
-                    long lastModifiedTime = bundle.getLastModified();
-                    if (extractedTime > lastModifiedTime) {
-                        extractionRequired = false;
-                    }
-                } catch (Exception e) {
-                    getLogger().warn("Unable to compare the timestamp in the file " + completeFlagFile.getAbsolutePath() + ", resources will be re-extracted", e);
-                    //ignore
+        WebAppInfo webAppInfo = tomcatContext.getWebAppInfo();
+        String applicationStageConfiguration = webAppInfo.contextParams.get(WebApplicationConstants.WEB_APPLICATION_STAGE);
+        String globalStageConfiguration = System.getProperty(WebApplicationConstants.WEB_APPLICATION_STAGE, WebApplicationConstants.WEB_APPLICATION_PRODUCTION_STAGE);
+        boolean developmentStage = applicationStageConfiguration == null ? globalStageConfiguration.equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE) : applicationStageConfiguration
+                .equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE);
+
+        boolean systemArtifact = isSystemArtifact(bundle);
+
+        //By default, getRealPath is enabled, and user could configure in the web.xml to disable it.
+        String globalGetRealPathConfiguration = System.getProperty(WebApplicationConstants.WEB_APPLICATION_GET_REAL_PATH_SUPPORT);
+        String applicationGetRealPathConfiguration = webAppInfo.contextParams.get(WebApplicationConstants.WEB_APPLICATION_GET_REAL_PATH_SUPPORT);
+        boolean getRealPathSupportRequired = applicationGetRealPathConfiguration == null ? !"false".equalsIgnoreCase(globalGetRealPathConfiguration) : !"false"
+                .equalsIgnoreCase(applicationGetRealPathConfiguration);
+
+        /**
+         * Compute & check module checksum in order to determine if the expanded module
+         * contents should be updated (old contents deleted & module re-expanded).
+         */
+        File checksumFile = new File(tempRootDirectory, "checksum.flag");
+        boolean refreshmentRequired = false;
+        byte[] checksum = null;
+        try {
+            URL bundleURL = new URL(bundle.getLocation());
+            checksum = getChecksum(bundleURL);
+            if (checksumFile.exists()) {
+                byte[] savedChecksum = readChecksum(checksumFile);
+                if (!Arrays.equals(checksum, savedChecksum)) {
+                    refreshmentRequired = true;
                 }
+            } else {
+                refreshmentRequired = true;
+            }
+        } catch (Exception e) {
+            getLogger().warn("Unable to compute module checksum", e);
+            refreshmentRequired = true;
+        }
+
+        if (refreshmentRequired && checksum != null) {
+            tempRootDirectory.mkdirs();
+            try {
+                writeChecksum(checksumFile, checksum);
+            } catch (Exception e) {
+                getLogger().error("Unable to write module checksum file", e);
             }
         }
 
-        //if (!resourceRootDirectory.exists() || FLUSH_STATIC_RESOURCES_ON_STARTUP || !completeFlagFile.exists()) {
-        if (extractionRequired) {
+        //For embed resources in jar files, they are always required to extract no matter getRealPath and development stage support are required
+        File jarResourceRootDirectory = new File(tempRootDirectory, "jar_resources");
+        if (refreshmentRequired || !jarResourceRootDirectory.exists()) {
             try {
-                completeFlagFile.delete();
-                FileUtils.recursiveDelete(resourceRootDirectory);
-                resourceRootDirectory.mkdirs();
+                FileUtils.recursiveDelete(jarResourceRootDirectory);
+                jarResourceRootDirectory.mkdirs();
                 Enumeration<URL> en = tomcatContext.getBundle().findEntries(tomcatContext.getModulePath() != null ? tomcatContext.getModulePath() + "/WEB-INF/lib" : "WEB-INF/lib", "*.jar", false);
                 if (en != null) {
                     while (en.hasMoreElements()) {
                         URL jarUrl = en.nextElement();
-                        File jarResourceDirectory = new File(resourceRootDirectory, jarUrl.getFile().substring(jarUrl.getFile().lastIndexOf('/') + 1));
+                        File jarResourceDirectory = new File(jarResourceRootDirectory, jarUrl.getFile().substring(jarUrl.getFile().lastIndexOf('/') + 1));
                         jarResourceDirectory.mkdirs();
                         ZipInputStream in = null;
                         try {
@@ -662,14 +728,13 @@ public class GeronimoStandardContext extends StandardContext {
                         }
                     }
                 }
-                completeFlagFile.createNewFile();
-                FileUtils.writeStringToFile(completeFlagFile, String.valueOf(System.currentTimeMillis()), "iso-8859-1");
             } catch (IOException e) {
+                checksumFile.delete();
                 throw new DeploymentException("Fail to create static resoruce cache for jar files in WEB-INF folder", e);
             }
         }
-        //}
-        for (File resourceDirectory : resourceRootDirectory.listFiles()) {
+
+        for (File resourceDirectory : jarResourceRootDirectory.listFiles()) {
             if (resourceDirectory.isDirectory() && resourceDirectory.getName().endsWith(".jar") && resourceDirectory.listFiles().length > 0) {
                 FileDirContext fileDirContext = new FileDirContext();
                 fileDirContext.setAllowLinking(allowLinking);
@@ -677,7 +742,58 @@ public class GeronimoStandardContext extends StandardContext {
                 altDirContexts.add(fileDirContext);
             }
         }
-        return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts);
+
+        //If it is system artifact, or no getRealPath and development stage support is required, just use BundleDirContext
+        if (systemArtifact || !(getRealPathSupportRequired || developmentStage)) {
+            return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts, null);
+        }
+
+        File realPathTempDirecotory = new File(tempRootDirectory, "real_path");
+        if (refreshmentRequired || ! realPathTempDirecotory.exists()) {
+            FileUtils.recursiveDelete(realPathTempDirecotory);
+            realPathTempDirecotory.mkdirs();
+            ZipInputStream zipIn = null;
+            try {
+                zipIn = new ZipInputStream(new URL(bundle.getLocation()).openStream());
+                ZipEntry entry = null;
+                String modulePath = tomcatContext.getModulePath() == null ? "" : tomcatContext.getModulePath();
+                while ((entry = zipIn.getNextEntry()) != null) {
+                    if(!entry.getName().startsWith(modulePath)){
+                        continue;
+                    }
+                    String subPath = entry.getName().equals(modulePath) ? "" : entry.getName().substring(modulePath.length());
+                    if (entry.isDirectory()) {
+                        File dir = new File(realPathTempDirecotory, subPath);
+                        dir.mkdirs();
+                    } else {
+                        File file = new File(realPathTempDirecotory, subPath);
+                        file.getParentFile().mkdirs();
+                        OutputStream out = null;
+                        try {
+                            out = new BufferedOutputStream(new FileOutputStream(file));
+                            IOUtils.copy(zipIn, out);
+                            out.flush();
+                        } finally {
+                            IOUtils.close(out);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                checksumFile.delete();
+                getLogger().warn("fail to extract the bundle, getRealPath might not work", e);
+            } finally {
+                IOUtils.close(zipIn);
+            }
+        }
+
+        if (developmentStage) {
+            GeronimoFileDirContext fileDirContext = new GeronimoFileDirContext(altDirContexts);
+            fileDirContext.setAllowLinking(allowLinking);
+            setDocBase(realPathTempDirecotory.getAbsolutePath());
+            return fileDirContext;
+        } else {
+            return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts, realPathTempDirecotory);
+        }
     }
 
     private class SystemMethodValve extends ValveBase {
@@ -850,5 +966,70 @@ public class GeronimoStandardContext extends StandardContext {
                 beforeAfter.after(beforeAfterContexts.get().pop(), null, null, 0);
             }
         }
+    }
+
+    private static byte[] getChecksum(URL url) throws Exception {
+        InputStream in = null;
+        try {
+            URLConnection connection = url.openConnection();
+            in = connection.getInputStream();
+            /*
+             * Use URL's lastModified as the checksum if available, otherwise
+             * calculate checksum based on the contents.
+             */
+            long lastModified = connection.getLastModified();
+            if (lastModified == 0) {
+                return calculateChecksum(in, "SHA-1");
+            } else {
+                return toByteArray(lastModified);
+            }
+        } finally {
+            IOUtils.close(in);
+        }
+    }
+
+    private static byte[] calculateChecksum(InputStream stream, String algorithm) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digester = MessageDigest.getInstance(algorithm);
+        digester.reset();
+
+        byte buf[] = new byte[4096];
+        int len = 0;
+
+        while ((len = stream.read(buf, 0, buf.length)) != -1) {
+            digester.update(buf, 0, len);
+        }
+
+        return digester.digest();
+    }
+
+    private static void writeChecksum(File file, byte[] data) throws IOException {
+        FileOutputStream out = new FileOutputStream(file);
+        try {
+            out.write(data);
+        } finally {
+            IOUtils.close(out);
+        }
+    }
+
+    private static byte[] readChecksum(File file) throws IOException {
+        FileInputStream in = new FileInputStream(file);
+        try {
+            return IOUtils.getBytes(in);
+        } finally {
+            IOUtils.close(in);
+        }
+    }
+
+    private static byte[] toByteArray(long value) {
+        byte[] buffer = new byte[8];
+        buffer[0] = (byte)(value >>> 56);
+        buffer[1] = (byte)(value >>> 48);
+        buffer[2] = (byte)(value >>> 40);
+        buffer[3] = (byte)(value >>> 32);
+        buffer[4] = (byte)(value >>> 24);
+        buffer[5] = (byte)(value >>> 16);
+        buffer[6] = (byte)(value >>>  8);
+        buffer[7] = (byte)(value >>>  0);
+        return buffer;
     }
 }
