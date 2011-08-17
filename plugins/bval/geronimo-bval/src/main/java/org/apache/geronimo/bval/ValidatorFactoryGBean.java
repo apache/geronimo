@@ -207,7 +207,7 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
         ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader();
         // No validation configuration specified. Create default instance.
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
+            Thread.currentThread().setContextClassLoader(null);
             factory = Validation.buildDefaultValidatorFactory();
         } finally {
             Thread.currentThread().setContextClassLoader(oldContextLoader);
