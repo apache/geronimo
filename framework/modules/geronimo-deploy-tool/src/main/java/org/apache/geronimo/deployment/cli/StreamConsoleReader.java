@@ -56,8 +56,11 @@ public class StreamConsoleReader implements ConsoleReader {
             } else {
                 jlineConsoleReader = new jline.console.ConsoleReader(in, out);
             }
-        } catch (Exception e) {
-            logger.warn("Fail to create jline console, some features like password mask will be disabled", e);
+        } catch (Throwable e) {
+            logger.warn("Fail to create jline console, some features like password mask will be disabled, you might change the log level to debug to show the detailed information");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Fail to create jline console, some features like password mask will be disabled", e);
+            }
             jlineConsoleEnabled = false;
             keyboard = new BufferedReader(new InputStreamReader(in));
             console = out;
