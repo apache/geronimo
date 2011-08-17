@@ -19,6 +19,8 @@ package org.apache.geronimo.activemq;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +30,6 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
 import org.apache.geronimo.activemq.management.ActiveMQTransportConnector;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -37,85 +38,111 @@ import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.blueprint.container.BlueprintContainer;
+import org.osgi.service.blueprint.container.BlueprintEvent;
+import org.osgi.service.blueprint.container.BlueprintListener;
 
-public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle, LifecycleListener {
+public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle{
 
     private Kernel kernel;
 
-    private Map<AbstractName, List<AbstractName>> brokerNameConnectorNamesMap = new ConcurrentHashMap<AbstractName, List<AbstractName>>();
+    private Map<String, List<AbstractName>> brokerNameConnectorNamesMap = new ConcurrentHashMap<String, List<AbstractName>>();
 
     private BundleContext bundleContext;
+    
+    private AbstractName abstractName; 
+    
+    private ServiceRegistration registration;
 
-    public ActiveMQBrokerServiceMonitorGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel, @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
+    public ActiveMQBrokerServiceMonitorGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+            @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName) {
         this.kernel = kernel;
         this.bundleContext = bundleContext;
+        this.abstractName = abstractName;
     }
 
-    public void doFail() {
-        kernel.getLifecycleMonitor().removeLifecycleListener(this);
-    }
-
-    public void doStart() throws Exception {
-        AbstractNameQuery brokerServiceQuery = new AbstractNameQuery(new URI("?#org.apache.geronimo.activemq.BrokerServiceGBean"));
-        kernel.getLifecycleMonitor().addLifecycleListener(this, brokerServiceQuery);
-        Set<AbstractName> brokerServiceNames = kernel.listGBeans(brokerServiceQuery);
-        for (AbstractName brokerServiceName : brokerServiceNames) {
-            if (kernel.isRunning(brokerServiceName)) {
-                startConnectorWrapperGBeans(brokerServiceName);
+    public void doStart() throws Exception {     
+        BlueprintListener listener = new BlueprintListener() {
+            @Override
+            public void blueprintEvent(BlueprintEvent event) {
+                if (event.getType() == BlueprintEvent.CREATED) {
+                    startConnectorGBeans(event.getBundle());
+                } else if (event.getType() == BlueprintEvent.DESTROYED) {
+                    stopConnectorGBeans(event.getBundle());
+                }
             }
+        };        
+        registration = bundleContext.registerService(BlueprintListener.class.getName(), listener, new Hashtable());
+        
+        startConnectorGBeans(null);
+   }
+    
+    protected void startConnectorGBeans(Bundle bundle) {
+        Set<BrokerService> brokerServices = getBrokerService(bundle);
+        if (brokerServices == null) {
+            return;
+        }
+        for (BrokerService brokerService : brokerServices) {
+            if (brokerService.isStarted()) {
+                startConnectorWrapperGBeans(brokerService);
+            }
+        }
+    }
+    
+    protected void stopConnectorGBeans(Bundle bundle) {
+        Set<BrokerService> brokerServices = getBrokerService(bundle);
+        if (brokerServices == null) {
+            return;
+        }
+        for (BrokerService brokerService : brokerServices) {
+            stopConnectorWrapperGBeans(brokerService.getBrokerName());
         }
     }
 
     public void doStop() throws Exception {
-        kernel.getLifecycleMonitor().removeLifecycleListener(this);
+        doFail();
     }
-
-    public void failed(AbstractName abstractName) {
-        stopConnectorWrapperGBeans(abstractName);
+    
+    public void doFail() {
+        if (registration != null) {
+            registration.unregister();            
+        }        
+        for (String brokerName: brokerNameConnectorNamesMap.keySet()) {
+            stopConnectorWrapperGBeans(brokerName);
+        }
+        brokerNameConnectorNamesMap.clear();
     }
-
-    public void loaded(AbstractName abstractName) {
-    }
-
-    public void running(AbstractName abstractName) {
-        startConnectorWrapperGBeans(abstractName);
-    }
-
-    public void starting(AbstractName abstractName) {
-    }
-
-    public void stopped(AbstractName abstractName) {
-        stopConnectorWrapperGBeans(abstractName);
-    }
-
-    public void stopping(AbstractName abstractName) {
-    }
-
-    public void unloaded(AbstractName abstractName) {
-    }
-
-    protected void startConnectorWrapperGBeans(AbstractName brokerAbstractName) {
-        try {
-            BrokerService brokerService = ((BrokerServiceGBean) kernel.getGBean(brokerAbstractName)).getBrokerContainer();
+    
+    protected void startConnectorWrapperGBeans(BrokerService brokerService) {
+        try {           
             List<AbstractName> connectorNames = new ArrayList<AbstractName>();
             GBeanInfo gBeanInfo = new AnnotationGBeanInfoFactory().getGBeanInfo(ActiveMQTransportConnector.class);
             for (TransportConnector transportConnector : brokerService.getTransportConnectors()) {
-                AbstractName connectorAbName = kernel.getNaming().createSiblingName(brokerAbstractName, transportConnector.getUri().toString().replace(':', '_'), GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+                AbstractName connectorAbName = kernel.getNaming().createSiblingName(this.abstractName, transportConnector.getUri().toString().replace(':', '_'), GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
                 GBeanData gbeanData = new GBeanData(connectorAbName, gBeanInfo);
                 gbeanData.setAttribute("transportConnector", transportConnector);
                 kernel.loadGBean(gbeanData, bundleContext);
                 kernel.startGBean(connectorAbName);
                 connectorNames.add(connectorAbName);
             }
-            brokerNameConnectorNamesMap.put(brokerAbstractName, connectorNames);
+            // in case this brokerService has been processed, remove the old connectorNames
+            List<AbstractName> oldConnectorNames = brokerNameConnectorNamesMap.remove(brokerService.getBrokerName());
+            if (oldConnectorNames!=null) {
+                stopConnectorWrapperGBeans(brokerService.getBrokerName());
+            }
+            // add new connectorsNames
+            brokerNameConnectorNamesMap.put(brokerService.getBrokerName(), connectorNames);
         } catch (Exception e) {
         }
     }
-
-    protected void stopConnectorWrapperGBeans(AbstractName brokerAbstractName) {
-        List<AbstractName> connectorNames = brokerNameConnectorNamesMap.remove(brokerAbstractName);
+ 
+    protected void stopConnectorWrapperGBeans(String brokerName) {
+        List<AbstractName> connectorNames = brokerNameConnectorNamesMap.get(brokerName);
         if (connectorNames == null) {
             return;
         }
@@ -126,5 +153,40 @@ public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle, Lifecy
             } catch (Exception e) {
             }
         }
+    }    
+    
+    private Set<BrokerService> getBrokerService(Bundle bundle) {
+        Set<BrokerService> brokerServices = new HashSet<BrokerService>();
+ 
+        try {        
+            String filter;
+            if (bundle == null) {
+                filter = null;
+            } else {
+                String symbolicName = bundle.getSymbolicName();
+                String version = bundle.getVersion().toString();
+                filter = "(&(osgi.blueprint.container.symbolicname=" + symbolicName
+                        + ")(osgi.blueprint.container.version=" + version + "))";
+            }
+            
+            String clazz = "org.osgi.service.blueprint.container.BlueprintContainer";            
+            ServiceReference[] references = bundleContext.getServiceReferences(clazz, filter);
+            if (references != null) {
+                for (ServiceReference reference: references) {
+                    BlueprintContainer container = (BlueprintContainer) bundleContext.getService(reference);
+                    @SuppressWarnings("unchecked")
+                    Set<String> ids = (Set<String>) container.getComponentIds();
+                    for (Object id: ids) {
+                        Object object = container.getComponentInstance((String)id);
+                        if (object instanceof BrokerService) {
+                            brokerServices.add((BrokerService)object);
+                        }
+                    }
+                }
+            }            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return brokerServices;
     }
 }

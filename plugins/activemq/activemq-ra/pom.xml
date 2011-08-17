@@ -90,7 +90,7 @@
                                         <attribute name="ServerUrl">tcp://${ActiveMQHostname}:${ActiveMQPort + PortOffset}</attribute>
                                 </gbean>
                              </config-xml-content>
-                            <config-substitution key="ActiveMQHostname">localhost</config-substitution>
+                            <config-substitution key="ActiveMQHostname">0.0.0.0</config-substitution>
                             <config-substitution key="ActiveMQPort">61616</config-substitution>
                         </plugin-artifact>
                     </instance>

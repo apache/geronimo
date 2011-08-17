@@ -41,5 +41,5 @@
         <!--</reference>-->
     <!--</gbean>-->
     <!---->
-    <!--<gbean name="ActiveMQBrokerServiceMonitor" class="org.apache.geronimo.activemq.ActiveMQBrokerServiceMonitorGBean"/>-->
+    <gbean name="ActiveMQBrokerServiceMonitor" class="org.apache.geronimo.activemq.ActiveMQBrokerServiceMonitorGBean"/>
 </module>
