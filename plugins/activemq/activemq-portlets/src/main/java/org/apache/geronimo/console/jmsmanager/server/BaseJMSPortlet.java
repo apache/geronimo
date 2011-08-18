@@ -88,7 +88,7 @@ public class BaseJMSPortlet extends BasePortlet {
             Kernel kernel = PortletManager.getKernel();
             BundleContext context = kernel.getBundleFor(kernel.getKernelName()).getBundleContext();
             String clazz = "org.osgi.service.blueprint.container.BlueprintContainer";
-            String filter = "(&(osgi.blueprint.container.symbolicname=org.apache.geronimo.configs.activemq-broker-blueprint)(osgi.blueprint.container.version=3.0.0.SNAPSHOT))";
+            String filter = "(osgi.blueprint.container.symbolicname=org.apache.geronimo.configs.activemq-broker-blueprint)";
             ServiceReference[] references = context.getServiceReferences(clazz, filter);
             for (ServiceReference reference: references) {
                 BlueprintContainer container = (BlueprintContainer) context.getService(reference);
