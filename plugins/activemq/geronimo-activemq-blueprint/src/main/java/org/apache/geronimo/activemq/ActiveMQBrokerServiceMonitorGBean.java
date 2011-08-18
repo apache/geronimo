@@ -119,7 +119,13 @@ public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle{
     }
     
     protected void startConnectorWrapperGBeans(BrokerService brokerService) {
-        try {           
+        try {
+            // in case this brokerService has been processed
+            List<AbstractName> oldConnectorNames = brokerNameConnectorNamesMap.get(brokerService.getBrokerName());
+            if (oldConnectorNames!=null) {
+                return;
+            }
+            
             List<AbstractName> connectorNames = new ArrayList<AbstractName>();
             GBeanInfo gBeanInfo = new AnnotationGBeanInfoFactory().getGBeanInfo(ActiveMQTransportConnector.class);
             for (TransportConnector transportConnector : brokerService.getTransportConnectors()) {
@@ -130,12 +136,6 @@ public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle{
                 kernel.startGBean(connectorAbName);
                 connectorNames.add(connectorAbName);
             }
-            // in case this brokerService has been processed, remove the old connectorNames
-            List<AbstractName> oldConnectorNames = brokerNameConnectorNamesMap.remove(brokerService.getBrokerName());
-            if (oldConnectorNames!=null) {
-                stopConnectorWrapperGBeans(brokerService.getBrokerName());
-            }
-            // add new connectorsNames
             brokerNameConnectorNamesMap.put(brokerService.getBrokerName(), connectorNames);
         } catch (Exception e) {
         }
@@ -157,24 +157,18 @@ public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle{
     
     private Set<BrokerService> getBrokerService(Bundle bundle) {
         Set<BrokerService> brokerServices = new HashSet<BrokerService>();
+        String targetBundleSymbolicName = "org.apache.geronimo.configs.activemq-broker-blueprint";
  
-        try {        
-            String filter;
-            if (bundle == null) {
-                filter = null;
-            } else {
-                String symbolicName = bundle.getSymbolicName();
-                String version = bundle.getVersion().toString();
-                filter = "(&(osgi.blueprint.container.symbolicname=" + symbolicName
-                        + ")(osgi.blueprint.container.version=" + version + "))";
+        try {           
+            if (bundle!=null && !targetBundleSymbolicName.equals(bundle.getSymbolicName())) {
+                return brokerServices;
             }
-            
+            String filter = "(osgi.blueprint.container.symbolicname=" + targetBundleSymbolicName + ")";            
             String clazz = "org.osgi.service.blueprint.container.BlueprintContainer";            
             ServiceReference[] references = bundleContext.getServiceReferences(clazz, filter);
             if (references != null) {
                 for (ServiceReference reference: references) {
                     BlueprintContainer container = (BlueprintContainer) bundleContext.getService(reference);
-                    @SuppressWarnings("unchecked")
                     Set<String> ids = (Set<String>) container.getComponentIds();
                     for (Object id: ids) {
                         Object object = container.getComponentInstance((String)id);
@@ -183,7 +177,7 @@ public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle{
                         }
                     }
                 }
-            }            
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
