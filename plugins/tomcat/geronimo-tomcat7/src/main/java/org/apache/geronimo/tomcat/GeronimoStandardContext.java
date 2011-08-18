@@ -160,6 +160,7 @@ public class GeronimoStandardContext extends StandardContext {
         FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/debugviews-console-tomcat//car");
         FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/sysdb-console-tomcat//car");
         FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/plancreator-console-tomcat//car");
+        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/uddi-tomcat//car");
     }
     //
 
