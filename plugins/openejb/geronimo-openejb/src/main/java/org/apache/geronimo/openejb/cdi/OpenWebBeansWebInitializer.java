@@ -33,6 +33,7 @@ import org.apache.openejb.cdi.CdiResourceInjectionService;
 import org.apache.openejb.cdi.CdiScanner;
 import org.apache.openejb.cdi.OpenEJBLifecycle;
 import org.apache.openejb.cdi.OpenEJBTransactionService;
+import org.apache.openejb.cdi.OptimizedLoaderService;
 import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
@@ -43,6 +44,7 @@ import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.ContextsService;
 import org.apache.webbeans.spi.ConversationService;
 import org.apache.webbeans.spi.JNDIService;
+import org.apache.webbeans.spi.LoaderService;
 import org.apache.webbeans.spi.ResourceInjectionService;
 import org.apache.webbeans.spi.ScannerService;
 import org.apache.webbeans.spi.SecurityService;
@@ -52,7 +54,7 @@ import org.apache.webbeans.spi.adaptor.ELAdaptor;
 import org.apache.webbeans.util.WebBeansUtil;
 
 /**
- * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
+ * @version $Rev$ $Date$
  */
 public class OpenWebBeansWebInitializer {
     
@@ -75,7 +77,8 @@ public class OpenWebBeansWebInitializer {
         services.put(TransactionService.class, new OpenEJBTransactionService());
         services.put(JNDIService.class, new NoopJndiService());
         services.put(ELAdaptor.class, new EL22Adaptor());
-        
+        services.put(LoaderService.class, new OptimizedLoaderService());
+
         if (startup != null && startup instanceof StartupObject){
             
             ClassLoader cl=((StartupObject)startup).getAppContext().getClassLoader();
