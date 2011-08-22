@@ -56,7 +56,7 @@
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
-    <gbean name="Server" class="org.apache.geronimo.corba.CORBAEjbBeanGBean">
+    <gbean name="Server" class="org.apache.geronimo.corba.CORBAEjbSSLBeanGBean">
         <attribute name="host">${planORBSSLHost}</attribute>
         <attribute name="port">${planORBSSLPort}</attribute>
         <reference name="ConfigAdapter">
