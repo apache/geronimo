@@ -776,6 +776,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             if (createPlanMode.get()) {
                 EARConfigBuilder.appInfo.set(applicationInfo);
+                earContext.close();
                 throw new DeploymentException();
             }
 
