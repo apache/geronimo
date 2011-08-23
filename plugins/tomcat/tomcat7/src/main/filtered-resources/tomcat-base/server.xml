@@ -132,7 +132,7 @@
                 
                 <!--
                 <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster" channelSendOptions="8">
-                    <Manager className="org.apache.catalina.ha.session.DeltaManager" expireSessionsOnShutdown="false" notifyListenersOnReplication="true" name="${clusterName}" channelSendOptions="6" mapSendOptions="6"/>
+                    <Manager className="org.apache.catalina.ha.session.DeltaManager" expireSessionsOnShutdown="false" notifyListenersOnReplication="true" name="${ClusterName}" channelSendOptions="6" mapSendOptions="6"/>
                     <Channel className="org.apache.catalina.tribes.group.GroupChannel">
                         <Membership className="org.apache.catalina.tribes.membership.McastService" address="228.0.0.4" port="45564" frequency="500" dropTime="3000" />
                         <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver" address="auto" port="4000" autoBind="100" selectorTimeout="5000" maxThreads="6" />

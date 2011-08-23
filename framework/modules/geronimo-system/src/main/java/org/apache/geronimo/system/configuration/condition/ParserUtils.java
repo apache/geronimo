@@ -19,7 +19,7 @@ package org.apache.geronimo.system.configuration.condition;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.jexl.context.HashMapContext;
+import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ParserUtils
 {
-    public static void addDefaultVariables(Map vars) {
+    public static void addDefaultVariables(Map<String, Object> vars) {
         vars.put("java", new JavaVariable());
         vars.put("os", new OsVariable());
         
@@ -40,13 +40,13 @@ public class ParserUtils
         vars.put("props", props);
     }
        
-    public static class DebugHashMapContext extends HashMapContext {
+    public static class DebugHashMapContext extends MapContext {
         private static final Logger log = LoggerFactory.getLogger(DebugHashMapContext.class);
         
-        public Object get(Object o) {
-            Object r = super.get(o);
+        public Object get(String str) {
+            Object r = super.get(str);
             
-            log.debug("Get property: {} {}", o, r);
+            log.debug("Get property: {} {}", str, r);
             
             return r;
         }

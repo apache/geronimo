@@ -55,7 +55,7 @@ public class ServerOverrideTest extends TestCase {
     private Bundle bundle = new MockBundle(getClass().getClassLoader(), null, 0L);
 
     protected void setUp() throws java.lang.Exception {
-        HashMap<String, String> subs = new HashMap<String, String>();
+        Map<String, Object> subs = new HashMap<String, Object>();
         subs.put("host", "localhost");
         subs.put("port", "8080");
         subs.put("portOffset", "1");

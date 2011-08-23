@@ -86,7 +86,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private final ServerInfo serverInfo;
     private final String configFile;
     private final boolean readOnly;
-    private final JexlExpressionParser expressionParser;
+    private JexlExpressionParser expressionParser;
 
     private File attributeFile;
     private File backupFile;
@@ -264,7 +264,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }        
         Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
         storeConfigSubstitutions(configSubstitutionsFile, localConfigSubstitutions);
-        expressionParser.setVariables(configSubstutions);
+        expressionParser = new JexlExpressionParser(configSubstutions);
     }
 
     public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value, Bundle bundle) {

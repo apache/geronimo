@@ -16,13 +16,14 @@
  */
 package org.apache.geronimo.system.configuration.condition;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.commons.jexl.Expression;
-import org.apache.commons.jexl.ExpressionFactory;
-import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
-import org.apache.commons.jexl.resolver.FlatResolver;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,75 +35,66 @@ import org.slf4j.LoggerFactory;
 public class JexlExpressionParser
 {
     private static final Logger log = LoggerFactory.getLogger(JexlExpressionParser.class);
-
-    protected JexlContext context;
-
-    public JexlExpressionParser(final Map vars) {
+    
+    private final JexlEngine engine;
+    private final JexlContext context;
+    private final Map<String, Object> variables;
+    
+    public JexlExpressionParser(final Map<String, Object> vars) {
         if (vars == null) {
             throw new IllegalArgumentException("vars");
         }
-
-        context = JexlHelper.createContext();
-        context.setVars(vars);
-
-        log.trace("Using variables: {}", context.getVars());
+        
+        engine = new JexlEngine();
+        context = new MapContext(vars);
+        variables = vars;
+        
+        log.trace("Using variables: {}", vars);
     }
 
     public JexlExpressionParser() {
-        this(System.getProperties());
+        Map<String, Object> sysVars = new HashMap<String, Object>();
+        for (Entry<Object,Object> entry : System.getProperties().entrySet()){
+            sysVars.put((String)entry.getKey(), entry.getValue());
+        }
+        
+        engine = new JexlEngine();
+        context = new MapContext(sysVars);
+        variables = sysVars;
+        
+        log.trace("Using variables: {}", sysVars);
     }
 
-    public Map getVariables() {
-        return context.getVars();
-    }
-
-    public Object getVariable(final Object name) {
+    public boolean hasVariable(final String name) {
         if (name == null) {
             throw new IllegalArgumentException("name");
         }
 
-        return getVariables().get(name);
+        return context.has(name);
     }
-
-    public Object setVariable(final Object name, final Object value) {
+    
+    public Object getVariable(final String name) {
         if (name == null) {
             throw new IllegalArgumentException("name");
         }
 
-        return getVariables().put(name, value);
+        return context.get(name);
     }
 
-    public Object unsetVariable(final Object name) {
+    public void setVariable(final String name, final Object value) {
         if (name == null) {
             throw new IllegalArgumentException("name");
         }
 
-        return getVariables().remove(name);
+        context.set(name, value);
     }
-
-    public void addVariables(final Map map) {
-        if (map == null) {
-            throw new IllegalArgumentException("map");
-        }
-
-        getVariables().putAll(map);
+    
+    public Map<String, Object> getVariables() {
+        return variables;
     }
-
-    public void setVariables(final Map map) {
-        if (map == null) {
-            throw new IllegalArgumentException("map");
-        }
-        context.setVars(map);
-    }
-
-    private FlatResolver resolver = new FlatResolver(true);
 
     protected Expression createExpression(final String expression) throws Exception {
-        // assert expression != null;
-
-        Expression expr = ExpressionFactory.createExpression(expression);
-        expr.addPreResolver(resolver);
-
+        Expression expr = engine.createExpression(expression);
         return expr;
     }
 
@@ -112,7 +104,6 @@ public class JexlExpressionParser
         }
 
         log.trace("Evaluating expression: {}", expression);
-
         Expression expr = createExpression(expression);
         Object obj = expr.evaluate(context);
         log.trace("Result: {}", obj);

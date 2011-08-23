@@ -85,8 +85,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.commons-jexl</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl</artifactId>
         </dependency>
 
         <dependency>

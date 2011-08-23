@@ -18,13 +18,11 @@ package org.apache.geronimo.system.configuration.condition;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
-import org.apache.commons.jexl.Expression;
-import org.apache.commons.jexl.ExpressionFactory;
-import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
-import org.apache.commons.jexl.context.HashMapContext;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +42,23 @@ public class JexlConditionParser
     private static final Logger log = LoggerFactory.getLogger(JexlConditionParser.class);
 
     private final Map<String, Object> vars;
+    
+    private final JexlEngine engine;
 
-    public JexlConditionParser(final Map vars) {
+    public JexlConditionParser(final Map<String, Object> vars) {
         if (vars == null) {
             throw new IllegalArgumentException("vars");
         }
         this.vars = vars;
+        engine = new JexlEngine();
     }
     
     public JexlConditionParser() {
         // Setup the default vars
         vars = new HashMap<String, Object>();
         ParserUtils.addDefaultVariables(vars);
+        
+        engine = new JexlEngine();
     }
     
     /**
@@ -99,10 +102,9 @@ public class JexlConditionParser
 
         log.debug("Evaluating expression: {}", expression);
         
-        Expression expr = ExpressionFactory.createExpression(expression);
+        Expression expr = engine.createExpression(expression);
 
-        JexlContext ctx = JexlHelper.createContext();
-        ctx.setVars(vars);
+        JexlContext ctx = new MapContext(vars);
 
         Object result = expr.evaluate(ctx);
         log.debug("Result: {}", result);
