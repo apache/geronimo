@@ -37,7 +37,10 @@ public class GeronimoConfigurator extends DeploymentEngine implements AxisConfig
     public synchronized AxisConfiguration getAxisConfiguration() throws AxisFault {
         InputStream configStream = Loader.getResourceAsStream(this.resourceName);
         if (configStream == null) {
-            throw new AxisFault("Unable to find configuration: " + this.resourceName);
+            configStream = GeronimoConfigurator.class.getClassLoader().getResourceAsStream(this.resourceName);
+            if (configStream == null) {
+                throw new AxisFault("Unable to find configuration: " + this.resourceName);
+            }
         }
         this.axisConfig = populateAxisConfiguration(configStream);
 
