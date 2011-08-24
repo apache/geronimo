@@ -1766,18 +1766,6 @@ only found in cxf
             </dependency>
             
             <dependency>
-                <groupId>org.apache.aries.application</groupId>
-                <artifactId>org.apache.aries.application.utils</artifactId>
-                <version>${aries.util.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.aries.testsupport</groupId>
-                        <artifactId>org.apache.aries.testsupport.unit</artifactId>
-                    </exclusion>
-                </exclusions>                
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
                 <version>${aries.util.version}</version>
