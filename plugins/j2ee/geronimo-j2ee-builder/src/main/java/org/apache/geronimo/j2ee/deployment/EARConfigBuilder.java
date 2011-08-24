@@ -776,25 +776,41 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             if (createPlanMode.get()) {
                 EARConfigBuilder.appInfo.set(applicationInfo);
-                earContext.close();
                 throw new DeploymentException();
             }
 
             // it's the caller's responsibility to close the context...
             return earContext;
         } catch (GBeanAlreadyExistsException e) {
+            cleanupContext(earContext);
             throw new DeploymentException(e);
         } catch (IOException e) {
+            cleanupContext(earContext);
             throw e;
         } catch (DeploymentException e) {
+            cleanupContext(earContext);
             throw e;
         } catch (RuntimeException e) {
+            cleanupContext(earContext);
             throw e;
         } catch (Error e) {
+            cleanupContext(earContext);
             throw e;
         } finally {
             for (Module<?, ?> module : applicationInfo.getModules()) {
                 module.close();
+            }
+        }
+    }
+
+    private void cleanupContext(EARContext earContext) {
+        if (earContext != null) {
+            try {
+                earContext.close();
+            } catch (IOException ioe) {
+                // ignore any cleanup problems
+            } catch (DeploymentException de) {
+                // ignore any cleanup problems
             }
         }
     }
