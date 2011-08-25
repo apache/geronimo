@@ -53,7 +53,7 @@
                         model: treeModel,
                         showRoot: false,
                         openOnClick: true,
-                        autoExpand: false,
+                        autoExpand: true,
                         onClick: function(treeNodeItem,treeNode) {
                             //var anchorNode=treeNode.labelNode.childNodes[2];
                             var iframeHref = treeStore1.getValue(treeNodeItem, "href");
