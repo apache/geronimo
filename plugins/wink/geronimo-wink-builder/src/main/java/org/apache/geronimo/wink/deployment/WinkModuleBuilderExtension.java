@@ -54,6 +54,7 @@ import org.apache.openejb.jee.ParamValue;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
+import org.apache.wink.server.internal.servlet.RestServlet;
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
@@ -190,7 +191,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         /*
-         *  jaxrs 1.1 spec section 2.3.2 If an Application subclass is present and there is already a servlet deﬁned that has a servlet initialization
+         *  jaxrs 1.1 spec section 2.3.2 If an Application subclass is present and there is already a servlet defined that has a servlet initialization
          * ...
          */
         Class<? extends Application> applicationClass;
@@ -198,27 +199,29 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
         for (Servlet servlet : webApp.getServlet()) {
             List<ParamValue> params = servlet.getInitParam();
             for (ParamValue parm : params) {
-                if (parm.getParamName().trim().equals("javax.ws.rs.Application")) {
-                    for (Class<? extends Application> clazz : applicationClasses) {
-                        if (clazz.getName().equalsIgnoreCase(parm.getParamValue().trim())) {
-                            applicationClass = clazz;
-                            Class servletClass = null;
-                            try {
-                                servletClass = bundleClassLoader.loadClass(servlet.getServletClass());
-                            } catch (ClassNotFoundException e) {
-                                log.warn("failed to load servlet class:" + servlet.getServletClass());
-                            }
-                            if ((servletClass == null) || !servletClass.isAssignableFrom(HttpServlet.class)) {
-                                servlet.setServletClass(REST_SERVLET_NAME);
-                            }
-                            ParamValue paramDeploymentConfig = new ParamValue();
-                            paramDeploymentConfig.setParamName("deploymentConfiguration");
-                            paramDeploymentConfig.setParamValue(GeronimoWinkDeloymentConfiguration.class.getName());
-                            servlet.getInitParam().add(paramDeploymentConfig);
-                            return;
+                if (!parm.getParamName().trim().equals("javax.ws.rs.Application")) {
+                    continue;
+                }
+                for (Class<? extends Application> clazz : applicationClasses) {
+                    if (clazz.getName().equalsIgnoreCase(parm.getParamValue().trim())) {
+                        applicationClass = clazz;
+                        Class<?> servletClass = null;
+                        try {
+                            servletClass = bundleClassLoader.loadClass(servlet.getServletClass());
+                        } catch (ClassNotFoundException e) {
+                            log.warn("failed to load servlet class:" + servlet.getServletClass());
                         }
+                        if ((servletClass == null) || !servletClass.isAssignableFrom(HttpServlet.class)) {
+                            servlet.setServletClass(REST_SERVLET_NAME);
+                        }
+                        ParamValue paramDeploymentConfig = new ParamValue();
+                        paramDeploymentConfig.setParamName(RestServlet.DEPLOYMENT_CONF_PARAM);
+                        paramDeploymentConfig.setParamValue(GeronimoWinkDeloymentConfiguration.class.getName());
+                        servlet.getInitParam().add(paramDeploymentConfig);
+                        return;
                     }
                 }
+
             }
         }
 

@@ -19,65 +19,57 @@
 
 package org.apache.geronimo.wink;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
 
 import org.apache.wink.common.internal.i18n.Messages;
 import org.apache.wink.common.internal.lifecycle.ObjectFactory;
 import org.apache.wink.common.internal.utils.ClassUtils;
 import org.apache.wink.server.internal.DeploymentConfiguration;
-import org.apache.wink.server.internal.RequestProcessor;
 import org.apache.wink.server.internal.servlet.RestServlet;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
-import org.osgi.framework.BundleContext;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GeronimoRestServlet extends RestServlet {
-
-    private static final String DEPLOYMENT_CONF_PARAM = "deploymentConfiguration";
 
     private static final Logger logger = LoggerFactory.getLogger(GeronimoRestServlet.class);
 
     private static final long serialVersionUID = -1920970727031271538L;
 
     @Override
-    protected DeploymentConfiguration createDeploymentConfiguration() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
-        DeploymentConfiguration deploymentConfiguration = null;
-        BundleContext bundleContext = (BundleContext) this.getServletContext().getAttribute("osgi-bundlecontext");
-        ClassLoader deploymentClassLoader = new BundleClassLoader(bundleContext.getBundle());
-        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+    public void init() throws ServletException {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(deploymentClassLoader);
-            deploymentConfiguration = super.createDeploymentConfiguration();
+            Thread.currentThread().setContextClassLoader(getContextClassLoader());
+            super.init();
         } finally {
-            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return deploymentConfiguration;
     }
 
-    @Override
-    protected RequestProcessor createRequestProcessor() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-
-        RequestProcessor requestProcessor = null;
-        BundleContext bundleContext = (BundleContext) this.getServletContext().getAttribute("osgi-bundlecontext");
-        ClassLoader deploymentClassLoader = new BundleClassLoader(bundleContext.getBundle());
-        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(deploymentClassLoader);
-            requestProcessor = super.createRequestProcessor();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
-        }
-        return requestProcessor;
+    /**
+     * The new delegating bundle classloader will make sure the resources in the wink-server bundle could be found even if
+     * wired bundles are not searched
+     * @return
+     */
+    protected ClassLoader getContextClassLoader() {
+        ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+        List<Bundle> bundles = new ArrayList<Bundle>(2);
+        bundles.add(BundleUtils.getBundle(contextCL, false));
+        bundles.add(BundleUtils.getBundle(RestServlet.class.getClassLoader(), true));
+        return new BundleClassLoader(new DelegatingBundle(bundles));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Application getApplication(DeploymentConfiguration configuration) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
         Class<? extends Application> appClass = null;
         String initParameter = getInitParameter(APPLICATION_INIT_PARAM);
         if (initParameter != null) {
@@ -85,23 +77,12 @@ public class GeronimoRestServlet extends RestServlet {
                 logger.info(Messages.getMessage("restServletJAXRSApplicationInitParam", //$NON-NLS-1$
                         initParameter, APPLICATION_INIT_PARAM));
             }
-
-            BundleContext bundleContext = (BundleContext) this.getServletContext().getAttribute("osgi-bundlecontext");
-            ClassLoader deploymentClassLoader = new BundleClassLoader(bundleContext.getBundle());
-            ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(deploymentClassLoader);
-                appClass = ClassUtils.loadClass(initParameter);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldContextClassLoader);
-            }
-
+            appClass = ClassUtils.loadClass(initParameter);
             // let the lifecycle manager create the instance and process fields
             // for injection
             ObjectFactory<? extends Application> of = configuration.getOfFactoryRegistry().getObjectFactory(appClass);
             configuration.addApplicationObjectFactory(of);
             return of.getInstance(null);
-
         } else {
             throw new IllegalAccessException("Can find init parameter: " + APPLICATION_INIT_PARAM + " for rest servelt");
         }
