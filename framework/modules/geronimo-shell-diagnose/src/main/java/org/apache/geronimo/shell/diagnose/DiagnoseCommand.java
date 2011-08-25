@@ -23,9 +23,6 @@ import static org.eclipse.osgi.service.resolver.ResolverError.MISSING_IMPORT_PAC
 import static org.eclipse.osgi.service.resolver.ResolverError.MISSING_REQUIRE_BUNDLE;
 import static org.eclipse.osgi.service.resolver.ResolverError.REQUIRE_BUNDLE_USES_CONFLICT;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,9 +42,6 @@ import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.osgi.service.resolver.StateHelper;
 import org.eclipse.osgi.service.resolver.VersionConstraint;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -102,20 +96,19 @@ public class DiagnoseCommand extends OsgiCommandSupport {
     }
     
     private void diagnose(BundleDescription bundle, PlatformAdmin platformAdmin) {
-        System.out.println(bundleInfo(bundle));
+        System.out.println(Utils.bundleToString(bundle));
 
         StateHelper stateHelper = platformAdmin.getStateHelper();
         VersionConstraint[] unsatisfied = stateHelper.getUnsatisfiedConstraints(bundle);        
         ResolverError[] resolverErrors = analyzeErrors(bundle, platformAdmin.getState(false));
         
         if (unsatisfied.length == 0 && resolverErrors.length == 0) {
-            System.out.println("  No unresolved constraints.");
+            System.out.println(Utils.formatMessage(2, "No unresolved constraints."));
         }
         if (unsatisfied.length > 0) {
-            System.out.println("  Unresolved constraints:");        
+            System.out.println(Utils.formatMessage(2, "Unresolved constraints:"));        
             for (int i = 0; i < unsatisfied.length; i++) {
-                System.out.print("    ");
-                System.out.println(getResolutionFailureMessage(unsatisfied[i]));
+                System.out.println(Utils.formatMessage(3, getResolutionFailureMessage(unsatisfied[i])));
             }
         }
     }
@@ -126,31 +119,23 @@ public class DiagnoseCommand extends OsgiCommandSupport {
         if (unsatisfied instanceof ImportPackageSpecification) {
             String resolution = (String) ((ImportPackageSpecification) unsatisfied).getDirective(Constants.RESOLUTION_DIRECTIVE);
             if (ImportPackageSpecification.RESOLUTION_OPTIONAL.equals(resolution)) {
-                return warning("Missing optionally imported package " + toString(unsatisfied));
+                return Utils.warning("Missing optionally imported package " + Utils.versionToString(unsatisfied));
             } else if (ImportPackageSpecification.RESOLUTION_DYNAMIC.equals(resolution)) {
-                return warning("Missing dynamically imported package " + toString(unsatisfied));
+                return Utils.warning("Missing dynamically imported package " + Utils.versionToString(unsatisfied));
             } else {
-                return error("Missing imported package " + toString(unsatisfied));
+                return Utils.error("Missing imported package " + Utils.versionToString(unsatisfied));
             }
         } else if (unsatisfied instanceof BundleSpecification) {
             if (((BundleSpecification) unsatisfied).isOptional()) { 
-                return warning("Missing optionally required bundle " + toString(unsatisfied));
+                return Utils.warning("Missing optionally required bundle " + Utils.versionToString(unsatisfied));
             } else {
-                return error("Missing required bundle " + toString(unsatisfied));
+                return Utils.error("Missing required bundle " + Utils.versionToString(unsatisfied));
             }
         } else if (unsatisfied instanceof HostSpecification) {
-            return error("Missing host bundle " + toString(unsatisfied));
+            return Utils.error("Missing host bundle " + Utils.versionToString(unsatisfied));
         } else {
-            return error("Unknown problem");
+            return Utils.error("Unknown problem");
         }
-    }
-        
-    private static String error(String msg) {
-        return Ansi.ansi().fg(Color.RED).a(msg).reset().toString();
-    }
-    
-    private static String warning(String msg) {
-        return Ansi.ansi().fg(Color.YELLOW).a(msg).reset().toString();
     }
     
     public ResolverError[] analyzeErrors(BundleDescription bundle, State state) {
@@ -161,13 +146,14 @@ public class DiagnoseCommand extends OsgiCommandSupport {
         if (bundles.contains(bundle)) {
             return null;
         }
+        
         bundles.add(bundle);
         ResolverError[] errors = state.getResolverErrors(bundle);
         if (level == 2 && errors.length > 0) {
-            System.out.println("  Resolver errors:");
+            System.out.println(Utils.formatMessage(level, "Resolver errors:"));
         }
         for (ResolverError error : errors) {
-            displayError(bundle, level, error.toString());
+            Utils.displayError(bundle, level, error.toString());
             VersionConstraint constraint = error.getUnsatisfiedConstraint();
             switch (error.getType()) {
                 case MISSING_IMPORT_PACKAGE:
@@ -177,11 +163,11 @@ public class DiagnoseCommand extends OsgiCommandSupport {
                             if (pkg.getName().equals(pkgSpec.getName())) {
                                 if (pkgSpec.getVersionRange().isIncluded(pkg.getVersion())) {
                                     if (!pkg.getExporter().isResolved()) {
-                                        displayError(b, level + 1, "Bundle unresolved: " + pkg);
+                                        Utils.displayError(b, level + 1, "Bundle unresolved: " + pkg);
                                         analyzeErrors(pkg.getExporter(), state, bundles, level + 1);
                                     }
                                 } else {
-                                    displayError(b, level + 1, "Version mismatch: " + pkgSpec + " " + pkg);
+                                    Utils.displayError(b, level + 1, "Version mismatch: " + pkgSpec + " " + pkg);
                                 }
                             }
                         }
@@ -194,36 +180,26 @@ public class DiagnoseCommand extends OsgiCommandSupport {
                             continue;
                         }
                         if (b.getSymbolicName() == null) {
-                            displayError(b, level, "No SymbolicName for " + b.getLocation());
+                            Utils.displayError(b, level, "No SymbolicName for " + b.getLocation());
                             continue;
                         }
                         if (constraint.getName() == null) {
-                            displayError(bundle, level, "No constraint name: " + constraint);
+                            Utils.displayError(bundle, level, "No constraint name: " + constraint);
                         }
                         if (b.getSymbolicName().equals(constraint.getName())) {
                             if (constraint.getVersionRange().isIncluded(b.getVersion())) {
                                 // There must be something wrong in the bundle
                                 analyzeErrors(b, state, bundles, level + 1);
                             } else {
-                                displayError(bundle, level, "Version mismatch: " + constraint + " " + b);
+                                Utils.displayError(bundle, level, "Version mismatch: " + constraint + " " + b);
                             }
                         }
                     }
                     break;
                 case IMPORT_PACKAGE_USES_CONFLICT:
-                    ImportPackageSpecification importPackage = (ImportPackageSpecification)constraint;
-                    ExportPackageDescription pkg = findExportPackage(importPackage, state.getExportedPackages());
-                    if (pkg != null) {
-                        if (simple) {
-                            displayError(pkg.getExporter(), level + 1, pkg.toString());
-                        } else {
-                            String[] uses = (String[]) pkg.getDirective("uses");
-                            if (uses != null) {
-                                for (String usePackageName : uses) {
-                                    checkPackageConflict(importPackage, pkg, usePackageName, state, level + 1);
-                                }
-                            }
-                        }
+                    if (!simple) {
+                        PackageUsesHelper helper = new PackageUsesHelper(state);
+                        helper.analyzeConflict(bundle, level);
                     }
                     break;
                 case REQUIRE_BUNDLE_USES_CONFLICT:
@@ -234,127 +210,5 @@ public class DiagnoseCommand extends OsgiCommandSupport {
         }
         return errors;
     }
-    
-    private void checkPackageConflict(ImportPackageSpecification importPackage, ExportPackageDescription wiredExportPackage, String usePackageName, State state, int level) {
-        
-        BundleDescription importing = importPackage.getBundle();
-        BundleDescription exporting = wiredExportPackage.getExporter();
-        
-        // find import package the importing bundle has
-        ImportPackageSpecification useImportPackage = findImportPackage(usePackageName, importing.getImportPackages());
-        
-        if (useImportPackage != null) {
-            
-            /* 
-             * Find exported package the exporting bundle is wired to.
-             * A package in "uses" clause can refer to an imported package or exported package so 
-             * need to check both places.
-             */
-            ExportPackageDescription exportPackage = findExportPackage(usePackageName, exporting.getResolvedImports());
-            if (exportPackage == null) {
-                exportPackage = findExportPackage(usePackageName, exporting.getExportPackages());
-            }
-            
-            ExportPackageDescription highestExportPackage = findExportPackage(useImportPackage, state.getExportedPackages());
-            
-            if (exportPackage.getExporter().getBundleId() != highestExportPackage.getExporter().getBundleId()) {
-                
-                displayError(null, level, "Found possible conflict for " + usePackageName + " package which is used by " + importPackage.getName() + " package:");
-                
-                displayError(importing, level + 1, useImportPackage + " is wiring to " + bundleInfo(highestExportPackage.getExporter()));
-                displayError(importing, level + 1, importPackage + " is wiring to " + bundleInfo(wiredExportPackage.getExporter()));
-                
-                ImportPackageSpecification eImportPackage = findImportPackage(usePackageName, exporting.getImportPackages());
-                if (eImportPackage == null) {
-                    displayError(exporting, level + 2, exportPackage.toString());
-                } else {
-                    displayError(exporting, level + 2, eImportPackage + " is wiring to " + bundleInfo(exportPackage.getExporter()));
-                }
-
-            }
-        }
-        
-    }
-    
-    private static ExportPackageDescription findExportPackage(String packageName, ExportPackageDescription[] exports) {
-        for (ExportPackageDescription pkg : exports) {
-            if (pkg.getName().equals(packageName)) {
-                return pkg;
-            }
-        }
-        return null;
-    }
-    
-    private static ImportPackageSpecification findImportPackage(String packageName, ImportPackageSpecification[] imports) {
-        for (ImportPackageSpecification pkg : imports) {
-            if (pkg.getName().equals(packageName)) {
-                return pkg;
-            }
-        }
-        return null;
-    }
-    
-    private static ExportPackageDescription findExportPackage(ImportPackageSpecification packageName, ExportPackageDescription[] exports) {
-        List<ExportPackageDescription> matches = new ArrayList<ExportPackageDescription>(2);
-        for (ExportPackageDescription pkg : exports) {
-            if (packageName.getName().equals(pkg.getName()) && packageName.getVersionRange().isIncluded(pkg.getVersion())) {
-                matches.add(pkg);
-            }
-        }
-        int size = matches.size();
-        if (size == 0) {
-            return null;
-        } else if (size == 1) {
-            return matches.get(0);
-        } else {
-            Collections.sort(matches, ExportPackageComparator.INSTANCE);
-            return matches.get(0);
-        }      
-    }
-    
-    private static class ExportPackageComparator implements Comparator<ExportPackageDescription> {
-        
-        static final ExportPackageComparator INSTANCE = new ExportPackageComparator();
-        
-        public int compare(ExportPackageDescription object1, ExportPackageDescription object2) {
-            return object2.getVersion().compareTo(object1.getVersion());
-        }            
-    }
-    
-    private static void displayError(BundleDescription bundle, int level, String object) {
-        StringBuilder msg = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            msg.append("  ");
-        }
-        if (bundle != null) {
-            msg.append(error(bundleInfo(bundle)));
-        }
-        if (object != null) {
-            if (bundle != null) {
-                msg.append(" ");
-            }
-            msg.append(error(object));
-        }
-        System.out.println(msg.toString());
-    }
-    
-    private static String bundleInfo(BundleDescription bundle) {
-        return bundle.getSymbolicName() + " [" + bundle.getBundleId() + "]";
-    }
-            
-    private static String toString(VersionConstraint constraint) {
-        VersionRange versionRange = constraint.getVersionRange();
-        if (versionRange == null) {
-            return constraint.getName();
-        } else {
-            String versionAttribute;            
-            if (constraint instanceof ImportPackageSpecification) {
-                versionAttribute = "version=\"" + versionRange + "\"";
-            } else {
-                versionAttribute = "bundle-version=\"" + versionRange + "\"";
-            }
-            return constraint.getName() + "; " + versionAttribute;
-        }
-    }
-    
+   
 }
