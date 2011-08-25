@@ -94,25 +94,22 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
     /*
      * public static final EARContext.Key<Set<Resource>> JSF_FACELET_CONFIG_RESOURCES = new
      * EARContext.Key<Set<ConfigurationResource>>() {
-     * 
+     *
      * @Override public Set<ConfigurationResource> get(Map<EARContext.Key, Object> context) { return
      * (Set<ConfigurationResource>) context.get(this); } };
      */
 
-    public WinkModuleBuilderExtension(
-            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+    public WinkModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.namingBuilders = namingBuilders;
     }
 
-    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
-            throws DeploymentException {
+    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
 
-    public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl,
-            Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
+    public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
 
         mergeEnvironment(module);
@@ -126,8 +123,8 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores,
-            ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository)
+            throws DeploymentException {
         if (!(module instanceof WebModule)) {
             return;
         }
@@ -140,40 +137,35 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             // not a web module, nothing to do
             return;
         }
-
         WebModule webModule = (WebModule) module;
         WebApp webApp = webModule.getSpecDD();
-
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-
         Set<Class<? extends Application>> applicationClasses = new HashSet<Class<? extends Application>>();
-
         try {
             PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
 
-            BundleClassFinder bundleClassFinder = new BundleAssignableClassFinder(packageAdmin, bundle,
-                    new Class<?>[] { Application.class }, new ClassDiscoveryFilter() {
+            BundleClassFinder bundleClassFinder = new BundleAssignableClassFinder(packageAdmin, bundle, new Class<?>[] { Application.class }, new ClassDiscoveryFilter() {
 
-                        @Override
-                        public boolean directoryDiscoveryRequired(String directory) {
-                            return true;
-                        }
+                @Override
+                public boolean directoryDiscoveryRequired(String directory) {
+                    return true;
+                }
 
-                        @Override
-                        public boolean jarFileDiscoveryRequired(String jarUrl) {
-                            return true;
-                        }
+                @Override
+                public boolean jarFileDiscoveryRequired(String jarUrl) {
+                    return true;
+                }
 
-                        @Override
-                        public boolean packageDiscoveryRequired(String packageName) {
-                            return true;
-                        }
+                @Override
+                public boolean packageDiscoveryRequired(String packageName) {
+                    return true;
+                }
 
-                        @Override
-                        public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
-                            return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
-                        }
-                    });
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
+                }
+            });
 
             Set<String> classes = bundleClassFinder.find();
 
@@ -191,12 +183,9 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
 
         // there's no Application sub classes found
         if (applicationClasses == null || applicationClasses.size() == 0) {
-
             /*
              * TODO jaxrs 1.1 spec section 2.3.2 If no Application subclass is present the added servlet MUST be named ...
              */
-
-
             return;
         }
 
@@ -205,63 +194,40 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
          * ...
          */
         Class<? extends Application> applicationClass;
-
         BundleClassLoader bundleClassLoader = new BundleClassLoader(bundle);
-
         for (Servlet servlet : webApp.getServlet()) {
-
             List<ParamValue> params = servlet.getInitParam();
-
             for (ParamValue parm : params) {
-
                 if (parm.getParamName().trim().equals("javax.ws.rs.Application")) {
-
                     for (Class<? extends Application> clazz : applicationClasses) {
-
                         if (clazz.getName().equalsIgnoreCase(parm.getParamValue().trim())) {
-
                             applicationClass = clazz;
-                            
-                            Class servletClass=null;
-                            
+                            Class servletClass = null;
                             try {
                                 servletClass = bundleClassLoader.loadClass(servlet.getServletClass());
                             } catch (ClassNotFoundException e) {
-                                log.warn("failed to load servlet class:"+servlet.getServletClass());
+                                log.warn("failed to load servlet class:" + servlet.getServletClass());
                             }
-                            
-                            if ((servletClass==null)||!servletClass.isAssignableFrom(HttpServlet.class)){
-                                
+                            if ((servletClass == null) || !servletClass.isAssignableFrom(HttpServlet.class)) {
                                 servlet.setServletClass(REST_SERVLET_NAME);
                             }
-                            
-
                             ParamValue paramDeploymentConfig = new ParamValue();
                             paramDeploymentConfig.setParamName("deploymentConfiguration");
                             paramDeploymentConfig.setParamValue(GeronimoWinkDeloymentConfiguration.class.getName());
                             servlet.getInitParam().add(paramDeploymentConfig);
-
                             return;
                         }
                     }
-
                 }
-
             }
-
         }
-
-
 
         /*
          * jaxrs 1.1 spec section 2.3.2 If an Application subclass is present ...
-         *  
-         *  
+         *
+         *
          * TODO It is an error for more than one application to be deployed at the same effective servlet mapping
          */
-
-        
-       
 
         applicationClass = applicationClasses.iterator().next();
 
@@ -299,27 +265,23 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
                     mapping = mapping + "/*";
                 }
             }
-            
-            ServletMapping restServletMapping=new ServletMapping();
+
+            ServletMapping restServletMapping = new ServletMapping();
             restServletMapping.setServletName(REST_SERVLET_NAME);
             restServletMapping.getUrlPattern().add(mapping);
             webApp.getServletMapping().add(restServletMapping);
 
+        }
 
-        } 
-        
         webApp.getServlet().add(restServletInfo);
 
+    }
+
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
 
     }
 
-    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository)
-            throws DeploymentException {
-
-    }
-
-    protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class<?>> annotatedJAXRSClasses,
-            Bundle bundle) throws DeploymentException {
+    protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class<?>> annotatedJAXRSClasses, Bundle bundle) throws DeploymentException {
         List<Class<?>> managedBeanClasses = new ArrayList<Class<?>>();
         for (FacesConfig facesConfig : facesConfigs) {
             for (FacesManagedBean managedBean : facesConfig.getManagedBean()) {
@@ -349,8 +311,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
 
     private boolean hasRestApplicationAsServlet(WebApp webApp) {
         for (Servlet servlet : webApp.getServlet()) {
-            if (servlet.getServletClass() != null
-                    && REST_APPLICATION_AS_SERVLET_NAME.equals(servlet.getServletClass().trim())) {
+            if (servlet.getServletClass() != null && REST_APPLICATION_AS_SERVLET_NAME.equals(servlet.getServletClass().trim())) {
                 return true;
             }
         }
