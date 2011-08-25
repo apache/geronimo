@@ -42,9 +42,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.bval</groupId>
-                <artifactId>org.apache.bval.bundle</artifactId>
-                <version>0.2-incubating</version>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>bval-jsr303</artifactId>
+                <version>0.3_1-incubating-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.bval</groupId>
