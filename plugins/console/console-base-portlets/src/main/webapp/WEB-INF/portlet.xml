@@ -577,7 +577,7 @@ limitations under the License.
         <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
-            <title>Installed J2EE Connectors</title>
+            <title>Installed Java EE Connectors</title>
             <short-title>RARModules</short-title>
             <keywords></keywords>
         </portlet-info>
