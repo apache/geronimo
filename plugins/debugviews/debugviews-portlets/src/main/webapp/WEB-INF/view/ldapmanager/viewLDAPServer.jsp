@@ -76,7 +76,10 @@ var treeModel = new dijit.tree.ForestStoreModel({
     store: treeStore,
     rootId: "LDAP Server",
     rootLabel: "LDAP Server",
-    childrenAttrs: ["children"]
+    childrenAttrs: ["children"],
+    mayHaveChildren: function(item){
+        	return item.children && item.children.length > 0;
+        }
 });
 
 treeModel.mayHaveChildren = function(item){

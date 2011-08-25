@@ -59,7 +59,14 @@
     function createTree(treeData){                    
         debugStore = new dojo.data.ItemFileReadStore({data:treeData});
         debugModel = new dijit.tree.ForestStoreModel({
-            store:debugStore, rootId:"JNDI", rootLabel:"JNDI", childrenAttrs:["children"]});
+            store:debugStore, 
+            rootId:"JNDI", 
+            rootLabel:"JNDI", 
+            childrenAttrs:["children"],
+            mayHaveChildren: function(item){
+                	return item.children && item.children.length > 0;
+            	}
+            });
         debugTree = new dijit.Tree({
             "class": "claro",
             showRoot: false,

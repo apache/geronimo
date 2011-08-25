@@ -67,7 +67,14 @@
     function createTree(treeDat){
         serverStore = new dojo.data.ItemFileReadStore({data: treeDat});
         storeModel = new dijit.tree.ForestStoreModel({
-            store: serverStore, rootId: "Ejb Containers", rootLabel: "Ejb Containers", childrenAttrs: ["children"]});
+            store: serverStore, 
+            rootId: "Ejb Containers", 
+            rootLabel: "Ejb Containers", 
+            childrenAttrs: ["children"],
+            mayHaveChildren: function(item){
+                    return item.children && item.children.length > 0;
+                }
+            });
         tree = new dijit.Tree({
             "class": "claro",
             model: storeModel,

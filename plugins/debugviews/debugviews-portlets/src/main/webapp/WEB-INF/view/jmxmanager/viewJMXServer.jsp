@@ -83,7 +83,12 @@
     function createTree(treeData){                 
         treeStore = new dojo.data.ItemFileWriteStore({data:treeData});
         treeModel = new dijit.tree.ForestStoreModel({
-            store:treeStore, childrenAttrs:["children"]});
+            store:treeStore, 
+            childrenAttrs:["children"],
+            mayHaveChildren: function(item){
+                    return item.children && item.children.length > 0;
+                }
+            });
         tree = new dijit.Tree({
             model: treeModel,
             showRoot: false,
