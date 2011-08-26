@@ -73,7 +73,6 @@ public class DiagnoseCommand extends OsgiCommandSupport {
 
         try {
             State systemState = platformAdmin.getState(false);
-
             Iterator<Long> iterator = ids.iterator();
             while (iterator.hasNext()) {
                 Long id = iterator.next();
@@ -152,6 +151,7 @@ public class DiagnoseCommand extends OsgiCommandSupport {
         if (level == 2 && errors.length > 0) {
             System.out.println(Utils.formatMessage(level, "Resolver errors:"));
         }
+        PackageUsesHelper helper = null;
         for (ResolverError error : errors) {
             Utils.displayError(bundle, level, error.toString());
             VersionConstraint constraint = error.getUnsatisfiedConstraint();
@@ -198,8 +198,12 @@ public class DiagnoseCommand extends OsgiCommandSupport {
                     break;
                 case IMPORT_PACKAGE_USES_CONFLICT:
                     if (!simple) {
-                        PackageUsesHelper helper = new PackageUsesHelper(state);
-                        helper.analyzeConflict(bundle, level);
+                        // multiple conflicts can be reported on the same bundle
+                        // so ensure helper only runs once.
+                        if (helper == null) {
+                            helper = new PackageUsesHelper(state);
+                            helper.analyzeConflict(bundle, level);
+                        }
                     }
                     break;
                 case REQUIRE_BUNDLE_USES_CONFLICT:

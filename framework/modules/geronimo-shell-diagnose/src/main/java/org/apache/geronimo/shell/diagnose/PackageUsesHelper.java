@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,37 +51,35 @@ public class PackageUsesHelper {
         
         PackageGraph graph = new PackageGraph();
         
-        List<PackageEdge> edges = new ArrayList<PackageEdge>();
+        Map<ImportPackageSpecification, PackageEdge> edges = new HashMap<ImportPackageSpecification, PackageEdge>();
         ImportPackageSpecification[] importPackages = bundle.getImportPackages();
         for (ImportPackageSpecification importPackage : importPackages) {
             PackageEdge edge = processImportPackage(graph, bundle, importPackage);
             if (edge != null) {
-                edges.add(edge);
+                edges.put(importPackage, edge);
             }
         }
 
-        for (Map.Entry<String, Set<PackageNode>> entry : graph.packageMap.entrySet()) {
-            Set<PackageNode> versions = entry.getValue();
-            if (hasMultipleDifferentExporters(versions)) {
+        for (Map.Entry<String, Map<PackageNode, ImportPackageSpecification>> entry : graph.getPackageMap().entrySet()) {
+            Map<PackageNode, ImportPackageSpecification> versions = entry.getValue();
+            if (hasMultipleDifferentExporters(versions.keySet())) {
                 
                 String packageName = entry.getKey();
                 System.out.println();
                 System.out.println(Utils.formatMessage(level, "Found multiple versions of package " + packageName + " in bundle's dependency graph:"));
                 
-                for (PackageNode version : versions) {
+                for (PackageNode version : versions.keySet()) {
                     System.out.println(Utils.formatErrorMessage(level + 1, "package " + version.getPackageNameAndVersion() + " is exported from " + Utils.bundleToString(version.getPackageExporter())));                            
                 }
                 
                 System.out.println();
-                System.out.println(Utils.formatMessage(level, "Dependency paths:"));
+                System.out.println(Utils.formatMessage(level, "Package " + packageName + " paths:"));
                 
-                for (PackageEdge edge : edges) {
-                    List<PackagePath> paths = edge.findPathsToPackage(packageName);
-                    if (!paths.isEmpty()) {
-                        for (PackagePath path : paths) {
-                            System.out.println(path.toString(level + 1));
-                        }
-                    }
+                // just display one path to each conflicting package version found
+                for (Map.Entry<PackageNode, ImportPackageSpecification> version : versions.entrySet()) {
+                    PackageEdge edge = edges.get(version.getValue());
+                    PackagePath path = edge.findPathToPackage(version.getKey());
+                    System.out.println(path.toString(level + 1));                    
                 }
             }
         }
@@ -102,6 +101,10 @@ public class PackageUsesHelper {
     }
     
     private PackageEdge processImportPackage(PackageGraph graph, BundleDescription importer, ImportPackageSpecification importPackage) {
+        return processImportPackage(graph, importer, importPackage, importPackage);
+    }
+        
+    private PackageEdge processImportPackage(PackageGraph graph, BundleDescription importer, ImportPackageSpecification importPackage, ImportPackageSpecification startImportPackage) {
         ExportPackageDescription exportedPackage = null;
         if (importer.isResolved()) {
             exportedPackage = findExportPackage(importPackage.getName(), importer.getResolvedImports());
@@ -117,15 +120,15 @@ public class PackageUsesHelper {
                 throw new RuntimeException(importPackage + " cannot be satisfied for " + Utils.bundleToString(importer));
             }
         }
-        return new PackageEdge(processExportPackage(graph, exportedPackage), importPackage);
+        return new PackageEdge(processExportPackage(graph, exportedPackage, startImportPackage), importPackage);
     }
     
-    private PackageNode processExportPackage(PackageGraph graph, ExportPackageDescription exportedPackage) {
+    private PackageNode processExportPackage(PackageGraph graph, ExportPackageDescription exportedPackage, ImportPackageSpecification startImportPackage) {
         PackageNode node = graph.getNode(exportedPackage);
         if (node != null) {
             return node;
         }
-        node = graph.addNode(exportedPackage);
+        node = graph.addNode(exportedPackage, startImportPackage);
         
         String[] uses = (String[]) exportedPackage.getDirective("uses");
         if (uses != null) {
@@ -138,11 +141,11 @@ public class PackageUsesHelper {
                     if (useExportPackage == null) {
                         throw new RuntimeException("No import or export package for an 'uses' package " + usePackageName + " in " + Utils.bundleToString(bundle));
                     } else {
-                        PackageEdge edge = new PackageEdge(processExportPackage(graph, useExportPackage));
+                        PackageEdge edge = new PackageEdge(processExportPackage(graph, useExportPackage, startImportPackage));
                         node.addEdge(edge);
                     }
                 } else {
-                    PackageEdge edge = processImportPackage(graph, bundle, useImportPackage);
+                    PackageEdge edge = processImportPackage(graph, bundle, useImportPackage, startImportPackage);
                     if (edge != null) {
                         node.addEdge(edge);
                     }
@@ -200,27 +203,30 @@ public class PackageUsesHelper {
     
     private static class PackageGraph {
     
-        private Map<String, Set<PackageNode>> packageMap = new HashMap<String, Set<PackageNode>>();
+        private Map<String, Map<PackageNode, ImportPackageSpecification>> packageMap = new HashMap<String, Map<PackageNode, ImportPackageSpecification>>();
         private Map<ExportPackageDescription, PackageNode> nodes = new HashMap<ExportPackageDescription, PackageNode>();
         
         public PackageNode getNode(ExportPackageDescription exportPackage) {
             return nodes.get(exportPackage);
         }
         
-        public PackageNode addNode(ExportPackageDescription exportPackage) {
+        public PackageNode addNode(ExportPackageDescription exportPackage, ImportPackageSpecification startImportPackage) {
             PackageNode node = new PackageNode(exportPackage);
             nodes.put(exportPackage, node);
             
-            Set<PackageNode> versions = packageMap.get(exportPackage.getName());
+            Map<PackageNode, ImportPackageSpecification> versions = packageMap.get(exportPackage.getName());
             if (versions == null) {
-                versions = new HashSet<PackageNode>();
+                versions = new LinkedHashMap<PackageNode, ImportPackageSpecification>();
                 packageMap.put(exportPackage.getName(), versions);
             }
-            versions.add(node);
+            versions.put(node, startImportPackage);
 
             return node;
         }
 
+        public Map<String, Map<PackageNode, ImportPackageSpecification>> getPackageMap() {
+            return packageMap;
+        }
     }
     
     private static class PackageEdge {
@@ -244,27 +250,30 @@ public class PackageUsesHelper {
             return importPackage;
         }
         
-        public List<PackagePath> findPathsToPackage(String packageName) {
-            List<PackagePath> paths = new ArrayList<PackagePath>();
-            findPathsToPackage(paths, new PackagePath(), packageName);
-            return paths;
+        public PackagePath findPathToPackage(PackageNode packageNode) {
+            return findPathToPackage(new HashMap<Object, Object>(), new PackagePath(), packageNode);
         }
         
-        public void findPathsToPackage(List<PackagePath> paths, PackagePath path, String packageName) {
-            if (path.contains(this)) {
-                throw new RuntimeException("Cirucular dependency path detected: " + path);
+        public PackagePath findPathToPackage(Map<Object, Object> context, PackagePath currentPath, PackageNode packageNode) {
+            if (currentPath.containsEdgeWithNode(target)) {
+                return null;
             }
-            path.addLast(this);
+                        
+            currentPath.addLast(this);
             
-            if (packageName.equals(target.getExportPackage().getName())) {
-                PackagePath copy = new PackagePath(path);
-                paths.add(copy);
+            PackagePath pathFound = null;
+            
+            if (target == packageNode) {
+                pathFound = new PackagePath(currentPath);
             } else {
-                this.target.findPathsToPackage(paths, path, packageName);
+                pathFound = target.findPathToPackage(context, currentPath, packageNode);
             }
             
-            path.removeLast();
+            currentPath.removeLast();
+            
+            return pathFound;
         }
+
     }
     
     private static class PackageNode {
@@ -286,10 +295,21 @@ public class PackageUsesHelper {
             edges.add(usedPackage);
         }
         
-        private void findPathsToPackage(List<PackagePath> paths, PackagePath path, String packageName) {
-            for (PackageEdge edge : edges) {
-                edge.findPathsToPackage(paths, path, packageName);
+        private PackagePath findPathToPackage(Map<Object, Object> context, PackagePath currentPath, PackageNode packageNode) {
+            Boolean visited = (Boolean) context.get(this);
+            if (visited != null) {                
+                return null;
             }
+                
+            for (PackageEdge edge : edges) {
+                PackagePath path = edge.findPathToPackage(context, currentPath, packageNode);
+                if (path != null) {
+                    return path;
+                }
+            }
+                
+            context.put(this, Boolean.TRUE);
+            return null;            
         }
                 
         public String toString() {
@@ -305,40 +325,64 @@ public class PackageUsesHelper {
         }
     }
     
-    private static class PackagePath extends LinkedList<PackageEdge> {
+    private static class PackagePath {
+        
+        private LinkedList<PackageEdge> edges = new LinkedList<PackageEdge>();
+        private Set<PackageNode> nodes = new HashSet<PackageNode>();
         
         public PackagePath() {            
         }
         
         public PackagePath(PackagePath path) {
-            super(path);
+            edges = new LinkedList<PackageEdge>(path.edges);
         }
-
+        
+        public void addLast(PackageEdge edge) {
+            edges.addLast(edge);
+            nodes.add(edge.getTarget());
+        }
+        
+        public PackageEdge removeLast() {
+            PackageEdge edge = edges.removeLast();
+            nodes.remove(edge.getTarget());
+            return edge;
+        }
+        
+        public boolean containsEdgeWithNode(PackageNode target) {
+            return nodes.contains(target);
+        }
+        
         public String toString() {
             return toString(0);
         }
         
         public String toString(int level) {
             StringBuilder builder = new StringBuilder();
-            Iterator<PackageEdge> iterator = iterator();
+            Iterator<PackageEdge> iterator = edges.iterator();
             if (iterator.hasNext()) {
                 PackageEdge edge = iterator.next();
                 PackageNode node = edge.getTarget();
-                
-                builder.append(importToString(level, edge, iterator.hasNext()));
+               
+                builder.append(importToString(level, edge, !iterator.hasNext()));                
                 builder.append(Utils.LINE_SEPARATOR);
 
                 while (iterator.hasNext()) {
                     PackageEdge nextEdge = iterator.next(); 
                     PackageNode nextNode = nextEdge.getTarget();
                     
-                    builder.append(usesToString(level + 1, node, nextNode));
+                    ImportPackageSpecification importPackage = nextEdge.getImportPackage();
+                        
+                    builder.append(usesToString(level + 1, node, nextNode, importPackage == null && !iterator.hasNext()));
                     builder.append(Utils.LINE_SEPARATOR);
-                    
-                    if (nextEdge.getImportPackage() != null) {                                 
-                        builder.append(importToString(level + 1, nextEdge, iterator.hasNext()));
+                        
+                    if (importPackage != null) {
+                        if (importPackage.getBundle() == nextEdge.getTarget().getPackageExporter()) {
+                            builder.append(selfImportToString(level + 1, nextEdge, !iterator.hasNext()));
+                        } else {
+                            builder.append(importToString(level + 1, nextEdge, !iterator.hasNext()));
+                            level++;
+                        }
                         builder.append(Utils.LINE_SEPARATOR);
-                        level++;
                     }
                     
                     edge = nextEdge;
@@ -348,7 +392,7 @@ public class PackageUsesHelper {
             return builder.toString();
         }
         
-        private static String importToString(int level, PackageEdge edge, boolean hasMore) {
+        private static String importToString(int level, PackageEdge edge, boolean isLast) {
             StringBuilder builder = new StringBuilder();            
             builder.append(Utils.bundleToString(edge.getImportPackage().getBundle())).append(" imports package ").append(Utils.importPackageToString(edge.getImportPackage()));
             if (edge.getImportPackage().isResolved()) {
@@ -357,19 +401,33 @@ public class PackageUsesHelper {
                 builder.append(" wants to wire to ");
             }
             builder.append(Utils.bundleToString(edge.getTarget().getPackageExporter()));
-            if (hasMore) {
-                return Utils.formatMessage(level, builder.toString());
-            } else {
-                return Utils.formatErrorMessage(level, builder.toString());
-            }
+            return formatMessage(level, builder.toString(), isLast);
         }
         
-        private static String usesToString(int level, PackageNode source, PackageNode target) {
+        private static String selfImportToString(int level, PackageEdge edge, boolean isLast) {
+            StringBuilder builder = new StringBuilder();            
+            builder.append(Utils.bundleToString(edge.getImportPackage().getBundle())).append(" imports package ").append(Utils.importPackageToString(edge.getImportPackage()));
+            if (edge.getImportPackage().isResolved()) {
+                builder.append(" and is wired to itself");
+            } else {
+                builder.append(" wants to wire to itself");
+            }
+            return formatMessage(level, builder.toString(), isLast);
+        }
+        
+        private static String usesToString(int level, PackageNode source, PackageNode target, boolean isLast) {
             StringBuilder builder = new StringBuilder();  
             builder.append("package ").append(source.getExportPackage().getName());
             builder.append(" uses package ").append(target.getExportPackage().getName());
-            return Utils.formatMessage(level, builder.toString());
+            return formatMessage(level, builder.toString(), isLast);
         }
 
+        private static String formatMessage(int level, String message, boolean isLast) {
+            if (isLast) {
+                return Utils.formatErrorMessage(level, message);
+            } else {
+                return Utils.formatMessage(level, message);
+            }
+        }
     }
 }
