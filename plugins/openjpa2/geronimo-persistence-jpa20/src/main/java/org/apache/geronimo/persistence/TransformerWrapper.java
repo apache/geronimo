@@ -21,6 +21,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import javax.persistence.spi.ClassTransformer;
+
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
 
@@ -34,7 +36,7 @@ public class TransformerWrapper implements ClassFileTransformer {
 
     public TransformerWrapper(ClassTransformer classTransformer, Bundle bundle) {
         this.classTransformer = classTransformer;
-        this.bundle = bundle;
+        this.bundle = BundleUtils.unwrapBundle(bundle);
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

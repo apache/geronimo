@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.Priority;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -45,14 +46,14 @@ import org.osgi.service.packageadmin.PackageAdmin;
 @GBean
 @Priority(priority = 2)
 public class WaitForBlueprintGBean {
-    
+
     private volatile BlueprintEvent event;
     private CountDownLatch latch = new CountDownLatch(1);
 
     public WaitForBlueprintGBean(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                                  @ParamAttribute(name = "packageName") String packageName,
-                                 @ParamAttribute(name = "symbolicName") String symbolicName) throws Exception {        
-        final Bundle bundle = getBundle(bundleContext, symbolicName, packageName);
+                                 @ParamAttribute(name = "symbolicName") String symbolicName) throws Exception {
+        final Bundle bundle = BundleUtils.unwrapBundle(getBundle(bundleContext, symbolicName, packageName));
         BlueprintListener listener = new BlueprintListener() {
 
             @Override
@@ -73,7 +74,7 @@ public class WaitForBlueprintGBean {
         }
     }
 
-    private Bundle getBundle(BundleContext bundleContext, String symbolicName, String packageName) throws Exception {       
+    private Bundle getBundle(BundleContext bundleContext, String symbolicName, String packageName) throws Exception {
         ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
         PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
         try {
@@ -82,7 +83,7 @@ public class WaitForBlueprintGBean {
                 if (bundles == null) {
                     throw new Exception("Unable to find bundle based on symbolic name. There is no bundle with " + symbolicName + " symbolic name");
                 } else if (bundles.length > 1) {
-                    throw new Exception("Found multiple bundles with the same symbolic name: " + symbolicName);                    
+                    throw new Exception("Found multiple bundles with the same symbolic name: " + symbolicName);
                 } else {
                     return bundles[0];
                 }
