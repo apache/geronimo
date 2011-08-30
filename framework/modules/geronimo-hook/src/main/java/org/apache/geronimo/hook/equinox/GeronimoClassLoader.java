@@ -45,25 +45,25 @@ import org.osgi.framework.ServiceReference;
 
 public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoader {
 
-    private static final String PREFIX = "org.apache.xbean.osgi.bundle.util.BundleResourceHelper";    
+    private static final String PREFIX = "org.apache.xbean.osgi.bundle.util.BundleResourceHelper";
     private static final String SEARCH_WIRED_BUNDLES = PREFIX + ".searchWiredBundles";
     private static final String CONVERT_RESOURCE_URLS = PREFIX + ".convertResourceUrls";
-    
+
     private final static String META_INF_1 = "META-INF/";
     private final static String META_INF_2 = "/META-INF/";
-    
+
     private final ClassLoaderHook hook;
     private final ClassLoaderDelegate delegate;
     private final ProtectionDomain domain;
     private final AbstractBundle bundle;
     private final ClasspathManager manager;
-    
+
     private LinkedHashSet<Bundle> wiredBundles = null;
-    private boolean searchWiredBundles = getSearchWiredBundles(true);
+    private boolean searchWiredBundles = getSearchWiredBundles(false);
     private boolean convertResourceUrls = getConvertResourceUrls(true);
-    
+
     private URLConverter converter;
-    
+
     public GeronimoClassLoader(ClassLoaderHook hook,
                                ClassLoader parent,
                                ClassLoaderDelegate delegate,
@@ -71,15 +71,15 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
                                BaseData bundledata,
                                String[] classpath,
                                AbstractBundle bundle) {
-        super(new URL[] {}, parent);     
+        super(new URL[] {}, parent);
         this.hook = hook;
         this.delegate = delegate;
         this.domain = domain;
         this.bundle = bundle;
-        
+
         this.manager = new ClasspathManager(bundledata, classpath, this);
     }
-            
+
     @Override
     protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class clazz = delegate.findClass(name);
@@ -88,14 +88,14 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
         }
         return clazz;
     }
-    
+
     @Override
     public URL getResource(String name) {
         URL resource = delegate.findResource(name);
         if (resource == null && isMetaInfResource(name)) {
             LinkedHashSet<Bundle> wiredBundles = getWiredBundles();
             Iterator<Bundle> iterator = wiredBundles.iterator();
-            while (iterator.hasNext() && resource == null) {                
+            while (iterator.hasNext() && resource == null) {
                 resource = iterator.next().getResource(name);
             }
         }
@@ -105,10 +105,10 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
             return resource;
         }
     }
-    
+
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
-        Enumeration<URL> e = (Enumeration<URL>) delegate.findResources(name);
+        Enumeration<URL> e = delegate.findResources(name);
         if (isMetaInfResource(name)) {
             List<URL> allResources = getList();
             addToList(allResources, e);
@@ -117,35 +117,35 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
                 Enumeration<URL> resources = wiredBundle.getResources(name);
                 addToList(allResources, resources);
             }
-            return Collections.enumeration(allResources);            
+            return Collections.enumeration(allResources);
         } else if (e == null) {
             return Collections.enumeration(Collections.<URL>emptyList());
         } else {
             List<URL> allResources = getList();
             addToList(allResources, e);
             return Collections.enumeration(allResources);
-        }        
+        }
     }
-    
+
     public void setSearchWiredBundles(boolean search) {
         searchWiredBundles = search;
     }
-    
+
     public boolean getSearchWiredBundles() {
         return searchWiredBundles;
     }
-    
+
     private synchronized LinkedHashSet<Bundle> getWiredBundles() {
         if (wiredBundles == null) {
             wiredBundles = BundleUtils.getWiredBundles(bundle);
         }
         return wiredBundles;
     }
-    
+
     private boolean isMetaInfResource(String name) {
         return searchWiredBundles && name != null && (name.startsWith(META_INF_1) || name.startsWith(META_INF_2));
     }
-          
+
     private List<URL> getList() {
         if (converter == null) {
             return new ArrayList<URL>();
@@ -157,7 +157,7 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
             };
         }
     }
-    
+
     private void addToList(List<URL> list, Enumeration<URL> enumeration) {
         if (enumeration != null) {
             while (enumeration.hasMoreElements()) {
@@ -165,7 +165,7 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
             }
         }
     }
-           
+
     private URL convert(URL url) {
         try {
             URL convertedURL = converter.resolve(url);
@@ -182,29 +182,29 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
             BundleContext context = bundle.getBundleContext();
             if (context != null) {
                 ServiceReference urlReference = context.getServiceReference(URLConverter.class.getName());
-                if (urlReference != null) { 
+                if (urlReference != null) {
                     converter = (URLConverter) context.getService(urlReference);
                 }
             }
         }
     }
-    
+
     public void close() {
-        manager.close();      
+        manager.close();
     }
-    
+
     // other BaseClassLoader methods
-    
+
     public ProtectionDomain getDomain() {
         return domain;
     }
-        
+
     @Override
     protected String findLibrary(String libname) {
         // let the manager find the library for us
         return manager.findLibrary(libname);
     }
-    
+
     public ClasspathEntry createClassPathEntry(BundleFile bundlefile, ProtectionDomain cpDomain) {
         return new ClasspathEntry(bundlefile, DefaultClassLoader.createProtectionDomain(bundlefile, cpDomain));
     }
@@ -253,7 +253,7 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
         return delegate.listResources(path, filePattern, options);
     }
 
-    public Collection<String> listLocalResources(String path, String filePattern, int options) { 
+    public Collection<String> listLocalResources(String path, String filePattern, int options) {
         return manager.listLocalResources(path, filePattern, options);
     }
 
@@ -264,14 +264,14 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
     public Bundle getBundle() {
         return manager.getBaseData().getBundle();
     }
-    
+
     private static boolean getSearchWiredBundles(boolean defaultValue) {
         String value = System.getProperty(SEARCH_WIRED_BUNDLES);
-        return (value == null) ? defaultValue : Boolean.parseBoolean(value);        
+        return (value == null) ? defaultValue : Boolean.parseBoolean(value);
     }
-    
+
     private static boolean getConvertResourceUrls(boolean defaultValue) {
         String value = System.getProperty(CONVERT_RESOURCE_URLS);
-        return (value == null) ? defaultValue : Boolean.parseBoolean(value);        
-    }    
+        return (value == null) ? defaultValue : Boolean.parseBoolean(value);
+    }
 }
