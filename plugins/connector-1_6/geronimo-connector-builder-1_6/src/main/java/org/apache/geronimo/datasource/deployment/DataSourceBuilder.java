@@ -164,11 +164,6 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         
         if (dataSource.getDescription() == null && dsDefinition.description().trim().length() > 0) {
             dataSource.setDescriptions(new Text[]{new Text(null, dsDefinition.description().trim())});
-
-        }
-        
-        if (dataSource.getUrl() == null && dsDefinition.url().trim().length() > 0) {
-            dataSource.setUrl(dsDefinition.description().trim());
         }
         
         if (dataSource.getUser() == null && dsDefinition.user().trim().length() > 0) {
