@@ -7,8 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>rmi-naming</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>sharedlib-extender</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

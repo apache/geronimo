@@ -1,0 +1,1 @@
+This folder is used to place classes files for default shared library

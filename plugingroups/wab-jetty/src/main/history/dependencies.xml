@@ -43,6 +43,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>sharedlib</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>web-extender</artifactId>
         <type>car</type>
     </dependency>

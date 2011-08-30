@@ -14,32 +14,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.hook;
 
 public class BundleHelper {
 
     private static BundleExtender extender;
-    
+
+    private static SharedLibraryRegistry sharedLibraryRegistry;
+
     public static void setBundleExtender(BundleExtender newExtender) {
         extender = newExtender;
     }
-    
+
     public static boolean isBundleExtenderSet() {
         return (extender != null);
     }
-    
-    public static void addDynamicImportPackage(long bundleId, String packages) {        
+
+    public static void addDynamicImportPackage(long bundleId, String packages) {
         if (extender == null) {
             return;
         }
-        extender.addDynamicImportPackage(bundleId, packages);        
+        extender.addDynamicImportPackage(bundleId, packages);
     }
-    
+
     public static void removeDynamicImportPackage(long bundleId) {
         if (extender == null) {
             return;
         }
-        extender.removeDynamicImportPackage(bundleId); 
+        extender.removeDynamicImportPackage(bundleId);
     }
-    
+
+    public static SharedLibraryRegistry getSharedLibraryRegistry() {
+        return sharedLibraryRegistry;
+    }
+
+    public static void setSharedLibraryRegistry(SharedLibraryRegistry sharedLibraryRegistry) {
+        BundleHelper.sharedLibraryRegistry = sharedLibraryRegistry;
+    }
+
 }

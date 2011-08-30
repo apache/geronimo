@@ -181,7 +181,7 @@
         <module>mejb</module>
         <module>monitoring</module>
         <module>remote-deploy</module>
-        <!--<module>sharedlib</module>-->
+        <module>sharedlib</module>
         <module>welcome</module>
         <module>procrun</module>
         <module>jetty8</module>

@@ -83,6 +83,12 @@
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-hook</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${project.version}</version>
         </dependency>
