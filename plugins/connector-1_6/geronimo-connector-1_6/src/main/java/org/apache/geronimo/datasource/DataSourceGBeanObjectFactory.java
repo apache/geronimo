@@ -29,7 +29,9 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -52,13 +54,16 @@ public class DataSourceGBeanObjectFactory implements ObjectFactory {
     private BundleContext bundleContext;
     private ConnectionTracker connectionTracker;
     private RecoverableTransactionManager txManager;
-
+    private AbstractName abName;
+    
     public DataSourceGBeanObjectFactory(@ParamSpecial(type = SpecialAttributeType.bundleContext)BundleContext bundleContext,
+                                        @ParamSpecial(type = SpecialAttributeType.abstractName)AbstractName abName,
                                         @ParamReference(name = "ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER)ConnectionTracker connectionTracker,
                                         @ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager txManager) {
         this.bundleContext = bundleContext;
         this.connectionTracker = connectionTracker;
         this.txManager = txManager;
+        this.abName = abName;
     }
 
     @Override
@@ -77,7 +82,7 @@ public class DataSourceGBeanObjectFactory implements ObjectFactory {
                     Object result = bundleContext.getService(serviceReferences[0]);
                     return result;
                 }
-                String objectName = null;
+                String objectName = abName.toString();
 //                BundleContext bundleContext = (BundleContext) hashtable.get(BUNDLE_CONTEXT);
                 DataSourceService dataSourceGBean = new DataSourceService(dataSourceDescription, connectionTracker, txManager, objectName, null);
                 bundleContext.registerService(new String[] {javax.sql.DataSource.class.getName()}, dataSourceGBean, dict);
