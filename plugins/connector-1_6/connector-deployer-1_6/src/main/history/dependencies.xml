@@ -112,11 +112,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-validation_1.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.karaf.jaas</groupId>
         <artifactId>org.apache.karaf.jaas.boot</artifactId>
         <type>jar</type>

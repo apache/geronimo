@@ -42,8 +42,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.bval</groupId>
-        <artifactId>org.apache.bval.bundle</artifactId>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>bval-jsr303</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
