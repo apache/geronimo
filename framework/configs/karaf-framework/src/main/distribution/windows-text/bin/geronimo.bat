@@ -326,7 +326,7 @@ goto setHelpEnd
 @REM if it is not to print help information, open another window
 set _EXECJAVA=start "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
 :setHelpEnd
-set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true
+set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false
 goto execCmd
 
 :doStop

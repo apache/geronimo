@@ -358,7 +358,7 @@ elif [ "$1" = "start" ] ; then
       if [ -f "$JAVA_AGENT_JAR" ]; then
         exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
           -javaagent:"$JAVA_AGENT_JAR" \
-          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true \
+          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
           -Dkaraf.home="$GERONIMO_HOME" \
           -Dkaraf.base="$GERONIMO_HOME" \
@@ -370,7 +370,7 @@ elif [ "$1" = "start" ] ; then
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
       else
         exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true \
+          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
           -Dkaraf.home="$GERONIMO_HOME" \
           -Dkaraf.base="$GERONIMO_HOME" \
@@ -386,7 +386,7 @@ elif [ "$1" = "start" ] ; then
       if [ -f "$JAVA_AGENT_JAR" ]; then
         $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
           -javaagent:"$JAVA_AGENT_JAR" \
-          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true \
+          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
           -Dkaraf.home="$GERONIMO_HOME" \
           -Dkaraf.base="$GERONIMO_HOME" \
@@ -404,7 +404,7 @@ elif [ "$1" = "start" ] ; then
           fi
       else
         $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true \
+          -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
           -Dkaraf.home="$GERONIMO_HOME" \
           -Dkaraf.base="$GERONIMO_HOME" \
