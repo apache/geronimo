@@ -59,7 +59,7 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
     private final ClasspathManager manager;
 
     private LinkedHashSet<Bundle> wiredBundles = null;
-    private boolean searchWiredBundles = getSearchWiredBundles(false);
+    private boolean searchWiredBundles = getSearchWiredBundles(true);
     private boolean convertResourceUrls = getConvertResourceUrls(true);
 
     private URLConverter converter;
