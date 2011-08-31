@@ -239,10 +239,12 @@ public class ConfigManagerPortlet extends BasePortlet {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                         boolean loaded = loadModule(configManager, configObjName);
                         Configuration config = configManager.getConfiguration(info.getConfigID());
-                        for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
-                            if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
-                                details.getContextPaths().add((String)entry.getValue().getAttribute("contextPath"));
-                                details.setDisplayName(((WebAppInfo)entry.getValue().getAttribute("webAppInfo")).displayName);
+                        if (config != null) {
+                            for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
+                                if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
+                                    details.getContextPaths().add((String)entry.getValue().getAttribute("contextPath"));
+                                    details.setDisplayName(((WebAppInfo)entry.getValue().getAttribute("webAppInfo")).displayName);
+                                }
                             }
                         }
 
