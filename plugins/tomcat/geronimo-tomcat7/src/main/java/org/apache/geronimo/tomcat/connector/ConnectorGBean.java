@@ -129,7 +129,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     }
 
     public void doFail() {
-        log.warn(name + " connector failed");
+        //log.warn(name + " connector failed");
         doStop();
     }
 

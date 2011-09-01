@@ -246,7 +246,7 @@ public class TomcatManagerImpl implements WebManager {
     public void removeConnector(AbstractName connectorAbstractName) {
 
             try {
-                kernel.invoke(connectorAbstractName, "doStop");
+                //kernel.invoke(connectorAbstractName, "doStop");
                 String connectorName=(String)kernel.getGBeanData(connectorAbstractName).getAttribute("name");
                 tomcatServerConfigManager.removeConnector(connectorName);
                 kernel.unloadGBean(connectorAbstractName);
