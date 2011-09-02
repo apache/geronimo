@@ -34,7 +34,7 @@ public class SEUsersPortletTest
     	
         selenium.click("link=Users and Groups");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Console Realm Users", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link

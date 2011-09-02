@@ -34,7 +34,7 @@ public class DeploymentPortletTest
     	
         selenium.click("link=Deployer");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Install Application", 
                      selenium.getText(getPortletTitleLocation()));
         // Test help link

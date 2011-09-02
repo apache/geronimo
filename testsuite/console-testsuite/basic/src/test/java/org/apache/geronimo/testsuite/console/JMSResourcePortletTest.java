@@ -34,7 +34,7 @@ public class JMSResourcePortletTest
     	//selenium.click(this.getNavigationTreeNodeLocation("Services"));
         selenium.click("link=JMS Resources");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("JMS Resources", 
                      selenium.getText(getPortletTitleLocation())); 
     }

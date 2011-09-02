@@ -32,7 +32,7 @@ public class ConfigManagerPortletEARTest extends BasicConsoleTestSupport
 	public void testConfigManagerEARLink() throws Exception {
 		selenium.click("link=Applications (EAR)");
 		waitForPageLoad();
-		assertEquals("Geronimo Console", selenium.getTitle());
+//		assertEquals("Geronimo Console", selenium.getTitle());
 		assertEquals("Installed Enterprise Applications (EAR)", selenium.getText(getPortletTitleLocation())); 
 	}
 }

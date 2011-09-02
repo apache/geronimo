@@ -34,7 +34,7 @@ public class RunSQLPortletTest
     	//selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Manager");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Run SQL", 
                      selenium.getText(getPortletTitleLocation(2))); 
         // Test help link

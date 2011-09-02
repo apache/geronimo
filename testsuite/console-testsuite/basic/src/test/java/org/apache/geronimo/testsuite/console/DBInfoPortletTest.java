@@ -37,7 +37,7 @@ public class DBInfoPortletTest extends BasicConsoleTestSupport
         //assertEquals("DB Info", selenium.getText(getPortletTitleLocation()));
         selenium.click("link=DB Info");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("DB Info", selenium.getText(getPortletTitleLocation()));
         // Test help link
         selenium.click(getPortletHelpLocation());

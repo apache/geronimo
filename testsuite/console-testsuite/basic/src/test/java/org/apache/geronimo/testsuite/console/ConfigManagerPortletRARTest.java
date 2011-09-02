@@ -34,7 +34,7 @@ public class ConfigManagerPortletRARTest
     	
         selenium.click("link=Java EE Connectors");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed Java EE Connectors", 
                      selenium.getText(getPortletTitleLocation()));
     }

@@ -34,7 +34,7 @@ public class CreatePluginPortletTest
     	
         selenium.click("link=Plugins");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Create Plugin", 
                      selenium.getText(getPortletTitleLocation(2))); 
         // Test help link

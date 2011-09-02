@@ -34,7 +34,7 @@ public class DerbyLogViewerPortletTest extends BasicConsoleTestSupport
 		//selenium.click("link=Server Logs");
 		selenium.click("link=Derby Logs");
 		waitForPageLoad();
-		assertEquals("Geronimo Console", selenium.getTitle());
+//		assertEquals("Geronimo Console", selenium.getTitle());
 		assertEquals("Derby Log Viewer", selenium.getText(getPortletTitleLocation()));
 		//assertEquals("Server Log Viewer", selenium.getText(getPortletTitleLocation(2)));
 		//assertEquals("Web Access Log Viewer", selenium.getText(getPortletTitleLocation(3)));

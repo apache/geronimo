@@ -34,7 +34,7 @@ public class ConfigManagerPortletEJBTest
     	
         selenium.click("link=EJB JARs");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed EJB JARs", 
                      selenium.getText(getPortletTitleLocation()));
     }

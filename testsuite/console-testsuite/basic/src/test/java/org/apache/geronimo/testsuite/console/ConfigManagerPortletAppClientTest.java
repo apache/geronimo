@@ -34,7 +34,7 @@ public class ConfigManagerPortletAppClientTest
     	
         selenium.click("link=App Clients");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed Application Clients",
                      selenium.getText(getPortletTitleLocation())); 
     }

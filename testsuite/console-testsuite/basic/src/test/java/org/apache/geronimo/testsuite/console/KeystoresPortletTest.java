@@ -34,7 +34,7 @@ public class KeystoresPortletTest
     	
         selenium.click("link=Keystores");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
+//        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Keystore Configuration", 
                      selenium.getText(getPortletTitleLocation())); 
     }
