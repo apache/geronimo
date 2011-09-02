@@ -29,7 +29,7 @@ public class OSGiPortletTest extends BasicConsoleTestSupport
 {
     @Test
     public void testOSGiPortlet() throws Exception {
-        selenium.click("link=OSGI Bundles");
+        selenium.click("link=OSGi Bundles");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("OSGi Bundles",selenium.getText(getPortletTitleLocation())); 

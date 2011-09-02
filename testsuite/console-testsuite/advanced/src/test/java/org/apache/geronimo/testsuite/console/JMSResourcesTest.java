@@ -54,7 +54,7 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("//input[@value='Deploy Now']");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
-        selenium.click("link=J2EE Connectors");
+        selenium.click("link=Java EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
         assertTrue(selenium.getConfirmation().matches("Are you certain you wish to uninstallconsole.jms/UniqueName/1.0/car[\\s\\S]?"));

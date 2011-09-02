@@ -32,10 +32,10 @@ public class ConfigManagerPortletRARTest
     @Test
     public void testConfigManagerRARLink() throws Exception {
     	
-        selenium.click("link=J2EE Connectors");
+        selenium.click("link=Java EE Connectors");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed J2EE Connectors", 
+        assertEquals("Installed Java EE Connectors", 
                      selenium.getText(getPortletTitleLocation()));
     }
 }
