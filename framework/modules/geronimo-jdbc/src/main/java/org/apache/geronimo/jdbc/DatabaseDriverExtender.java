@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Driver;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,15 +52,15 @@ public class DatabaseDriverExtender implements BundleActivator {
         tracker = new BundleTracker(context, Bundle.ACTIVE, new DriverBundleTrackerCustomizer());
         tracker.open();
 
-        jdbcPreventionListener = new JdbcLeakPreventionListener();
+        //jdbcPreventionListener = new JdbcLeakPreventionListener();
         context.addBundleListener(jdbcPreventionListener);
     }
 
     public void stop(BundleContext context) throws Exception {
         tracker.close();
-        context.removeBundleListener(jdbcPreventionListener);
+        //context.removeBundleListener(jdbcPreventionListener);
         //Remove any driver from myself
-        JdbcLeakPreventionListener.unRegisterJdbcDrivers(context.getBundle());
+        DriverManager.deregisterDriver(DelegatingDriver.DELEGATINGDRIVER_INSTANCE);
     }
 
     private static List<Driver> loadDrivers(Bundle bundle, URL providerURL) {

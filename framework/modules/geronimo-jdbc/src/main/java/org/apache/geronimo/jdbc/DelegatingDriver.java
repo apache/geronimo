@@ -36,10 +36,13 @@ import java.sql.DriverManager;
 public class DelegatingDriver implements Driver {
 
     private static final List<Driver> DRIVERS = new CopyOnWriteArrayList<Driver>();
+    
+    static final DelegatingDriver DELEGATINGDRIVER_INSTANCE; 
 
     static {
         try {
-            DriverManager.registerDriver(new DelegatingDriver());
+            DELEGATINGDRIVER_INSTANCE = new DelegatingDriver();
+            DriverManager.registerDriver(DELEGATINGDRIVER_INSTANCE);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
