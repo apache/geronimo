@@ -113,9 +113,10 @@ public class AdminController
         
         Set<Reservation> reservations = user.getReservations();
         
-        for(Reservation reserve : reservations)
-        {
-            hotels.add(reserve.getHotel());
+        if (reservations != null) {
+            for (Reservation reserve : reservations) {
+                hotels.add(reserve.getHotel());
+            }
         }
         
         return hotels;

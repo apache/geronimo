@@ -54,7 +54,7 @@
 
             <div style="margin-top: 10px;">
                 <h3>Products Details</h3>
-                <h:dataTable cellpadding="1" cellspacing="5" value="#{allProducts}" var="item" binding="#{shoppingBean.uiTable}">
+                <h:dataTable cellpadding="1" cellspacing="5" value="#{allProducts}" var="item" binding="#{shoppingBeanHelper.uiTable}">
 
                     <h:column>
                         <f:facet name="header">
@@ -74,7 +74,7 @@
                         <f:facet name="header">
                             <h:outputText value="" />
                         </f:facet>
-                        <h:commandLink action="#{shoppingBean.buy}" value="Add Item to Card" />
+                        <h:commandLink id="#{item.name}buy" action="#{shoppingBeanHelper.buy}" value="Add Item to Card" />
                     </h:column>
 
                 </h:dataTable>

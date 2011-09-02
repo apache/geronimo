@@ -32,11 +32,11 @@ public class TestConversation extends SeleniumTestSupport {
         String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr+"/buy.jsf");
 //		selenium.open("/conversation-test/buy.jsf");	
-		selenium.click("//a[@onclick=\"mojarra.jsfcljs(document.getElementById('form'),{'form:j_idt8:1:j_idt15':'form:j_idt8:1:j_idt15'},'');return false\"]");
+		selenium.click("form:j_id1807007596_6bb4bff0:1:buy");
 		selenium.waitForPageToLoad("30000");		
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td"),"Item-2");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td[2]"),"3000");
-		selenium.click("//a[@onclick=\"mojarra.jsfcljs(document.getElementById('form'),{'form:j_idt8:3:j_idt15':'form:j_idt8:3:j_idt15'},'');return false\"]");
+		selenium.click("form:j_id1807007596_6bb4bff0:3:buy");
 		selenium.waitForPageToLoad("30000");		
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td"),"Item-4");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td[2]"),"6000");
@@ -52,7 +52,7 @@ public class TestConversation extends SeleniumTestSupport {
 	}
 	@Test(dependsOnMethods={"testStartShopping"})
 	public void buyItemTwo() {		
-		selenium.click("//a[@onclick=\"mojarra.jsfcljs(document.getElementById('form'),{'form:j_idt8:1:j_idt15':'form:j_idt8:1:j_idt15'},'');return false\"]");
+		selenium.click("form:j_id1807007596_6bb4bff0:1:buy");
 		selenium.waitForPageToLoad("30000");		
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td"),"Item-2");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td[2]"),"3000");
@@ -62,7 +62,7 @@ public class TestConversation extends SeleniumTestSupport {
 	@Test(dependsOnMethods={"buyItemTwo"})
 	public void buyItemFour() {
 		//buy item-4
-		selenium.click("//a[@onclick=\"mojarra.jsfcljs(document.getElementById('form'),{'form:j_idt8:3:j_idt15':'form:j_idt8:3:j_idt15'},'');return false\"]");
+		selenium.click("form:j_id1807007596_6bb4bff0:3:buy");
 		selenium.waitForPageToLoad("30000");	
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td"),"Item-2");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/form/div[4]/table/tbody/tr[2]/td[2]"),"3000");
@@ -74,7 +74,7 @@ public class TestConversation extends SeleniumTestSupport {
 	public void checkOut(){
 		selenium.click("form:button4");
 		selenium.waitForPageToLoad("30000");
-		Assert.assertEquals(selenium.getText("xpath=//*[@id=\"form:conversation\"]"),"");
+		Assert.assertNotSame(selenium.getText("xpath=//*[@id=\"form:conversation\"]"),"");
 		
 	}
 }

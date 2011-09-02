@@ -35,5 +35,35 @@ under the License.
   </sys:environment>
 
   <context-root>/${project.artifactId}</context-root>
+  
+  <security-realm-name>demo-properties-realm</security-realm-name>
+  <sec:security>
+    <sec:default-principal>
+      <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="izumi"/>
+    </sec:default-principal>
+    <sec:role-mappings>
+      <sec:role role-name="content-administrator">
+        <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it" designated-run-as="true"/>
+        <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
+        <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george"/>
+      </sec:role>
+    </sec:role-mappings>
+  </sec:security>
+  <gbean name="demo-properties-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm" xsi:type="dep:gbeanType" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <attribute name="realmName">demo-properties-realm</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <xml-reference name="LoginModuleConfiguration">
+            <log:login-config xmlns:log="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
+                <log:login-module control-flag="REQUIRED" wrap-principals="false">
+                    <log:login-domain-name>demo-properties-realm</log:login-domain-name>
+                    <log:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</log:login-module-class>
+                    <log:option name="usersURI">var/security/demo_users.properties</log:option>
+                    <log:option name="groupsURI">var/security/demo_groups.properties</log:option>
+                </log:login-module>
+            </log:login-config>
+        </xml-reference>
+    </gbean>
 
 </web-app>

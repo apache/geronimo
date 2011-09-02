@@ -26,7 +26,6 @@ import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.faces.component.html.HtmlDataTable;
 
 import org.apache.webbeans.reservation.controller.admin.AdminController;
 import org.apache.webbeans.reservation.entity.Hotel;
@@ -40,8 +39,6 @@ public class AdminListBean implements Serializable
     private static final long serialVersionUID = 2552807646330035889L;
 
     private List<Hotel> hotels = new ArrayList<Hotel>();
-    
-    private HtmlDataTable model;
     
     private @Inject @Default AdminController controller;
     
@@ -68,41 +65,7 @@ public class AdminListBean implements Serializable
         return null;
     }
     
-    public String delete()
-    {
-        selected = (Hotel)model.getRowData();
-        
-        if(selected == null)
-        {
-            JSFUtility.addErrorMessage("Pleasee select the hotel to delete", "");
-            
-            return null;
-        }
-     
-        controller.deleteHotel(selected.getId());
-        
-        JSFUtility.addInfoMessage("Hotel with name " + selected.getName()+ " is succesfully deleted." , "");
-        
-        this.selected.setCity(null);
-        this.selected.setCountry(null);
-        this.selected.setName(null);
-        this.selected.setStar(0);
-  
-        return null;
-    }
     
-    public String getForUpdate()
-    {
-        //System.out.println("enter AdminListBean.getForUpdate");
-        Hotel hotel = (Hotel) model.getRowData();
-        
-        this.selected = hotel;
-        
-        setRenderedDetailPanel(true);
-        
-                
-        return null;
-    }
     
     /**
      * @return the hotels
@@ -120,22 +83,6 @@ public class AdminListBean implements Serializable
     public void setHotels(List<Hotel> hotels)
     {
         this.hotels = hotels;
-    }
-
-    /**
-     * @return the model
-     */
-    public HtmlDataTable getModel()
-    {
-        return model;
-    }
-
-    /**
-     * @param model the model to set
-     */
-    public void setModel(HtmlDataTable model)
-    {
-        this.model = model;
     }
 
     /**

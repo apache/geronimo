@@ -34,7 +34,7 @@ import org.apache.webbeans.telephone.entity.Record;
 @Dependent
 public class TelephoneBean implements Telephone
 {
-    private @PersistenceContext(name="pu") EntityManager entityManager; 
+    private @PersistenceContext(unitName = "pu") EntityManager entityManager; 
 
     @Override
     public Record addRecord(String name, String surname, String telephone, boolean business)

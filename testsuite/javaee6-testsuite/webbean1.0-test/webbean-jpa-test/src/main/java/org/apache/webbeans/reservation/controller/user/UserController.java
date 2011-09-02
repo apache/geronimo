@@ -126,9 +126,10 @@ public class UserController implements Serializable
         Set<Reservation> res = user.getReservations();
         
         List<Reservation> l = new ArrayList<Reservation>();
-        for(Reservation r : res)
-        {
-            l.add(r);
+        if (res != null) {
+            for (Reservation r : res) {
+                l.add(r);
+            }
         }
         
         return l;

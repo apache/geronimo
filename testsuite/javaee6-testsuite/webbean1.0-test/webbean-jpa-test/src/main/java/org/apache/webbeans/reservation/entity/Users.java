@@ -31,6 +31,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.persistence.FetchType;
 
 @Entity
 public class Users
@@ -57,7 +58,7 @@ public class Users
     @Temporal(value=TemporalType.DATE)
     private Date registerDate;
 
-    @OneToMany(mappedBy="user",cascade={CascadeType.ALL})
+    @OneToMany(mappedBy="user",cascade={CascadeType.ALL},fetch=FetchType.EAGER)
     private Set<Reservation> reservations = new HashSet<Reservation>();
 
     @Version

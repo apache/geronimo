@@ -24,6 +24,7 @@ import javax.interceptor.InvocationContext;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.apache.webbeans.reservation.bindings.intercep.Transactional;
 
@@ -31,7 +32,7 @@ import org.apache.webbeans.reservation.bindings.intercep.Transactional;
 @Transactional
 public class TransactionalInterceptor
 {
-    @Resource UserTransaction tx;
+    @Inject @Resource UserTransaction tx;
    
     @AroundInvoke
     public Object invoke(InvocationContext context) throws Exception

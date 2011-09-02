@@ -33,21 +33,16 @@ public class ReservationTest extends SeleniumTestSupport {
 		selenium.waitForPageToLoad("30000");
 		selenium.click("form:Register");
 		selenium.waitForPageToLoad("30000");
-		Assert.assertEquals(
-				selenium.getText("xpath=/html/body/div/ul/li"),
-				"Name is required!");
-		Assert.assertEquals(selenium
-				.getText("xpath=/html/body/div/ul/li[2]"),
-				"Surname is required!");
-		Assert.assertEquals(selenium
-				.getText("xpath=/html/body/div/ul/li[3]"),
-				"Age is required");
-		Assert.assertEquals(selenium
-				.getText("xpath=/html/body/div/ul/li[4]"),
-				"User name is required and minumum 8 characters!");
-		Assert.assertEquals(selenium
-				.getText("xpath=/html/body/div/ul/li[5]"),
-				"Password must be minumum 4 and maximum 8 characters!");
+		Assert.assertTrue(selenium.getText("xpath=/html/body/div/ul")
+				.indexOf("Password must be minumum 4 and maximum 8 characters!") > -1);
+		Assert.assertTrue(selenium.getText("xpath=/html/body/div/ul")
+				.indexOf("Name is required!") > -1);
+		Assert.assertTrue(selenium.getText("xpath=/html/body/div/ul")
+				.indexOf("Surname is required!") > -1);
+		Assert.assertTrue(selenium.getText("xpath=/html/body/div/ul")
+				.indexOf("Age is required") > -1);
+		Assert.assertTrue(selenium.getText("xpath=/html/body/div/ul")
+				.indexOf("User name is required and minumum 8 characters!") > -1);
 	}
 
 	// Test register as an administrator
@@ -63,7 +58,7 @@ public class ReservationTest extends SeleniumTestSupport {
 		selenium.type("form:password", "passw0rd");
 		selenium.click("form:adminCheckbox");
 		selenium.click("form:Register");
-		selenium.waitForPageToLoad("30000");
+		selenium.waitForPageToLoad("60000");
 		Assert.assertEquals(
 				selenium.getText("xpath=/html/body/div/ul/li"),
 				"User with name : geronimo1 is registered successfully.");

@@ -44,7 +44,7 @@
 		</h:panelGrid>
 			
 			
-			<h:dataTable id="dt" cellpadding="5" value="#{userReservationBean.hotels}" binding="#{userReservationBean.model}" var="model" styleClass="table dataTable" rowClasses="oddRow,evenRow">
+			<h:dataTable id="dt" cellpadding="5" value="#{userReservationBean.hotels}" binding="#{userReservationBeanHelper.model}" var="model" styleClass="table dataTable" rowClasses="oddRow,evenRow">
 				
 				<h:column id="dt1">
 					<f:facet name="header">
@@ -63,7 +63,7 @@
 				</h:column>
 				
 				<h:column id="dt5">
-					<h:commandLink action="#{userReservationBean.addReservation}" value="Add Hotel for Reservation" />					
+					<h:commandLink action="#{userReservationBeanHelper.addReservation}" value="Add Hotel for Reservation" />					
 				</h:column>
 
 			</h:dataTable>	

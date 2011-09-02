@@ -26,7 +26,6 @@ import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.inject.New;
 import javax.enterprise.inject.Produces;
-import javax.faces.component.UIData;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -42,8 +41,7 @@ public class ShoppingBean implements Serializable
 
     private List<Item> items = new ArrayList<Item>();
         
-    private UIData uiTable;
-    
+    //private UIData uiTable;
     
     public ShoppingBean()
     {
@@ -85,34 +83,14 @@ public class ShoppingBean implements Serializable
         return this.items;
     }
     
-    public String buy()
-    {
-        Item item = (Item) uiTable.getRowData();
-        this.items.add(item);
-        
-        return null;
-    }
-    
     @Produces @Named("allProducts")
     public List<Item> listAllProducts()
     {
         return this.products.getProducts();
     }
-
-    /**
-     * @return the uiTable
-     */
-    public UIData getUiTable()
+    
+    public List<Item> getItems()
     {
-        return uiTable;
-    }
-
-    /**
-     * @param uiTable the uiTable to set
-     */
-    public void setUiTable(UIData uiTable)
-    {
-        this.uiTable = uiTable;
-    }
-     
+        return this.items;
+    }    
 }

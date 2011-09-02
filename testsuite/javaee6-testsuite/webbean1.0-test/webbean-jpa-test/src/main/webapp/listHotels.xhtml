@@ -37,7 +37,7 @@
 			
 		<h:form id="form">
 			
-			<h:dataTable id="dt" cellpadding="5" value="#{adminListBean.hotels}" binding="#{adminListBean.model}" var="model" styleClass="table dataTable" rowClasses="oddRow,evenRow">
+			<h:dataTable id="dt" cellpadding="5" value="#{adminListBean.hotels}" binding="#{adminListBeanHelper.model}" var="model" styleClass="table dataTable" rowClasses="oddRow,evenRow">
 				
 				<h:column id="dt1">
 					<f:facet name="header">
@@ -56,11 +56,11 @@
 				</h:column>
 				
 				<h:column id="dt5">
-					<h:commandLink action="#{adminListBean.getForUpdate}" value="Show Detail" />					
+					<h:commandLink action="#{adminListBeanHelper.getForUpdate}" value="Show Detail" />					
 				</h:column>
 
 				<h:column id="dt6">
-					<h:commandLink id="deleteHotel" action="#{adminListBean.delete}" value="Delete" />
+					<h:commandLink id="deleteHotel" action="#{adminListBeanHelper.delete}" value="Delete" />
 				</h:column>
 				
 															

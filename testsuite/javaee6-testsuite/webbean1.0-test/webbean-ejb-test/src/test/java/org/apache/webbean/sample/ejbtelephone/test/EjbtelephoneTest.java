@@ -26,9 +26,9 @@ public class EjbtelephoneTest extends SeleniumTestSupport {
 	@Test
 	public void inputNothing() {
         String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
+		selenium.open(appContextStr + "/contact.jsf");
 //		selenium.open("/webbean-ejb-test");
-		selenium.click("form:j_idt16");
+		selenium.click("form:addNewRecord");
 		selenium.waitForPageToLoad("30000");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/div/div/ul/li"),
 		"Please give a name!");
@@ -44,15 +44,15 @@ public class EjbtelephoneTest extends SeleniumTestSupport {
 		selenium.type("form:text", "gero");
 		selenium.type("form:surname", "nimo");
 		selenium.type("form:telephone", "12345678");
-		selenium.click("form:j_idt16");
-		selenium.waitForPageToLoad("30000");
+		selenium.click("form:addNewRecord");
+		selenium.waitForPageToLoad("60000");
 		Assert.assertEquals(selenium.getText("xpath=/html/body/div/div/ul/li"),
 				"Record added");
 	}
 
 	@Test(dependsOnMethods = { "saveTelephone" })
 	public void showAllTelephone() {
-		selenium.click("form:j_idt17");
+		selenium.click("form:showAllRecords");
 		selenium.waitForPageToLoad("30000");
 		Assert.assertEquals(
 						selenium.getText("xpath=/html/body/div/div/form/div[2]/table/tbody/tr/td[2]"),

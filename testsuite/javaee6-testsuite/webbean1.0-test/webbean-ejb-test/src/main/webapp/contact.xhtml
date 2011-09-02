@@ -58,8 +58,8 @@
 					</h:outputLabel>
 					<h:selectBooleanCheckbox value="#{operation.business}" />
 										
-					<h:commandButton action="#{operation.addRecord}" value="Add New Record"></h:commandButton>
-					<h:commandButton action="#{operation.showList}" value="Show All Records"></h:commandButton>
+					<h:commandButton id="addNewRecord" action="#{operation.addRecord}" value="Add New Record"></h:commandButton>
+					<h:commandButton id="showAllRecords" action="#{operation.showList}" value="Show All Records"></h:commandButton>
 					
 				</h:panelGrid>												
 			</div>

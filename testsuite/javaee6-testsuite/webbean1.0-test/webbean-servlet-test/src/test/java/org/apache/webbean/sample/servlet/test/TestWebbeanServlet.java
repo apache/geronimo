@@ -30,9 +30,13 @@ public class TestWebbeanServlet extends SeleniumTestSupport {
 		selenium.open(appContextStr);
 		selenium.click("link=Test calling webbeans from servelet");
 		waitForPageLoad();
+		selenium.type("name=j_username", "metro");
+		selenium.type("name=j_password", "mouse");
+		selenium.click("name=submit");
+		waitForPageLoad();
 		assertTrue(selenium
 				.isTextPresent("Injection of Bean Instance into Servlet"));
-		assertTrue(selenium.isTextPresent("Caller Principal name injection into DateProvider instance : ANONYMOUS"));
+		assertTrue(selenium.isTextPresent("Caller Principal name injection into DateProvider instance : metro"));
 		assertTrue(selenium
 				.isTextPresent("Current Date : org.apache.webbeans.samples.tomcat.CurrentDateProvider"));
 		assertTrue(selenium

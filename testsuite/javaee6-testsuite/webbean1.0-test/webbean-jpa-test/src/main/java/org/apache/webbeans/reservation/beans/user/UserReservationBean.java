@@ -57,8 +57,6 @@ public class UserReservationBean implements Serializable
     
     private String reservationDate;
     
-    private HtmlDataTable model;
-    
     private @Inject @Default Conversation conversation;
     
     private @Inject @Default SessionTracker tracker;
@@ -70,59 +68,8 @@ public class UserReservationBean implements Serializable
     public UserReservationBean()
     {
     }
-
     
-    public String addReservation()
-    {
-        if(getReservationDate() == null)
-        {
-            JSFUtility.addErrorMessage("Reservation date can not be empty!", "");
-            return null;
-        }
-             
-        Date date = null;
-        try
-        {
-            date = new SimpleDateFormat("dd/MM/yyyy").parse(getReservationDate());
-            
-        }
-        catch(Exception e)
-        {
-            
-            JSFUtility.addErrorMessage("Please give a date with dd/MM/yyyy", "");
-            return null;
-        }
-        
-        if(conversation.isTransient())
-        {
-            conversation.begin();
-            
-            JSFUtility.addInfoMessage("Reservation conversation with started with id : " + conversation.getId(), "");            
-        }
-        
-        Hotel hotel = (Hotel)model.getRowData();
-        
-        SelectItem item = new SelectItem();
-        item.setValue(hotel.getId());
-        item.setLabel(hotel.getName());
-        
-        if(contains(item.getValue()) != null)
-        {
-            JSFUtility.addErrorMessage("Given hotel is already added", "");
-            
-            return null;
-        }
-                
-        reservations.add(item);
-        
-        
-        ReservationModel model = new ReservationModel(item,date);
-        models.put(item.getValue().toString(), model);
-        
-        return null;
-    }
-    
-    private SelectItem contains(Object id)
+    SelectItem contains(Object id)
     {
         for(SelectItem i : reservations)
         {
@@ -253,25 +200,6 @@ public class UserReservationBean implements Serializable
         this.reservationDate = reservationDate;
     }
 
-
-    /**
-     * @return the model
-     */
-    public HtmlDataTable getModel()
-    {
-        return model;
-    }
-
-
-    /**
-     * @param model the model to set
-     */
-    public void setModel(HtmlDataTable model)
-    {
-        this.model = model;
-    }
-
-
     /**
      * @return the itemSelected
      */
@@ -288,6 +216,14 @@ public class UserReservationBean implements Serializable
     public void setItemSelected(Integer[] itemSelected)
     {
         this.itemSelected = itemSelected;
+    }
+    
+    public Conversation getConversation() {
+        return conversation;
+    }
+
+    public Map<String, ReservationModel> getModels() {
+        return models;
     }
     
     
