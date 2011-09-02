@@ -102,7 +102,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         			envelope.append(" "+attributes.item(k).getNodeName().trim());
         			envelope.append("=\""+attributes.item(k).getNodeValue().trim()+"\"");
         		}
-        		String content = element.getTextContent();
+        		String content = element.getNodeValue();
         		
         		if(content != null && !content.equals("")){
         			envelope.append(">");
@@ -179,7 +179,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     		}
     	}
     	
-    	String value = e.getTextContent();
+    	String value = e.getNodeValue();
 		
 		if(value != null && !value.equals("")){
 			content.append(">");
