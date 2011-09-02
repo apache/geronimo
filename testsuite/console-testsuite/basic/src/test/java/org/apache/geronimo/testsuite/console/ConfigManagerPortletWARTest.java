@@ -35,7 +35,7 @@ public class ConfigManagerPortletWARTest
         selenium.click("link=Web Apps (WAR)");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed Web Applications",
+        assertEquals("Installed Web Applications (WAR)",
                      selenium.getText(getPortletTitleLocation()));  
     }
 }

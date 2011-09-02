@@ -30,7 +30,7 @@ public class DatabasePoolTest extends TestSupport {
         String geronimoVersion = System.getProperty("geronimoVersion");
         assertNotNull(geronimoVersion);
         
-        selenium.click("link=Database Pools");
+        selenium.click("link=Datasources");
         waitForPageLoad();
         selenium.click("link=Using the Geronimo database pool wizard");
         waitForPageLoad();
@@ -50,7 +50,7 @@ public class DatabasePoolTest extends TestSupport {
 
     @Test
     public void testRunSQLDS() throws Exception {
-        selenium.click("link=Database Pools");
+        selenium.click("link=Datasources");
         waitForPageLoad();
         selenium.select("useDB", "label=SystemDatasource");
         selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");

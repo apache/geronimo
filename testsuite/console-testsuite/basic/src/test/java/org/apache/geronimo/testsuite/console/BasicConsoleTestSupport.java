@@ -43,7 +43,7 @@ public class BasicConsoleTestSupport extends ConsoleTestSupport {
     }
     
     protected String getPortletTitleLocation(int index) {
-        return "xpath=//div[@class = 'portlet'][" + index + "]/div/h2";
+        return "xpath=//div[@class = 'portlet'][" + index + "]/div/table/tbody/tr/td/h2";
     }
     
     protected String getPortletHelpLocation() {
@@ -51,6 +51,6 @@ public class BasicConsoleTestSupport extends ConsoleTestSupport {
     }
     
     protected String getPortletHelpLocation(int index) {
-        return "xpath=//div[@class = 'portlet'][" + index + "]/div/a[contains(@title, 'Help')]";
+        return "xpath=//div[@class = 'portlet'][" + index + "]/div/table/tbody/tr/td/a[contains(@title, 'Help')]";
     }
 }

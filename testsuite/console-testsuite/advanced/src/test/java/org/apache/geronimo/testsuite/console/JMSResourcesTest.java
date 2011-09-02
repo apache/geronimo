@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 public class JMSResourcesTest extends TestSupport {
     @Test
     public void testNewJMSResource() throws Exception {
-    	selenium.click(getNavigationTreeNodeLocation("Services"));
+    	//selenium.click(getNavigationTreeNodeLocation("Services"));
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         selenium.click("link=For ActiveMQ");
@@ -57,8 +57,11 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
-        assertTrue("timed out waiting for button", waitForButton());
-        selenium.click("dijit_form_Button_0");
+        assertTrue(selenium.getConfirmation().matches("Are you certain you wish to uninstallconsole.jms/UniqueName/1.0/car[\\s\\S]?"));
+        //selenium.selectWindow("null");
+        //assertTrue("timed out waiting for button", waitForButton());
+        //waitForButton();
+        //selenium.click("dijit_form_Button_0");
         waitForPageLoad();
         selenium.click("link=JMS Resources");
         waitForPageLoad();

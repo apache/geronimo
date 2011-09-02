@@ -22,25 +22,16 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 
 /**
- * Assembly portlet tests
+ * test OSGi portlet
  *
- * @version $Rev$ $Date$
  */
-public class AssemblyPortletTest
-    extends BasicConsoleTestSupport
+public class OSGiPortletTest extends BasicConsoleTestSupport
 {
     @Test
-    public void testAssemblyLink() throws Exception {
-    	//selenium.click(this.getNavigationTreeNodeLocation("Applications"));
-        selenium.click("link=Plugins");
+    public void testOSGiPortlet() throws Exception {
+        selenium.click("link=OSGI Bundles");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Assemble Server", 
-                     selenium.getText(getPortletTitleLocation(3))); 
-        // Test help link
-        selenium.click(getPortletHelpLocation(3));
-        waitForPageLoad();
-        selenium.isTextPresent("Assemble a server from geronimo plugins in the current server.");
+        assertEquals("OSGi Bundles",selenium.getText(getPortletTitleLocation())); 
     }
 }
-

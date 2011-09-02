@@ -22,25 +22,26 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 
 /**
- * Assembly portlet tests
+ * Database Info portlet tests
  *
  * @version $Rev$ $Date$
  */
-public class AssemblyPortletTest
-    extends BasicConsoleTestSupport
+public class DBInfoPortletTest extends BasicConsoleTestSupport
 {
     @Test
-    public void testAssemblyLink() throws Exception {
-    	//selenium.click(this.getNavigationTreeNodeLocation("Applications"));
-        selenium.click("link=Plugins");
+    public void testDBInfoLink() throws Exception {
+        //selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
+        //selenium.click("link=DB Info");
+        //waitForPageLoad();
+        //assertEquals("Geronimo Console", selenium.getTitle());
+        //assertEquals("DB Info", selenium.getText(getPortletTitleLocation()));
+        selenium.click("link=DB Info");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Assemble Server", 
-                     selenium.getText(getPortletTitleLocation(3))); 
+        assertEquals("DB Info", selenium.getText(getPortletTitleLocation()));
         // Test help link
-        selenium.click(getPortletHelpLocation(3));
+        selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        selenium.isTextPresent("Assemble a server from geronimo plugins in the current server.");
+        selenium.isTextPresent("Displays all the available databases and their tables");
     }
 }
-

@@ -24,19 +24,35 @@
 
 <suite name="Suite1" verbose="1">
     <test name="console-testsuite.basic-console">
-
+       
         <packages>
             <package name="org.apache.geronimo.testsuite.console"/>
         </packages>
-
-    
+     
+      
     	 <classes>
-    	 <!--
-    	     <class name="org.apache.geronimo.testsuite.console.DatabasePoolPortletTest">
+    	 <!--  
+    	     <class name="org.apache.geronimo.testsuite.console.LinkCheckTest">
     	         <methods>
-    	             <include name="testDatabasePoolLink"></include>
+    	             <include name="testServerInfoLink"></include>
     	         </methods>
-    	     </class>    
+    	     </class>
+    	     <class name="org.apache.geronimo.testsuite.console.CreatePluginPortletTest">
+    	         <methods>
+    	             <include name="testCreatePluginLink"></include>
+    	         </methods>
+    	     </class>
+    	    
+    	     <class name="org.apache.geronimo.testsuite.console.ApacheConfigPortletTest">
+    	         <methods>
+    	             <exclude name="testApacheConfigLink"></exclude>
+    	         </methods>
+    	     </class>
+    	     
+    	     
+    	     testDerbyLogViewerLink
+    	     at org.apache.geronimo.testsuite.console.AssemblyPortletTest.testAssemblyLink(AssemblyPortletTest.java
+    	     testApacheConfigLink(org.apache.geronimo.testsuite.console.ApacheConfigPortletTest)
     	     <class name="org.apache.geronimo.testsuite.console.DBViewerPortletTest">
     	         <methods>
     	             <include name="testDBViewerLink"></include>

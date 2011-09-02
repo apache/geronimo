@@ -50,13 +50,14 @@ public class WebServerTest
         
         selenium.click(connectorSelector + "/td[5]/a[3]");
         waitForPageLoad();
+        //deleteConnector(name);
 
         selenium.type("port", "8008");
         selenium.click("submit");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("8008"));
         
-        selenium.click(connectorSelector + "/td[5]/a[3]"); 
+        selenium.click(connectorSelector + "/td[5]/a[2]"); 
 
         waitForPageLoad();
         selenium.type("port", "8009");
@@ -90,11 +91,11 @@ public class WebServerTest
     }
 
     private void addConnector(String name, int port) throws Exception {
-    	selenium.click(getNavigationTreeNodeLocation("Server"));
+    	//selenium.click(getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Web Server");
         waitForPageLoad();
         String container = JETTY;
-        selenium.selectFrame("index=0");
+        //selenium.selectFrame("index=0");
         if (selenium.isTextPresent(TOMCAT)) {
             container = TOMCAT;
         }
@@ -111,7 +112,7 @@ public class WebServerTest
     private void deleteConnector(String name) throws Exception {
         selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete " + name + "?');\"]");
         waitForPageLoad();
-        assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete " + name + "[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().matches("Are you sure you want to delete " + name + "[\\s\\S]?"));
     }
 }
 
