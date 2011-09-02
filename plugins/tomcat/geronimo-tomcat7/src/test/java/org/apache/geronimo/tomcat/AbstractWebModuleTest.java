@@ -31,6 +31,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -143,7 +144,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 webAppInfo, //webAppinfo
                 new HashMap<String, String>(), // Map<String,String> contextAttributes;
                 null,
-                null);  //kernel
+                null,
+                new AbstractName(new URI("default/test/1.0/war?J2EEApplication=null,j2eeType=WebModule,name=default/test/1.0/war")));  //kernel
         app.doStart();
         return app;
     }

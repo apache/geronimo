@@ -106,6 +106,8 @@ import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 
@@ -658,6 +660,7 @@ public class GeronimoStandardContext extends StandardContext {
         boolean getRealPathSupportRequired = applicationGetRealPathConfiguration == null ? !"false".equalsIgnoreCase(globalGetRealPathConfiguration) : !"false"
                 .equalsIgnoreCase(applicationGetRealPathConfiguration);
 
+        deleteTempDirectoryOnUndeployed(tomcatContext, tempRootDirectory);
         /**
          * Compute & check module checksum in order to determine if the expanded module
          * contents should be updated (old contents deleted & module re-expanded).
@@ -797,6 +800,32 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
+    private void deleteTempDirectoryOnUndeployed(TomcatContext tomcatContext, File tempDirectory) {
+        if (!(tomcatContext instanceof TomcatWebAppContext)) {
+            return;
+        }
+        TomcatWebAppContext tomcatWebAppContext = (TomcatWebAppContext) tomcatContext;
+        BundleContext bundleContext = bundle.getBundleContext();
+        ServiceReference tomcatDeploymentWatcherReference = null;
+        try {
+            tomcatDeploymentWatcherReference = bundleContext.getServiceReference(TomcatDeploymentWatcher.class.getName());
+            if (tomcatDeploymentWatcherReference == null) {
+                return;
+            }
+            TomcatDeploymentWatcher tomcatDeploymentWatcher = (TomcatDeploymentWatcher) bundleContext.getService(tomcatDeploymentWatcherReference);
+            tomcatDeploymentWatcher.deleteOnUndeployed(tomcatWebAppContext.getAbstractName(), tempDirectory);
+        } catch (Exception e) {
+            logger.warn("Unable to add temporary directory " + tempDirectory + "to the Tomcat deployment watcher, that folder will not be delete on the undeployment", e);
+        } finally {
+            if (tomcatDeploymentWatcherReference != null) {
+                try {
+                    bundleContext.ungetService(tomcatDeploymentWatcherReference);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+    
     private class SystemMethodValve extends ValveBase {
 
         public SystemMethodValve(){

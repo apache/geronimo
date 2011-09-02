@@ -98,6 +98,7 @@
         </reference>
     </gbean>
 
+    <gbean name="TomcatDeploymentWatcher" class="org.apache.geronimo.tomcat.TomcatDeploymentWatcher"/>
     <!--
     <gbean name="AprLifecycleListener" class="org.apache.geronimo.tomcat.LifecycleListenerGBean">
         <attribute name="className">org.apache.geronimo.tomcat.listener.GeronimoAprLifecycleListener</attribute>

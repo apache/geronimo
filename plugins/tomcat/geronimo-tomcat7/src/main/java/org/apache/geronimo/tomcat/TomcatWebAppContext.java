@@ -123,6 +123,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Map<String,String> contextAttributes;
     private final WebBeansContext owbContext;
     private final InstanceManager instanceManager;
+    private final AbstractName abName;
 
     // JSR 77
     private final String j2EEServer;
@@ -169,7 +170,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
             @ParamAttribute(name = "contextAttributes") Map<String, String> contextAttributes,
             @ParamReference(name = "SharedOwbContext")SharedOwbContext sharedOwbContext,
-            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
+            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName)
             throws Exception {
         assert classLoader != null;
         assert bundle != null;
@@ -185,6 +187,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.objectName = objectName;
+        this.abName = abName;
         this.deploymentAttributes = deploymentAttributes;
         this.webAppInfo = webAppInfo;
         this.container = container;
@@ -494,6 +497,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     @Override
     public WebAppInfo getWebAppInfo() {
         return webAppInfo;
+    }
+
+    public AbstractName getAbstractName() {
+        return abName;
     }
 
     /**
