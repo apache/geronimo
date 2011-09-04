@@ -46,14 +46,14 @@ public class DatabaseDriverExtender implements BundleActivator {
 
     private BundleTracker tracker;
 
-    private JdbcLeakPreventionListener jdbcPreventionListener;
+    //private JdbcLeakPreventionListener jdbcPreventionListener;
 
     public void start(BundleContext context) throws Exception {
         tracker = new BundleTracker(context, Bundle.ACTIVE, new DriverBundleTrackerCustomizer());
         tracker.open();
 
         //jdbcPreventionListener = new JdbcLeakPreventionListener();
-        context.addBundleListener(jdbcPreventionListener);
+        //context.addBundleListener(jdbcPreventionListener);
     }
 
     public void stop(BundleContext context) throws Exception {
