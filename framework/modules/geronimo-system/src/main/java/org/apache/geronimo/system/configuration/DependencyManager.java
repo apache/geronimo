@@ -141,7 +141,10 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
         List<Bundle> dependentBundles = new ArrayList<Bundle>(dependentBundleIds.size());
         for (Long dependentBundleId : dependentBundleIds) {
-            dependentBundles.add(bundleContext.getBundle(dependentBundleId));
+            Bundle b = bundleContext.getBundle(dependentBundleId);
+            if (b!=null) {
+                dependentBundles.add(b);
+            }
         }
         return dependentBundles;
     }
@@ -162,7 +165,10 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
         Set<Bundle> dependentBundles = new HashSet<Bundle>(fullDependentBundleIds.size());
         for (Long dependentBundleId : fullDependentBundleIds) {
-            dependentBundles.add(bundleContext.getBundle(dependentBundleId));
+            Bundle b = bundleContext.getBundle(dependentBundleId);
+            if (b!=null) {
+                dependentBundles.add(b);
+            }
         }
         return dependentBundles;
     }
