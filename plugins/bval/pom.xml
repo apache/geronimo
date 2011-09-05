@@ -44,7 +44,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>bval-jsr303</artifactId>
-                <version>0.3_1-incubating-SNAPSHOT</version>
+                <version>0.3_1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.bval</groupId>
