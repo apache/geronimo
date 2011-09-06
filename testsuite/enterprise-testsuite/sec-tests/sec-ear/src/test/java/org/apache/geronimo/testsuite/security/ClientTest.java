@@ -42,11 +42,11 @@ public class ClientTest extends TestSupport {
             assertTrue("Expected Hello World", output.indexOf("Hello World!") != -1);
             assertTrue("Expected Principal", output.indexOf("Principal: org.apache.geronimo.security.IdentificationPrincipal") != -1);
             assertTrue("Expected Private Credential", output.indexOf("Private Credential: org.apache.geronimo.openejb.ServerIdentityToken") != -1);
-            assertTrue("wrong server response", output.endsWith("Test EJB principal: bar\n" +
+            assertTrue("wrong server response", output.indexOf("Test EJB principal: bar\n" +
                     "TestSession isCallerInRole foo: false\n" +
                     "TestSession isCallerInRole bar: true\n" +
                     "TestSession isCallerInRole baz: false\n" +
-                    "Correctly received security exception on testAccessFoo method\n"));
+                    "Correctly received security exception on testAccessFoo method\n") != -1);
         } finally {
             if (in != null) {
                 in.close();

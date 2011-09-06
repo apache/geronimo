@@ -47,27 +47,24 @@
     </description>
 
     <modules>
-<!--
         <module>ejb-tests</module>
         <module>jms-tests</module>
         <module>sec-tests</module>
--->
         <module>jpa-tests</module>
         <module>sec-client-tests</module>
         <module>appname-tests</module>
         <module>bundle-inject-test</module>
     </modules>
         
-    <profiles>
+    <!--<profiles>
         <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <id>all-subprojects</id>            
             <modules>
                 <module>ejb-tests</module>
                 <module>jms-tests</module>
                 <module>sec-tests</module>
             </modules>
         </profile>
-    </profiles>
+    </profiles>-->
 
 </project>

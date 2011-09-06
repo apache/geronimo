@@ -147,6 +147,10 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
