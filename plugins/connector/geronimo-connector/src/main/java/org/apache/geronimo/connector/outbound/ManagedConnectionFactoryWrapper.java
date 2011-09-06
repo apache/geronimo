@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
