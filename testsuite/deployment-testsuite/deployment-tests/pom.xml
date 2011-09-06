@@ -31,7 +31,7 @@
     </parent>
     
     <artifactId>deployment-tests</artifactId>
-    <name>Geronimo TestSuite, Deployment :: Deployment Tests</name>
+    <name>Geronimo TestSuite :: Deployment :: Deployment Tests</name>
     
     <description>
         Tests for the test-deployables.

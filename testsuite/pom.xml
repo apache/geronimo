@@ -289,10 +289,8 @@
         <module>commands-testsuite</module>
         <module>corba-testsuite</module>
         <module>enterprise-testsuite</module>
-        <!--
-                <module>console-testsuite</module>
-                <module>deployment-testsuite</module>
-        -->
+        <module>console-testsuite</module>
+        <module>deployment-testsuite</module>
         <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
@@ -301,14 +299,13 @@
     </modules>
 
     <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+        <!--<profile>
+            <id>all-subprojects</id>            
             <modules>
                 <module>console-testsuite</module>
                 <module>deployment-testsuite</module>
             </modules>
-        </profile>
+        </profile>-->
         <profile>
             <id>it</id>
             <activation>

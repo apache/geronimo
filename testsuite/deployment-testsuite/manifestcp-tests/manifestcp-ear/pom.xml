@@ -76,6 +76,21 @@
                             <artifactId>manifestcp-ejb</artifactId>
                             <bundleFileName>ejb.jar</bundleFileName>
                         </ejbModule>
+                        <jarModule>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
+                            <artifactId>manifestcp-jar</artifactId>
+                            <bundleDir>lib</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
+                            <artifactId>manifestcp-jar2</artifactId>
+                            <bundleDir>lib</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
+                            <artifactId>manifestcp-war-jar</artifactId>
+                            <bundleDir>lib</bundleDir>
+                        </jarModule>
                     </modules>
                 </configuration>
             </plugin>
