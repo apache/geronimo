@@ -46,25 +46,33 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>project.build.directory</name>
-                            <value>${project.build.directory}</value>
-                        </property>
-                        <property>
-                            <name>project.directory</name>
-                            <value>${basedir}</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <!-- Disable cxf-tools test since it's not enabled by G 3.0-Beta release-->
+                                <exclude>**/CXFToolsTest.java</exclude>            
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

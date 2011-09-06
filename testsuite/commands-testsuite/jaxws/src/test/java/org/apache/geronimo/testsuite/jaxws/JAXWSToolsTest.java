@@ -60,7 +60,7 @@ public class JAXWSToolsTest extends CommandTestSupport {
         String targetDir = System.getProperty("project.build.directory");
         
         File outputDir = createUniqueDirectory(targetDir, "wsgen-");
-        File testClassesDir = new File(projectDir, "target/test-classes");
+        File testClassesDir = new File(projectDir, "test-classes");
         
         String[] args = new String[]{ "-verbose", "-keep", "-d", outputDir.getAbsolutePath(), "-cp", testClassesDir.getAbsolutePath(), "org.apache.geronimo.testsuite.jaxws.Greeter" };
  
@@ -75,7 +75,7 @@ public class JAXWSToolsTest extends CommandTestSupport {
         String targetDir = System.getProperty("project.build.directory");
         
         File outputDir = createUniqueDirectory(targetDir, "wsimport-");        
-        File wsdlFile = new File(projectDir, "src/test/java/org/apache/geronimo/testsuite/jaxws/greeter_control.wsdl");
+        File wsdlFile = new File(projectDir, "../src/test/java/org/apache/geronimo/testsuite/jaxws/greeter_control.wsdl");
         
         String[] args = new String[]{ "-verbose", "-keep", "-d", outputDir.getAbsolutePath(), wsdlFile.getAbsolutePath() };
         
