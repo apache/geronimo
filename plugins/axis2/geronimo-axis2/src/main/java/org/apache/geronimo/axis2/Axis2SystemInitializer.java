@@ -38,6 +38,8 @@ public class Axis2SystemInitializer implements GBeanLifecycle {
 
     private ServiceReference packageAdminServiceReference;
 
+    private GeronimoBundleClassFinder bundleClassFinder;
+
     public Axis2SystemInitializer(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
@@ -55,7 +57,9 @@ public class Axis2SystemInitializer implements GBeanLifecycle {
         packageAdminServiceReference = bundleContext.getServiceReference(PackageAdmin.class.getName());
         PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminServiceReference);
         ClassFinderFactory classFinderFactory = (ClassFinderFactory) FactoryRegistry.getFactory(ClassFinderFactory.class);
-        classFinderFactory.setClassFinder(new GeronimoBundleClassFinder(packageAdmin));
+        bundleClassFinder = new GeronimoBundleClassFinder(packageAdmin);
+        classFinderFactory.setClassFinder(bundleClassFinder);
+        bundleContext.addBundleListener(bundleClassFinder);
     }
 
     @Override
@@ -68,6 +72,7 @@ public class Axis2SystemInitializer implements GBeanLifecycle {
             } catch (Exception e) {
             }
         }
+        bundleContext.removeBundleListener(bundleClassFinder);
     }
 
 }
