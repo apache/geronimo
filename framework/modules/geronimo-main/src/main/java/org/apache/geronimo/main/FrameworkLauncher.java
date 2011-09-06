@@ -163,6 +163,10 @@ public class FrameworkLauncher {
             }
         });
 
+        launchOSGiFramework();
+    }
+
+    private void launchOSGiFramework() throws Exception {
         // Start up the OSGI framework
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         FrameworkFactory factory = loader.iterator().next();
@@ -179,7 +183,6 @@ public class FrameworkLauncher {
         startBundles(bundleContext, startList);
 
         framework.start();
-
     }
 
     public void destroy(boolean await) {
