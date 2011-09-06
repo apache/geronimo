@@ -20,6 +20,7 @@ package org.apache.geronimo.testsupport.commands;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,12 +114,24 @@ public class CommandTestSupport {
         }
     }
 
-    protected String resolveCommandForOS(String command) {      
+    protected String resolveCommandForOS(String command) {
+    	String filename = "";
         if (isWindows()) {
-            return geronimoHome + "/bin/" + command + ".bat";            
+            filename = geronimoHome + "/bin/" + command + ".bat";            
         } else {
-            return geronimoHome + "/bin/" + command;
-        }     
+        	try {
+        		File cmdfile1 = new File(geronimoHome + "/bin/" + command);
+        		File cmdfile2 = new File(geronimoHome + "/bin/" + command + ".sh");
+        		if(cmdfile1.exists()) { 
+        			filename = geronimoHome + "/bin/" + command;
+        		} else if (cmdfile2.exists()) {
+        			filename = geronimoHome + "/bin/" + command + ".sh";
+        		}
+        	} catch(Exception e) { 
+        		
+        	}            
+        }    
+        return filename;
     }
         
     public boolean isWindows() {
