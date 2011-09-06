@@ -25,9 +25,9 @@
     <sys:environment>
         <sys:dependencies>
             <sys:dependency>
-                <sys:groupId>org.apache.derby</sys:groupId>
-                <sys:artifactId>derby</sys:artifactId>
-                <sys:type>jar</sys:type>
+                <sys:groupId>org.apache.geronimo.configs</sys:groupId>
+                <sys:artifactId>system-database</sys:artifactId>
+                <sys:type>car</sys:type>
             </sys:dependency>
         </sys:dependencies>
     </sys:environment>
