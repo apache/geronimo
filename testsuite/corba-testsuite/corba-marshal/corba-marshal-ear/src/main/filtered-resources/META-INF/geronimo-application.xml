@@ -41,8 +41,7 @@
                 <dep:dependencies>
                     <dep:dependency>
                         <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                        <dep:artifactId>j2ee-corba-yoko</dep:artifactId>
-                        <dep:version>${version}</dep:version>
+                        <dep:artifactId>j2ee-corba-yoko</dep:artifactId>                        
                         <dep:type>car</dep:type>
                     </dep:dependency>
                 </dep:dependencies>
@@ -97,14 +96,12 @@
                 <dep:dependencies>
                     <dep:dependency>
                         <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                        <dep:artifactId>client-corba-yoko</dep:artifactId>
-                        <dep:version>${version}</dep:version>
+                        <dep:artifactId>client-corba-yoko</dep:artifactId>                        
                         <dep:type>car</dep:type>
                     </dep:dependency>
                     <dep:dependency>
                         <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                        <dep:artifactId>client-transaction-1_6</dep:artifactId>
-                        <dep:version>${version}</dep:version>
+                        <dep:artifactId>client-transaction-1_6</dep:artifactId>                        
                         <dep:type>car</dep:type>
                     </dep:dependency>
                 </dep:dependencies>

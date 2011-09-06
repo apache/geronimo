@@ -147,7 +147,7 @@
                             <!-- ============================================================================= -->
                             <!-- These modules must be running before deploying a CORBA module can be deployed -->
                             <!-- ============================================================================= -->
-                            <execution>
+                            <!--<execution>
                                 <id>start-j2ee-corba-yoko</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
@@ -166,7 +166,7 @@
                                 <configuration>
                                     <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${project.version}/car</moduleId>
                                 </configuration>
-                            </execution>
+                            </execution>-->
 
                             <!-- ======================= -->
                             <!-- Deploy the CORBA module -->
