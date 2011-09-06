@@ -198,7 +198,7 @@ set JAVA_OPTS=-Xmx256m -XX:MaxPermSize=128m
 
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 @REM A relative value will be resolved relative to each instance 
-set GERONIMO_TMPDIR=var\temp
+set GERONIMO_TMPDIR=%GERONIMO_HOME%\var\temp
 :gotTmpdir
 
 @REM Setup the classpath
