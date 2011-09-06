@@ -191,24 +191,24 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         ClassLoader oldTCL = thread.getContextClassLoader();
         thread.setContextClassLoader(classLoader);
         try {
-        	//Convert java.util.Properties to java.lang.String
-        	if(value != null && value instanceof Properties){
-        		Properties ps = (Properties) value;
-				if (!ps.isEmpty()) {
-					String s = null;
-					for (Object o : ps.keySet()) {
-						String k = (String) o;
-						String v = ps.getProperty(k);
-						s = k + "=" + v + ",";
-						log.debug("Setting " + k + "=" + value);
-					}
-					delegate.setAttribute(name, s);
-					log.debug("Setting " + name + " value " + s);
-				}        		
-        	} else {        		
-        		delegate.setAttribute(name, value);
-        		log.debug("Setting " + name + " value " + value);
-        	}
+            //Convert java.util.Properties to java.lang.String
+            if(value != null && value instanceof Properties){
+                Properties ps = (Properties) value;
+                if (!ps.isEmpty()) {
+                    String s = null;
+                    for (Object o : ps.keySet()) {
+                        String k = (String) o;
+                        String v = ps.getProperty(k);
+                        s = k + "=" + v + ",";
+                        log.debug("Setting " + k + "=" + value);
+                    }
+                    delegate.setAttribute(name, s);
+                    log.debug("Setting " + name + " value " + s);
+                }                
+            } else {                
+                delegate.setAttribute(name, value);
+                log.debug("Setting " + name + " value " + value);
+            }
         } finally {
             thread.setContextClassLoader(oldTCL);
         }
