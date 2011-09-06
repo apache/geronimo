@@ -47,7 +47,7 @@ public class TestConsoleSecurity extends TestSupport {
         assertTrue(response.contains("Deployer"));
         
         response = doGet(httpClient, "http://localhost:8080/console/logout.jsp");
-        assertTrue(response.contains("Geronimo Console Login"));
+        assertTrue(response.contains("Console Login"));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TestConsoleSecurity extends TestSupport {
 
     private PostMethod login(HttpClient httpClient, String username, String password) throws Exception {
         String response = doGet(httpClient, "http://localhost:8080/console");
-        assertTrue("Expected login form", response.contains("Geronimo Console Login"));
+        assertTrue("Expected login form", response.contains("Console Login"));
         
         PostMethod postMethod = new PostMethod("http://localhost:8080/console/j_security_check");
         if (username != null) {
