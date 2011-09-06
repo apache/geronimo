@@ -193,12 +193,11 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             if(value != null && value instanceof Properties){
                 Properties ps = (Properties) value;
                 if (!ps.isEmpty()) {
-                    String s = null;
+                    StringBuilder s = new StringBuilder();
                     for (Object o : ps.keySet()) {
                         String k = (String) o;
                         String v = ps.getProperty(k);
-                        s = k + "=" + v + ",";
-                        log.debug("Setting " + k + "=" + value);
+                        s = s.append(k).append("=").append(v).append(",");
                     }
                     delegate.setAttribute(name, s);
                     log.debug("Setting " + name + " value " + s);
