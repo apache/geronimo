@@ -309,7 +309,7 @@ goto execCmd
 
 :doStart
 echo.
-echo Starting Geronimo in a separate window...
+echo Starting Geronimo as background process...
 shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
@@ -324,7 +324,7 @@ set _EXECJAVA=%_RUNJAVA%
 goto setHelpEnd
 :setNonHelp
 @REM if it is not to print help information, open another window
-set _EXECJAVA=start "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
+set _EXECJAVA=start /B "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
 :setHelpEnd
 set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false
 goto execCmd
