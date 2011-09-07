@@ -24,9 +24,11 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.enterprise.deploy.spi.DeploymentManager;
+
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -35,7 +37,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 
 /**
- * Utility to unlock a keystore and its private keys
+ * Utility to unlock a keystore and its private keys 
  * @version $Rev$ $Date$
  */
 public class CommandUnlockKeystore extends AbstractCommand {
@@ -51,9 +53,13 @@ public class CommandUnlockKeystore extends AbstractCommand {
         if (args.length == 0) {
             throw new DeploymentException("Specify the key store name to be unlocked");
         }
-        Kernel kernel = getKernel(connection);
-        AbstractNameQuery anq = new AbstractNameQuery("org.apache.geronimo.management.geronimo.KeystoreManager");
-        Set<AbstractName> it = kernel.listGBeans(anq);
+        DeploymentManager dm = connection.getDeploymentManager();
+        Kernel kernel = null;
+        if (dm instanceof RemoteDeploymentManager) {
+            kernel = ((RemoteDeploymentManager) dm).getKernel();
+        }
+        AbstractNameQuery anq= new AbstractNameQuery("org.apache.geronimo.management.geronimo.KeystoreManager");
+        Set<AbstractName> it=kernel.listGBeans(anq);
         AbstractName an = (AbstractName) it.iterator().next();
         try {
             kernel.invoke(an, "initializeKeystores");
@@ -78,11 +84,9 @@ public class CommandUnlockKeystore extends AbstractCommand {
                     emit(consoleReader, "Successfuly unlocked the private key:: " + args[i]);
                 }
             } catch (FileNotFoundException e) {
-                throw new DeploymentException("Unable to read the keystore password from the specified file:: "
-                        + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE), e);
+                throw new DeploymentException("Unable to read the keystore password from the specified file:: " + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE), e);
             } catch (IOException e) {
-                throw new DeploymentException("Unable to read the keystore password from the specified file:: "
-                        + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE), e);
+                throw new DeploymentException("Unable to read the keystore password from the specified file:: " + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE), e);
             }
         }
     }
@@ -111,13 +115,28 @@ public class CommandUnlockKeystore extends AbstractCommand {
     /*
      * Returns the password for private key alias
      */
-    private String getKeyAliasPassword(Properties properties, String keyStoreName, String aliasName) throws DeploymentException {
+    private String getKeyAliasPassword(Properties properties, String keyStoreName, String aliasName, Kernel kernel) throws DeploymentException {
         String aliasPassword = properties.getProperty(aliasName);
+        AbstractName abstractName=null;
+        String decryptedPassword=null;
         if (aliasPassword == null) {
-            throw new DeploymentException("No alias with the name " + aliasName + " exists in the kyeStoreTruststore password properties file::"
-                    + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            throw new DeploymentException("No alias with the name " + aliasName + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
-        return (String) EncryptionManager.decrypt(aliasPassword);
+        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerWrapperGBean");
+        Iterator<AbstractName> it = kernel.listGBeans(abstractNameQuery).iterator();
+        abstractName = it.next();
+        try {
+			decryptedPassword=(String)kernel.invoke(abstractName,"decrypt",new Object[]{aliasPassword},new String[] {"java.lang.String"});
+		} catch (GBeanNotFoundException e) {
+			throw new DeploymentException("Unable to find the gbean with the abstractname:: " + abstractName, e);
+		} catch (NoSuchOperationException e) {
+			throw new DeploymentException("No method decrypt available with:: " + abstractName, e);
+		} catch (InternalKernelException e) {
+			throw new DeploymentException();
+		} catch (Exception e) {
+			throw new DeploymentException();
+		}
+        return decryptedPassword;
     }
 
     /*
@@ -125,8 +144,8 @@ public class CommandUnlockKeystore extends AbstractCommand {
      */
     public AbstractName getKeyStoreAbstractName(Kernel kernel, String keyStoreName) throws DeploymentException {
         AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.management.geronimo.KeystoreInstance");
-        for (Iterator it = kernel.listGBeans(abstractNameQuery).iterator(); it.hasNext();) {
-            AbstractName abstractName = (AbstractName) it.next();
+        for (Iterator<AbstractName> it = kernel.listGBeans(abstractNameQuery).iterator(); it.hasNext();) {
+            AbstractName abstractName = it.next();
             String curKeyStoreName;
             try {
                 curKeyStoreName = (String) kernel.getAttribute(abstractName, "keystoreName");
@@ -143,21 +162,36 @@ public class CommandUnlockKeystore extends AbstractCommand {
     /*
      * Returns the key store password
      */
-    private String getKeyStorePassword(Properties properties, String keyStoreName) throws DeploymentException {
+    private String getKeyStorePassword(Properties properties, String keyStoreName, Kernel kernel) throws DeploymentException {
         String keyStorePassword = properties.getProperty(keyStoreName);
+        AbstractName abstractName=null;
+        String decryptedPassword=null;
         if (keyStorePassword == null) {
-            throw new DeploymentException("No keyStorePassword attribute named " + keyStoreName + " exists in the kyeStoreTruststore password properties file::"
-                    + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            throw new DeploymentException("No keyStorePassword attribute named " + keyStoreName + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
-        return (String) EncryptionManager.decrypt(keyStorePassword);
+        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerWrapperGBean");
+        Iterator<AbstractName> it = kernel.listGBeans(abstractNameQuery).iterator();
+        abstractName = it.next();
+        try {
+			decryptedPassword=(String)kernel.invoke(abstractName,"decrypt",new Object[]{keyStorePassword},new String[] {"java.lang.String"});
+		} catch (GBeanNotFoundException e) {
+			throw new DeploymentException("Unable to find the gbean with the abstractname:: " + abstractName, e);
+		} catch (NoSuchOperationException e) {
+			throw new DeploymentException("No method decrypt available with:: " + abstractName, e);
+		} catch (InternalKernelException e) {
+			throw new DeploymentException();
+		} catch (Exception e) {
+			throw new DeploymentException();
+		}
+        return decryptedPassword;
     }
 
     /*
      * method to unlock a private key
      */
     public boolean unlockKeyAlias(Kernel kernel, AbstractName keyStoreAbName, Properties properties, String keyStoreName, String aliasName) throws DeploymentException, FileNotFoundException {
-        char[] aliasPassword = getKeyAliasPassword(properties, keyStoreName, aliasName).toCharArray();
-        char[] keyStorePassword = getKeyStorePassword(properties, keyStoreName).toCharArray();
+        char[] aliasPassword = getKeyAliasPassword(properties, keyStoreName, aliasName,kernel).toCharArray();
+        char[] keyStorePassword = getKeyStorePassword(properties, keyStoreName,kernel).toCharArray();
         boolean success = false;
         Object[] argsVariable = new Object[] { aliasName, keyStorePassword, aliasPassword };
         String[] argsType = new String[] { aliasName.getClass().getName(), keyStorePassword.getClass().getName(), aliasPassword.getClass().getName() };
@@ -178,7 +212,7 @@ public class CommandUnlockKeystore extends AbstractCommand {
      * Method to unlock a keystore
      */
     public void unLockKeyStore(Kernel kernel, AbstractName keyStoreAbName, Properties properties, String keyStoreName) throws DeploymentException {
-        char[] keyStorepassword = getKeyStorePassword(properties, keyStoreName).toCharArray();
+        char[] keyStorepassword = getKeyStorePassword(properties, keyStoreName,kernel).toCharArray();
         try {
             kernel.invoke(keyStoreAbName, "unlockKeystore", new Object[] { keyStorepassword }, new String[] { keyStorepassword.getClass().getName() });
         } catch (GBeanNotFoundException e) {
