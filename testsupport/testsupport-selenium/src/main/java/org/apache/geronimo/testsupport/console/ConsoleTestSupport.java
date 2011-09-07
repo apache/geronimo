@@ -112,7 +112,7 @@ public abstract class ConsoleTestSupport extends SeleniumTestSupport
 	        
 	        //assertEquals("Apache Geronimo", selenium.getTitle());
 	
-	        selenium.deleteAllVisibleCookies();
+	        //selenium.deleteAllVisibleCookies();
 	
 	        //selenium.click("link=Console");
 	        //waitForPageLoad();
