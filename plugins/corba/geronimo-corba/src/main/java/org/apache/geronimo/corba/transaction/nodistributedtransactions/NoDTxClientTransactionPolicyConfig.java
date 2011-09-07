@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.corba.transaction.nodistributedtransactions;
 
+import javax.transaction.Status;
+import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.omg.CORBA.Any;
@@ -31,17 +33,27 @@ import org.omg.IOP.TransactionService;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.apache.geronimo.corba.transaction.ClientTransactionPolicyConfig;
 import org.apache.geronimo.corba.util.Util;
-import org.apache.openejb.util.TransactionUtils;
 
 /**
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class NoDTxClientTransactionPolicyConfig implements ClientTransactionPolicyConfig {
 
+    private static final long serialVersionUID = 3330069139634001416L;
     private static final TransIdentity[] NO_PARENTS = new TransIdentity[0];
     private static final otid_t NULL_XID = new otid_t(0, 0, new byte[0]);
 
     private final TransactionManager transactionManager;
+
+    
+    public static boolean isTransactionActive(TransactionManager transactionManager) {
+        try {
+            int status = transactionManager.getStatus();
+            return status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK;
+        } catch (SystemException ignored) {
+            return false;
+        }
+    }
 
     public NoDTxClientTransactionPolicyConfig(TransactionManager transactionManager) {
         if (transactionManager == null) {
@@ -51,7 +63,7 @@ public class NoDTxClientTransactionPolicyConfig implements ClientTransactionPoli
     }
 
     public void exportTransaction(ClientRequestInfo ri) {
-        if (TransactionUtils.isTransactionActive(transactionManager)) {
+        if (isTransactionActive(transactionManager)) {
             //19.6.2.1 (1) propagate an "empty" transaction context.
             //but, it needs an xid!
             TransIdentity transIdentity = new TransIdentity(null, null, NULL_XID);
