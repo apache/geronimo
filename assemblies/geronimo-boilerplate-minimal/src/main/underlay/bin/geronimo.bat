@@ -282,7 +282,7 @@ set _EXECJAVA=internalLauncherNoExit.bat
 goto execCmd
 :setNonHelp
 @REM if it is not to print help information, open another window
-set _EXECJAVA=start "Geronimo" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
+set _EXECJAVA=start /B "Geronimo" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
 goto execCmd
 
 :doStop
