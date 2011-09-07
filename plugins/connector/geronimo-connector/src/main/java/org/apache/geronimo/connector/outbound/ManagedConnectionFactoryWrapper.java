@@ -201,7 +201,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                         String v = ps.getProperty(k);
                         s = s.append(k).append("=").append(v).append(",");
                     }
-                    delegate.setAttribute(name, s);
+                    delegate.setAttribute(name, s.toString());
                     log.debug("Setting " + name + " value " + s);
                 }                
             } else {                
