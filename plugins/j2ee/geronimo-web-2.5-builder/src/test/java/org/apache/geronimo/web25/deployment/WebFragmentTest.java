@@ -19,6 +19,7 @@ package org.apache.geronimo.web25.deployment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -27,9 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -81,7 +85,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/absolute/webfragmentC.xml", WebFragment.class));
         jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/absolute/webfragmentD.xml", WebFragment.class));
         WebApp webApp = loadXmlObject("webfragments/absolute/web-withothers.xml", WebApp.class);
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+        EARContext rootContext = new DummyEARContext();
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals(4, webFragmentEntries.length);
         Assert.assertEquals("webfragmentD", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentB", webFragmentEntries[1].getName());
@@ -104,7 +109,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/absolute/webfragmentC.xml", WebFragment.class));
         jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/absolute/webfragmentD.xml", WebFragment.class));
         WebApp webApp = loadXmlObject("webfragments/absolute/web-withoutothers.xml", WebApp.class);
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+        EARContext rootContext = new DummyEARContext();
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals(2, webFragmentEntries.length);
         Assert.assertEquals("webfragmentD", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentA", webFragmentEntries[1].getName());
@@ -121,7 +127,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         //D -(after) -> others
         jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/relative/webfragmentD.xml", WebFragment.class));
         WebApp webApp = loadXmlObject("webfragments/relative/web.xml", WebApp.class);
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+        EARContext rootContext = new DummyEARContext();
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals("webfragmentC", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentB", webFragmentEntries[1].getName());
         Assert.assertEquals("webfragmentA", webFragmentEntries[2].getName());
@@ -143,7 +150,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
             jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/circus/circusA/webfragmentC.xml", WebFragment.class));
             jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusA/webfragmentD.xml", WebFragment.class));
             WebApp webApp = loadXmlObject("webfragments/circus/circusA/web.xml", WebApp.class);
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+            EARContext rootContext = new DummyEARContext();
+            WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1);
@@ -166,7 +174,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
             jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/circus/circusB/webfragmentC.xml", WebFragment.class));
             jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusB/webfragmentD.xml", WebFragment.class));
             WebApp webApp = loadXmlObject("webfragments/circus/circusB/web.xml", WebApp.class);
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+            EARContext rootContext = new DummyEARContext();
+            WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testB.jar") != -1);
@@ -191,7 +200,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
             //D -(after) -> A
             jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusC/webfragmentD.xml", WebFragment.class));
             WebApp webApp = loadXmlObject("webfragments/circus/circusC/web.xml", WebApp.class);
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
+            EARContext rootContext = new DummyEARContext();
+            WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(rootContext, createDummyWebModule(rootContext), null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testB.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testD.jar") != -1);
@@ -206,6 +216,13 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         } finally {
             in.close();
         }
+    }
+
+    private WebModule createDummyWebModule(EARContext rootContext) throws Exception {
+        WebModule webModule = new WebModule(true, new AbstractName(new URI("test/test/1.0/car?J2EEApplication=null,j2eeType=WebModule,name=test.war")), "test.war", new Environment(), new DeployableBundle(new MockBundle(WebFragmentTest.class.getClassLoader(), "", 1L)), "",
+                new WebApp(), null, "", "", "", null, null);
+        webModule.setEarContext(new DummyEARContext());
+        return webModule;
     }
 
     public static class DummyConfigurationManager implements ConfigurationManager {
@@ -435,8 +452,8 @@ public class WebFragmentTest extends XmlBeansTestSupport {
          * }
          */
         public DummyEARContext() throws Exception {
-            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new DummyConfigurationManager(), new MockBundleContext(new MockBundle(WebFragmentTest.class
-                    .getClassLoader(), "", 1L)), null, null, null, null, null, null);
+            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new DummyConfigurationManager(), new MockBundleContext(new MockBundle(
+                    WebFragmentTest.class.getClassLoader(), "", 1L)), null, null, null, null, null, null);
         }
     }
 }

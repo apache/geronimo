@@ -56,6 +56,7 @@ import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -63,6 +64,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.FragmentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -77,12 +79,9 @@ import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -92,9 +91,9 @@ import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
-import org.apache.geronimo.web25.deployment.utils.WebAppXmlAttributeBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
+import org.apache.geronimo.web25.deployment.utils.WebAppXmlAttributeBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.JaxbJavaee;
@@ -122,7 +121,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
-    
+
     static {
         PropertyEditorManager.registerEditor(WebAppInfo.class, WebAppXmlAttributeBuilder.class);
     }
@@ -250,7 +249,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected void addGBeanDependencies(EARContext earContext, GBeanData webModuleData) {
-        log.debug("Adding dependencies to web module: " + webModuleData.getAbstractName());
+        //log.debug("Adding dependencies to web module: " + webModuleData.getAbstractName());
 //        Configuration earConfiguration = earContext.getConfiguration();
 //        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_CONNECTION_FACTORY_PATTERN), webModuleData);
 //        addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
@@ -343,10 +342,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             throws DeploymentException {
         EARContext moduleContext;
         //TODO GERONIMO-4972 find a way to create working nested bundles.
-        if (true || module.isStandAlone()) {
+        if (module.isStandAlone()) {
             moduleContext = earContext;
         } else {
-            Environment environment = module.getEnvironment();
+            /*Environment environment = module.getEnvironment();
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
@@ -363,7 +362,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             } catch (DeploymentException e) {
                 cleanupConfigurationDir(configurationDir);
                 throw e;
-            }
+            }*/
+            //Merge the environment configurations to the parent EAR package, as now the same bundle is shared for all the modules.
+            EnvironmentBuilder.mergeEnvironments(earContext.getEnvironment(), module.getEnvironment());
+            moduleContext = new FragmentContext(earContext, ConfigurationModuleType.WAR);
         }
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
@@ -402,11 +404,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // and the url class loader will not pick up a manifest from an unpacked dir
             //GERONIMO-4972 this can't be correct for one-bundle deployments.
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI, manifestcp);
-            
+
             for (String classpath : manifestcp) {
                 earContext.addToClassPath(module.resolve(classpath).toString());
             }
-            
+
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } finally {
@@ -455,19 +457,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (hasSecurityRealmName) {
             earContext.setHasSecurity(true);
         }
-        
+
       //Inform errors if login-config element contains more than one
         List<LoginConfig> loginConfigs = webApp.getLoginConfig();
         if (loginConfigs.size() > 1) {
             throw new DeploymentException("Web app " + webApp.getDisplayName() + " cannot have more than one login-config element.  Currently has " + loginConfigs.size() + " login-config elements.");
         }
-        
+
        //Inform errors if session-config element contains more than one
         List<SessionConfig> sessionConfigs = webApp.getSessionConfig();
         if (sessionConfigs.size() > 1) {
             throw new DeploymentException("Web app " + webApp.getDisplayName() + " cannot have more than one sesion-config element.  Currently has " + sessionConfigs.size() + " session-config elements.");
         }
-        
+
         //TODO think about how to provide a default security realm name
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
@@ -485,9 +487,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         } else {
             originalSpecDDVersion = identifySpecDDSchemaVersion(originalSpecDD);
         }
-        earContext.getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, originalSpecDDVersion);
+        webModule.getEarContext().getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, originalSpecDDVersion);
         //Process web fragments and annotations
-        if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.isMetadataComplete()) {
+        if (INITIAL_WEB_XML_SCHEMA_VERSION.get(webModule.getEarContext().getGeneralData()) >= 2.5f && !webApp.isMetadataComplete()) {
             MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
         }
         MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
@@ -548,7 +550,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         return schemaVersion;
     }
-    
+
     protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebApp webApp, Bundle bundle) {
         SpecSecurityBuilder builder = new SpecSecurityBuilder(new WebAppInfo());
         return builder.buildSpecSecurityConfig();
@@ -676,20 +678,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             throws DeploymentException {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
-        
+
         String moduleName =  webModule.getName();
-        
+
         if (earContext.getSubModuleNames().contains(moduleName)){
             log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
                     "_duplicated' , please check your modules in application to make sure they don't share the same name");
             moduleName = moduleName +"_duplicated";
             earContext.getSubModuleNames().add(moduleName);
-        }   
-        
+        }
+
         earContext.getSubModuleNames().add(moduleName);
         webModule.getJndiContext().get(JndiScope.module).put("module/ModuleName", moduleName);
 
-        
+
         if (!webApp.isMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
@@ -730,7 +732,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         addGBeanDependencies(earContext, webModuleData);
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
-        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext() ? null : webModule.getTargetPath());
+        webModuleData.setAttribute("modulePath", webModule.isStandAlone() ? null : webModule.getTargetPath());
     }
 
     private static class InternWrapper implements XMLStreamReader {

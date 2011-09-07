@@ -689,9 +689,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
             deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, webApp.isMetadataComplete());
-            deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebApplicationConstants.ORDERED_LIBS, AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS, AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, INITIAL_WEB_XML_SCHEMA_VERSION.get(webModule.getEarContext().getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.ORDERED_LIBS, AbstractWebModuleBuilder.ORDERED_LIBS.get(webModule.getEarContext().getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS, AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(webModule.getEarContext().getGeneralData()));
             webModuleData.setAttribute("deploymentAttributes", deploymentAttributes);
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
@@ -718,7 +718,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }
             //not truly metadata complete until MBEs have run
-            if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
+            if (INITIAL_WEB_XML_SCHEMA_VERSION.get(module.getEarContext().getGeneralData()) >= 2.5f) {
                 webApp.setMetadataComplete(true);
                 String specDeploymentPlan = getSpecDDAsString(webModule);
                 module.setOriginalSpecDD(specDeploymentPlan);

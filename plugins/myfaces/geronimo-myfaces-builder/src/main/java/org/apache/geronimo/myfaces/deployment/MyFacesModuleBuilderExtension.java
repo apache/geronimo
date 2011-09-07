@@ -214,7 +214,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         FacesConfig webAppFacesConfig = getWebAppFacesConfig(webModule);
 
         //Parse all faces-config.xml files found in META-INF folder
-        Set<ConfigurationResource> metaInfConfigurationResources = JSF_META_INF_CONFIGURATION_RESOURCES.get(earContext.getGeneralData());
+        Set<ConfigurationResource> metaInfConfigurationResources = JSF_META_INF_CONFIGURATION_RESOURCES.get(module.getEarContext().getGeneralData());
         List<FacesConfig> metaInfFacesConfigs = new ArrayList<FacesConfig>(metaInfConfigurationResources.size());
         for (ConfigurationResource configurationResource : metaInfConfigurationResources) {
             FacesConfig facesConfig = configurationResource.getFacesConfig();
@@ -262,7 +262,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         GBeanData myFacesWebAppContextData = new GBeanData(myFacesWebAppContextName, MyFacesWebAppContext.class);
 
         Set<ConfigurationResource> faceletsLibraries = new HashSet<ConfigurationResource>();
-        faceletsLibraries.addAll(JSF_FACELET_CONFIG_RESOURCES.get(earContext.getGeneralData()));
+        faceletsLibraries.addAll(JSF_FACELET_CONFIG_RESOURCES.get(webModule.getEarContext().getGeneralData()));
         faceletsLibraries.addAll(getContextFaceletsLibraries(webApp, webModule));
         myFacesWebAppContextData.setAttribute("faceletConfigResources", faceletsLibraries);
 

@@ -49,8 +49,8 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.util.CircularReferencesException;
 import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils;
-import org.apache.geronimo.j2ee.deployment.util.IllegalConfigurationException;
 import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils.Visitor;
+import org.apache.geronimo.j2ee.deployment.util.IllegalConfigurationException;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JoinUtils;
 import org.apache.geronimo.kernel.util.JoinUtils.NameCallback;
@@ -100,10 +100,10 @@ import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -174,14 +174,14 @@ public class MergeHelper {
         }
         // EXCLUDED_JAR_URLS is required for TLD scanning, ServletContainerInitializer scanning and ServletContextListeners.
         // So does it mean that we always need to scan web-fragment.xml whatever meta-complete is set with true or false.
-        Set<String> excludedURLs = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(earContext.getGeneralData());
+        Set<String> excludedURLs = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(module.getEarContext().getGeneralData());
         //Add left named web-fragment.xml file URLs to the EXCLUDED_JAR_URLS List
         for (WebFragmentEntry excludedFragment : unusedWebFragmentEntryMap.values()) {
             excludedURLs.add(excludedFragment.getJarURL());
         }
 
         WebFragmentEntry[] webFragmentEntries = orderedWebFragments.toArray(new WebFragmentEntry[orderedWebFragments.size()]);
-        saveOrderedLibAttribute(earContext, webFragmentEntries);
+        saveOrderedLibAttribute(earContext, module, webFragmentEntries);
         return webFragmentEntries;
     }
 
@@ -250,7 +250,7 @@ public class MergeHelper {
     public static void processServletContainerInitializer(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         //ServletContainerInitializer
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        final Set<String> excludedJarNames = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(earContext.getGeneralData());
+        final Set<String> excludedJarNames = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(module.getEarContext().getGeneralData());
         final Set<String> servletContainerInitializers = new HashSet<String>();
         try {
             PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
@@ -326,7 +326,7 @@ public class MergeHelper {
                 Set<String> acceptedClassNames = bundleClassFinder.find();
                 servletContainerInitializerClassNamesMap.put(servletContainerInitializer, acceptedClassNames.size() > 0 ? acceptedClassNames : null);
             }
-            earContext.getGeneralData().put(AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS, servletContainerInitializerClassNamesMap);
+            module.getEarContext().getGeneralData().put(AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS, servletContainerInitializerClassNamesMap);
         } catch (Exception e) {
             throw new DeploymentException("Fail to scan javax.servlet.ServletContainerInitializer", e);
         } finally {
@@ -478,7 +478,7 @@ public class MergeHelper {
                 }
 
             }).toArray(new WebFragmentEntry[webFragmentEntryMap.values().size()]);
-            saveOrderedLibAttribute(earContext, webFragments);
+            saveOrderedLibAttribute(earContext, module, webFragments);
             return webFragments;
         } catch (IllegalConfigurationException e) {
             throw new DeploymentException("Jar file " + webFragmentEntryMap.get(e.getNodeName()).getJarURL() + " is not configured correctly for " + e.getMessage(), e);
@@ -558,7 +558,7 @@ public class MergeHelper {
         }
     }
 
-    private static void saveOrderedLibAttribute(EARContext earContext, WebFragmentEntry[] webFragmentEntries) {
+    private static void saveOrderedLibAttribute(EARContext earContext, Module module, WebFragmentEntry[] webFragmentEntries) {
         //Save ORDERED_LIBS Attribute
         List<String> orderedLibs = new ArrayList<String>();
         for (WebFragmentEntry webFragmentEntry : webFragmentEntries) {
@@ -570,6 +570,6 @@ public class MergeHelper {
                 }
             }
         }
-        earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
+        module.getEarContext().getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
     }
 }

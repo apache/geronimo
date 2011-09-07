@@ -528,9 +528,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
             deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, webApp.isMetadataComplete());
-            deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebApplicationConstants.ORDERED_LIBS, AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
-            deploymentAttributes.put(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS, AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.SCHEMA_VERSION, INITIAL_WEB_XML_SCHEMA_VERSION.get(webModule.getEarContext().getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.ORDERED_LIBS, AbstractWebModuleBuilder.ORDERED_LIBS.get(webModule.getEarContext().getGeneralData()));
+            deploymentAttributes.put(WebApplicationConstants.SERVLET_CONTAINER_INITIALIZERS, AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(webModule.getEarContext().getGeneralData()));
             webModuleData.setAttribute("deploymentAttributes", deploymentAttributes);
 
             //TODO this may definitely not be the best place for this!
@@ -545,7 +545,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             //not truly metadata complete until MBEs have run
             if (!webApp.isMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
+                if (INITIAL_WEB_XML_SCHEMA_VERSION.get(webModule.getEarContext().getGeneralData()) >= 2.5f) {
                     String specDeploymentPlan = getSpecDDAsString(webModule);
                     module.setOriginalSpecDD(specDeploymentPlan);
                     earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);

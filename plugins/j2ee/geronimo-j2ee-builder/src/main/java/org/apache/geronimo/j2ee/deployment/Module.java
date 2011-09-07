@@ -301,7 +301,7 @@ public abstract class Module<T, U> {
     }
 
     public void addAsChildConfiguration() throws DeploymentException {
-        if (rootEarContext != null && rootEarContext != earContext) {
+        if (rootEarContext != null && rootEarContext != earContext && !(earContext instanceof FragmentContext)) {
             ConfigurationData moduleConfigurationData = earContext.getConfigurationData();
             rootEarContext.addChildConfiguration(getTargetPath(), moduleConfigurationData);
         }

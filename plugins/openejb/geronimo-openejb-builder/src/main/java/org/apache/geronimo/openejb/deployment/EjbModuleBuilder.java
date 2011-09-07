@@ -66,6 +66,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.FragmentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -78,6 +79,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -89,7 +91,6 @@ import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.OpenEjbSystem;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -310,7 +311,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
     }
-    
+
 
     private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder,
             String ddDir, boolean subModule) throws DeploymentException {
@@ -322,11 +323,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             throw new IllegalArgumentException("targetPath must not end with a '/'");
 
         ClassLoader detectTempClassLoader = null;
-        
+
         ClassLoader ejbModuleTempClassLoader = null;
-        
+
         List<File> tempFileList = new ArrayList<File>();
-        
+
         try {
             // verify we have a valid file
             String jarPath = moduleFile.getName();
@@ -338,24 +339,24 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             File jarFile = new File(moduleFile.getName());
 
             baseUrl = jarFile.toURI().toURL();
-            
+
             List<URL> libURLs = new ArrayList<URL>();
-            
+
             libURLs.add(baseUrl);
-            
+
             boolean standAlone = earEnvironment == null;
-        
+
            if (parentModule instanceof WebModule)  {
-              
+
                Deployable deployable = parentModule.getDeployable();
                if (!(deployable instanceof DeployableJarFile)) {
                    throw new IllegalArgumentException("Expected DeployableJarFile");
                }
-               
+
                 JarFile war = ((DeployableJarFile) deployable).getJarFile();
-                
+
                 Enumeration<JarEntry> entries = war.entries();
-            
+
                 while (entries.hasMoreElements()) {
                     String jarEntryName = entries.nextElement().getName();
                    if (jarEntryName.startsWith("WEB-INF/lib/") && jarEntryName.endsWith(".jar")) {
@@ -364,15 +365,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                        libURLs.add(libJar.toURI().toURL());
                        libJar.deleteOnExit();
                     }
-                }  
-                
-                // The war it self is a ejbmodule. If the war is standalone, 
+                }
+
+                // The war it self is a ejbmodule. If the war is standalone,
                 // the corresponding ejbmodule is standalone too.
                 standAlone = parentModule.isStandAlone();
             }
-            
 
-            
+
+
             detectTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
 
             ResourceFinder finder = new ResourceFinder("", detectTempClassLoader, baseUrl);
@@ -384,7 +385,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             // measure will explicitly look for specific known descriptor files and add them if
             // the getResourcesMap() method was unable to find them.  In this "bad jar" scenario
             // some extra features such as the openejb.altdd.prefix functionality will not work.
-            
+
             String[] doubleCheck = {"ejb-jar.xml", "geronimo-openejb.xml", "openejb-jar.xml", "beans.xml", "env-entries.properties", "web.xml"};
 
             for (String entry : doubleCheck) {
@@ -400,16 +401,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
 
             if (!isEjbModule(baseUrl,libURLs, detectTempClassLoader, descriptors)) {
-               
+
                 return null;
             }
-            
-            
+
+
             libURLs.clear();
             libURLs.add(baseUrl);
-            
+
             ejbModuleTempClassLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, libURLs.toArray(new URL[0]), OpenEJB.class.getClassLoader()));
-            
+
 
             // create the EJB Module
             org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(ejbModuleTempClassLoader, null, jarPath, null, null);
@@ -439,15 +440,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                     xmlCursor.toFirstChild();
                     qname = xmlCursor.getName();
                 }
-                
+
              while (xmlCursor.hasNextToken()){
-                 
+
                  qname = xmlCursor.getName();
                     if (qname == null || qname.getLocalPart() == null) {
                         xmlCursor.toNextToken();
                         continue;
                     }
-                
+
                 if (qname.getLocalPart().equals("openejb-jar")) {
                     ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
                     break;
@@ -455,7 +456,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                     ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
                     break;
                 }
-                
+
                 xmlCursor.toNextToken();
 
                 }
@@ -497,10 +498,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
                 moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
             } else {
-                
+
                 AbstractName parentName = parentModule instanceof AppClientModule ? ((AppClientModule) parentModule)
                         .getAppClientName() : parentModule.getModuleName();
-                        
+
                 moduleName = naming.createChildName(parentName, targetPath, NameFactory.EJB_MODULE);
             }
 
@@ -550,18 +551,18 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
             return module;
         } catch (DeploymentException e) {
-            
+
             throw e;
-            
+
         } catch (Exception e) {
 
             throw new DeploymentException(e);
-            
+
         }  finally {
-            
+
             releaseTempClassLoader(detectTempClassLoader);
             releaseTempClassLoader(ejbModuleTempClassLoader);
-            
+
             for (File file:tempFileList){
                 FileUtils.recursiveDelete(file);
             }
@@ -640,30 +641,31 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (module instanceof EjbModule) {
             installModule(module, earContext);
             EARContext moduleContext;
-//        if (module.isStandAlone()) {
-            moduleContext = earContext;
-//        } else {
-//            Environment environment = earContext.getConfiguration().getEnvironment();
-//            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
-////            configurationDir.mkdirs();
-//
-//            // construct the ejb app deployment context... this is the same class used by the ear context
-//            try {
-//                File inPlaceConfigurationDir = null;
-//                if (null != earContext.getInPlaceConfigurationDir()) {
-//                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
-//                }
-//                moduleContext = new EARContext(configurationDir,
-//                        inPlaceConfigurationDir,
-//                        environment,
-//                        ConfigurationModuleType.EJB,
-//                        module.getModuleName(),
-//                        earContext);
-//            } catch (DeploymentException e) {
-//                cleanupConfigurationDir(configurationDir);
-//                throw e;
-//            }
-//        }
+            if (module.isStandAlone()) {
+                moduleContext = earContext;
+            } else {
+                moduleContext = new FragmentContext(earContext, ConfigurationModuleType.EJB);
+                //            Environment environment = earContext.getConfiguration().getEnvironment();
+                //            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
+                ////            configurationDir.mkdirs();
+                //
+                //            // construct the ejb app deployment context... this is the same class used by the ear context
+                //            try {
+                //                File inPlaceConfigurationDir = null;
+                //                if (null != earContext.getInPlaceConfigurationDir()) {
+                //                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
+                //                }
+                //                moduleContext = new EARContext(configurationDir,
+                //                        inPlaceConfigurationDir,
+                //                        environment,
+                //                        ConfigurationModuleType.EJB,
+                //                        module.getModuleName(),
+                //                        earContext);
+                //            } catch (DeploymentException e) {
+                //                cleanupConfigurationDir(configurationDir);
+                //                throw e;
+                //            }
+            }
             module.setEarContext(moduleContext);
             module.setRootEarContext(earContext);
             if (((EjbModule) module).getEjbJar().getAssemblyDescriptor() != null) {
@@ -709,11 +711,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                         .getModuleLocations();
                 URI baseUri = URI.create(module.getTargetPath());
                 earContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), EjbModuleClasspaths, moduleLocations);
-                
+
                 for (String classpath:EjbModuleClasspaths){
                     earContext.addToClassPath(classpath);
                 }
-                
+
             }
             //earContext.addInclude(".", moduleFile);
         } catch (IOException e) {
@@ -755,7 +757,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             LinkedHashSet<Module<?,?>> modules = module.getModules();
             for (Module<?,?> subModule: modules) {
                 if (subModule instanceof EjbModule)  {
-                    
+
                     if(module instanceof AppClientModule){
                         earContext = module.getEarContext();
                     }
@@ -764,11 +766,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
         }
     }
-    
+
 
     private void doInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
-        
+
 
 
         AppInfo appInfo = getAppInfo(earContext, ejbModule, bundle);
@@ -812,7 +814,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Add extra gbean declared in the geronimo-openejb.xml file
         serviceBuilders.build(ejbModule.getVendorDD(), earContext, ejbModule.getEarContext());
 
-       
+
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
 
@@ -850,7 +852,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 module.setClassLoader(bundleLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
             }
-            
+
             if(!ejbModule.isStandAlone())
             {
                appModule.setModuleId(ejbModule.getParentModule().getName());
@@ -1164,19 +1166,19 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
         // add enc
         String moduleName = module.getName();
-        
+
         if (earContext.getSubModuleNames().size() > 1 && earContext.getSubModuleNames().contains(moduleName)){
             log.warn("Duplicated moduleName: '"+moduleName +"' is found ! deployer will rename it to: '"+moduleName +
                     "_duplicated' , please check your modules in application to make sure they don't share the same name");
             moduleName = moduleName +"_duplicated";
             earContext.getSubModuleNames().add(moduleName);
         }
-        
+
         if (!(module.getParentModule() instanceof WebModule) && !(module.getParentModule() instanceof AppClientModule)) {
             earContext.getSubModuleNames().add(moduleName);
             module.getJndiScope(JndiScope.module).put("module/ModuleName", moduleName);
         }
-        
+
         ejbDeploymentBuilder.buildEnc();
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
@@ -1445,18 +1447,18 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             return appInfo;
         }
     }
-    
+
     public static class MessageDestinationInfo implements JndiConsumer {
-        
+
         private final IllegalStateException notAllowedException = new IllegalStateException(
                 "this instance is only used for adminObjectRefBuilder to get MessageDestination defined.");
         private final List<MessageDestination> specMessageDestinations;
-        
+
         public MessageDestinationInfo(List<MessageDestination> specMessageDestinations) {
             this.specMessageDestinations = specMessageDestinations == null ? new ArrayList<MessageDestination>()
                     : specMessageDestinations;
         }
-        
+
         @Override
         public Collection<DataSource> getDataSource() {
             throw notAllowedException;
