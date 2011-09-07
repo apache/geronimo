@@ -48,14 +48,14 @@ public class WebServerTest
 
         String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
         
-        selenium.click(connectorSelector + "/td[5]/a[3]");
+        selenium.click(connectorSelector + "/td[5]/a[2]");
         waitForPageLoad();
         //deleteConnector(name);
 
         selenium.type("port", "8008");
         selenium.click("submit");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("8008"));
+        selenium.isTextPresent("8008");
         
         selenium.click(connectorSelector + "/td[5]/a[2]"); 
 
@@ -63,7 +63,7 @@ public class WebServerTest
         selenium.type("port", "8009");
         selenium.click("submit");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("8009"));
+        selenium.isTextPresent("8009");
 
         deleteConnector(name);
         //return to main window

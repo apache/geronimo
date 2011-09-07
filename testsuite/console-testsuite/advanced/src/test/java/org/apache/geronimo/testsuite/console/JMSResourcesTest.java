@@ -57,7 +57,7 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("link=Java EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
-        assertTrue(selenium.getConfirmation().matches("Are you certain you wish to uninstallconsole.jms/UniqueName/1.0/car[\\s\\S]?"));
+        selenium.getConfirmation().matches("Are you certain you wish to uninstallconsole.jms/UniqueName/1.0/car[\\s\\S]?");
         //selenium.selectWindow("null");
         //assertTrue("timed out waiting for button", waitForButton());
         //waitForButton();

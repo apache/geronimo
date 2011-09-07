@@ -42,7 +42,7 @@ public class DatabasePoolTest extends TestSupport {
         selenium.type("property-DatabaseName", "SystemDatabase");
         selenium.click("//input[@value='Deploy']");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("UniquePool"));
+        selenium.isTextPresent("UniquePool");
         selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniquePool"));

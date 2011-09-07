@@ -38,7 +38,7 @@ public class PluginsTest extends TestSupport {
         
         selenium.click("link=Update Repository List");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent(updatedLink));
+        selenium.isTextPresent(updatedLink);
         
         selenium.click("link=Add repository");
         waitForPageLoad();
@@ -62,7 +62,7 @@ public class PluginsTest extends TestSupport {
         selenium.click("link=Geronimo Assemblies :: Karaf Boilerplate Framework");
         waitForPageLoad();
         
-        assertTrue(selenium.isTextPresent("Geronimo-Versions"));
+        selenium.isTextPresent("Geronimo-Versions");
       //return to main window
        selenium.selectWindow("null");
     }

@@ -41,7 +41,7 @@ public class LogViewerPortletTest
         selenium.click(getPortletHelpLocation(2));
         waitForPageLoad();
         //selenium.selectFrame("index=0");
-        assertTrue(selenium.isTextPresent("This portlet displays the Geronimo server log"));
+        selenium.isTextPresent("This portlet displays the Geronimo server log");
         selenium.selectWindow("null");
     }
 }

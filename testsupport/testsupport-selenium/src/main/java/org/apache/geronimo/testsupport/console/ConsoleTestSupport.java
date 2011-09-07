@@ -127,7 +127,8 @@ public abstract class ConsoleTestSupport extends SeleniumTestSupport
     	}
     
     	protected void logout() throws Exception {
-		 selenium.open("/console");
+		 	selenium.open("/console");
+		 	waitForPageLoad();
 	        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
 	        waitForPageLoad();
 	        

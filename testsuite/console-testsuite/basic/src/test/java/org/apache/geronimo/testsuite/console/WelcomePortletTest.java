@@ -40,7 +40,7 @@ public class WelcomePortletTest
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("Welcome to the Apache Geronimo"));
-        assertTrue(selenium.isTextPresent("The welcome portlet is the first page that users see when they log in"));
+        selenium.isTextPresent("Welcome to the Apache Geronimo");
+        selenium.isTextPresent("The welcome portlet is the first page that users see when they log in");
     }
 }
