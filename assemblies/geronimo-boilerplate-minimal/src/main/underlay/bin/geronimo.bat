@@ -267,7 +267,7 @@ goto execCmd
 
 :doStart
 echo.
-echo Starting Geronimo in a separate window...
+echo Starting Geronimo as background process...
 shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
