@@ -2501,6 +2501,20 @@
         </plugins>
     </reporting>
     
+    <repositories>
+        <repository>
+            <id>geronimo-svn-repo</id>
+            <name>Geronimo 21 patched libraries</name>
+            <url>http://svn.apache.org/repos/asf/geronimo/server/branches/2.1/repository/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
