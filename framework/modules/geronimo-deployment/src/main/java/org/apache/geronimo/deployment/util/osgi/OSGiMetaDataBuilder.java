@@ -46,6 +46,8 @@ public class OSGiMetaDataBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(OSGiMetaDataBuilder.class);
 
+    private static final boolean USE_FIXED_IMPORT_PACKAGE_VERSION = Boolean.parseBoolean(System.getProperty("org.apache.geronimo.deployment.import_package.fixed_version", "true"));
+
     private static final Version ZERO_VERSION = new Version(0, 0, 0);
 
     private BundleContext bundleContext;
@@ -156,7 +158,7 @@ public class OSGiMetaDataBuilder {
                 continue;
             }
             if (dynamicImportPackageName.startsWith("!")) {
-                throw new IllegalConfigurationException("DynamicImport-Package " + dynamicImportPackageName + " could not configured with ! prefix");
+                throw new IllegalConfigurationException("DynamicImport-Package " + dynamicImportPackageName + " could not be configured with ! prefix");
             } else {
                 List<HeaderElement> elements = HeaderParser.parseHeader(dynamicImportPackageName);
                 for (HeaderElement headerElement : elements) {
@@ -182,11 +184,17 @@ public class OSGiMetaDataBuilder {
             if (context.isInverseClassLoading()) {
                 for (ExportPackage exportPackage : entry.getValue()) {
                     String importPackageName = toImportPackageName(exportPackage);
+                    if (importPackageName == null) {
+                        continue;
+                    }
                     environment.addDynamicImportPackage(importPackageName);
                 }
             } else {
                 for (ExportPackage exportPackage : entry.getValue()) {
                     String importPackageName = toImportPackageName(exportPackage);
+                    if (importPackageName == null) {
+                        continue;
+                    }
                     environment.addImportPackage(importPackageName);
                 }
             }
@@ -195,8 +203,16 @@ public class OSGiMetaDataBuilder {
     }
 
     protected String toImportPackageName(ExportPackage exportPackage) {
-        //TODO If mandatory attribute exists, do we need to handle it ?
-        return exportPackage.getVersion().equals(ZERO_VERSION) ? exportPackage.getName() : exportPackage.getName() + ";version=" + exportPackage.getVersion();
+        /* If mandatory attribute exists, do we need to handle it ?
+        if (exportPackage.getAttributes().get("mandatory") != null) {
+            logger.info("Export package " + exportPackage.getName() + " has mandatory attribute, it will not be considered, if it is required, please add in the deployment plan");
+            return null;
+        }*/
+        if (USE_FIXED_IMPORT_PACKAGE_VERSION) {
+            return exportPackage.getName() + ";version=" + "\"[" + exportPackage.getVersion() + "," + exportPackage.getVersion() + "]\"";
+        } else {
+            return exportPackage.getVersion().equals(ZERO_VERSION) ? exportPackage.getName() : exportPackage.getName() + ";version=" + exportPackage.getVersion();
+        }
     }
 
     private ArtifactResolver getClientArtifactResolver() {

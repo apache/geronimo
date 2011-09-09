@@ -106,7 +106,7 @@ public class OSGiBuildContext {
         Set<ExportPackage> exportPackages = new HashSet<ExportPackage>(dependencyManager.getExportedPackages(bundleId));
         for (Iterator<ExportPackage> it = exportPackages.iterator(); it.hasNext();) {
             ExportPackage exportPackage = it.next();
-            if (isHiddenExportPackage(exportPackage)) {
+            if (isHiddenExportPackage(exportPackage) || exportPackage.getDirectives().get("mandatory") != null) {
                 it.remove();
             }
         }

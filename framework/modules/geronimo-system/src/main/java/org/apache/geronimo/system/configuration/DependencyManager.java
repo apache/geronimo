@@ -56,6 +56,8 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.HeaderParser;
+import org.apache.xbean.osgi.bundle.util.HeaderParser.HeaderElement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -63,6 +65,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.framework.Version;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
@@ -311,18 +314,33 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         ServiceReference reference = null;
         try {
             reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
-            if(reference == null) {
+            if (reference == null) {
                 log.warn("No PackageAdmin service is found, fail to get export packages of " + bundle.getLocation());
-                return Collections.<ExportPackage>emptySet();
+                return Collections.<ExportPackage> emptySet();
+            }
+            String exportPackageHeader = (String)bundle.getHeaders().get(Constants.EXPORT_PACKAGE);
+            Map<String, HeaderElement> nameVersionExportPackageMap = new HashMap<String, HeaderElement>();
+            if (exportPackageHeader != null) {
+                List<HeaderElement> headerElements = HeaderParser.parseHeader(exportPackageHeader);
+                for (HeaderElement headerElement : headerElements) {
+                    String version = headerElement.getAttribute(Constants.VERSION_ATTRIBUTE);
+                    if (version == null) {
+                        headerElement.addAttribute(Constants.VERSION_ATTRIBUTE, "0.0.0");
+                        nameVersionExportPackageMap.put(headerElement.getName() + "0.0.0", headerElement);
+                    } else {
+                        nameVersionExportPackageMap.put(headerElement.getName() + new Version(version).toString(), headerElement);
+                    }
+                }
             }
             PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
             ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
             if (exportedPackages != null) {
                 Set<ExportPackage> exportPackageNames = new HashSet<ExportPackage>();
                 for (ExportedPackage exportedPackage : exportedPackages) {
-                    Map<String, String> attributes = new HashMap<String, String>();
-                    attributes.put(Constants.VERSION_ATTRIBUTE, exportedPackage.getVersion().toString());
-                    exportPackageNames.add(new ExportPackage(exportedPackage.getName(), attributes, Collections.<String, String> emptyMap()));
+                    HeaderElement headerElement = nameVersionExportPackageMap.get(exportedPackage.getName() + exportedPackage.getVersion());
+                    if (headerElement != null) {
+                        exportPackageNames.add(new ExportPackage(headerElement.getName(), headerElement.getAttributes(), headerElement.getDirectives()));
+                    }
                 }
                 return exportPackageNames;
             }
