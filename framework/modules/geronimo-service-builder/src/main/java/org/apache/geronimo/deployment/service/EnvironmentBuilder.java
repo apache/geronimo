@@ -69,6 +69,10 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             if (environmentType.isSetBundleActivator()) {
                 environment.setBundleActivator(trim(environmentType.getBundleActivator()));
             }
+            
+            for (String bundleClassPath :environmentType.getBundleClassPathArray()){
+                environment.addToBundleClassPath(bundleClassPath);
+            }
             for (String importPackage: environmentType.getImportPackageArray()) {
                 environment.addImportPackage(trim(importPackage));
             }
