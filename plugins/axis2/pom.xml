@@ -63,6 +63,12 @@
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis2-saaj</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>${pkgGroupId}</groupId>
+                        <artifactId>org.apache.axis2.osgi</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
