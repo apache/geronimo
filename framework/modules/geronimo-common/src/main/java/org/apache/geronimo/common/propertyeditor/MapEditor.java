@@ -23,56 +23,75 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A property editor for {@link java.util.Map}.
- *
+ * 
  * @version $Rev$ $Date$
  */
-public class MapEditor
-   extends TextPropertyEditorSupport
-{
+public class MapEditor extends TextPropertyEditorSupport {
     private static final Logger log = LoggerFactory.getLogger(MapEditor.class);
-    
+
     /**
-     *
-     * @throws PropertyEditorException  An IOException occured.
+     * 
+     * @throws PropertyEditorException
+     *             An IOException occured.
      */
+    @SuppressWarnings("rawtypes")
     public void setAsText(String text) {
         try {
-            ByteArrayInputStream is = new ByteArrayInputStream(text == null? new byte[0]: text.getBytes());
+            ByteArrayInputStream is = new ByteArrayInputStream(text == null ? new byte[0] : text.getBytes());
             Properties p = new Properties();
             p.load(is);
-            
-            setValue((Map)p);
+            Iterator it = p.keySet().iterator();
+            while (it.hasNext()) {
+                String key = it.next().toString();
+                if (key.toLowerCase().endsWith("password")) {
+                    String encryptedValue = (String) p.get(key);
+                    String decryptedValue = (String) EncryptionManager.decrypt(encryptedValue);
+                    p.put(key, decryptedValue);
+                }
+            }
+            setValue((Map) p);
         } catch (IOException e) {
             throw new PropertyEditorException(e.getMessage(), e);
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public String getAsText() {
         Map map = (Map) getValue();
         if (!(map instanceof Properties)) {
             Properties p = new Properties();
-            if(map != null) {
-                if(!map.containsKey(null) && !map.containsValue(null)) {
+            if (map != null) {
+                if (!map.containsKey(null) && !map.containsValue(null)) {
                     p.putAll(map);
                 } else {
-                    // Map contains null keys or values.  Replace null with empty string.
+                    // Map contains null keys or values. Replace null with empty string.
                     log.warn("Map contains null keys or values.  Replacing null values with empty string.");
-                    for(Iterator itr = map.entrySet().iterator(); itr.hasNext(); ) {
+                    for (Iterator itr = map.entrySet().iterator(); itr.hasNext();) {
                         Map.Entry entry = (Map.Entry) itr.next();
                         Object key = entry.getKey();
                         Object value = entry.getValue();
-                        if(key == null) {
+                        if (key == null) {
                             key = "";
                         }
-                        if(value == null) {
+                        if (value == null) {
                             value = "";
                         }
                         p.put(key, value);
+                    }
+                }
+                Iterator it = p.keySet().iterator();
+                while (it.hasNext()) {
+                    String key = it.next().toString();
+                    if (key.toLowerCase().endsWith("password")) {
+                        String value = (String) p.get(key);
+                        String encryptedValue = EncryptionManager.encrypt(value);
+                        p.put(key, encryptedValue);
                     }
                 }
                 map = p;
