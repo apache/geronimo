@@ -64,8 +64,13 @@ public class AnnotationHandlerChainFinder
                 HandlerChains handlerChainsType;
                 InputStream in = null;
                 try {
+                    if (handlerFileURL == null) {
+                        handlerFileURL = new URL(hcAnn.getFileName());
+                    }
                     in = handlerFileURL.openStream();
                     handlerChainsType = (HandlerChains) JaxbJavaee.unmarshalHandlerChains(HandlerChains.class, in);
+                } catch (Exception e) {
+                    throw new WebServiceException("Could not read the chain info from " + hcAnn.getFileName(), e);
                 } finally {
                     IOUtils.close(in);
                 }
@@ -76,6 +81,8 @@ public class AnnotationHandlerChainFinder
 
                 handlerChainsInfo = handlerChainsInfoBuilder.build(handlerChainsType);
 
+            } catch (WebServiceException e) {
+                throw e;
             } catch (Exception e) {
                 throw new WebServiceException("Chain not specified", e);
             }
