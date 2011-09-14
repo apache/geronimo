@@ -61,7 +61,15 @@ public class AnnotationHandlerChainBuilder
 
             try {
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
-                HandlerChainsType handlerChainsType = HandlerChainsDocument.Factory.parse(handlerFileURL).getHandlerChains();
+                if(handlerFileURL == null) {
+                    handlerFileURL = new URL(hcAnn.getFileName());
+                }
+                HandlerChainsType handlerChainsType = null;
+                try {
+                    handlerChainsType = HandlerChainsDocument.Factory.parse(handlerFileURL).getHandlerChains();
+                } catch(Exception e) {
+                    throw new WebServiceException("Could not read the chain info from " + hcAnn.getFileName(), e);
+                }    
 
                 if (null == handlerChainsType || handlerChainsType.getHandlerChainArray() == null) {
                     throw new WebServiceException("Chain not specified");
@@ -72,6 +80,8 @@ public class AnnotationHandlerChainBuilder
                     chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
                 }
 
+            } catch (WebServiceException e) {
+                throw e;
             } catch (Exception e) {
                 throw new WebServiceException("Chain not specified", e);
             }
