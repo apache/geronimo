@@ -23,11 +23,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceProperty;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
@@ -212,7 +214,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         for (PersistenceContextRef persistenceContextRef : persistenceContextRefs) {
             if (persistenceContextRef.getPersistenceContextRefName().trim().equals(persistenceContextRefName)) {
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = persistenceContextRef.getInjectionTarget();
+                    Set<InjectionTarget> targets = persistenceContextRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         persistenceContextRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }

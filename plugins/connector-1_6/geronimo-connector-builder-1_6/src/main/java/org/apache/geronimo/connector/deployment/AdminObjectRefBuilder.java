@@ -138,13 +138,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             Set<AbstractNameQuery> query = new HashSet<AbstractNameQuery>();
             query.add(transactionManager);
             GBeanReference transactionManagerRef = new GBeanReference(module.getConfigId(), query, TransactionManager.class);
-            put("java:comp/TransactionManager", transactionManagerRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/TransactionManager", transactionManagerRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
             GBeanReference transactionSynchronizationRef = new GBeanReference(module.getConfigId(), query, TransactionSynchronizationRegistry.class);
-            put("java:comp/TransactionSynchronizationRegistry", transactionSynchronizationRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/TransactionSynchronizationRegistry", transactionSynchronizationRef, ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
         }
 
-        put("java:comp/Bundle", new BundleReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
-        put("java:comp/BundleContext", new BundleContextReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
+        put("java:comp/Bundle", new BundleReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptySet(), sharedContext);
+        put("java:comp/BundleContext", new BundleContextReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget> emptySet(), sharedContext);
 
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
@@ -470,7 +470,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             MessageDestinationRef messageDestinationRef = annotatedApp.getMessageDestinationRefMap().get(jndiName);
             if (messageDestinationRef != null) {
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = messageDestinationRef.getInjectionTarget();
+                    Set<InjectionTarget> targets = messageDestinationRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         messageDestinationRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
@@ -481,7 +481,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             ResourceEnvRef resourceEnvRef = annotatedApp.getResourceEnvRefMap().get(jndiName);
             if (resourceEnvRef != null) {
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = resourceEnvRef.getInjectionTarget();
+                    Set<InjectionTarget> targets = resourceEnvRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         resourceEnvRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }

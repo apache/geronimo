@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -303,7 +302,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 }
 
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = envEntry.getInjectionTarget();
+                    Set<InjectionTarget> targets = envEntry.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         envEntry.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }

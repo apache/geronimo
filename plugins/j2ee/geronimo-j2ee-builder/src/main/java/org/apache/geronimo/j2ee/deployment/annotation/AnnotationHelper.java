@@ -22,7 +22,7 @@ package org.apache.geronimo.j2ee.deployment.annotation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.openejb.jee.InjectionTarget;
 
@@ -30,7 +30,7 @@ import org.apache.openejb.jee.InjectionTarget;
  * @version $Rev$ $Date$
  */
 public class AnnotationHelper {
-    
+
     protected static String getName(String name, Method method, Field field) {
         String resourceName = name;
         if (resourceName.equals("")) {
@@ -44,7 +44,7 @@ public class AnnotationHelper {
         }
         return resourceName;
     }
-    
+
     protected static String getInjectionJavaType(Method method, Field field) {
         if (method != null) {
             String injectionJavaType = method.getName().substring(3);
@@ -68,7 +68,7 @@ public class AnnotationHelper {
         }
     }
 
-    protected static boolean hasTarget(Method method, Field field, List<InjectionTarget> targets) {
+    protected static boolean hasTarget(Method method, Field field, Set<InjectionTarget> targets) {
         String injectionJavaType = getInjectionJavaType(method, field);
         String injectionClass = getInjectionClass(method, field);
         for (InjectionTarget target : targets) {
@@ -97,13 +97,13 @@ public class AnnotationHelper {
     }
 
     protected static String getJndiName(String name) {
-        if (name.indexOf(':') == -1) {   
+        if (name.indexOf(':') == -1) {
             return "java:comp/env/" + name.trim();
         } else {
             return name.trim();
         }
     }
-    
+
     /**
      * Validate deployment descriptor
      *

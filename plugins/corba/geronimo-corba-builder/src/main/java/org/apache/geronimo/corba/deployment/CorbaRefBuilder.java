@@ -50,7 +50,7 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
 
     private final SingleElementCollection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection;
 
-    public CorbaRefBuilder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment, 
+    public CorbaRefBuilder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment,
                            @ParamReference(name="CorbaGBeanNameSource")Collection<CorbaGBeanNameSource> corbaGBeanNameSource) {
         super(defaultEnvironment);
         this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSource);
@@ -70,8 +70,8 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
                     Artifact[] moduleId = module.getConfigId();
-                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), ReferenceType.ORB, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
-                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), ReferenceType.HANDLEDELEGATE, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), ReferenceType.ORB, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
+                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), ReferenceType.HANDLEDELEGATE, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
                 }
             }
         }

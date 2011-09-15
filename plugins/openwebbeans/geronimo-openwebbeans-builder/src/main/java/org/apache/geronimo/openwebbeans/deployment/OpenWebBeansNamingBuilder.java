@@ -43,7 +43,7 @@ import org.apache.xmlbeans.XmlObject;
 public class OpenWebBeansNamingBuilder extends AbstractNamingBuilder {
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-        put("java:comp/BeanManager", new BeanManagerReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        put("java:comp/BeanManager", new BeanManagerReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
     }
 
     @Override

@@ -54,29 +54,29 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
         super(defaultEnvironment);
     }
 
-    @Override 
+    @Override
     protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
-        // we always merge our information 
-        return true; 
+        // we always merge our information
+        return true;
     }
 
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         try {
-            // perform a lookup on the bound GBean and add this as a resource reference.  If 
-            // we can't find one, then bind in a default validator. 
+            // perform a lookup on the bound GBean and add this as a resource reference.  If
+            // we can't find one, then bind in a default validator.
             EARContext moduleContext = module.getEarContext();
             AbstractName abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
-            // this verifies that the bean exists...if not, bind to a default factory reference. 
+            // this verifies that the bean exists...if not, bind to a default factory reference.
             moduleContext.getGBeanInstance(abstractName);
             String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
             String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
-            put("java:comp/ValidatorFactory", new ValidatorFactoryResourceReference(filter, ValidatorFactory.class.getName()), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/ValidatorFactory", new ValidatorFactoryResourceReference(filter, ValidatorFactory.class.getName()), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
         } catch (GBeanNotFoundException e) {
-            // if we can't find one on the module, then bind to a default validator factory 
-            put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            // if we can't find one on the module, then bind to a default validator factory
+            put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
         }
-        put("java:comp/Validator", new DefaultValidatorReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        put("java:comp/Validator", new DefaultValidatorReference(), ReferenceType.RESOURCE_ENV, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
     }
 
     @Override

@@ -22,11 +22,12 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -241,7 +242,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                 for (ServiceRef serviceRef : serviceRefs) {
                     if (serviceRef.getServiceRefName().trim().equals(resourceName)) {
                         if (method != null || field != null) {
-                            List<InjectionTarget> targets = serviceRef.getInjectionTarget();
+                            Set<InjectionTarget> targets = serviceRef.getInjectionTarget();
                             if (!hasTarget(method, field, targets)) {
                                 serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                             }

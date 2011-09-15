@@ -442,7 +442,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 }
 
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = resourceRef.getInjectionTarget();
+                    Set<InjectionTarget> targets = resourceRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }

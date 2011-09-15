@@ -134,7 +134,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 String persistenceUnitRefName = gerPersistenceUnitRef.getPersistenceUnitRefName();
                 AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef, localConfiguration);
                 PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
-                put(persistenceUnitRefName, reference, ReferenceType.PERSISTENCE_UNIT, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+                put(persistenceUnitRefName, reference, ReferenceType.PERSISTENCE_UNIT, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -184,7 +184,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 addProperties(gerPersistenceContextRef, properties);
                 AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef, localConfiguration);
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
-                put(persistenceContextRefName, reference, ReferenceType.PERSISTENCE_CONTEXT, module.getJndiContext(), Collections.<InjectionTarget> emptyList(), sharedContext);
+                put(persistenceContextRefName, reference, ReferenceType.PERSISTENCE_CONTEXT, module.getJndiContext(), Collections.<InjectionTarget> emptySet(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }

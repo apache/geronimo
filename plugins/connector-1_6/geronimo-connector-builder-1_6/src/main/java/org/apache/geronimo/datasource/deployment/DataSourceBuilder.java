@@ -60,7 +60,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    
+
     private final QNameSet dataSourceQNameSet;
 
     public DataSourceBuilder(@ParamAttribute(name = "eeNamespaces") String[] eeNamespaces,
@@ -76,10 +76,10 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
-        
+
         this.dataSourceQNameSet = buildQNameSet(eeNamespaces, "data-source");
     }
-    
+
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // step 1: process annotations and update deployment descriptor
@@ -111,25 +111,25 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             for (DataSource dataSource: dataSources) {
                 addDataSourceGBean(module, sharedContext, dataSource);
             }
-        }        
+        }
     }
 
     private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds)
         throws DeploymentException {
-                        
+
         String jndiName = ds.getKey();
-        
+
         if (lookupJndiContextMap(module, jndiName) != null) {
             return;
         }
-        
+
         String name = jndiName;
         if (name.startsWith("java:")) {
             name = name.substring(5);
         }
-                
+
         EARContext earContext = module.getEarContext();
-                       
+
         AbstractName dataSourceAbstractName = earContext.getNaming().createChildName(module.getModuleName(), name, "GBean");
 
         DataSourceDescription dsDescription = createDataSourceDescription(ds);
@@ -144,12 +144,12 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
 
         try {
             Object ref = DataSourceService.buildReference(dsDescription);
-            put(jndiName, ref, ReferenceType.DATA_SOURCE, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put(jndiName, ref, ReferenceType.DATA_SOURCE, module.getJndiContext(), Collections.<InjectionTarget>emptySet(), sharedContext);
         } catch (IOException e) {
             throw new DeploymentException("Could not construct Reference for datasource " + dsDescription, e);
         }
     }
-    
+
     private DataSource processDefinition(DataSourceDefinition dsDefinition, JndiConsumer annotatedApp) {
         DataSource dataSource = findDataSource(dsDefinition, annotatedApp);
         boolean existing = dataSource != null;
@@ -157,71 +157,71 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             dataSource = new DataSource();
             dataSource.setName(dsDefinition.name());
         }
-        
+
         if (dataSource.getClassName() == null) {
             dataSource.setClassName(dsDefinition.className());
         }
-        
+
         if (dataSource.getDescription() == null && dsDefinition.description().trim().length() > 0) {
             dataSource.setDescriptions(new Text[]{new Text(null, dsDefinition.description().trim())});
         }
-        
+
         if (dataSource.getUser() == null && dsDefinition.user().trim().length() > 0) {
             dataSource.setUser(dsDefinition.user().trim());
         }
-        
+
         if (dataSource.getPassword() == null && dsDefinition.password().trim().length() > 0) {
             dataSource.setPassword(dsDefinition.password().trim());
         }
-        
+
         if (dataSource.getDatabaseName() == null && dsDefinition.databaseName().trim().length() > 0) {
             dataSource.setDatabaseName(dsDefinition.databaseName().trim());
         }
-        
+
         if (dataSource.getPortNumber() == null && dsDefinition.portNumber() != -1) {
             dataSource.setPortNumber(dsDefinition.portNumber());
         }
-        
+
         if (dataSource.getServerName() == null && dsDefinition.serverName().trim().length() > 0) {
             dataSource.setServerName(dsDefinition.serverName().trim());
         }
-        
+
         if (dataSource.getUrl() == null && dsDefinition.url().trim().length() > 0) {
             dataSource.setUrl(dsDefinition.url().trim());
         }
-        
+
         if (dataSource.getInitialPoolSize() == null && dsDefinition.initialPoolSize() != -1) {
             dataSource.setInitialPoolSize(dsDefinition.initialPoolSize());
         }
-        
+
         if (dataSource.getMaxPoolSize() == null && dsDefinition.maxPoolSize() != -1) {
             dataSource.setMaxPoolSize(dsDefinition.maxPoolSize());
         }
-        
+
         if (dataSource.getMinPoolSize() == null && dsDefinition.minPoolSize() != -1) {
             dataSource.setMinPoolSize(dsDefinition.minPoolSize());
         }
-        
+
         if (dataSource.getMaxIdleTime() == null && dsDefinition.maxIdleTime() != -1) {
             dataSource.setMaxIdleTime(dsDefinition.maxIdleTime());
         }
-        
+
         if (dataSource.getMaxStatements() == null && dsDefinition.maxStatements() != -1) {
             dataSource.setMaxStatements(dsDefinition.maxStatements());
         }
-        
+
         if (dataSource.getLoginTimeout() == null && dsDefinition.loginTimeout() != 0) {
             dataSource.setLoginTimeout(dsDefinition.loginTimeout());
         }
-        
+
         if (dataSource.getIsolationLevel() == null) {
-            dataSource.setIsolationLevel(IsolationLevel.fromFlag(dsDefinition.isolationLevel())); 
+            dataSource.setIsolationLevel(IsolationLevel.fromFlag(dsDefinition.isolationLevel()));
         }
-        
+
         if (dataSource.getTransactional() == null) {
             dataSource.setTransactional(dsDefinition.transactional());
         }
-        
+
         if (dataSource.getProperty().size() == 0) {
             String[] properties = dsDefinition.properties();
             if (properties != null) {
@@ -231,7 +231,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                     prop.setName(tokens[0]);
                     prop.setValue(tokens[1]);
                     dataSource.getProperty().add(prop);
-                }               
+                }
             }
         }
         if (!existing) {
@@ -249,47 +249,47 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                 return ds;
             }
         }
-        return null;        
+        return null;
     }
-    
+
     private DataSourceDescription createDataSourceDescription(DataSource ds) {
         DataSourceDescription dsDescription = new DataSourceDescription();
-        
+
         dsDescription.setName(ds.getName());
         dsDescription.setClassName(ds.getClassName());
-        
+
         if (ds.getDescription() != null) {
             dsDescription.setDescription(ds.getDescription().trim());
         }
-        
+
         if (ds.getUrl() != null) {
             dsDescription.setUrl(ds.getUrl().trim());
         }
-        
+
         if (ds.getUser() != null) {
             dsDescription.setUser(ds.getUser().trim());
         }
-        
+
         if (ds.getPassword() != null) {
             dsDescription.setPassword(ds.getPassword().trim());
         }
-        
+
         if (ds.getDatabaseName() != null) {
             dsDescription.setDatabaseName(ds.getDatabaseName().trim());
         }
-        
+
         if (ds.getServerName() != null) {
             dsDescription.setServerName(ds.getServerName().trim());
         }
-        
+
         if (ds.getPortNumber() != null) {
             dsDescription.setPortNumber(ds.getPortNumber());
         }
-                
+
         if (ds.getLoginTimeout() != null) {
             dsDescription.setLoginTimeout(ds.getLoginTimeout());
         }
-        
+
         List<Property> props = ds.getProperty();
         if (props != null) {
             Map<String, String> properties = new HashMap<String, String>();
@@ -299,13 +299,13 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             }
             dsDescription.setProperties(properties);
         }
-        
+
         // transaction properties
-        
+
         if (ds.getTransactional()) {
             dsDescription.setTransactional(ds.getTransactional());
         }
-        
+
         if (ds.getIsolationLevel() != null) {
             switch (ds.getIsolationLevel()) {
             case TRANSACTION_READ_COMMITTED:
@@ -322,13 +322,13 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                 break;
             }
         }
-        
+
         // pool properties
-        
+
         if (ds.getInitialPoolSize() != null) {
             dsDescription.setInitialPoolSize(ds.getInitialPoolSize());
         }
-        
+
             dsDescription.setMaxPoolSize(ds.getMaxPoolSize() != null? ds.getMaxPoolSize(): defaultMaxSize);
 
             dsDescription.setMinPoolSize(ds.getMinPoolSize() != null? ds.getMinPoolSize(): defaultMinSize);
@@ -336,7 +336,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         if (ds.getMaxStatements() != null) {
             dsDescription.setMaxStatements(ds.getMaxStatements());
         }
-        
+
             dsDescription.setMaxIdleTime(ds.getMaxIdleTime() != null? ds.getMaxIdleTime(): defaultIdleTimeoutMinutes);
 
         //geronimo specific properties
@@ -346,18 +346,18 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
 
         return dsDescription;
     }
-        
+
     public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY; 
+        return QNameSet.EMPTY;
     }
 
     public QNameSet getSpecQNameSet() {
         return dataSourceQNameSet;
     }
-    
+
     @Override
     public int getPriority() {
         return 20;
     }
-    
+
 }

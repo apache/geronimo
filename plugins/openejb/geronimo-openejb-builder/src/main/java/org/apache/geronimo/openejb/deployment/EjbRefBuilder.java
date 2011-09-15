@@ -119,12 +119,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         addRefs(specDD, refMap, localRefMap, sharedContext);
 
-        Map<String, List<InjectionTarget>> injectionsMap = new HashMap<String, List<InjectionTarget>>();
+        Map<String, Set<InjectionTarget>> injectionsMap = new HashMap<String, Set<InjectionTarget>>();
         for (Map.Entry<String, EjbRef> entry: specDD.getEjbRefMap().entrySet()) {
             injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
         }
         for (Map.Entry<String, EjbLocalRef> entry: specDD.getEjbLocalRefMap().entrySet()) {
-            List<InjectionTarget> injectionTargets = injectionsMap.get(entry.getKey());
+            Set<InjectionTarget> injectionTargets = injectionsMap.get(entry.getKey());
             if (injectionTargets != null) {
                 injectionTargets.addAll(entry.getValue().getInjectionTarget());
             } else {
@@ -186,9 +186,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 ReferenceType referenceType = ejbLocalRefNames.contains(name) ? ReferenceType.EJB_LOCAL : ReferenceType.EJB;
 
                 String fullName = "java:" + name;
-                List<InjectionTarget> injections = injectionsMap.get(fullName);
+                Set<InjectionTarget> injections = injectionsMap.get(fullName);
                 if(injections == null) {
-                    injections = Collections.<InjectionTarget>emptyList();
+                    injections = Collections.<InjectionTarget>emptySet();
                 }
 
                 if (lookupJndiContextMap(module, fullName) != null) {
@@ -238,7 +238,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
      * so that they could be used in application client.
      *
      */
-    private void handleJndiUrlReference(Object value, ReferenceType ReferenceType, Map<JndiKey, Map<String, Object>> moduleJndiContext, Map<String, List<InjectionTarget>> injectionsMap,
+    private void handleJndiUrlReference(Object value, ReferenceType ReferenceType, Map<JndiKey, Map<String, Object>> moduleJndiContext, Map<String, Set<InjectionTarget>> injectionsMap,
             Map<EARContext.Key, Object> sharedContext) {
 
         if (!(value instanceof JndiUrlReference)) {
@@ -263,9 +263,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         name = "java:" + name;
 
-        List<InjectionTarget> injections = injectionsMap.get(name);
+        Set<InjectionTarget> injections = injectionsMap.get(name);
         if (injections == null) {
-            injections = Collections.emptyList();
+            injections = Collections.emptySet();
         }
         put(name, valueToConvert, ReferenceType, moduleJndiContext, injections, sharedContext);
     }

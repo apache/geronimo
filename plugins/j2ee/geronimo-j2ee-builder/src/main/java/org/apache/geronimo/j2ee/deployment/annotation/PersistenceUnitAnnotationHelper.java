@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
@@ -210,7 +212,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         for (PersistenceUnitRef persistenceUnitRef : persistenceUnitRefs) {
             if (persistenceUnitRef.getPersistenceUnitRefName().trim().equals(persistenceUnitRefName)) {
                 if (method != null || field != null) {
-                    List<InjectionTarget> targets = persistenceUnitRef.getInjectionTarget();
+                    Set<InjectionTarget> targets = persistenceUnitRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
                         persistenceUnitRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }

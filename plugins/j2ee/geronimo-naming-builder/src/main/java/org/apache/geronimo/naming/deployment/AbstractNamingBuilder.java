@@ -150,7 +150,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
      * @param injectionTargets
      * @param sharedContext
      */
-    protected void put(String key, Object value, ReferenceType type, Map<JndiKey, Map<String, Object>> contexts, List<InjectionTarget> injectionTargets, Map<EARContext.Key, Object> sharedContext) {
+    protected void put(String key, Object value, ReferenceType type, Map<JndiKey, Map<String, Object>> contexts, Set<InjectionTarget> injectionTargets, Map<EARContext.Key, Object> sharedContext) {
         key = normalize(key);
         JndiKey jndiKey = keyFor(key);
         Map<String, Object> scope = contexts.get(jndiKey);
@@ -334,7 +334,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return clazz;
     }
 
-    protected void addInjections(String jndiName, ReferenceType type, List<InjectionTarget> injectionTargets, Holder holder) {
+    protected void addInjections(String jndiName, ReferenceType type, Set<InjectionTarget> injectionTargets, Holder holder) {
         for (InjectionTarget injectionTarget : injectionTargets) {
             String targetName = injectionTarget.getInjectionTargetName().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().trim();
@@ -354,7 +354,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return BASE_NAMING_QNAME;
     }
 
-    protected String inferAndCheckType(Module module, Bundle bundle, List<InjectionTarget> injectionTargets, String name, String typeName) throws DeploymentException {
+    protected String inferAndCheckType(Module module, Bundle bundle, Set<InjectionTarget> injectionTargets, String name, String typeName) throws DeploymentException {
         Class<?> type = null;
         if (typeName != null) {
             try {
