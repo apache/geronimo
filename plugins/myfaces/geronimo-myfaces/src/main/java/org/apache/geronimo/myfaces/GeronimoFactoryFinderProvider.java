@@ -304,13 +304,13 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
             // _registeredFactoryNames has as value type Map<String,List> and this must
             // be cleaned before release (for gc).
             Map<String, List<String>> factoryClassNames = _registeredFactoryNames.get(webApplicationIdentity);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Web application [" + webApplicationIdentity + "] releases the factory map " + factoryClassNames);
+            }
             if (factoryClassNames != null) {
                 factoryClassNames.clear();
             }
-            Map<String, List<String>>factoryMap = _registeredFactoryNames.remove(webApplicationIdentity);
-            if(logger.isDebugEnabled()) {
-                logger.debug("Web application [" + webApplicationIdentity + "] releases the factory map " + factoryMap);
-            }
+            _registeredFactoryNames.remove(webApplicationIdentity);            
         }
     }
 
