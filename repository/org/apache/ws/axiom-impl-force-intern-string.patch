@@ -1,0 +1,27 @@
+Index: modules/axiom-impl/src/main/java/org/apache/axiom/om/impl/llom/OMStAXWrapper.java
+===================================================================
+--- modules/axiom-impl/src/main/java/org/apache/axiom/om/impl/llom/OMStAXWrapper.java	(revision 1171090)
++++ modules/axiom-impl/src/main/java/org/apache/axiom/om/impl/llom/OMStAXWrapper.java	(working copy)
+@@ -52,6 +52,10 @@
+  * constants
+  */
+ public class OMStAXWrapper implements XMLStreamReader, XMLStreamConstants {
++    
++    private static final String INTERN_NAMES = "org.codehaus.stax2.internNames";
++    private static final String INTERN_NS = "org.codehaus.stax2.internNsUris";
++
+     /** Field navigator */
+     private OMNavigator navigator;
+ 
+@@ -942,6 +946,11 @@
+      * @throws IllegalArgumentException
+      */
+     public Object getProperty(String s) throws IllegalArgumentException {
++        //RI JAXB implementation will use those two properties to determine whether an extra internString wrapper is required
++        //Always return false will make the wrapper always used, as sometimes, localName is passed from method parameters, e.g OMElementImpl
++        if (INTERN_NAMES.equals(s) || INTERN_NS.equals(s)) {
++            return Boolean.FALSE;
++        }
+         if (OMConstants.IS_DATA_HANDLERS_AWARE.equals(s)) {
+             return Boolean.TRUE;
+         }

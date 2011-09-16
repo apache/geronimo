@@ -10,6 +10,7 @@ Apply the patch
 -----------------
  cd 1_2_5
  patch -p0 -i axiom_api.patch
+ patch -p0 -i axiom-impl-force-intern-string.patch
 
 Build Axiom 1.2.5
 ---------------
@@ -23,8 +24,10 @@ Notes:
 Patch Information
 -----------------
   axiom_api.patch  - contains fixes for AXIS2-4450
+  axiom-impl-force-intern-string.patch - Always return false for two woodstox properties, with the changes, JAXB RI will always use a wrapper to make sure the values are intern string.
 
 Copy patched jar files to appropriate locations
 -----------------------------------------------
   cd 1_2_5
   cp modules/axiom-api/target/axiom-api-1.2.5.jar <geronimo-root>/repository/org/apache/ws/commons/axiom/axiom-api/1.2.5-20100610/axiom-api-1.2.5-20100610.jar
+  cp modules/axiom-impl/target/axiom-api-1.2.5.jar <geronimo-root>/repository/org/apache/ws/commons/axiom/axiom-impl/1.2.5-20110916/axiom-impl-1.2.5-20110916.jar
