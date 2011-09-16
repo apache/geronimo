@@ -19,5 +19,5 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-
+    <gbean name="MyFacesSystemInitializer" class="org.apache.geronimo.myfaces.MyFacesSystemInitializer"/>
 </module>

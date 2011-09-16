@@ -21,7 +21,6 @@
 package org.apache.geronimo.jetty8.handler;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,9 +55,10 @@ public class IntegrationContext {
     private final Bundle bundle;
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
+    private final String webApplicationIdentity;
     private WebBeansContext owbContext;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, String webApplicationIdentity) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
@@ -67,6 +67,7 @@ public class IntegrationContext {
         this.bundle = bundle;
         this.holder = holder;
         this.servletContainerInitializerMap = servletContainerInitializerMap == null? Collections.<ServletContainerInitializer, Set<Class<?>>>emptyMap(): servletContainerInitializerMap;
+        this.webApplicationIdentity = webApplicationIdentity;
     }
 
     public Context getComponentContext() {
@@ -95,6 +96,10 @@ public class IntegrationContext {
 
     public Holder getHolder() {
         return holder;
+    }
+
+    public String getWebApplicationIdentity(){
+        return webApplicationIdentity;
     }
 
     public SharedConnectorInstanceContext newConnectorInstanceContext(Request baseRequest) {

@@ -17,6 +17,7 @@
 package org.apache.geronimo.jetty8;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.PermissionCollection;
@@ -39,6 +40,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
@@ -159,6 +161,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 null);
         WebAppContextWrapper app = new WebAppContextWrapper("geronimo:J2EEServer=geronimo,name=hello.war,J2EEApplication=null,j2eeType=WebModule",
+                new AbstractName(new URI("default/test/1.0/war?J2EEApplication=null,j2eeType=WebModule,name=default/test/1.0/war")),
                 contextPath,
                 null,
                 null,

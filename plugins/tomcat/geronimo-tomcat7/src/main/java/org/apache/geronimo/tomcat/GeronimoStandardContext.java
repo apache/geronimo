@@ -89,6 +89,7 @@ import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.OWBBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.WebApplicationIdentityBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -307,6 +308,8 @@ public class GeronimoStandardContext extends StandardContext {
 
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
+
+        interceptor = new WebApplicationIdentityBeforeAfter(interceptor, index++, ctx.getAbstractName().toString());
 
         addValve(new ProtectedTargetValve());
 
@@ -825,7 +828,7 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
     }
-    
+
     private class SystemMethodValve extends ValveBase {
 
         public SystemMethodValve(){

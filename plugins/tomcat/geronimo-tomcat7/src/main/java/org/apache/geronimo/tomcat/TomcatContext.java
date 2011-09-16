@@ -30,6 +30,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.info.WebAppInfo;
@@ -103,4 +104,6 @@ public interface TomcatContext {
     Map<String, String> getContextAttributes();
 
     WebBeansContext getOWBContext();
+
+    AbstractName getAbstractName();
 }

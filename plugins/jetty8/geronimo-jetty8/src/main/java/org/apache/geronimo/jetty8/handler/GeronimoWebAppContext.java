@@ -50,6 +50,7 @@ import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.WebApplicationConstants;
+import org.apache.geronimo.web.WebApplicationIdentity;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
@@ -232,6 +233,8 @@ public class GeronimoWebAppContext extends WebAppContext {
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(baseRequest);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(baseRequest, newContext);
         WebBeansContext owbContext = integrationContext.contextEntered();
+        String oldApplicationIdentity = WebApplicationIdentity.getIdentity();
+        WebApplicationIdentity.setIdentity(integrationContext.getWebApplicationIdentity());
         try {
             try {
                 super.doScope(target, baseRequest, request, response);
@@ -242,6 +245,7 @@ public class GeronimoWebAppContext extends WebAppContext {
             integrationContext.contextExited(owbContext);
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, baseRequest);
+            WebApplicationIdentity.setIdentity(oldApplicationIdentity);
         }
     }
 

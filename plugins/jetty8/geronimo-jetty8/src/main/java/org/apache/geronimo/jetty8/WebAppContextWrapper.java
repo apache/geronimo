@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.jetty8;
 
-import java.beans.beancontext.BeanContext;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -36,6 +34,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -105,6 +104,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
 
 
     public WebAppContextWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                                @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName,
                                 @ParamAttribute(name = "contextPath") String contextPath,
                                 @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
                                 @ParamAttribute(name = "modulePath") String modulePath,
@@ -222,7 +222,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
             }
         }
 
-        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap);
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, abName.toString());
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
