@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -111,6 +112,7 @@ public class FileUtils {
         File tempDir = File.createTempFile(DEFAULT_TEMP_PREFIX, DEFAULT_TEMP_DIRECTORY_SUFFIX);
         tempDir.delete();
         tempDir.mkdirs();
+        deleteOnExit(tempDir);
         addTempFile(tempDir);
         return tempDir;
     }
@@ -447,5 +449,38 @@ public class FileUtils {
     }
 
     private FileUtils() {
+    }
+
+    static final List<String> delete = new ArrayList<String>();
+
+    private static void deleteOnExit(File file) {
+        delete.add(file.getAbsolutePath());
+    }
+
+    private static void delete() {
+        for (String path : delete) {
+            delete(new File(path));
+        }
+    }
+
+    private static void delete(File file) {
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                delete(f);
+            }
+        }
+
+        file.delete();
+    }
+
+     // Shutdown hook for recurssive delete on tmp directories
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                delete();
+            }
+        });
     }
 }
