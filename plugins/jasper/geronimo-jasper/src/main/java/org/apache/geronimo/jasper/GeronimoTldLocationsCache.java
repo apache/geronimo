@@ -210,7 +210,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         return (String[]) mappings.get(uri);
     }
 
-    private void init() throws JasperException {
+	private synchronized void init() throws JasperException {
         if (initialized) return;
         try {
             processWebDotXml();
