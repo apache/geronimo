@@ -20,6 +20,6 @@
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS% >> "%GERONIMO_HOME%\var\log\geronimo.out"
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS% >> "%GERONIMO_HOME%\var\log\geronimo.out" 2>&1
 if not %errorlevel% == 0 pause
 exit %errorlevel%
