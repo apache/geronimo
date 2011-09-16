@@ -65,7 +65,7 @@
                 <version>${axis2Version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>${pkgGroupId}</groupId>
+                        <groupId>org.apache.axis2</groupId>
                         <artifactId>org.apache.axis2.osgi</artifactId>
                     </exclusion>
                 </exclusions>
