@@ -1504,7 +1504,7 @@
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-impl</artifactId>
-                <version>${axiomVersion}</version>
+                <version>1.2.5-20110916</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>
