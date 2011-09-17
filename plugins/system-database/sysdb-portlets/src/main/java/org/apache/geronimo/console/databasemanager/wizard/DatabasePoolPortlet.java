@@ -105,6 +105,7 @@ import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.slf4j.Logger;
@@ -1146,8 +1147,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 entry.getValue());
                     }
                 }
-                //todo: push the lookup into ManagementHelper
-                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
+                //Make pool setting effective after server restart                
+                Jsr77Naming naming = new Jsr77Naming();
+                AbstractName connectionManagerName = naming.createChildName(new AbstractName(URI.create(data.getAbstractName())), data.getName(), NameFactory.JCA_CONNECTION_MANAGER);
+                PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(request, connectionManagerName);
                 pool.setPartitionMinSize(
                         data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
                 pool.setPartitionMaxSize(
