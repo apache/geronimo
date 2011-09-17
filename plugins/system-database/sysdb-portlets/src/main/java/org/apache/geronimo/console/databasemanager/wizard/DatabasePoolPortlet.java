@@ -98,6 +98,7 @@ import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -1126,9 +1127,13 @@ public class DatabasePoolPortlet extends BasePortlet {
                         factory.setConfigProperty(entry.getKey().substring("property-".length()),
                                 entry.getValue());
                     }
+                    
                 }
-                //todo: push the lookup into ManagementHelper
-                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
+              //Make pool setting effective after server restart                
+                Jsr77Naming naming = new Jsr77Naming();
+                AbstractName connectionManagerName = naming.createChildName(new AbstractName(URI.create(data.getAbstractName())), data.getName(), NameFactory.JCA_CONNECTION_MANAGER);
+                PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(request, connectionManagerName);
+               
                 pool.setPartitionMinSize(
                         data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
                 pool.setPartitionMaxSize(
