@@ -170,7 +170,7 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
                 throw new IllegalArgumentException("no factory " + factoryName + " configured for this application.");
             }
 
-            factoryMap = _factories.get(classLoader);
+            factoryMap = _factories.get(webApplicationIdentity);
 
             if (factoryMap == null) {
                 factoryMap = new HashMap<String, Object>();
