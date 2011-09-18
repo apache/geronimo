@@ -108,6 +108,7 @@ import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
@@ -216,6 +217,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         usageView = portletConfig.getPortletContext().getRequestDispatcher(USAGE_VIEW);
         rarPathMap = new HashMap<String, String>();
         rarPathMap.put("TranQL XA Resource Adapter for DB2", "tranql-connector-db2-xa");
+        rarPathMap.put("TranQL XA Resource Adapter for DB2ISeries", "tranql-connector-db2ISeries-xa");
         rarPathMap.put("TranQL Client Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-client-local");
         rarPathMap.put("TranQL Client XA Resource Adapter for Apache Derby", "tranql-connector-derby-client-xa");
         rarPathMap.put("TranQL Embedded Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
@@ -1163,9 +1165,11 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 entry.getValue());
                     }
                 }
-                //todo: push the lookup into ManagementHelper
-                /*
-                PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
+                /*Make pool setting effective after server restart                
+                Jsr77Naming naming = new Jsr77Naming();
+                AbstractName connectionManagerName = naming.createChildName(new AbstractName(URI.create(data.getAbstractName())), data.getName(), NameFactory.JCA_CONNECTION_MANAGER);
+                PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(request, connectionManagerName);
+                
                 pool.setPartitionMinSize(
                         data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
                 pool.setPartitionMaxSize(
@@ -1175,8 +1179,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 data.blockingTimeout));
                 pool.setIdleTimeoutMinutes(
                         data.idleTimeout == null || data.idleTimeout.equals("") ? 15 : Integer.parseInt(
-                                data.idleTimeout));
-                                */
+                                data.idleTimeout));*/
+                                
             } catch (Exception e) {
                 log.error("Unable to save connection pool", e);
             }
