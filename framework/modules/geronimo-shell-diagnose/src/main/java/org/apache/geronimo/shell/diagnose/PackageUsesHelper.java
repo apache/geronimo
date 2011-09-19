@@ -110,6 +110,9 @@ public class PackageUsesHelper {
             exportedPackage = findExportPackage(importPackage.getName(), importer.getResolvedImports());
         } else {
             exportedPackage = findExportPackage(importPackage, state.getExportedPackages());
+            if (exportedPackage == null) {
+                exportedPackage = findExportPackage(importPackage, importer.getExportPackages());
+            }
         }
         if (exportedPackage == null) {
             String resolution = (String) importPackage.getDirective(Constants.RESOLUTION_DIRECTIVE);
