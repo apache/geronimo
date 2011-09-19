@@ -43,7 +43,8 @@ public class MyFacesSystemInitializer implements GBeanLifecycle {
 
     @Override
     public void doStop() throws Exception {
-        FactoryFinderProviderFactory.setInstance(null);
+        //Need to think about how to clean this in OSGi environment
+        //FactoryFinderProviderFactory.setInstance(null);
     }
 
 }
