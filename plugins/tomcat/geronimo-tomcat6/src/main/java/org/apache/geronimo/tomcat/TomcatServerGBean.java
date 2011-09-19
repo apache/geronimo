@@ -112,14 +112,24 @@ public class TomcatServerGBean implements GBeanLifecycle {
         if (serverConfig == null) {
             File serverConfigFile = serverInfo.resolveServer(serverConfigLocation);
             this.tomcatServerConfigManager = new TomcatServerConfigManager(serverConfigFile);
-            Reader in = new FileReader(serverConfigFile);
-            StringBuilder b = new StringBuilder();
-            char[] buf = new char[1024];
-            int i;
-            while ((i = in.read(buf)) > 0) {
-                b.append(buf, 0, i);
+            Reader in = null;
+            try {
+                in = new FileReader(serverConfigFile);
+                StringBuilder b = new StringBuilder();
+                char[] buf = new char[1024];
+                int i;
+                while ((i = in.read(buf)) > 0) {
+                    b.append(buf, 0, i);
+                }
+                serverConfig = b.toString();
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (Exception e) {
+                    }
+                }
             }
-            serverConfig = b.toString();
         }
 
         if (attributeStore != null) {
@@ -150,6 +160,9 @@ public class TomcatServerGBean implements GBeanLifecycle {
 
     public void doStop() throws Exception {
         ((Lifecycle)server).stop();
+        if(tomcatServerConfigManager != null) {
+            tomcatServerConfigManager.encryptPasswords();
+        }
     }
 
     public void doFail() {
