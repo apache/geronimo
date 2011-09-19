@@ -624,7 +624,7 @@ public class ConnectorType {
                 TomcatServerGBean.ConnectorName.put(connector, value);                
             } else{
                 if ("keystorePass".equals(name)) {
-                    value = (String) EncryptionManager.decrypt(name);
+                    value = (String) EncryptionManager.decrypt(value);
                 }
                 connector.setProperty(name, value);
             }
