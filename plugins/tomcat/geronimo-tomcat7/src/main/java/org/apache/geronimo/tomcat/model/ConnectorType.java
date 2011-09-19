@@ -621,10 +621,10 @@ public class ConnectorType {
 
             } else if ("name".equals(name)) {
                 //name attribute is held by Geronimo to identify the connector, it is not required by Tomcat
-                TomcatServerGBean.ConnectorName.put(connector, entry.getValue());
+                TomcatServerGBean.ConnectorName.put(connector, value);
             } else {
                 if ("keystorePass".equals(name)) {
-                    value = (String) EncryptionManager.decrypt(name);
+                    value = (String) EncryptionManager.decrypt(value);
                 }
                 connector.setProperty(name, value);
             }
