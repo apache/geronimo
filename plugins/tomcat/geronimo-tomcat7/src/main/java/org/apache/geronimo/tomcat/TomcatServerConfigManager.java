@@ -31,10 +31,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -73,7 +75,7 @@ public class TomcatServerConfigManager {
      * @param name
      *          the name of connector to be removed.
      */
-    public void removeConnector(String name) {
+    public synchronized void removeConnector(String name) {
 
         Element connector = this.findTargetConnector(name);
         if (null != connector) {
@@ -91,7 +93,7 @@ public class TomcatServerConfigManager {
      * @param serviceName
      *                      the name attribute of <Service> that the connector resides in.
      */
-    public void updateConnector(Map<String, String> attributesToUpdate, String uniqueConnectorName, String serviceName) {
+    public synchronized void updateConnector(Map<String, String> attributesToUpdate, String uniqueConnectorName, String serviceName) {
 
         Element connector = this.findTargetConnector(uniqueConnectorName);
 
@@ -130,14 +132,35 @@ public class TomcatServerConfigManager {
 
     }
 
-
+    public synchronized void encryptPasswords() {
+        boolean persisteRequired = false;
+        NodeList connectors = server_xml_dom_doc.getElementsByTagName("Connector");
+        for (int i = 0; i < connectors.getLength(); i++) {
+            Element connector = (Element) (connectors.item(i));
+            NamedNodeMap attributeMap = connector.getAttributes();
+            for (int j = 0; j < attributeMap.getLength(); j++) {
+                Node attribute = attributeMap.item(j);
+                String nodeValue = attribute.getNodeValue();
+                if (attribute.getNodeName().equals("keystorePass")) {
+                    String encryptedNodeValue = EncryptionManager.encrypt(nodeValue);
+                    if (nodeValue.equals(encryptedNodeValue)) {
+                        continue;
+                    }
+                    persisteRequired = true;
+                    attribute.setNodeValue(encryptedNodeValue);
+                }
+            }
+        }
+        if (persisteRequired) {
+            persistServerConfig();
+        }
+    }
 
     private Element findTargetConnector(String name) {
 
         NodeList connectors = server_xml_dom_doc.getElementsByTagName("Connector");
 
         for (int i = 0; i < connectors.getLength(); i++) {
-
             Element connector = (Element) (connectors.item(i));
             if (name.equals(connector.getAttribute("name"))) {
                 return connector;
@@ -198,12 +221,10 @@ public class TomcatServerConfigManager {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             DOMSource source = new DOMSource(server_xml_dom_doc);
-            FileOutputStream fos=new FileOutputStream(server_XML_File);
-            StreamResult result = new StreamResult(fos);
+            StreamResult result = new StreamResult(server_XML_File);
             transformer.transform(source, result);
         } catch (Exception e1) {
-
-            log.error("Error when persist modified dom back to file:"+server_XML_File,e1);
+            log.error("Error when persist modified DOM back to file:"+server_XML_File,e1);
         }
 
     }

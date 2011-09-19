@@ -166,6 +166,9 @@ public class TomcatServerGBean implements GBeanLifecycle {
     public void doStop() throws Exception {
         server.stop();
         server.destroy();
+        if(tomcatServerConfigManager != null) {
+            tomcatServerConfigManager.encryptPasswords();
+        }
     }
 
     public void doFail() {

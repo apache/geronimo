@@ -18,27 +18,28 @@
 
 package org.apache.geronimo.tomcat.model;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.apache.catalina.connector.Connector;
+import org.apache.catalina.Executor;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
-import org.apache.catalina.Executor;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.tomcat.TomcatServerGBean;
+import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
-import org.apache.tomcat.util.IntrospectionUtils;
 
 
 /**
@@ -606,10 +607,11 @@ public class ConnectorType {
         boolean executorSupported = !connector.getProtocolHandlerClassName().equals("org.apache.jk.server.JkCoyoteHandler");
         for (Map.Entry<QName, String> entry : otherAttributes.entrySet()) {
             String name = entry.getKey().getLocalPart();
+            String value = entry.getValue();
             if (executorSupported && "executor".equals(name)) {
                 Executor executor = service.getExecutor(entry.getValue());
                 if (executor == null) {
-                    throw new IllegalArgumentException("No executor found in service with name: " + entry.getValue());
+                    throw new IllegalArgumentException("No executor found in service with name: " + value);
                 }
                 IntrospectionUtils.callMethod1(connector.getProtocolHandler(),
                         "setExecutor",
@@ -617,12 +619,14 @@ public class ConnectorType {
                         java.util.concurrent.Executor.class.getName(),
                         cl);
 
-            } else if("name".equals(name)){
-                
+            } else if ("name".equals(name)) {
+                //name attribute is held by Geronimo to identify the connector, it is not required by Tomcat
                 TomcatServerGBean.ConnectorName.put(connector, entry.getValue());
-                
-            } else{
-                connector.setProperty(name, entry.getValue());
+            } else {
+                if ("keystorePass".equals(name)) {
+                    value = (String) EncryptionManager.decrypt(name);
+                }
+                connector.setProperty(name, value);
             }
         }
 
