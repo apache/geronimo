@@ -80,7 +80,12 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
             Object javabean = xmlAttributeBuilder.getValue(javaBeanType,
                 javaBeanClazz.getName(),
                 getClass().getClassLoader());
-
+            for (PropertyType propertyType : javaBeanType.getPropertyArray()) {
+                if (propertyType.getName().endsWith("Password") || propertyType.getName().endsWith("password")) {
+                    String decryptedValue = (String) EncryptionManager.decrypt(propertyType.getStringValue());
+                    propertyType.setStringValue(decryptedValue);
+                }
+            }
             setValue(javabean);
         } catch (XmlException e) {
             throw new PropertyEditorException(e);
