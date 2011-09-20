@@ -227,7 +227,7 @@ echo   debug             Debug Geronimo in jdb debugger
 echo   jpda run          Start Geronimo in foreground under JPDA debugger
 echo   jpda start        Start Geronimo in background under JPDA debugger
 echo   run               Start Geronimo in the current window
-echo   start             Start Geronimo in a separate window
+echo   start             Starting Geronimo as background process
 echo   stop              Stop Geronimo
 echo.
 echo args for debug, jpda run, jpda start, run and start commands:
@@ -267,7 +267,7 @@ goto execCmd
 
 :doStart
 echo.
-echo Starting Geronimo as background process...
+echo Starting Geronimo as background process. See Output From %GERONIMO_HOME%/var/log/geronimo.out
 shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
