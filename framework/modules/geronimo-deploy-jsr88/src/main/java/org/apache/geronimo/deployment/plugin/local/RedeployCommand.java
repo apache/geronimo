@@ -18,10 +18,12 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
@@ -33,6 +35,7 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -141,29 +144,24 @@ public class RedeployCommand extends AbstractDeployCommand {
         // Activate it
         //todo: make this asynchronous
         boolean newStarted = false;
-        for (Iterator it = results.getStopped().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
+        for (Artifact name : results.getStopped()) {
             updateStatus("Stopped "+name);
         }
-        for (Iterator it = results.getUnloaded().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
+        for (Artifact name : results.getUnloaded()) {
             updateStatus("Unloaded "+name);
         }
-        for (Iterator it = results.getLoaded().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
+        for (Artifact name : results.getLoaded()) {
             updateStatus("Loaded "+name);
         }
-        for (Iterator it = results.getStarted().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
+        for (Artifact name : results.getStarted()) {
             updateStatus("Started "+name);
             if(configID.matches(name)) {
                 newStarted = true;
             }
         }
-        for (Iterator it = results.getFailed().keySet().iterator(); it.hasNext();) {
-            Artifact name = (Artifact) it.next();
-            updateStatus("Failed on "+name+": "+results.getFailedCause(name).getMessage());
-            doFail((Exception)results.getFailedCause(name));
+        for(Map.Entry<Artifact, Throwable> entry : results.getFailed().entrySet()) {
+            updateStatus("Failed on " + entry.getKey() + ": " + entry.getValue().getMessage());
+            doFail(entry.getValue());
         }
         if(results.getFailed().size() == 0 && !newStarted) {
             updateStatus("Note: new module was not started (probably because old module was not running).");
@@ -173,9 +171,13 @@ public class RedeployCommand extends AbstractDeployCommand {
     private void redeploySameConfiguration(ConfigurationManager configurationManager, Artifact configID, Target target) throws Exception {
         if(!configID.isResolved()) {
             throw new IllegalStateException("Cannot redeploy same module when module ID is not fully resolved ("+configID+")");
-        }
+        }        
+        List<Artifact> startedChildren = Collections.<Artifact>emptyList();
+
         try {
-            configurationManager.stopConfiguration(configID);
+            LifecycleResults  lifecycleResults = configurationManager.stopConfiguration(configID);
+            startedChildren = new ArrayList<Artifact>(lifecycleResults.getStopped());
+            Collections.reverse(startedChildren);
             updateStatus("Stopped "+configID);
         } catch (InternalKernelException e) {
             Exception cause = (Exception)e.getCause();
@@ -228,5 +230,20 @@ public class RedeployCommand extends AbstractDeployCommand {
         configurationManager.loadConfiguration(configID);
         configurationManager.startConfiguration(configID);
         updateStatus("Started " + configID);
+
+        for (Artifact startedArtifactId : startedChildren) {
+            if(startedArtifactId.equals(configID)) {
+                continue;
+            }
+            try {
+                configurationManager.loadConfiguration(startedArtifactId);
+                configurationManager.startConfiguration(startedArtifactId);
+                updateStatus("Restarted Chid " + startedArtifactId);
+            } catch (NoSuchConfigException e) {
+                updateStatus("Restart Chid Failed " + startedArtifactId);
+            } catch (LifecycleException e) {
+                updateStatus("Restarted Chid Failed " + startedArtifactId);
+            }
+        }
     }
 }
