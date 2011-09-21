@@ -61,11 +61,11 @@ public class CommandStart extends AbstractCommand {
             consoleReader.printNewline();
             for(int i = 0; i < done.length; i++) {
                 TargetModuleID id = done[i];
-                DeployUtils.println(getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, consoleReader);
+                consoleReader.printString(DeployUtils.reformat((getAction()+" "+id.getModuleID()+((multiple && id.getTarget() != null) ? " on "+ id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL())), 4, 72));
                 if(id.getChildTargetModuleID() != null) {
                     for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
                         TargetModuleID child = id.getChildTargetModuleID()[j];
-                        DeployUtils.println("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, consoleReader);
+                        consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
                     }
                 } // Also print childs if existing in earlier configuration
                 else{
@@ -75,7 +75,7 @@ public class CommandStart extends AbstractCommand {
                         if(childs.getChildTargetModuleID() != null) {
                             for (int j = 0; j < childs.getChildTargetModuleID().length; j++) {
                                 TargetModuleID child = childs.getChildTargetModuleID()[j];
-                                DeployUtils.println("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, consoleReader);
+                                consoleReader.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || getAction().toLowerCase().indexOf("started") == -1 ? "" : " @ "+child.getWebURL()),4, 72));
                             }
                         }
                     }
