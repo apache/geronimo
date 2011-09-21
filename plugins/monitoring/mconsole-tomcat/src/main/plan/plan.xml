@@ -43,6 +43,7 @@
         <attribute name="portletContext">/monitoring</attribute>
         <attribute name="portletList">[monitoring]</attribute>
         <attribute name="icon">/images/ico_monitor_16x16.gif</attribute>
+        <attribute name="mode">basic</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
