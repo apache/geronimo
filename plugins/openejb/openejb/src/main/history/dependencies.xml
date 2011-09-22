@@ -192,11 +192,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.beanshell</groupId>
-        <artifactId>bsh</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.codehaus.swizzle</groupId>
         <artifactId>swizzle-stream</artifactId>
         <type>jar</type>
