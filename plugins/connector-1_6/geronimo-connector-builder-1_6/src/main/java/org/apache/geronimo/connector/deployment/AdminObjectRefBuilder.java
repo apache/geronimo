@@ -87,6 +87,19 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     private static final QNameSet GER_ADMIN_OBJECT_REF_QNAME_SET = QNameSet.singleton(GER_ADMIN_OBJECT_REF_QNAME);
     private static final QName GER_MESSAGE_DESTINATION_QNAME = GerMessageDestinationDocument.type.getDocumentElementName();
     private static final QNameSet GER_MESSAGE_DESTINATION_QNAME_SET = QNameSet.singleton(GER_MESSAGE_DESTINATION_QNAME);
+    private static final Set<String> DEFAULT_COMP_JNDI_NAMES = new HashSet<String>();
+    static {
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/EJBContext");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/WebServiceContext");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/TimerService");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/Validator");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/ValidatorFactory");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/BeanManager");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/TransactionSynchronizationRegistry");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/TransactionManager");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/Bundle");
+        DEFAULT_COMP_JNDI_NAMES.add("java:comp/BundleContext");
+    }
 
     public AdminObjectRefBuilder(
             @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
@@ -271,6 +284,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         if (type.equals("javax.transaction.UserTransaction")) {
             return new UserTransactionReference();
         }
+
+        if(DEFAULT_COMP_JNDI_NAMES.contains(name)) {
+            return null;
+        }
+
         if ("javax.ejb.EJBContext".equals(type) ||
                 "javax.ejb.EntityContext".equals(type) ||
                 "javax.ejb.MessageDrivenContext".equals(type) ||
