@@ -24,22 +24,21 @@
 
 <b:blueprint xmlns:b="http://www.osgi.org/xmlns/blueprint/v1.0.0"
              xmlns:amq="http://activemq.apache.org/schema/core"
-             xmlns:cm="http://xbean.apache.org/blueprint/xmlns/xbean-cm/v1.0.0"
              xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <ext:property-placeholder placeholder-prefix="$(" placeholder-suffix=")"/>
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
 
-    <cm:property-placeholder id="property-placeholder" persistent-id="blueprint-activemq-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true">
-        <cm:default-properties>
-            <cm:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
-            <cm:property name="activemq.data" value="var/activemq"/>
-            <cm:property name="serverHostname" value="0.0.0.0"/>
-            <cm:property name="activemq.port" value="61616"/>
-            <cm:property name="portOffset" value="0"/>
-        </cm:default-properties>
-        <cm:location>file:$(karaf.base)/etc/blueprint-activemq-placeholder.cfg</cm:location>
-    </cm:property-placeholder>
+    <ext:property-placeholder id="property-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true">
+        <ext:default-properties>
+            <ext:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
+            <ext:property name="activemq.data" value="var/activemq"/>
+            <ext:property name="ServerHostname" value="0.0.0.0"/>
+            <ext:property name="ActiveMQPort" value="61616"/>
+            <ext:property name="PortOffset" value="0"/>
+        </ext:default-properties>
+        <ext:location>file:$[karaf.base]/var/config/config-substitutions.properties</ext:location>
+    </ext:property-placeholder>
 
     <amq:brokerService brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" schedulerSupport="false">
 
@@ -184,7 +183,7 @@
             http://activemq.apache.org/configuring-transports.html 
         -->
         <amq:transportConnectors>
-            <amq:transportConnector name="openwire" uri="tcp://${serverHostname}:${activemq.port + portOffset}"/>
+            <amq:transportConnector name="openwire" uri="tcp://${ServerHostname}:${ActiveMQPort + PortOffset}"/>
             <!--
             <transportConnector name="openwire2" uri="tcp://${ServerHostname}:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
             <transportConnector name="ssl" uri="ssl://${ServerHostname}:${61617 + ${PortOffset}}"/>

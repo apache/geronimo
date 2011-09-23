@@ -106,7 +106,7 @@
                         <plugin-artifact>
                             <!--<copy-file relative-to="server" dest-dir="var/activemq/conf">activemq.xml</copy-file>-->
                             <!--<copy-file relative-to="server" dest-dir="var/activemq/template">activemq-template.xml</copy-file>-->
-                            <copy-file relative-to="geronimo" dest-dir="etc">etc/blueprint-activemq-placeholder.cfg</copy-file>
+                            <!--<copy-file relative-to="geronimo" dest-dir="etc">etc/org.apache.geronimo.activemq-broker.cfg</copy-file>-->
                             <!--
                             <config-xml-content>
                                 <gbean name="ActiveMQ.tcp.default">
@@ -117,10 +117,12 @@
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{ActiveMQStompPort + PortOffset}</attribute>
                                 </gbean>
-                             </config-xml-content>
-                            <config-substitution key="ActiveMQPort">61616</config-substitution>
+                            </config-xml-content>
                             <config-substitution key="ActiveMQStompPort">61613</config-substitution>
                             -->
+                            <config-substitution key="ActiveMQPort">61616</config-substitution>
+                            <config-substitution key="activemq.brokerName">DefaultActiveMQBroker</config-substitution>
+                            <config-substitution key="activemq.data">var/activemq</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
