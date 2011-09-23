@@ -150,8 +150,8 @@
         <!-- OSGI properties -->
         <felix.bundlerepository.version>1.6.6</felix.bundlerepository.version>
         <karaf.version>2.2.1</karaf.version>
-        <karaf.osgi.version>2.2.1</karaf.osgi.version>        
-        <aries.blueprint.version>0.3</aries.blueprint.version>
+        <karaf.osgi.version>2.2.1</karaf.osgi.version>
+        <aries.blueprint.version>0.3.0.1-SNAPSHOT</aries.blueprint.version>
         <aries.jmx.version>0.3</aries.jmx.version>
         <aries.util.version>0.3</aries.util.version>
         <aries.jndi.version>0.3</aries.jndi.version>
@@ -1826,7 +1826,7 @@ only found in cxf
             </dependency>
             
             <dependency>
-                <groupId>org.apache.aries.blueprint</groupId>
+                <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
                 <version>${aries.blueprint.version}</version>
                 <exclusions>

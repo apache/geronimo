@@ -88,7 +88,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.aries.blueprint</groupId>
+            <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
         </dependency>
 
