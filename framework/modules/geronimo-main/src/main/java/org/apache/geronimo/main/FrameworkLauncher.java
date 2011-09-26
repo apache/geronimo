@@ -193,6 +193,7 @@ public class FrameworkLauncher {
         }
 
         if (uniqueInstance && cacheDirectory != null) {
+            Utils.clearSunJarFileFactoryCache(cacheDirectory.getAbsolutePath());
             Utils.recursiveDelete(cacheDirectory);
         }
     }

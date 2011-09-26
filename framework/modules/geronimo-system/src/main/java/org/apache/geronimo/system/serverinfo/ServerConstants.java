@@ -17,7 +17,10 @@
 
 package org.apache.geronimo.system.serverinfo;
 
+import java.io.InputStream;
 import java.util.Properties;
+
+import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * Information about this build of the server.
@@ -67,18 +70,20 @@ public class ServerConstants {
      */
     static {
         Properties versionInfo = new Properties();
+        InputStream input = null;
         try {
-            java.io.InputStream input = ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/system/serverinfo/geronimo-version.properties");
+            input = ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/system/serverinfo/geronimo-version.properties");
             if (input == null) {
                 throw new Error("Missing geronimo-version.properties");
             }
-            
+
             versionInfo.load(input);
-        }
-        catch (java.io.IOException e) {
+        } catch (java.io.IOException e) {
             throw new Error("Could not load geronimo-version.properties", e);
+        } finally {
+            IOUtils.close(input);
         }
-        
+
         VERSION = versionInfo.getProperty("version");
         if (VERSION == null || VERSION.length() == 0) {
             throw new Error("geronimo-version.properties does not contain a 'version' property");

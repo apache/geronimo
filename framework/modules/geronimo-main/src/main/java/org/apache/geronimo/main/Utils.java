@@ -23,20 +23,30 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipFile;
 
 public class Utils {
+
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     public static final String SERVER_NAME_SYS_PROP = "org.apache.geronimo.server.name";
     public static final String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
     public static final String HOME_DIR_SYS_PROP = "org.apache.geronimo.home.dir";
     public static final String LOG4J_CONFIG_PROP = "org.apache.geronimo.log4jservice.configuration";
-    
+
     public static File getGeronimoHome() throws IOException {
         File rc = null;
 
@@ -69,7 +79,7 @@ public class Utils {
 
     public static File getGeronimoBase(File base) {
         File baseServerDir;
-        
+
         // first check if the base server directory has been provided via
         // system property override.
         String baseServerDirPath = System.getProperty(SERVER_DIR_SYS_PROP);
@@ -90,37 +100,37 @@ public class Utils {
         }
 
         validateDirectory(baseServerDir, "Invalid Geronimo server directory.", false);
-        
+
         return baseServerDir;
     }
-    
+
     public static void setTempDirectory(File base) {
         String tmpDirPath = System.getProperty("java.io.tmpdir", "temp");
         File tmpDir = new File(tmpDirPath);
         if (!tmpDir.isAbsolute()) {
             tmpDir = new File(base, tmpDirPath);
         }
-        
+
         validateDirectory(tmpDir, "Invalid temporary directory.", true);
 
         System.setProperty("java.io.tmpdir", tmpDir.getAbsolutePath());
     }
-    
+
     public static void setLog4jConfigurationFile(File base, String defaultFile) {
-        String log4jFilePath = System.getProperty(LOG4J_CONFIG_PROP, defaultFile);       
-        if (log4jFilePath != null) {                   
+        String log4jFilePath = System.getProperty(LOG4J_CONFIG_PROP, defaultFile);
+        if (log4jFilePath != null) {
             File log4jFile = new File(log4jFilePath);
             if (!log4jFile.isAbsolute()) {
                 log4jFile = new File(base, log4jFilePath);
             }
             System.setProperty(LOG4J_CONFIG_PROP, log4jFile.getAbsolutePath());
-        }        
+        }
     }
-    
+
     public static File validateDirectory(String path, String errPrefix, boolean checkWritable) {
         return validateDirectory(new File(path), errPrefix, checkWritable);
     }
-    
+
     public static File validateDirectory(File path, String errPrefix, boolean checkWritable) {
         File rc;
         try {
@@ -142,7 +152,7 @@ public class Utils {
         }
         return rc;
     }
-      
+
     public static Properties loadPropertiesFile(File file, boolean critical) throws IOException {
         // Read the properties file.
         Properties configProps = new Properties();
@@ -164,7 +174,7 @@ public class Utils {
         }
         return configProps;
     }
-    
+
     private static final String DELIM_START = "${";
     private static final String DELIM_STOP = "}";
 
@@ -191,7 +201,7 @@ public class Utils {
      *                                  property placeholder syntax or a recursive variable reference.
      */
     public static String substVars(String val, String currentKey,
-                                   Map<String, String> cycleMap, 
+                                   Map<String, String> cycleMap,
                                    Properties configProps)
             throws IllegalArgumentException {
         // If there is currently no cycle map, then create
@@ -280,14 +290,14 @@ public class Utils {
         // Return the value.
         return val;
     }
-    
+
     public static boolean recursiveDelete(File root) {
         if (root == null) {
             return true;
         }
 
         boolean ok = true;
-        
+
         if (root.isDirectory()) {
             File[] files = root.listFiles();
             if (files != null) {
@@ -301,10 +311,143 @@ public class Utils {
                 }
             }
         }
-        
+
         ok = root.delete() && ok;
-        
+
         return ok;
     }
-        
+
+    public static void clearSunJarFileFactoryCache(final String jarLocation) {
+        clearSunJarFileFactoryCacheImpl(jarLocation, 5);
+    }
+
+    /**
+     * Due to several different implementation changes in various JDK releases the code here is not as
+     * straight forward as reflecting debug items in your current runtime. There have even been breaking changes
+     * between 1.6 runtime builds, let alone 1.5.
+     * <p/>
+     * If you discover a new issue here please be careful to ensure the existing functionality is 'extended' and not
+     * just replaced to match your runtime observations.
+     * <p/>
+     * If you want to look at the mess that leads up to this then follow the source code changes made to
+     * the class sun.net.www.protocol.jar.JarFileFactory over several years.
+     *
+     * @param jarLocation String
+     * @param attempt     int
+     */
+    @SuppressWarnings({"unchecked"})
+    private static synchronized void clearSunJarFileFactoryCacheImpl(final String jarLocation, final int attempt) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("Clearing Sun JarFileFactory cache for directory " + jarLocation);
+        }
+        try {
+            final Class<?> jarFileFactory = Class.forName("sun.net.www.protocol.jar.JarFileFactory");
+
+            //Do not generify these maps as their contents are NOT stable across runtimes.
+            final Field fileCacheField = jarFileFactory.getDeclaredField("fileCache");
+            fileCacheField.setAccessible(true);
+            final Map fileCache = (Map) fileCacheField.get(null);
+            final Map fileCacheCopy = new HashMap(fileCache);
+
+            final Field urlCacheField = jarFileFactory.getDeclaredField("urlCache");
+            urlCacheField.setAccessible(true);
+            final Map urlCache = (Map) urlCacheField.get(null);
+            final Map urlCacheCopy = new HashMap(urlCache);
+
+            //The only stable item we have here is the JarFile/ZipFile in this map
+            Iterator iterator = urlCacheCopy.entrySet().iterator();
+            final List urlCacheRemoveKeys = new ArrayList();
+
+            while (iterator.hasNext()) {
+                final Map.Entry entry = (Map.Entry) iterator.next();
+                final Object key = entry.getKey();
+
+                if (key instanceof ZipFile) {
+                    final ZipFile zf = (ZipFile) key;
+                    final File file = new File(zf.getName());  //getName returns File.getPath()
+                    if (isParent(jarLocation, file)) {
+                        //Flag for removal
+                        urlCacheRemoveKeys.add(key);
+                    }
+                } else {
+                    logger.warning("Unexpected key type: " + key);
+                }
+            }
+
+            iterator = fileCacheCopy.entrySet().iterator();
+            final List fileCacheRemoveKeys = new ArrayList();
+
+            while (iterator.hasNext()) {
+                final Map.Entry entry = (Map.Entry) iterator.next();
+                final Object value = entry.getValue();
+
+                if (urlCacheRemoveKeys.contains(value)) {
+                    fileCacheRemoveKeys.add(entry.getKey());
+                }
+            }
+
+            //Use these unstable values as the keys for the fileCache values.
+            iterator = fileCacheRemoveKeys.iterator();
+            while (iterator.hasNext()) {
+
+                final Object next = iterator.next();
+
+                try {
+                    final Object remove = fileCache.remove(next);
+                    if (logger.isLoggable(Level.FINE) && null != remove) {
+                        logger.fine("Removed item from fileCache: " + remove);
+                    }
+                } catch (Throwable e) {
+                    logger.warning("Failed to remove item from fileCache: " + next);
+                }
+            }
+
+            iterator = urlCacheRemoveKeys.iterator();
+            while (iterator.hasNext()) {
+
+                final Object next = iterator.next();
+
+                try {
+                    final Object remove = urlCache.remove(next);
+
+                    try {
+                        ((ZipFile) next).close();
+                    } catch (Throwable e) {
+                        //Ignore
+                    }
+
+                    if (logger.isLoggable(Level.FINE) && null != remove) {
+                        logger.fine("Removed item from urlCache: " + remove);
+                    }
+                } catch (Throwable e) {
+                    logger.warning("Failed to remove item from urlCache: " + next);
+                }
+
+            }
+
+        } catch (ConcurrentModificationException e) {
+            if (attempt > 0) {
+                clearSunJarFileFactoryCacheImpl(jarLocation, (attempt - 1));
+            } else {
+                logger.warning("Unable to clear Sun JarFileFactory cache after 5 attempts" + e.getMessage());
+            }
+        } catch (ClassNotFoundException e) {
+            // not a sun vm
+        } catch (NoSuchFieldException e) {
+            // different version of sun vm?
+        } catch (Throwable e) {
+            logger.warning("Unable to clear Sun JarFileFactory cache " + e.getMessage());
+        }
+    }
+
+    private static boolean isParent(String jarLocation, File file) {
+        File dir = new File(jarLocation);
+        while (file != null) {
+            if (file.equals(dir)) {
+                return true;
+            }
+            file = file.getParentFile();
+        }
+        return false;
+    }
 }
