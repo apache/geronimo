@@ -40,25 +40,25 @@ public class StatefulContainerGBean extends EjbContainer {
      * 
      * After the timeout is reached a javax.ejb.ConcurrentAccessTimeoutException will be thrown.
      */
-    private final int accessTimeout;   
+    private long accessTimeout;   
     
     
     /**
      * Maximum number of values that should be in the LRU
      */
-    private final int capacity;
+    private int capacity;
 
     /**
      * When the LRU is exceeded, this is the is the number of beans stored.
      * This helps to avoid passivating a bean at a time.
      */
-    private final int bulkPassivate;
+    private int bulkPassivate;
 
     /**
      * A bean may be destroyed if it isn't used in this length of time (in
      * milliseconds).
      */
-    private final long timeout;
+    private long timeOut;
 
 
     public StatefulContainerGBean(
@@ -66,31 +66,53 @@ public class StatefulContainerGBean extends EjbContainer {
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
             @ParamAttribute(name = "bulkPassivate") int bulkPassivate,
-            @ParamAttribute(name = "accessTimeout") int accessTimeout,
+            @ParamAttribute(name = "accessTimeout") long accessTimeout,
             @ParamAttribute(name = "capacity") int capacity,
-            @ParamAttribute(name = "timeout") long timeout,
+            @ParamAttribute(name = "timeOut") long timeOut,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatefulSessionContainerInfo.class, openEjbSystem, provider, "STATEFUL", properties);
-        set("BulkPassivate", Integer.toString(bulkPassivate));
+        setAccessTimeout(accessTimeout);
+        setCapacity(capacity);
+        setBulkPassivate(bulkPassivate);
+        setTimeOut(timeOut);
+    }
+
+
+    public long getAccessTimeout() {
+        return accessTimeout;
+    }
+
+    public void setAccessTimeout(long accessTimeout) {
+        this.accessTimeout = accessTimeout;
         Duration accessTimeoutDuration = new Duration(accessTimeout, TimeUnit.SECONDS);
         set("AccessTimeout", accessTimeoutDuration.toString());
-        set("Capacity", Integer.toString(capacity));
-        set("TimeOut", Long.toString(timeout));
-        this.bulkPassivate = bulkPassivate;
-        this.accessTimeout = accessTimeout;
-        this.capacity = capacity;
-        this.timeout = timeout;
     }
 
     public int getBulkPassivate() {
         return bulkPassivate;
     }
 
+    public void setBulkPassivate(int bulkPassivate) {
+        this.bulkPassivate = bulkPassivate;
+        set("BulkPassivate", Integer.toString(bulkPassivate));
+    }
+
     public int getCapacity() {
         return capacity;
     }
 
-    public long getTimeout() {
-        return timeout;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+        set("Capacity", Integer.toString(capacity));
     }
+    
+    public long getTimeOut() {
+        return timeOut;
+    }
+    
+    public void setTimeOut(long timeOut) {
+        this.timeOut = timeOut;
+        set("TimeOut", Long.toString(timeOut));
+    }
+
 }

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @GBean
 public class SingletonContainerGBean extends EjbContainer {
 
-    private final long accessTimeout;
+    private long accessTimeout;
 
     public SingletonContainerGBean(
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
@@ -44,12 +44,17 @@ public class SingletonContainerGBean extends EjbContainer {
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, SingletonSessionContainerInfo.class, openEjbSystem, provider, "SINGLETON", properties);
 
-        Duration duration = new Duration(accessTimeout, TimeUnit.SECONDS);
-        set("AccessTimeout", duration.toString());
-        this.accessTimeout = accessTimeout;
+        setAccessTimeout(accessTimeout);
     }
 
     public long getAccessTimeout() {
         return accessTimeout;
     }
+
+    public void setAccessTimeout(long accessTimeout) {
+        this.accessTimeout = accessTimeout;
+        Duration duration = new Duration(accessTimeout, TimeUnit.SECONDS);
+        set("AccessTimeout", duration.toString());
+    }
+
 }

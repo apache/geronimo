@@ -73,6 +73,7 @@ public class EjbHelper extends BaseRemoteProxy {
     private static final String ACCESSTIMEOUT = "AccessTimeout";
     private static final String IDLETIMEOUT = "IdleTimeout";    
     private static final String PASSIVATOR = "Passivator";
+    private static final String TIMEOUT = "TimeOut";
     private static final String STRICTPOOLING = "StrictPooling";
     private static final String INSTANCELIMIT = "InstanceLimit";
     private static final String CMPENGINEFACTORY = "CmpEngineFactory";
@@ -231,45 +232,38 @@ public class EjbHelper extends BaseRemoteProxy {
                 information.setId("DisplayName");
                 information.setValue(containerInfo.displayName);
                 infos.add(information);
-                List<String> editableProperties = new ArrayList<String>();
-                editableProperties.add(POOLSIZE);
-                editableProperties.add(POOLMIN);                
-                editableProperties.add(BULKPASSIVATE);
-                editableProperties.add(CLOSETIMEOUT);
-                editableProperties.add(ACCESSTIMEOUT);
-                editableProperties.add(IDLETIMEOUT);                
-                editableProperties.add(CAPACITY);
-                editableProperties.add(STRICTPOOLING);
-                editableProperties.add(INSTANCELIMIT);
 
                 for (Map.Entry entry : containerInfo.properties.entrySet()) {
                     information = new EjbInformation();
-                    information.setName(entry.getKey().toString());
-                    information.setId(entry.getKey().toString());
-                    if (entry.getKey().toString().equals(RESOURCEADAPTER)) {
-                        information.setValue(entry.getValue().getClass()
-                                .getName());
-                    } else {
-                        information.setValue(entry.getValue().toString());
+
+                    String key = entry.getKey().toString();
+                    String value = entry.getValue().toString();
+
+                    information.setId(key);
+
+                    String name = key;
+                    if (ACCESSTIMEOUT.equals(key)) {
+                        name = key + " (seconds)";
+                    } else if (TIMEOUT.equals(key) || CLOSETIMEOUT.equals(key) || IDLETIMEOUT.equals(key)) {
+                        name = key + " (minutes)";
                     }
-                    if (editableProperties.contains(entry.getKey().toString())) {
-                        String key = information.getName();
-                        String value = null;
-                        if (props != null && props.containsKey(key)) {
-                            value = (String) props.get(key);
-                        } else if (props != null
-                                && props.containsKey(containerId + "." + key)) {
-                            value = (String) props.get(containerId + "." + key);
-                        } else {
-                            value = information.getValue();
-                        }
-                        if (!value.equals(information.getValue())) {
+                    information.setName(name);
+
+                    String attributeName = key.substring(0,1).toLowerCase() + key.substring(1);
+                    Object attributeValue = data.getAttribute(attributeName);
+                    if (attributeValue != null) {
+                        information.setEditable(TRUE);
+                        information.setValue(attributeValue.toString());
+                        if (props != null && !value.equals(props.get(key))) {
                             information.setDirty(TRUE);
                         }
-                        information.setValue(value);
-                        information.setEditable(TRUE);
                     } else {
                         information.setEditable(FALSE);
+                        if (key.equals(RESOURCEADAPTER)) {
+                            information.setValue(entry.getValue().getClass().getName());
+                        } else {
+                            information.setValue(value);
+                        }
                     }
                     infos.add(information);
                 }
@@ -287,91 +281,67 @@ public class EjbHelper extends BaseRemoteProxy {
 
         containerId = replaceEscapes(containerId);
 
-        List<String> numericProperties = new ArrayList<String>();
-        numericProperties.add(POOLSIZE);
-        numericProperties.add(POOLMIN);        
-        numericProperties.add(BULKPASSIVATE);
-        numericProperties.add(CLOSETIMEOUT);
-        numericProperties.add(ACCESSTIMEOUT);
-        numericProperties.add(IDLETIMEOUT);           
-        numericProperties.add(INSTANCELIMIT);
-        numericProperties.add(CAPACITY);
-     
-
-        if (numericProperties.contains(propertyKey)) {
-            try {
-                Integer.parseInt(propertyValue);
-            } catch (NumberFormatException nfe) {
-                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.numeric", propertyKey), null);
-            }
-        } else if (STRICTPOOLING.equals(propertyKey)) {
-            if (!propertyValue.equalsIgnoreCase(TRUE)
-                    && !propertyValue.equalsIgnoreCase(FALSE)) {
-                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.boolean", propertyKey), null);
-            }
-        } else {
-            try {
-                EjbHelper.class.getClassLoader().loadClass(propertyValue);
-            } catch (ClassNotFoundException e) {
-                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.invalid", propertyKey), null);
-            }
-        }
-
-        Properties props = null;
         Container container = containerSystem.getContainer(containerId);
-        if (container.getContainerType() == ContainerType.MESSAGE_DRIVEN) {
-            OpenEjbSystem openEjbSystem = null;
-            AbstractNameQuery absQuery = new AbstractNameQuery(
-                    OpenEjbSystem.class.getName());
-            Set<AbstractName> systemGBeans = kernel.listGBeans(absQuery);
-            for (AbstractName absName : systemGBeans) {
-                openEjbSystem = kernel.getProxyManager()
-                        .createProxy(absName, OpenEjbSystem.class);
-                props = openEjbSystem.getProperties();
-                if (props == null) {
-                    props = new Properties();
-                }
-                props.put(containerId + "." + propertyKey, propertyValue);
-                openEjbSystem.setProperties(props);
-                getGBeanDataFromConfiguration(absName).setAttribute("properties", props);
 
-            }
+        String query = null;
+
+        if (container.getContainerType() == ContainerType.MESSAGE_DRIVEN) {
+            query = OpenEjbSystem.class.getName();
         } else {
-            AbstractNameQuery absQuery = new AbstractNameQuery(
-                    EjbContainer.class.getName());
-            Set<AbstractName> containerGBeans = kernel.listGBeans(absQuery);
-            for (AbstractName absName : containerGBeans) {
+            query = EjbContainer.class.getName();
+        }
+
+        AbstractNameQuery absQuery = new AbstractNameQuery(query);
+        Set<AbstractName> gbeans = kernel.listGBeans(absQuery);
+        for (AbstractName gbean : gbeans) {
+            if (!gbean.getName().get("name").equals(containerId)) {
+                continue;
+            }
+            String attributeName = propertyKey.substring(0,1).toLowerCase() + propertyKey.substring(1);
+            Object attributeValue = null;
+
+            if (ACCESSTIMEOUT.equals(propertyKey) || TIMEOUT.equals(propertyKey)) {
                 try {
-                    String id = (String) kernel.getAttribute(absName, "id");
-                    if (containerId.equals(id)) {
-                        GBeanData gData1  = kernel.getGBeanData(absName);
-                        ManageableAttributeStore attributeStore = kernel.getGBean(ManageableAttributeStore.class);
-                        GBeanData gData  = getGBeanDataFromConfiguration(absName);
-                        for(String attributeName : gData.getAttributeNames()){
-                            if(attributeName.equalsIgnoreCase(propertyKey)){
-                                // Hack to make changed values reflect on configuration restart.
-                                gData.setAttribute(attributeName, propertyValue);
-                                Properties gbeanProps = (Properties)gData1.getAttribute("properties");
-                                gbeanProps.setProperty(propertyKey, propertyValue);
-                                GAttributeInfo gAttributeInfo = gData.getGBeanInfo().getAttribute(attributeName);
-// TODO:  This needs to be solved and re-enabled.
-//                                 attributeStore.setValue(absName.getArtifact(), absName, gAttributeInfo, propertyValue, Thread.currentThread().getContextClassLoader());
-                            }
-                        }
-                    }
-                } catch (GBeanNotFoundException e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error,
-                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
-                } catch (NoSuchAttributeException e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error,
-                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
-                } catch (Exception e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error,
-                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
+                    attributeValue = Long.parseLong(propertyValue);
+                } catch (NumberFormatException nfe) {
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.numeric", propertyKey), null);
+                }
+            } else if (STRICTPOOLING.equals(propertyKey)) {
+                if (!propertyValue.equalsIgnoreCase(TRUE)
+                        && !propertyValue.equalsIgnoreCase(FALSE)) {
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.boolean", propertyKey), null);
+                }
+                attributeValue = Boolean.parseBoolean(propertyValue);
+            } else {
+                try {
+                    attributeValue = Integer.parseInt(propertyValue);
+                } catch (NumberFormatException nfe) {
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.numeric", propertyKey), null);
                 }
             }
+
+            try {
+                kernel.setAttribute(gbean, attributeName, attributeValue);
+            } catch (GBeanNotFoundException e) {
+                return new JSCommonMessage(CommonMessage.Type.Error,
+                        getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
+            } catch (NoSuchAttributeException e) {
+                return new JSCommonMessage(CommonMessage.Type.Error,
+                        getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
+            } catch (Exception e) {
+                return new JSCommonMessage(CommonMessage.Type.Error,
+                        getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
+            }
+            
+            return new JSCommonMessage(CommonMessage.Type.Warn, 
+                    getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.restart"), null);
         }
-        return new JSCommonMessage(CommonMessage.Type.Warn, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.restart"), null);
+
+        return new JSCommonMessage(CommonMessage.Type.Error,
+                getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
     }
 
     private GBeanData getGBeanDataFromConfiguration(AbstractName absName){

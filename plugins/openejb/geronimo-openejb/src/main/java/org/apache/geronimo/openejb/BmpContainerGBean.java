@@ -32,7 +32,7 @@ import java.util.Properties;
 @GBean
 public class BmpContainerGBean extends EjbContainer {
 
-    private final int poolSize;
+    private int poolSize;
 
     public BmpContainerGBean(
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
@@ -41,11 +41,17 @@ public class BmpContainerGBean extends EjbContainer {
             @ParamAttribute(name = "poolSize") int poolSize,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, BmpEntityContainerInfo.class, openEjbSystem, provider, "BMP_ENTITY", properties);
-        set("PoolSize", Integer.toString(poolSize));
-        this.poolSize = poolSize;
+
+        setPoolSize(poolSize);
     }
 
     public int getPoolSize() {
         return poolSize;
     }
+
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+        set("PoolSize", Integer.toString(poolSize));
+    }
+
 }

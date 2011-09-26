@@ -55,7 +55,7 @@
     </gbean>
     <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
         <attribute name="accessTimeout">30</attribute>
-        <attribute name="timeout">20</attribute>
+        <attribute name="timeOut">20</attribute>
         <attribute name="capacity">1000</attribute>
         <attribute name="bulkPassivate">100</attribute>
         <reference name="OpenEjbSystem">

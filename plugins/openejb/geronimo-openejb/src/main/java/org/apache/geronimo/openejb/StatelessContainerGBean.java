@@ -40,7 +40,7 @@ public class StatelessContainerGBean extends EjbContainer {
      * After the timeout is reached, if an instance in the pool cannot be obtained, the method invocation will fail.
      * 
      */
-    private final int accessTimeout;
+    private long accessTimeout;
     
     /**
      * PostConstruct methods are invoked on all instances in the pool
@@ -55,20 +55,20 @@ public class StatelessContainerGBean extends EjbContainer {
      * stateless SessionBean container.
      */
 
-    private final int maxSize;
+    private int maxSize;
     
     
     /** Specifies the minimum number of bean instances that should be
      * in this stateless SessionBean container  
      */
-     private int minSize;
+    private int minSize;
      
      
 	/**
 	 * Specifies the maximum time that an instance should be allowed to sit idly
 	 * in the pool without use before it should be retired and removed.
 	 */
-      private int idleTimeout;
+    private int idleTimeout;
      
 
     /**
@@ -84,7 +84,7 @@ public class StatelessContainerGBean extends EjbContainer {
      * instances to meet demand. The instances will last for just one
      * method invocation and then are removed.
      */
-    private final boolean strictPooling;
+    private boolean strictPooling;
 
 
     public StatelessContainerGBean(
@@ -94,49 +94,75 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamAttribute(name = "maxSize") int maxSize,
             @ParamAttribute(name = "minSize") int minSize,
             @ParamAttribute(name = "strictPooling") boolean strictPooling,
-            @ParamAttribute(name = "accessTimeout") int accessTimeout,
+            @ParamAttribute(name = "accessTimeout") long accessTimeout,
             @ParamAttribute(name = "closeTimeout") int closeTimeout,
             @ParamAttribute(name = "idleTimeout") int idleTimeout,            
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatelessSessionContainerInfo.class, openEjbSystem, provider, "STATELESS", properties);
-        set("MaxSize", Integer.toString(maxSize));
-        set("MinSize", Integer.toString(minSize));        
-        set("StrictPooling", Boolean.toString(strictPooling));
-        Duration accessTimeoutDuration = new Duration(accessTimeout, TimeUnit.SECONDS);
-        set("AccessTimeout", accessTimeoutDuration.toString());
-        Duration closeTimeoutDuration = new Duration(closeTimeout, TimeUnit.MINUTES);
-        set("CloseTimeout", closeTimeoutDuration.toString());
-        Duration idleTimeoutDuration = new Duration(idleTimeout, TimeUnit.MINUTES);
-        set("IdleTimeout", idleTimeoutDuration.toString());
-        this.maxSize = maxSize;
-        this.minSize= minSize;
-        this.strictPooling = strictPooling;
-        this.accessTimeout = accessTimeout;
-        this.closeTimeout=closeTimeout;
-        this.idleTimeout=idleTimeout;        
+
+        setMaxSize(maxSize);
+        setMinSize(minSize);
+        setStrictPooling(strictPooling);
+        setAccessTimeout(accessTimeout);
+        setCloseTimeout(closeTimeout);
+        setIdleTimeout(idleTimeout);     
     }
 
-    public int getPoolSize() {
+    public int getMaxSize() {
         return maxSize;
+    }
+
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+        set("MaxSize", Integer.toString(maxSize));
+    }
+
+    public int getMinSize() {
+        return minSize;
+    }
+
+    public void setMinSize(int minSize) {
+        this.minSize = minSize;
+        set("MinSize", Integer.toString(minSize));
     }
 
     public boolean isStrictPooling() {
         return strictPooling;
     }
 
-    public int getAccessTimeout() {
+    public void setStrictPooling(boolean strictPooling) {
+        this.strictPooling = strictPooling;
+        set("StrictPooling", Boolean.toString(strictPooling));
+    }
+
+    public long getAccessTimeout() {
         return accessTimeout;
+    }
+
+    public void setAccessTimeout(long accessTimeout) {
+        this.accessTimeout = accessTimeout;
+        Duration accessTimeoutDuration = new Duration(accessTimeout, TimeUnit.SECONDS);
+        set("AccessTimeout", accessTimeoutDuration.toString());
     }
 
     public int getCloseTimeout() {
         return closeTimeout;
     }
-    
+
+    public void setCloseTimeout(int closeTimeout) {
+        this.closeTimeout = closeTimeout;
+        Duration closeTimeoutDuration = new Duration(closeTimeout, TimeUnit.MINUTES);
+        set("CloseTimeout", closeTimeoutDuration.toString());
+    }
+
     public int getIdleTimeout() {
         return idleTimeout;
     }    
 
-    public int getPoolMin() {
-        return minSize;
+    public void setIdleTimeout(int idleTimeout) {
+        this.idleTimeout=idleTimeout;
+        Duration idleTimeoutDuration = new Duration(idleTimeout, TimeUnit.MINUTES);
+        set("IdleTimeout", idleTimeoutDuration.toString());
     }
+
 }
