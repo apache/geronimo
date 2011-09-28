@@ -24,8 +24,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -63,6 +65,7 @@ import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,28 +141,32 @@ public class ApplicationGBean implements GBeanLifecycle {
         return ids;
     }
 
-    public String getApplicationContentBundleSymbolicName(long bundleId) {
+    private Bundle getBundle(long bundleId) {
         for (Bundle content : applicationBundles) {
             if (content.getBundleId() == bundleId) {
-                return content.getSymbolicName();
+                return content;
             }
         }
         return null;
     }
+    
+    public String getApplicationContentBundleSymbolicName(long bundleId) {
+        Bundle bundle = getBundle(bundleId);
+        return (bundle != null) ? bundle.getSymbolicName() : null;
+    }
 
     public synchronized void updateApplicationContent(long bundleId, File bundleFile) throws Exception {
-        Bundle targetBundle = null;
-        for (Bundle content : applicationBundles) {
-            if (content.getBundleId() == bundleId) {
-                targetBundle = content;
-                break;
-            }
-        }
+        Bundle targetBundle = getBundle(bundleId);
 
         if (targetBundle == null) {
             throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
 
+        String applicationName = application.getApplicationMetadata().getApplicationScope();
+        String bundleName = targetBundle.getSymbolicName();
+        
+        LOG.info("Updating {} bundle in {} application", bundleName, applicationName);
+                
         BundleContext context = bundle.getBundleContext();
 
         ServiceReference reference = null;
@@ -183,7 +190,14 @@ public class ApplicationGBean implements GBeanLifecycle {
             Bundle[] bundles = new Bundle [] { targetBundle };
             // resolve the bundle
             if (!packageAdmin.resolveBundles(bundles)) {
-                throw new BundleException("Updated bundle cannot be resolved");
+                throw new BundleException("Updated " + bundleName  + " bundle cannot be resolved");
+            }
+            
+            Set<Bundle> dependents = new HashSet<Bundle>();
+            collectDependentBundles(packageAdmin, dependents, targetBundle);
+            if (!dependents.isEmpty()) {
+                String bundleListString = bundleCollectionToString(dependents);
+                LOG.info("Update of {} bundle will cause the following bundles to be refreshed: {}", bundleName, bundleListString);
             }
             
             // install listener for package refresh
@@ -208,8 +222,12 @@ public class ApplicationGBean implements GBeanLifecycle {
             if (BundleUtils.canStart(targetBundle)) {
                 targetBundle.start(Bundle.START_TRANSIENT);
             }
+            
+            
+            LOG.info("Bundle {} was successfully updated in {} application", bundleName, applicationName);
+            
         } catch (Exception e) {
-            LOG.debug("Error updating application", e);
+            LOG.error("Error updating " + bundleName + " bundle in " + applicationName + " application", e);
             throw new Exception("Error updating application: " + e.getMessage());
         } finally {
             if (refreshListener != null) {
@@ -240,6 +258,36 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
     }
 
+    private void collectDependentBundles(PackageAdmin packageAdmin, Set<Bundle> dependents, Bundle bundle) {
+        ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
+        if (exportedPackages != null) {
+            for (ExportedPackage exportedPackage : exportedPackages) {
+                Bundle[] importingBundles = exportedPackage.getImportingBundles();
+                if (importingBundles != null) {
+                    for (Bundle importingBundle : importingBundles) {
+                        if (!dependents.contains(importingBundle)) {
+                            dependents.add(importingBundle);
+                            collectDependentBundles(packageAdmin, dependents, importingBundle);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private static String bundleCollectionToString(Collection<Bundle> bundles) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<Bundle> iterator = bundles.iterator();
+        while(iterator.hasNext()) {
+            Bundle bundle = iterator.next();
+            builder.append(bundle.getSymbolicName());
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+       return builder.toString();
+    }
+    
     private void updateArchive(Bundle bundle, File bundleFile) throws IOException {
         File ebaArchive = installer.getApplicationLocation(configId);
         if (ebaArchive == null || !ebaArchive.exists()) {
