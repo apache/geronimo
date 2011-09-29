@@ -84,6 +84,8 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <import-package>!javax.swing.plaf.nimbus</import-package>
+                <import-package>!javax.smartcardio</import-package>                
             </environment>
         </xml-attribute>
     </gbean>
