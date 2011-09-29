@@ -137,11 +137,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
 
-            AppInfo appInfo = new AppInfo();
-
-            if (earData != null) {
-               appInfo = earData.getAppInfo();
-            }
+            AppInfo appInfo = earData != null ? earData.getAppInfo() : new AppInfo();
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
             JndiEncInfo moduleJndi = new JndiEncInfo();
@@ -149,6 +145,13 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             String moduleId = module.getName();
             jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, module.getModuleURI(), moduleJndi, compJndi);
+
+
+            //No need to keep the persistence references, as they will be handled by Geronimo
+            appInfo.globalJndiEnc.persistenceContextRefs.clear();
+            appInfo.globalJndiEnc.persistenceUnitRefs.clear();
+            appInfo.appJndiEnc.persistenceContextRefs.clear();
+            appInfo.appJndiEnc.persistenceUnitRefs.clear();
 
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
             ejbEncInfo.ejbReferences.addAll(appInfo.globalJndiEnc.ejbReferences);
