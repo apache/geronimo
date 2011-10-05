@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -190,7 +191,17 @@ public class ApplicationGBean implements GBeanLifecycle {
             Bundle[] bundles = new Bundle [] { targetBundle };
             // resolve the bundle
             if (!packageAdmin.resolveBundles(bundles)) {
-                throw new BundleException("Updated " + bundleName  + " bundle cannot be resolved");
+                StringBuilder builder = new StringBuilder();
+                builder.append("Updated ").append(bundleName).append(" bundle cannot be resolved.");
+                
+                // check for resolver errors
+                ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(context);
+                String resolverErrors = errorAnalyzer.getErrorsAsString(Arrays.asList(bundles));
+                if (resolverErrors != null) {
+                    builder.append(" ").append(resolverErrors);
+                }
+                
+                throw new BundleException(builder.toString());
             }
             
             Set<Bundle> dependents = new HashSet<Bundle>();
@@ -281,6 +292,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         while(iterator.hasNext()) {
             Bundle bundle = iterator.next();
             builder.append(bundle.getSymbolicName());
+            builder.append(" [").append(bundle.getBundleId()).append("]");
             if (iterator.hasNext()) {
                 builder.append(", ");
             }
@@ -511,20 +523,46 @@ public class ApplicationGBean implements GBeanLifecycle {
         LOG.debug("Starting {} application.", application.getApplicationMetadata().getApplicationScope());
         
         applicationState = ApplicationState.STARTING;
+        try {
+            startApplicationBundles();
+            applicationState = ApplicationState.ACTIVE;
+            LOG.debug("Application {} started successfully.", application.getApplicationMetadata().getApplicationScope());
+        } catch (BundleException be) {
+            applicationState = ApplicationState.INSTALLED;
+            
+            Exception rootException = be;
+            String rootMessage = be.getMessage();
+            
+            // check for resolver errors
+            ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(bundle.getBundleContext());
+            String resolverErrors = errorAnalyzer.getErrorsAsString(applicationBundles);
+            if (resolverErrors != null) {
+                rootException = null;
+                rootMessage = resolverErrors;
+            }
 
+            String message = MessageFormat.format("Error starting {0} application. {1}", 
+                                                  application.getApplicationMetadata().getApplicationScope(), 
+                                                  rootMessage);
+            
+            if (getFailOnStartError()) {
+                throw new BundleException(message, rootException);
+            } else {
+                LOG.error(message, rootException);
+            }
+        }        
+    }    
+    
+    private void startApplicationBundles() throws BundleException {
         List<Bundle> bundlesWeStarted = new ArrayList<Bundle>();
-        Bundle currentBundle = null;
         try {
             for (Bundle b : applicationBundles) {
-                currentBundle = b;
                 if (BundleUtils.canStart(b)) {
                     LOG.debug("Starting {} application bundle.", b);
                     b.start(Bundle.START_TRANSIENT);
                     bundlesWeStarted.add(b);
                 }
             }
-            applicationState = ApplicationState.ACTIVE;
-            LOG.debug("Application {} started successfully.", application.getApplicationMetadata().getApplicationScope());
         } catch (BundleException be) {
             for (Bundle b : bundlesWeStarted) {
                 try {
@@ -538,19 +576,10 @@ public class ApplicationGBean implements GBeanLifecycle {
                     // stop.
                 }
             }
-
-            applicationState = ApplicationState.INSTALLED;
-            if (getFailOnStartError()) {
-                throw be;
-            } else {
-                String message = MessageFormat.format("Error starting {0} application. Bundle {1} failed to start.", 
-                                                      application.getApplicationMetadata().getApplicationScope(), 
-                                                      currentBundle);
-                LOG.error(message, be);
-            }
-        }        
-    }    
-
+            throw be;
+        }
+    }
+    
     public void doStop() {
         LOG.debug("Stopping {} application.", application.getApplicationMetadata().getApplicationScope());
         

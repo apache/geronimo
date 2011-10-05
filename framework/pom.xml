@@ -34,7 +34,6 @@
     <packaging>pom</packaging>
     
     <properties>        
-        <equinox.version>3.7.1.R37x_v20110808_1106</equinox.version>        
         <felix.configadmin.version>1.2.4</felix.configadmin.version>        
         <felix.framework.version>3.0.2</felix.framework.version>       
         <pax.url.version>1.1.2</pax.url.version>        
@@ -42,12 +41,6 @@
     
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.osgi</artifactId>
-                <version>${equinox.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
