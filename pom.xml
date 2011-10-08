@@ -69,7 +69,7 @@
         <tomcatVersion>7.0.19.2</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>4.0.0-SNAPSHOT</openejbVersion>
+        <openejbVersion>4.0.0-beta-1</openejbVersion>
         <openjpaVersion>2.1.1</openjpaVersion>
         <openwebbeansVersion>1.1.1</openwebbeansVersion>
         <derbyVersion>10.6.1.0_1</derbyVersion>
@@ -152,7 +152,7 @@
         <felix.bundlerepository.version>1.6.6</felix.bundlerepository.version>
         <karaf.version>2.2.1</karaf.version>
         <karaf.osgi.version>2.2.1</karaf.osgi.version>
-        <aries.blueprint.version>0.3.0.1-SNAPSHOT</aries.blueprint.version>
+        <aries.blueprint.version>0.3.0.1</aries.blueprint.version>
         <aries.jmx.version>0.3</aries.jmx.version>
         <aries.util.version>0.3</aries.util.version>
         <aries.jndi.version>0.3</aries.jndi.version>
