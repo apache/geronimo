@@ -1,0 +1,225 @@
+Index: src/java/org/apache/commons/httpclient/HttpParser.java
+===================================================================
+--- src/java/org/apache/commons/httpclient/HttpParser.java	(revision 1180291)
++++ src/java/org/apache/commons/httpclient/HttpParser.java	(working copy)
+@@ -34,6 +34,7 @@
+ import java.io.ByteArrayOutputStream;
+ import java.util.ArrayList;
+ 
++import org.apache.commons.httpclient.params.HttpConnectionParams;
+ import org.apache.commons.httpclient.util.EncodingUtil;
+ import org.apache.commons.logging.Log;
+ import org.apache.commons.logging.LogFactory;
+@@ -52,11 +53,19 @@
+     /** Log object for this class. */
+     private static final Log LOG = LogFactory.getLog(HttpParser.class);
+     
++    private static int MAX_HEADER_COUNT = Integer.getInteger(HttpConnectionParams.MAX_HEADER_COUNT, -1);
++    
++    private static int MAX_LINE_LENGTH = Integer.getInteger(HttpConnectionParams.MAX_LINE_LENGTH , -1);
++
+     /**
+      * Constructor for HttpParser.
+      */
+     private HttpParser() { }
+ 
++    public static byte[] readRawLine(InputStream inputStream) throws IOException {
++        return readRawLine(inputStream, MAX_LINE_LENGTH);
++    }
++
+     /**
+      * Return byte array from an (unchunked) input stream.
+      * Stop reading when <tt>"\n"</tt> terminator encountered 
+@@ -69,16 +78,21 @@
+      * @throws IOException if an I/O problem occurs
+      * @return a byte array from the stream
+      */
+-    public static byte[] readRawLine(InputStream inputStream) throws IOException {
++    public static byte[] readRawLine(InputStream inputStream, int maxLineLength) throws IOException {
+         LOG.trace("enter HttpParser.readRawLine()");
+ 
+         ByteArrayOutputStream buf = new ByteArrayOutputStream();
+         int ch;
++        int count = 0;
+         while ((ch = inputStream.read()) >= 0) {
++            if (maxLineLength > 0 && count >= maxLineLength) {
++                throw new IOException("Maximum line length limit [" + maxLineLength + "] exceeded");
++            }
+             buf.write(ch);
+             if (ch == '\n') { // be tolerant (RFC-2616 Section 19.3)
+                 break;
+             }
++            count ++;
+         }
+         if (buf.size() == 0) {
+             return null;
+@@ -86,6 +100,10 @@
+         return buf.toByteArray();
+     }
+ 
++    public static String readLine(InputStream inputStream, String charset) throws IOException {
++        return readLine(inputStream,charset, MAX_LINE_LENGTH);
++    }
++    
+     /**
+      * Read up to <tt>"\n"</tt> from an (unchunked) input stream.
+      * If the stream ends before the line terminator is found,
+@@ -100,9 +118,9 @@
+      * 
+      * @since 3.0
+      */
+-    public static String readLine(InputStream inputStream, String charset) throws IOException {
++    public static String readLine(InputStream inputStream, String charset, int maxLineLength) throws IOException {
+         LOG.trace("enter HttpParser.readLine(InputStream, String)");
+-        byte[] rawdata = readRawLine(inputStream);
++        byte[] rawdata = readRawLine(inputStream, maxLineLength);
+         if (rawdata == null) {
+             return null;
+         }
+@@ -138,9 +156,13 @@
+ 
+     public static String readLine(InputStream inputStream) throws IOException {
+         LOG.trace("enter HttpParser.readLine(InputStream)");
+-        return readLine(inputStream, "US-ASCII");
++        return readLine(inputStream, "US-ASCII", MAX_LINE_LENGTH);
+     }
+     
++    public static Header[] parseHeaders(InputStream is, String charset) throws IOException, HttpException {
++        LOG.trace("enter HeaderParser.parseHeaders(InputStream, String)");
++        return parseHeaders(is, charset, MAX_HEADER_COUNT, MAX_LINE_LENGTH);
++    }
+     /**
+      * Parses headers from the given stream.  Headers with the same name are not
+      * combined.
+@@ -155,14 +177,14 @@
+      * 
+      * @since 3.0
+      */
+-    public static Header[] parseHeaders(InputStream is, String charset) throws IOException, HttpException {
+-        LOG.trace("enter HeaderParser.parseHeaders(InputStream, String)");
++    public static Header[] parseHeaders(InputStream is, String charset , int maxHeaderCount, int maxLineLength) throws IOException, HttpException {
++        LOG.trace("enter HeaderParser.parseHeaders(InputStream, String, maxHeaderCount, maxLineLen)");
+ 
+         ArrayList headers = new ArrayList();
+         String name = null;
+         StringBuffer value = null;
+         for (; ;) {
+-            String line = HttpParser.readLine(is, charset);
++            String line = HttpParser.readLine(is, charset, maxLineLength);
+             if ((line == null) || (line.trim().length() < 1)) {
+                 break;
+             }
+@@ -184,6 +206,9 @@
+                     headers.add(new Header(name, value.toString()));
+                 }
+ 
++                if (maxHeaderCount > 0 && headers.size() > maxHeaderCount) {
++                    throw new IOException("Maximum header count  [" + maxHeaderCount + "]  exceeded");
++                }
+                 // Otherwise we should have normal HTTP header line
+                 // Parse the header name and value
+                 int colon = line.indexOf(":");
+@@ -200,7 +225,10 @@
+         if (name != null) {
+             headers.add(new Header(name, value.toString()));
+         }
+-        
++
++        if (maxHeaderCount > 0 && headers.size() > maxHeaderCount) {
++            throw new IOException("Maximum header count  [" + maxHeaderCount + "]  exceeded");
++        }
+         return (Header[]) headers.toArray(new Header[headers.size()]);    
+     }
+ 
+@@ -219,6 +247,6 @@
+      */
+     public static Header[] parseHeaders(InputStream is) throws IOException, HttpException {
+         LOG.trace("enter HeaderParser.parseHeaders(InputStream, String)");
+-        return parseHeaders(is, "US-ASCII");
++        return parseHeaders(is, "US-ASCII", MAX_HEADER_COUNT, MAX_LINE_LENGTH);
+     }
+ }
+Index: src/java/org/apache/commons/httpclient/params/HttpConnectionParams.java
+===================================================================
+--- src/java/org/apache/commons/httpclient/params/HttpConnectionParams.java	(revision 1180291)
++++ src/java/org/apache/commons/httpclient/params/HttpConnectionParams.java	(working copy)
+@@ -126,6 +126,27 @@
+     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
+ 
+     /**
++     * Determines the maximum line length limit. If set to a positive value,
++     * any HTTP line exceeding this limit will cause an IOException. A negative
++     * or zero value will effectively disable the check.
++     * <p>
++     * This parameter expects a value of type {@link Integer}.
++     * </p>
++     */
++    public static final String MAX_LINE_LENGTH = "http.connection.max-line-length";
++
++    /**
++     * Determines the maximum HTTP header count allowed. If set to a positive
++     * value, the number of HTTP headers received from the data stream exceeding
++     * this limit will cause an IOException. A negative or zero value will
++     * effectively disable the check.
++     * <p>
++     * This parameter expects a value of type {@link Integer}.
++     * </p>
++     */
++    public static final String MAX_HEADER_COUNT = "http.connection.max-header-count";
++
++    /**
+      * Creates a new collection of parameters with the collection returned
+      * by {@link #getDefaultParams()} as a parent. The collection will defer
+      * to its parent for a default value if a particular parameter is not 
+Index: src/test/org/apache/commons/httpclient/TestHttpParser.java
+===================================================================
+--- src/test/org/apache/commons/httpclient/TestHttpParser.java	(revision 1180291)
++++ src/test/org/apache/commons/httpclient/TestHttpParser.java	(working copy)
+@@ -31,9 +31,12 @@
+ package org.apache.commons.httpclient;
+ 
+ import java.io.ByteArrayInputStream;
++import java.io.IOException;
+ import java.io.InputStream;
+ 
+-import junit.framework.*;
++import junit.framework.Test;
++import junit.framework.TestCase;
++import junit.framework.TestSuite;
+ 
+ /**
+  * Simple tests for {@link HttpParser}.
+@@ -122,4 +125,33 @@
+         assertEquals("b", headers[1].getName());
+         assertEquals("b", headers[1].getValue());
+     }
++    
++    public void testHeadersMaxLineLength() throws Exception {
++        try {
++            InputStream instream = new ByteArrayInputStream("a: averyloooooooooooooooooooooooooooooongheader\r\n".getBytes(HTTP_ELEMENT_CHARSET));
++            Header[] headers = HttpParser.parseHeaders(instream, HTTP_ELEMENT_CHARSET, -1, 5);
++            fail("An IOException should be thrown here");
++        } catch (IOException e) {
++        }
++    }
++
++    public void testHeadersMaxHeaderCount() throws Exception {
++        try {
++            InputStream instream = new ByteArrayInputStream("1: averyloooooo\r\n2: oooo\r\n3: oooooo\r\n4: oooo\r\n5: oooooooooongheader\r\n".getBytes(HTTP_ELEMENT_CHARSET));
++            Header[] headers = HttpParser.parseHeaders(instream, HTTP_ELEMENT_CHARSET, 4, -1);
++            fail("An IOException should be thrown here");
++        } catch (IOException e) {
++        }
++    }
++
++    public void testHeadersDefaultMaxLineLength() throws Exception {
++        InputStream instream = new ByteArrayInputStream("a: averyloooooooooooooooooooooooooooooongheader\r\n".getBytes(HTTP_ELEMENT_CHARSET));
++        Header[] headers = HttpParser.parseHeaders(instream, HTTP_ELEMENT_CHARSET, -1, -1);
++    }
++
++    public void testHeadersDefaultMaxHeaderCount() throws Exception {
++
++        InputStream instream = new ByteArrayInputStream("1: averyloooooo\r\n2: oooo\r\n3: oooooo\r\n4: oooo\r\n5: oooooooooongheader\r\n".getBytes(HTTP_ELEMENT_CHARSET));
++        Header[] headers = HttpParser.parseHeaders(instream, HTTP_ELEMENT_CHARSET, -1, -1);
++    }
+ }
