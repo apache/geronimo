@@ -71,8 +71,11 @@ public class WadiCacheTest extends RMockTestCase {
         });
 
         deploymentId = "deploymentId";
-        deploymentInfo = new BeanContext(deploymentId, null, new ModuleContext(deploymentId, null, null, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
+        deploymentInfo = new BeanContext(deploymentId, 
+            null, 
+            new ModuleContext(deploymentId, null, null, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
             SFSB.class,
+            null,
             null,
             null,
             null,
