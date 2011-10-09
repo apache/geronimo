@@ -292,6 +292,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.openejb.patch</groupId>
+        <artifactId>openejb-bval</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-ee</artifactId>
         <type>jar</type>
@@ -354,11 +359,6 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-naming</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.beanshell</groupId>
-        <artifactId>bsh</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

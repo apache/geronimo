@@ -28,11 +28,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
         <artifactId>org.apache.aries.application.utils</artifactId>
         <type>jar</type>
     </dependency>
