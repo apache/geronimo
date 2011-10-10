@@ -49,11 +49,22 @@
         <module>test-2.5-servlets</module>
         <module>test-tld</module>
         <module>test-myfaces</module>
+        <!--<module>test-jetty</module>-->
+        <!--<module>test-tomcat</module>-->
         <!--<module>test-web-references</module>-->
         <module>test-web-forward</module>
     </modules>
 
     <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>test-jetty</module>
+                <module>test-tomcat</module>
+                <module>test-web-references</module>
+            </modules>
+        </profile>
+        
         <profile>
             <id>testsuite-with-jetty</id>
             <activation>
@@ -79,15 +90,6 @@
                 <module>test-tomcat</module>
             </modules>
         </profile>
-
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>test-jetty</module>
-                <module>test-tomcat</module>
-            </modules>
-        </profile>
-
     </profiles>
 
 </project>

@@ -38,7 +38,20 @@
         Geronimo security testsuite.
     </description>
 
+    <modules>
+        <module>test-security</module>
+        <module>test-security-annotation-ejb</module>
+        <module>test-security-basic-authentication</module>
+    </modules>
+    
     <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>test-generic-auth</module>
+            </modules>
+        </profile>
+        
         <profile>
             <id>it</id>
             <activation>
@@ -63,11 +76,5 @@
             </build>
         </profile>
     </profiles>
-
-    <modules>
-        <module>test-security</module>
-        <module>test-security-annotation-ejb</module>
-        <module>test-security-basic-authentication</module>
-    </modules>
 
 </project>

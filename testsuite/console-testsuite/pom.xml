@@ -38,6 +38,11 @@
         Geronimo console testsuite.
     </description>
     
+    <modules>
+        <module>basic</module>
+        <module>advanced</module>
+    </modules>
+    
     <profiles>
         <profile>
             <id>it</id>
@@ -68,10 +73,5 @@
             </build>
         </profile>
     </profiles>
-
-    <modules>
-        <module>basic</module>
-        <module>advanced</module>
-    </modules>
 
 </project>

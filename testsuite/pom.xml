@@ -234,6 +234,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Add this so that this should not get deployed during release plugin processing-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -299,13 +300,6 @@
     </modules>
 
     <profiles>
-        <!--<profile>
-            <id>all-subprojects</id>            
-            <modules>
-                <module>console-testsuite</module>
-                <module>deployment-testsuite</module>
-            </modules>
-        </profile>-->
         <profile>
             <id>it</id>
             <activation>

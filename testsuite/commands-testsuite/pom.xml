@@ -44,6 +44,12 @@
         </dependency>
     </dependencies> 
 
+    <modules>
+        <module>deploy</module>
+        <module>jaxws</module>
+        <module>shutdown</module>
+    </modules>
+    
     <profiles>
         <profile>
             <id>it</id>
@@ -71,9 +77,4 @@
         </profile>
     </profiles>
 
-    <modules>
-        <module>deploy</module>
-        <module>jaxws</module>
-        <module>shutdown</module>
-    </modules>
 </project>
