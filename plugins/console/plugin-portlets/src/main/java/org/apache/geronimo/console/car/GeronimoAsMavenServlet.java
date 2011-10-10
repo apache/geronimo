@@ -144,7 +144,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         if(parts.length < 4) {
             response.sendError(404, "Unrecognized path form "+path);
             return null;
-        } else {  // e.g.   console/MyDatabase/1.0-SNAPSHOT/MyDatabase-1.0-SNAPSHOT.rar
+        } else {  // e.g.   console/MyDatabase/1.0/MyDatabase-1.0.rar
             groupId = parts[0];
             for(int i=4; i<parts.length; i++) {
                 groupId = groupId+"."+parts[i-3];

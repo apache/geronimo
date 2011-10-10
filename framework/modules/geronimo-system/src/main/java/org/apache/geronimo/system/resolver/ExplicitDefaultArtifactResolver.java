@@ -47,7 +47,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver implements LocalAliasedArtifactResolver {
     private static final String COMMENT = "#You can use this file to indicate that you want to substitute one module for another.\n" +
             "#format is oldartifactid=newartifactId e.g.\n" +
-            "#org.apache.geronimo.configs/transaction//car=org.apache.geronimo.configs/transaction-jta11/1.2-SNAPSHOT/car\n" +
+            "#org.apache.geronimo.configs/transaction//car=org.apache.geronimo.configs/transaction-jta11/1.2/car\n" +
             "#versions can be ommitted on the left side but not the right.\n" +
             "#This can also specify explicit versions in the same format.";
 
