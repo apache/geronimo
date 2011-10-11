@@ -33,7 +33,7 @@ public class EARConfigBuilder5NakedTest
         super.setUp();
 
         earFile = JarUtils.createJarFile(resolveFile("target/test-ear-javaee_5-naked.ear"));
-        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
+        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-TEST", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, null, "test-ejb-jar.jar", null, null, null, jndiContext, parentModule);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, (JarFile)null, "test-war.war", null, null, null, contextRoot, WEB_NAMESPACE, jndiContext, parentModule);

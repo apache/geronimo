@@ -32,7 +32,7 @@ public class EARConfigBuilder5AltDDTest
     protected void setUp() throws Exception {
         super.setUp();
         earFile = JarUtils.createJarFile(resolveFile("target/test-ear-javaee_5.ear"));
-        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
+        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-TEST", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, null, "ejb.jar/", null, null, null, jndiContext, parentModule);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, (JarFile)null, "war.war/", null, null, null, contextRoot, WEB_NAMESPACE, jndiContext, parentModule);
