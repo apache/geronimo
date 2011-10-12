@@ -117,8 +117,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>commons-httpclient</artifactId>
         </dependency>
 
         <dependency>

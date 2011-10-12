@@ -72,19 +72,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
-                <version>3.1_4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
