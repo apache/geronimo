@@ -40,7 +40,10 @@
                 are wired immediately the application bundle is resolved
                 -->
                 <import-package>org.apache.wink.server.internal.resources</import-package>
-                <import-package>org.apache.wink.common.internal.runtime</import-package>                  
+                <import-package>org.apache.wink.common.internal.runtime</import-package>
+                <import-package>javax.ws.rs;version="1.1"</import-package>
+                <import-package>javax.ws.rs.core;version="1.1"</import-package>
+                <import-package>javax.ws.rs.ext;version="1.1"</import-package>
             </environment>
         </xml-attribute>
     </gbean>
