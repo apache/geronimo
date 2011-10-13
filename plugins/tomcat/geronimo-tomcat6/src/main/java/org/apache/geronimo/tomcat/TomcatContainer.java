@@ -210,7 +210,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         embedded.setUseNaming(false);
 
         //Add default contexts
-        File rootContext = new File(System.getProperty("catalina.home") + "/ROOT");
+        /*File rootContext = new File(System.getProperty("catalina.home") + "/ROOT");
 
         String docBase = "";
         if (rootContext.exists()) {
@@ -236,7 +236,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 ctx.setServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
             }
             hosts[i].addChild(defaultContext);
-        }
+        }*/
 
         // 6. Call addEngine() to attach this Engine to the set of defined
         // Engines for this object.
@@ -273,7 +273,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext ctx) throws Exception {
-        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getClassLoader());
+        //Tomcat internally use empty string to represent the root context        
+        Context anotherCtxObj = embedded.createContext(ctx.getContextPath().equals("/") ? "" : ctx.getContextPath(), ctx.getDocBase(), ctx.getClassLoader());
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);
