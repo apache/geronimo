@@ -202,23 +202,29 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
             String persistenceUnitName = persistenceRef.getPersistenceUnitName().trim();
             persistenceUnitNameQuery = findPersistenceUnit(module, localConfiguration, persistenceUnitName);
         } else {
-            AbstractName childName = module.getEarContext().getNaming().createChildName(module.getModuleName(), "", NameFactory.PERSISTENCE_UNIT);
-            Map<String, String> name = new HashMap<String, String>(childName.getName());
-            name.remove(NameFactory.J2EE_NAME);
-            persistenceUnitNameQuery = new AbstractNameQuery(null, name, PERSISTENCE_UNIT_INTERFACE_TYPES);
-            Set<AbstractNameQuery> patterns = Collections.singleton(persistenceUnitNameQuery);
-            LinkedHashSet<GBeanData> gbeans = localConfiguration.findGBeanDatas(localConfiguration, patterns);
-            persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
-            if (gbeans.isEmpty()) {
-                gbeans = localConfiguration.findGBeanDatas(patterns);
-                persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
-
-                if (gbeans.isEmpty()) {
-                    if (defaultPersistenceUnitAbstractNameQuery == null) {
-                        throw new DeploymentException("No default PersistenceUnit specified, and none located");
-                    }
-                    persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
+            LinkedHashSet<GBeanData> gbeans = new LinkedHashSet<GBeanData>();
+            do {
+                AbstractName childName = module.getEarContext().getNaming().createChildName(module.getModuleName(), "", NameFactory.PERSISTENCE_UNIT);
+                Map<String, String> name = new HashMap<String, String>(childName.getName());
+                name.remove(NameFactory.J2EE_NAME);
+                
+                persistenceUnitNameQuery = new AbstractNameQuery(null, name, PERSISTENCE_UNIT_INTERFACE_TYPES);
+                Set<AbstractNameQuery> patterns = Collections.singleton(persistenceUnitNameQuery);
+                gbeans = localConfiguration.findGBeanDatas(module.getEarContext().getConfiguration(), patterns);
+                
+                if (!gbeans.isEmpty()) {
+                    persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
+                    break;
                 }
+                                
+                module = module.getParentModule();
+            } while(module!=null);
+            
+            if (gbeans.isEmpty()) {
+                if (defaultPersistenceUnitAbstractNameQuery == null) {
+                    throw new DeploymentException("No default PersistenceUnit specified, and none located");
+                }
+                persistenceUnitNameQuery = defaultPersistenceUnitAbstractNameQuery;
             }
             checkForGBean(localConfiguration, persistenceUnitNameQuery, false, false, new HashSet<AbstractName>());
         }
