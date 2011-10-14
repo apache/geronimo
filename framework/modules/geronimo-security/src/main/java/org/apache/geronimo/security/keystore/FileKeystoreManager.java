@@ -127,7 +127,26 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if(file.canRead() && !file.isDirectory()) {
-                list.add(file.getName());
+                String name = file.getName();
+                if (name.lastIndexOf(".") == -1) {
+                    list.add(file.getName());
+                } else {
+                    String type = name.substring(name.lastIndexOf(".") + 1);    
+                    if (file.length()> 0){
+                        for(String ktype : KeystoreUtil.keystoreTypes ){
+                            if (ktype.toLowerCase().equals(type.toLowerCase())){                                
+                                list.add(file.getName());
+                            }
+                        }
+                    } else if (file.length() == 0){
+                        for (String ktype : KeystoreUtil.emptyKeystoreTypes){
+                            if (ktype.toLowerCase().equals(type.toLowerCase())){                        
+                                list.add(file.getName());
+                            }
+                        }
+                    }
+                }
+                            
             }
         }
         return (String[]) list.toArray(new String[list.size()]);
