@@ -84,7 +84,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      */
     private final Engine engine;
 
-    private final Map webServices = new HashMap();
+    private final Map<String, TomcatEJBWebServiceContext> webServices = new HashMap<String, TomcatEJBWebServiceContext>();
     private final String objectName;
     private final String[] applicationListeners;
     private final WebManager manager;
@@ -150,7 +150,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             // the default Realm if you are using container-managed security.
 
             //Add default contexts
-            File rootContext = new File(catalinaHome + "/ROOT");
+            /*File rootContext = new File(catalinaHome + "/ROOT");
 
             String docBase = "";
             if (rootContext.exists()) {
@@ -176,7 +176,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                     ctx.setServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
                 }
                 host.addChild(defaultContext);
-            }
+            }*/
 
             // 6. Call addEngine() to attach this Engine to the set of defined
             // Engines for this object.
@@ -265,7 +265,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        Context context = createContext(contextInfo.getContextPath(), contextInfo.getDocBase(), contextInfo.getClassLoader());
+        Context context = createContext(contextInfo.getContextPath().equals("/") ? "" : contextInfo.getContextPath(), contextInfo.getDocBase(), contextInfo.getClassLoader());
 
         // Set the context for the Tomcat implementation
         contextInfo.setContext(context);
@@ -283,50 +283,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (host == null) {
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");
         }
-
-        //Get the security-realm-name if there is one
-        SecurityHolder secHolder = contextInfo.getSecurityHolder() == null? new SecurityHolder(): contextInfo.getSecurityHolder();
-
-        //Did we declare a GBean at the context level?
-//        if (contextInfo.getRealm() != null) {
-//            Realm realm = contextInfo.getRealm();
-//
-//            //Allow for the <security-realm-name> override from the
-//            //geronimo-web.xml file to be used if our Realm is a JAAS type
-//            if (secHolder.getConfigurationFactory() != null) {
-//                if (realm instanceof JAASRealm) {
-//                    ((JAASRealm) realm).setAppName(secHolder.getConfigurationFactory().getConfigurationName());
-//                }
-//            }
-//            context.setRealm(realm);
-//        } else {
-//            Realm realm = host.getRealm();
-//            //Check and see if we have a declared realm name and no match to a parent name
-//            if (secHolder.getConfigurationFactory() != null) {
-//                    //Is the context requiring JACC?
-//                    if (secHolder.isSecurity()) {
-//                        //JACC
-//                        realm = new TomcatGeronimoRealm(secHolder.getConfigurationFactory());
-//                    } else {
-//                        //JAAS
-//                        realm = new TomcatJAASRealm(secHolder.getConfigurationFactory());
-//                        ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-//                        ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-//                    }
-//
-//                    if (log.isDebugEnabled()) {
-//                        log.debug("The security-realm-name '" + secHolder.getConfigurationFactory().getConfigurationName() +
-//                            "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
-//                            "Creating a default " + realm.getClass().getName() +
-//                            " adapter for this context.");
-//                    }
-//
-//                    context.setRealm(realm);
-//            } else {
-//                //The same reason with the above
-//                //anotherCtxObj.setRealm(realm);
-//            }
-//        }
         
         // add application listeners to the new context
         if (applicationListeners != null) {
@@ -382,15 +338,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                               Properties properties,
                               ClassLoader classLoader) throws Exception {
 
-        if( log.isDebugEnabled() )
+        if (log.isDebugEnabled()) {
             log.debug("Creating EJBWebService context '" + contextPath + "'.");
+        }
 
-        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, classLoader);
+        TomcatEJBWebServiceContext webServiceContext = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, classLoader);
         Subject defaultSubject = ContextManager.EMPTY;
         ContextConfig config = new EjbWsContextConfig(policyContextId,  configurationFactory, defaultSubject, authMethod, realmName);
-        context.addLifecycleListener(config);
+        webServiceContext.addLifecycleListener(config);
 
-        Context webServiceContext = (context);
+        
 
         String virtualServer;
         if (virtualHosts != null && virtualHosts.length > 0) {
@@ -422,9 +379,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     public Context createContext(String path, String docBase, ClassLoader cl) {
 
-        if( log.isDebugEnabled() )
-            log.debug("Creating context '" + path + "' with docBase '" +
-                       docBase + "'");
+        if (log.isDebugEnabled()) {
+            log.debug("Creating context '" + path + "' with docBase '" + docBase + "'");
+        }
 
         GeronimoStandardContext context = new GeronimoStandardContext();
 
