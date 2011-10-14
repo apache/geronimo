@@ -143,7 +143,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             // the default Realm if you are using container-managed security.
 
             //Add default contexts
-            File rootContext = new File(catalinaHome + "/ROOT");
+            /*File rootContext = new File(catalinaHome + "/ROOT");
 
             String docBase = "";
             if (rootContext.exists()) {
@@ -170,7 +170,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                     ctx.setInstanceManager(new TomcatInstanceManager(new Holder(), classLoader, null));
                 }
                 host.addChild(defaultContext);
-            }
+            }*/
 
             // 6. Call addEngine() to attach this Engine to the set of defined
             // Engines for this object.
@@ -191,13 +191,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
             //10. Set InstanceManager for each default Context
             //The reason for placing the codes here (not in the step 2 ) is NPE is get while invoking the getServletContext method
-            for (Container host : hosts) {
+            /*for (Container host : hosts) {
                 Container container = host.findChild("");
                 if (container instanceof GeronimoStandardContext) {
                     GeronimoStandardContext ctx = (GeronimoStandardContext) container;
                     ctx.getServletContext().setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
                 }
-            }
+            }*/
         }
         this.objectName = objectName;
         this.applicationListeners = applicationListeners;
@@ -266,7 +266,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader(), contextInfo.getWebAppInfo());
+        //Tomcat internally use empty string to represent the root context        
+        Context context = createContext(contextInfo.getContextPath().equals("/") ? "" : contextInfo.getContextPath(), contextInfo.getClassLoader(), contextInfo.getWebAppInfo());
         //Was a virtual server defined?
         String virtualServer = contextInfo.getVirtualServer();
         if (virtualServer == null) {
