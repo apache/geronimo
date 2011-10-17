@@ -36,8 +36,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -56,7 +54,13 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Maven2Repository;
+import org.apache.geronimo.kernel.util.CircularReferencesException;
+import org.apache.geronimo.kernel.util.IllegalNodeConfigException;
+import org.apache.geronimo.kernel.util.SortUtils;
+import org.apache.geronimo.kernel.util.SortUtils.Visitor;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -522,5 +526,83 @@ public final class ConfigurationUtil {
             }
             throw new InvalidConfigException("Unknown start exception", e);
         }
+    }
+
+    public static List<GBeanData> sortGBeanDataByDependency(final Collection<GBeanData> gbeanDatas) throws IllegalNodeConfigException, CircularReferencesException {
+
+        return SortUtils.sort(gbeanDatas, new Visitor<GBeanData>() {
+
+            @Override
+            public String getName(GBeanData t) {
+                return t.getAbstractName().toString();
+            }
+
+            @Override
+            public List<String> getAfterNames(GBeanData t) {
+                List<String> afterNames = new ArrayList<String>();
+                for (GBeanData gbeanData : gbeanDatas) {
+                    if (gbeanData == t) {
+                        continue;
+                    }
+                    if (isDependent(gbeanData, t)) {
+                        afterNames.add(gbeanData.getAbstractName().toString());
+                    }
+                }
+                return afterNames;
+            }
+
+            @Override
+            public List<String> getBeforeNames(GBeanData t) {
+                return Collections.<String>emptyList();
+            }
+
+            @Override
+            public boolean afterOthers(GBeanData t) {
+                return false;
+            }
+
+            @Override
+            public boolean beforeOthers(GBeanData t) {
+                return false;
+            }
+
+            /**
+            *
+            * @param o1
+            * @param o2
+            * @return true if o1 is dependent on o2
+            */
+           private boolean isDependent(GBeanData o1, GBeanData o2) {
+               for (ReferencePatterns referencePatterns : o1.getDependencies()) {
+                   if (match(referencePatterns, o2)) {
+                       return true;
+                   }
+               }
+               for (Map.Entry<String, ReferencePatterns> entry : o1.getReferences().entrySet()) {
+                   if (o1.getGBeanInfo().getReference(entry.getKey()).getProxyType().equals(Collection.class.getName())) {
+                       continue;
+                   }
+                   if (match(entry.getValue(), o2)) {
+                       return true;
+                   }
+               }
+               return false;
+           }
+
+           private boolean match(ReferencePatterns referencePatterns, GBeanData targetGBeanData) {
+               AbstractName targetAbstractName = targetGBeanData.getAbstractName();
+               if (referencePatterns.isResolved()) {
+                   return referencePatterns.getAbstractName().equals(targetAbstractName);
+               } else if (referencePatterns.getPatterns() != null) {
+                   for (AbstractNameQuery abstractNameQuery : referencePatterns.getPatterns()) {
+                       if (abstractNameQuery.matches(targetAbstractName, targetGBeanData.getGBeanInfo().getInterfaces())) {
+                           return true;
+                       }
+                   }
+               }
+               return false;
+           }
+        });
+
     }
 }

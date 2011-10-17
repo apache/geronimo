@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 import java.util.List;
 

@@ -15,23 +15,23 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 /**
  * @version $Rev$ $Date$
  */
-public class IllegalConfigurationException extends Exception {
+public class IllegalNodeConfigException extends Exception {
 
     private static final long serialVersionUID = -6131258240075237969L;
 
     private String nodeName;
 
-    public IllegalConfigurationException(String nodeName, String message) {
+    public IllegalNodeConfigException(String nodeName, String message) {
         super(message);
         this.nodeName = nodeName;
     }
 
-    public IllegalConfigurationException(String message) {
+    public IllegalNodeConfigException(String message) {
         super(message);
     }
 

@@ -47,13 +47,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.util.CircularReferencesException;
-import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils;
-import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils.Visitor;
-import org.apache.geronimo.j2ee.deployment.util.IllegalConfigurationException;
+import org.apache.geronimo.kernel.util.CircularReferencesException;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.IllegalNodeConfigException;
 import org.apache.geronimo.kernel.util.JoinUtils;
 import org.apache.geronimo.kernel.util.JoinUtils.NameCallback;
+import org.apache.geronimo.kernel.util.SortUtils;
+import org.apache.geronimo.kernel.util.SortUtils.Visitor;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.ServletSecurityAnnotationMergeHandler;
@@ -422,7 +422,7 @@ public class MergeHelper {
     public static WebFragmentEntry[] relativeOrderWebFragments(EARContext earContext, Module module, Bundle bundle, WebApp webApp, Map<String, WebFragmentEntry> webFragmentEntryMap)
             throws DeploymentException {
         try {
-            WebFragmentEntry[] webFragments = FragmentSortUtils.sort(webFragmentEntryMap.values(), new Visitor<WebFragmentEntry>() {
+            WebFragmentEntry[] webFragments = SortUtils.sort(webFragmentEntryMap.values(), new Visitor<WebFragmentEntry>() {
 
                 @Override
                 public boolean afterOthers(WebFragmentEntry entry) {
@@ -480,7 +480,7 @@ public class MergeHelper {
             }).toArray(new WebFragmentEntry[webFragmentEntryMap.values().size()]);
             saveOrderedLibAttribute(earContext, module, webFragments);
             return webFragments;
-        } catch (IllegalConfigurationException e) {
+        } catch (IllegalNodeConfigException e) {
             throw new DeploymentException("Jar file " + webFragmentEntryMap.get(e.getNodeName()).getJarURL() + " is not configured correctly for " + e.getMessage(), e);
         } catch (CircularReferencesException e) {
             StringBuilder circularReferenceInfo = new StringBuilder();
