@@ -24,7 +24,7 @@
 
     <properties>
         <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>3.0-beta-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>3.0-beta-1-SNAPSHOT</geronimoVersion>
 
     </properties>
 

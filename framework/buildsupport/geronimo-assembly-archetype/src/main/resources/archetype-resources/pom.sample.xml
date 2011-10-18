@@ -24,7 +24,7 @@
 
     <properties>
         <!-- This may be helpful in selecting the desired geronimo version -->
-        <geronimoVersion>3.0-beta-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>3.0-beta-1-SNAPSHOT</geronimoVersion>
 
     </properties>
 

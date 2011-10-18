@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
         <artifactId>monitoring</artifactId>
-        <version>3.0-beta-SNAPSHOT</version>
+        <version>3.0-beta-1-SNAPSHOT</version>
     </parent>
     <groupId>org.apache.geronimo.plugins.monitoring.itest</groupId>
     <artifactId>mconsole-itest-simple</artifactId>
