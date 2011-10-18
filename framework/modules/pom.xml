@@ -63,6 +63,7 @@
         <module>geronimo-rmi-loader</module>
         <module>geronimo-main</module>
         <module>geronimo-bundle-recorder</module>
+        <module>geronimo-hook</module>
     </modules>
 
     <profiles>
