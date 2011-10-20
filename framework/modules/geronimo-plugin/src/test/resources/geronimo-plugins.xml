@@ -29,7 +29,7 @@
                 <type>car</type>
             </module-id>
             <geronimo-versions>
-                <version>3.0-SNAPSHOT</version>
+                <version>3.0-TEST</version>
             </geronimo-versions>
             <prerequisite>
                 <id>
@@ -62,7 +62,7 @@
                 <type>car</type>
             </module-id>
             <geronimo-versions>
-                <version>3.0-SNAPSHOT</version>
+                <version>3.0-TEST</version>
             </geronimo-versions>
             <prerequisite>
                 <id>
