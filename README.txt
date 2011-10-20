@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v3.0-M1
+Apache Geronimo v3.0-beta-1
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-3.0-M1.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-3.0-beta-1.txt for a complete list of new features 
  available in this release. 
  
   
@@ -21,10 +21,6 @@ Documentation
  can be found here:
  
    -  http://cwiki.apache.org/GMOxDOC30/documentation.html
-   OR
-   -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.2 documentation until Geronimo 3.0-M1 documentation is created)
-
 
 ______________________
 Installing Geronimo
