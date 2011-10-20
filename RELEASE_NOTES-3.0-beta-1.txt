@@ -23,12 +23,12 @@ IMPORTANT
 This is a Beta release, that means that is not the final version of
 Apache Geronimo v3.0
 Take a look at "Known Issues and Limitations" section for further details.
-Most testing has been done on Linux, Mac OS X, and Windows.
 
 
 System Requirements
 -------------------
 You need a platform that supports the Sun JDK 6.0+ (J2SE 1.6.0+) or greater.
+Most testing has been done on Linux, Mac OS X, and Windows.
 
 
 Certification Status
