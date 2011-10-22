@@ -179,8 +179,8 @@ function showHideByCheckbox(cb,target){
       <td>
         The default groupId is "default".<br/>
         The other parts could be calculated automatically, if:<br/>
-        (1) the file name has the following form: &lt;artifact&gt;-&lt;version&gt;.&lt;type&gt;, for e.g. mylib-1.0.jar;<br/>
-        (2) or the file is an OSGi bundle, then the artifactId is its Bundle-SymbolicName and the version is its Bundle-Version; <br/>
+        (1) It is an OSGi bundle, then the artifactId is its Bundle-SymbolicName and the version is its Bundle-Version;<br/>
+        (2) It is a file with filename in the form: &lt;artifactId&gt;-&lt;version&gt;.&lt;type&gt;, for e.g. mylib-1.0.jar, and then it will be converted to an OSGi Bundle using the artifactId as the Bundle-SymbolicName, and using version as the Bundle-Version.<br/>
       </td>
     </tr>
     <tr class="LightBackground">
