@@ -1138,8 +1138,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         Artifact artifact = calculateArtifact(libFile, libFile.getName(), groupId);
         if (artifact == null)
             throw new IllegalArgumentException("Can not calculate Artifact string, file should be:\n"
-                    + "(1) a file with filename in the form <artifact>-<version>.<type>, for e.g. mylib-1.0.jar;\n"
-                    + "(2) or an OSGi bundle");
+                    + "(1) an OSGi bundle, then the artifactId is its Bundle-SymbolicName and the version is its Bundle-Version;\n"
+                    + "(2) or a file with filename in the form <artifactId>-<version>.<type>, for e.g. mylib-1.0.jar");
         installLibrary(libFile, artifact);
         return artifact;
     }
@@ -1154,7 +1154,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             // convert to osgi bundle jars using wrap url handler
             URL wrap = new URL("wrap", null, libFile.toURI().toURL().toExternalForm() 
                     + "$Bundle-SymbolicName=" + artifact.getArtifactId() 
-                    + "&Bundle-Version=" + artifact.getVersion().toString().replace("-", "."));
+                    + "&Bundle-Version=" + artifact.getVersion().toString().replace("-", ".")); //need improve the version processing
             InputStream in = null;
             try {
                 in = wrap.openStream();
@@ -1171,13 +1171,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         try {
             jar = new JarFile(file);
             Manifest manifest = jar.getManifest();
-            if (manifest != null &&
-                    manifest.getMainAttributes().getValue("Bundle-SymbolicName") != null &&
-                    manifest.getMainAttributes().getValue("Bundle-Version") != null) {
-                return new String[]{
-                        manifest.getMainAttributes().getValue("Bundle-SymbolicName"),
-                        manifest.getMainAttributes().getValue("Bundle-Version")
-                        };
+            if (manifest != null){
+                String symbolic = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+                String version = manifest.getMainAttributes().getValue("Bundle-Version");
+                if (symbolic!=null && version!=null) {
+                    return new String[]{symbolic,version};
+                }
             } 
         } finally {
             if (jar!=null) jar.close();
@@ -1207,30 +1206,23 @@ public class PluginInstallerGBean implements PluginInstaller {
         String version = null;
         String fileType = null;
         
-        // firstly, try calculate artifact string from the file name
-        Matcher matcher = MAVEN_1_PATTERN_PART.matcher(fileName);
-        if (matcher.matches()) {
-            artifactId = matcher.group(1);
-            version = matcher.group(2);
-            fileType = matcher.group(3);
+        
+        String[] bundleKey = identifyOSGiBundle(file);
+        if (bundleKey != null){ //try calculate if it is an OSGi bundle
+            artifactId = bundleKey[0]; //Bundle-SymbolicName
+            version = bundleKey[1]; //Bundle-Version
+            fileType = "jar";
+            return new Artifact(groupId, artifactId, version, fileType);
             
-            return new Artifact(groupId,artifactId,version,fileType);
-            
-        } else { //else try calculate if it is an OSGi bundle
-            String[] bundleKey = identifyOSGiBundle(file);
-            if (bundleKey != null){
-                artifactId = bundleKey[0]; //Bundle-SymbolicName
-                version = bundleKey[1]; //Bundle-Version
-
-                if (fileName.lastIndexOf(".") != -1) {
-                    fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-                } else {
-                    fileType = "jar";
-                }
-
-                return new Artifact(groupId, artifactId, version, fileType);
+        } else { // not an OSGi bundle, try calculate artifact string from the file name
+            Matcher matcher = MAVEN_1_PATTERN_PART.matcher(fileName);
+            if (matcher.matches()) {
+                artifactId = matcher.group(1);
+                version = matcher.group(2);
+                fileType = matcher.group(3);
+                return new Artifact(groupId,artifactId,version,fileType);
                 
-            } else {
+            }else{
                 return null;
             }
         }
