@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
+
 import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.assembler.classic.AppInfo;
@@ -57,7 +58,7 @@ import org.apache.webbeans.util.WebBeansUtil;
  * @version $Rev$ $Date$
  */
 public class OpenWebBeansWebInitializer {
-    
+
     /**Logger instance*/
     private static final WebBeansLogger logger = WebBeansLogger.getLogger(OpenWebBeansWebInitializer.class);
 
@@ -79,16 +80,16 @@ public class OpenWebBeansWebInitializer {
         services.put(ELAdaptor.class, new EL22Adaptor());
         services.put(LoaderService.class, new OptimizedLoaderService());
 
-        if (startup != null && startup instanceof StartupObject){
-            
-            ClassLoader cl=((StartupObject)startup).getAppContext().getClassLoader();
+        if (startup != null && startup instanceof StartupObject) {
+
+            ClassLoader cl = ((StartupObject) startup).getAppContext().getClassLoader();
             try {
                 services.put(ConversationService.class, Class.forName("org.apache.webbeans.jsf.DefaultConversationService", true, cl).newInstance());
             } catch (Exception e1) {
                 logger.info("openWebbeans-jsf is not in the classpath because the app does not contain webbean, conversationService will not be available.");
             }
         }
-  
+
         services.put(ContextsService.class, new CdiAppContextsService(true));
         services.put(ResourceInjectionService.class, new CdiResourceInjectionService());
         services.put(ScannerService.class, new CdiScanner());
@@ -100,19 +101,19 @@ public class OpenWebBeansWebInitializer {
         WebBeansContext oldContext = GeronimoSingletonService.contextEntered(webBeansContext);
         try {
             //from OWB's WebBeansConfigurationListener
-
             try {
                 if (startup == null) {
                     //this should only be used for servlet tests
-                    StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(), Collections.<BeanContext>emptyList());
+                    StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(),
+                            Collections.<BeanContext> emptyList());
                     lifecycle.startApplication(startupObject);
-//                        lifecycle.startServletContext((ServletContext)startup);
+                    //lifecycle.startServletContext((ServletContext)startup);
                 } else if (startup instanceof StartupObject) {
                     lifecycle.startApplication(startup);
-//                        ((StartupObject)startup).getAppContext().setWebBeansContext(webBeansContext);
+                    //((StartupObject)startup).getAppContext().setWebBeansContext(webBeansContext);
                 }
             } catch (Exception e) {
-                //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+                //logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
                 WebBeansUtil.throwRuntimeExceptions(e);
             }
 
@@ -132,47 +133,47 @@ public class OpenWebBeansWebInitializer {
         }
     }
 
-//    public OpenWebBeansWebInitializer(WebBeansContext webBeansContext, ServletContext servletContext) {
-//        GeronimoSingletonService.contextEntered(webBeansContext);
-//
-//        try {
-//            setConfiguration(webBeansContext);
-//            //from OWB's WebBeansConfigurationListener
-//            if (servletContext != null) {
-//                ContainerLifecycle lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
-//
-//                try {
-//                    lifeCycle.startApplication(new ServletContextEvent(servletContext));
-//                }
-//                catch (Exception e) {
-//                    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-//                    WebBeansUtil.throwRuntimeExceptions(e);
-//                }
-//            }
-//
-//        } finally {
-//            GeronimoSingletonService.contextExited(null);
-//        }
-//    }
-//
-//    private void setConfiguration(WebBeansContext webBeansContext) {
-//        OpenWebBeansConfiguration configuration = webBeansContext.getOpenWebBeansConfiguration();
-//        configuration.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
-//
-//        webBeansContext.registerService(JNDIService.class, new NoopJndiService());
-//        webBeansContext.registerService(ScannerService.class, new OsgiMetaDataScannerService(webBeansContext));
-//        webBeansContext.registerService(ContextsService.class, new WebContextsService(webBeansContext));
-//        webBeansContext.registerService(ResourceInjectionService.class, new GeronimoResourceInjectionService(webBeansContext));
-//        webBeansContext.registerService(ELAdaptor.class, new EL22Adaptor());
-//        //must be last since it idiotically copies stuff
-//        webBeansContext.registerService(ContainerLifecycle.class, new WebContainerLifecycle());
-////        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, WebContainerLifecycle.class.getName());
-////        configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
-////        configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
-////        configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
-////        configuration.setProperty(OpenWebBeansConfiguration.RESOURCE_INJECTION_SERVICE, GeronimoResourceInjectionService.class.getName());
-////        configuration.setProperty(OpenWebBeansConfiguration.EL_ADAPTOR_CLASS, EL22Adaptor.class.getName());
-//    }
+    //    public OpenWebBeansWebInitializer(WebBeansContext webBeansContext, ServletContext servletContext) {
+    //        GeronimoSingletonService.contextEntered(webBeansContext);
+    //
+    //        try {
+    //            setConfiguration(webBeansContext);
+    //            //from OWB's WebBeansConfigurationListener
+    //            if (servletContext != null) {
+    //                ContainerLifecycle lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
+    //
+    //                try {
+    //                    lifeCycle.startApplication(new ServletContextEvent(servletContext));
+    //                }
+    //                catch (Exception e) {
+    //                    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+    //                    WebBeansUtil.throwRuntimeExceptions(e);
+    //                }
+    //            }
+    //
+    //        } finally {
+    //            GeronimoSingletonService.contextExited(null);
+    //        }
+    //    }
+    //
+    //    private void setConfiguration(WebBeansContext webBeansContext) {
+    //        OpenWebBeansConfiguration configuration = webBeansContext.getOpenWebBeansConfiguration();
+    //        configuration.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
+    //
+    //        webBeansContext.registerService(JNDIService.class, new NoopJndiService());
+    //        webBeansContext.registerService(ScannerService.class, new OsgiMetaDataScannerService(webBeansContext));
+    //        webBeansContext.registerService(ContextsService.class, new WebContextsService(webBeansContext));
+    //        webBeansContext.registerService(ResourceInjectionService.class, new GeronimoResourceInjectionService(webBeansContext));
+    //        webBeansContext.registerService(ELAdaptor.class, new EL22Adaptor());
+    //        //must be last since it idiotically copies stuff
+    //        webBeansContext.registerService(ContainerLifecycle.class, new WebContainerLifecycle());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, WebContainerLifecycle.class.getName());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.RESOURCE_INJECTION_SERVICE, GeronimoResourceInjectionService.class.getName());
+    ////        configuration.setProperty(OpenWebBeansConfiguration.EL_ADAPTOR_CLASS, EL22Adaptor.class.getName());
+    //    }
 
     public static class NoopJndiService implements JNDIService {
 
