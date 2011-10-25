@@ -213,6 +213,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         usageView = portletConfig.getPortletContext().getRequestDispatcher(USAGE_VIEW);
         rarPathMap = new HashMap<String, String>();
         rarPathMap.put("TranQL XA Resource Adapter for DB2", "tranql-connector-db2-xa");
+         rarPathMap.put("TranQL XA Resource Adapter for DB2ISeries", "tranql-connector-db2ISeries-xa");
         rarPathMap.put("TranQL Client Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-client-local");
         rarPathMap.put("TranQL Client XA Resource Adapter for Apache Derby", "tranql-connector-derby-client-xa");
 //      rarPathMap.put("TranQL Embedded Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
@@ -227,6 +228,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         rarPathMap.put("TranQL XA Resource Adapter for PostgreSQL", "tranql-connector-postgresql-xa");
         rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2000", "tranql-connector-sqlserver2000-xa");
         rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2005", "tranql-connector-sqlserver2005-xa");
+        rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2008", "tranql-connector-sqlserver2008-xa");
     }
 
     public void destroy() {

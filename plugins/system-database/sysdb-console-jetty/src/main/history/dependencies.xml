@@ -126,4 +126,9 @@
         <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
         <type>rar</type>
     </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-sqlserver2008-xa</artifactId>
+        <type>rar</type>
+    </dependency>
 </plugin-artifact>
