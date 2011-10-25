@@ -1128,7 +1128,6 @@ to a jury trial in any resulting litigation.
 The artifacts under the following folder are covered by the Eclipse Public License:
 
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdt-core/
-./repository/org/eclipse/jetty/
 ./repository/org/eclipse/osgi/
 
 =========================================================================
