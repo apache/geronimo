@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v3.0-M1
+Apache Geronimo v3.0-beta-1
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-3.0-M1.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-3.0-beta-1.txt for a complete list of new features 
  available in this release. 
  
   
@@ -21,10 +21,6 @@ Documentation
  can be found here:
  
    -  http://cwiki.apache.org/GMOxDOC30/documentation.html
-   OR
-   -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.2 documentation until Geronimo 3.0-M1 documentation is created)
-
 
 ______________________
 Installing Geronimo
@@ -61,7 +57,7 @@ Application Deployment
  Applications can be deployed to a Geronimo server in several ways:
 
  1. Administrative command scripts -- "./bin/deploy deploy MyApp.war MyDeploymentPlan.xml"
- 2. Administrative console -- login to the admin console and click "Deployer" under Applications
+ 2. Administrative console -- login to the admin console and click "Deploy New" under Applications
  3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
     hot deploy service will automatically deploy these artifacts.
  4. Maven -- applications can be installed as part of a maven build
