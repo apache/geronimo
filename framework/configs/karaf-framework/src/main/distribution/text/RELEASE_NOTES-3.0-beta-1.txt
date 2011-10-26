@@ -46,11 +46,12 @@ The available distributions are as follows:
 Certified distributions:
 - Apache Geronimo server using Tomcat as the Web container and Axis2 as the Web 
   Services engine. (Java EE 6 Full Profile Certificated)
-
+- Apache Geronimo server assembly using Tomcat as the Web container. (Java EE 6 
+  Web Profile Certified)
+  
 Non-Certified distributions:
 - Apache Geronimo server using Jetty as the Web container and CXF as the Web 
   Services engine.
-- Apache Geronimo server assembly using Tomcat as the Web container.
 - Apache Geronimo server assembly using Jetty as the Web container. 
 - A minimal Geronimo server (Little-G) assembly using the Jetty web-container.
 - A minimal Geronimo server (Little-G) assembly using the Tomcat web-container.
