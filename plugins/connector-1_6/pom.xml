@@ -199,7 +199,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-db2-xa</artifactId>
-                <version>1.6</version>
+                <version>1.7</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
@@ -385,8 +385,25 @@
             
             <dependency>
                 <groupId>org.tranql</groupId>
-                <artifactId>tranql-connector-db2ISeries-xa</artifactId>
+                <artifactId>tranql-connector-sqlserver2008-xa</artifactId>
                 <version>1.0</version>
+                <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-sqlserver2008-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.tranql</groupId>
+                <artifactId>tranql-connector-db2ISeries-xa</artifactId>
+                <version>1.1</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>

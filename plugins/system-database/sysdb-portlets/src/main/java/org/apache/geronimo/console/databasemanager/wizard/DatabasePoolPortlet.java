@@ -232,6 +232,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         rarPathMap.put("TranQL XA Resource Adapter for PostgreSQL", "tranql-connector-postgresql-xa");
         rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2000", "tranql-connector-sqlserver2000-xa");
         rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2005", "tranql-connector-sqlserver2005-xa");
+        rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2008", "tranql-connector-sqlserver2008-xa");
     }
 
     public void destroy() {
@@ -1165,7 +1166,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 entry.getValue());
                     }
                 }
-                /*Make pool setting effective after server restart                
+                /*Make pool setting effective after server restart*/         
                 Jsr77Naming naming = new Jsr77Naming();
                 AbstractName connectionManagerName = naming.createChildName(new AbstractName(URI.create(data.getAbstractName())), data.getName(), NameFactory.JCA_CONNECTION_MANAGER);
                 PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(request, connectionManagerName);
@@ -1179,7 +1180,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                                 data.blockingTimeout));
                 pool.setIdleTimeoutMinutes(
                         data.idleTimeout == null || data.idleTimeout.equals("") ? 15 : Integer.parseInt(
-                                data.idleTimeout));*/
+                                data.idleTimeout));
                                 
             } catch (Exception e) {
                 log.error("Unable to save connection pool", e);
