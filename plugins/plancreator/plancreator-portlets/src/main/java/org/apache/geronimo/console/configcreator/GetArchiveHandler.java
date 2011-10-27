@@ -61,33 +61,45 @@ public class GetArchiveHandler extends AbstractHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        FileItem fileItem = (FileItem) getUploadFiles().get(MODULE_URI_PARAMETER);
-        String fileName = fileItem.getName();
-        if (fileName != null && fileName.length() > 0) {
-            File uploadedFile = uploadFile(fileItem);
-            ApplicationInfo applicationInfo = JSR88_Util.createApplicationInfo(request, uploadedFile);
-            ConfigurationModuleType applicationType = applicationInfo.getType();
-            if (ConfigurationModuleType.WAR == applicationType) {
-                WARConfigData data = setNewWARSessionData(request);
-                data.setUploadedWarUri(uploadedFile.toURI().toString());
-                data.parseWeb((WebModule) (applicationInfo.getModules().toArray()[0]));
-                return ENVIRONMENT_MODE + "-before";
+        String errorMsg = portlet.getLocalizedString(request, "errorMsg01");
+        try {
+            FileItem fileItem = (FileItem) getUploadFiles().get(MODULE_URI_PARAMETER);
+            String fileName = fileItem.getName();
+            if (fileName != null && fileName.length() > 0) {
+                File uploadedFile = uploadFile(fileItem);
+                ApplicationInfo applicationInfo = JSR88_Util.createApplicationInfo(request, uploadedFile);
+                ConfigurationModuleType applicationType = applicationInfo.getType();
+                if (ConfigurationModuleType.WAR == applicationType) {
+                    WARConfigData data = setNewWARSessionData(request);
+                    data.setUploadedWarUri(uploadedFile.toURI().toString());
+                    data.parseWeb((WebModule) (applicationInfo.getModules().toArray()[0]));
+                    return ENVIRONMENT_MODE + "-before";
+                }
+                if (ConfigurationModuleType.EAR == applicationType) {
+                    EARConfigData earConfigData = setNewEARSessionData(request);
+                    earConfigData.parseEAR(applicationInfo);
+                    return EAR_MODE + "-before";
+                }
+                if (ConfigurationModuleType.EJB == applicationType) {
+                    EjbConfigData ejbJarConfigData = setNewEjbJarSessionData(request);
+                    ejbJarConfigData.parseEjbJar((EjbModule) (applicationInfo.getModules().toArray()[0]));
+                    return EJB_MODE + "-before";
+                }
             }
-            if (ConfigurationModuleType.EAR == applicationType) {
-                EARConfigData earConfigData = setNewEARSessionData(request);
-                earConfigData.parseEAR(applicationInfo);
-                return EAR_MODE + "-before";
-            }
-            if (ConfigurationModuleType.EJB == applicationType) {
-                EjbConfigData ejbJarConfigData = setNewEjbJarSessionData(request);
-                ejbJarConfigData.parseEjbJar((EjbModule) (applicationInfo.getModules().toArray()[0]));
-                return EJB_MODE + "-before";
-            }
+        } catch(Throwable e) {
+            errorMsg = getRootCause(e).getMessage();
         }
-        portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"));
+        portlet.addErrorMessage(request, errorMsg);
         return getMode();
     }
-
+    
+    private Throwable getRootCause(Throwable e) {
+        while(e.getCause() != null && e.getCause() != e) {
+            e = e.getCause();
+        }
+        return e;
+    }
+    
     private File uploadFile(FileItem fileItem) throws PortletException, IOException {
         File tempDir = File.createTempFile("geronimo-planCreator", ".tmpdir");
         tempDir.delete();
