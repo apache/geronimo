@@ -16,8 +16,7 @@
   limitations under the License.
 -->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1" 
-         xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1" 
-        >
+         xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
   <dep:environment>
     <dep:moduleId>
       <dep:groupId>JEE5</dep:groupId>
@@ -26,16 +25,18 @@
       <dep:type>car</dep:type>
     </dep:moduleId>
   </dep:environment>
-
- <service-ref>
-   <service-ref-name>services/Greeter</service-ref-name>
-   <port>
+  
+  <context-root>/jaxrpc-war</context-root>
+  
+  <service-ref>
+    <service-ref-name>services/Greeter</service-ref-name>
+    <port>
       <port-name>GreeterPort</port-name>
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
-      <uri>/jaxrpc-war-3.0-SNAPSHOT/servlet</uri>
-   </port>
- </service-ref>
+      <uri>/jaxrpc-war/servlet</uri>
+    </port>
+  </service-ref>
 
 </web-app>
