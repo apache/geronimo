@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-beta-1-SNAPSHOT</version>
+        <version>3.0-beta-1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -55,8 +55,8 @@
         </goals>
         <configuration>
         <tasks>
-        <jar destfile="${basedir}/src/main/resources/bin/server.jar" manifest="${basedir}/src/main/resources/server/MANIFEST.MF"></jar>
-        <jar destfile="${basedir}/src/main/resources/bin/shutdown.jar" manifest="${basedir}/src/main/resources/shutdown/MANIFEST.MF"></jar>
+        <jar destfile="${basedir}/src/main/resources/bin/server.jar" manifest="${basedir}/src/main/resources/server/MANIFEST.MF" />
+        <jar destfile="${basedir}/src/main/resources/bin/shutdown.jar" manifest="${basedir}/src/main/resources/shutdown/MANIFEST.MF" />
         </tasks>
         </configuration>
         </execution>

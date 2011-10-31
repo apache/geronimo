@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxws-provider-tests</artifactId>
-        <version>3.0-beta-1-SNAPSHOT</version>
+        <version>3.0-beta-1</version>
     </parent>
 
     <artifactId>provider-common</artifactId>
