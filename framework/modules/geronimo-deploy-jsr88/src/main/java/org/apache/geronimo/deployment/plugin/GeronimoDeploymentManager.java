@@ -34,4 +34,6 @@ public interface GeronimoDeploymentManager extends DeploymentManager, PluginInst
 
     public <T> T getImplementation(Class<T> clazz);
     public URL[] getRepositories();
+    public boolean isRedefineClassesSupported();
+    
 }
