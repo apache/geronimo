@@ -75,10 +75,9 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <module>uddi-db</module>
-                <module>uddi-jetty</module>
-                <module>uddi-tomcat</module>
+                <!--
                 <module>uddi-jetty-server</module>
+                -->
             </modules>
         </profile>
     </profiles>
