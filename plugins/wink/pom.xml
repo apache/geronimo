@@ -53,9 +53,11 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <!--
+                <module>geronimo-wink</module>
+                <module>geronimo-wink-builder</module>
+                <module>wink</module>
+                <module>wink-deployer</module>
                 <module>wink-tomcat-server</module>
-                -->
             </modules>
         </profile>
     </profiles>
