@@ -33,12 +33,14 @@ public class WebApplicationConstants {
     public static final String WEB_APP_INFO = "WEB_APP_INFO";
 
     public static final String WEB_APP_NAME = "WEB_APP_NAME";
-    
+
     public static final String WEB_APPLICATION_STAGE = "org.apache.geronimo.webapplication.stage";
-    
+
     public static final String WEB_APPLICATION_PRODUCTION_STAGE = "PRODUCTION";
-    
+
     public static final String WEB_APPLICATION_DEVELOPMENT_STAGE = "DEVELOPMENT";
-    
+
     public static final String WEB_APPLICATION_GET_REAL_PATH_SUPPORT = "org.apache.geronimo.webapplication.getrealpath.support";
+
+    public static final String WEB_MODULE_LISTENERS = "org.apache.geronimo.webapplication.web_modue_listeners";
 }

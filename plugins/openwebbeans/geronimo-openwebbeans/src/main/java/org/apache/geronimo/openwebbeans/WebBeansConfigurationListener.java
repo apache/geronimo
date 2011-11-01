@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.openejb.cdi;
+package org.apache.geronimo.openwebbeans;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
@@ -32,6 +32,7 @@ import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.webbeans.component.InjectionPointBean;
 import org.apache.webbeans.config.OWBLogConst;
 import org.apache.webbeans.config.WebBeansContext;
@@ -64,46 +65,27 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     protected WebBeansContext webBeansContext;
 
     /**
-     * Default constructor
-     */
-    public WebBeansConfigurationListener()
-    {
-        this.webBeansContext = WebBeansContext.getInstance();
-        this.failoverService = webBeansContext.getService(FailOverService.class);     
-    }
-
-
-    /**
      * {@inheritDoc}
      */
-    public void contextInitialized(ServletContextEvent event)
-    {
-        try
-        {
-            this.lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
-            if (lifeCycle instanceof org.apache.webbeans.web.lifecycle.WebContainerLifecycle) {
-            	this.lifeCycle.startApplication(event);
-            } else {
-            	this.lifeCycle = null;
-            }
-        }
-        catch (Exception e)
-        {
-             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-             WebBeansUtil.throwRuntimeExceptions(e);
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void contextDestroyed(ServletContextEvent event)
-    {
-        if (this.lifeCycle != null) {
-            this.lifeCycle.stopApplication(event);
+    public void contextInitialized(ServletContextEvent event) {
+        String webModuleName = (String) event.getServletContext().getAttribute(WebApplicationConstants.WEB_APP_NAME);
+        OpenWebBeansWebAppContext webAppContext = OpenWebBeansWebAppContext.getOpenWebBeansWebAppContext(webModuleName);
+        this.webBeansContext = webAppContext.getWebBeansContext();
+        this.failoverService = webBeansContext.getService(FailOverService.class);
+        this.lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
+        if (lifeCycle instanceof org.apache.webbeans.web.lifecycle.WebContainerLifecycle) {
+            this.lifeCycle.startApplication(event);
+        } else {
             this.lifeCycle = null;
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void contextDestroyed(ServletContextEvent event) {
+        this.lifeCycle = null;
         this.webBeansContext = null;
     }
 
@@ -217,7 +199,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
         ConversationManager conversationManager = webBeansContext.getConversationManager();
         conversationManager.destroyConversationContextWithSessionId(event.getSession().getId());
     }
-    
+
 
     @Override
     public void sessionWillPassivate(HttpSessionEvent event)

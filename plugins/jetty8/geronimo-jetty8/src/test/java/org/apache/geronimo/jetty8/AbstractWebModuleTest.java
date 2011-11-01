@@ -70,7 +70,6 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
-import org.apache.webbeans.config.WebBeansFinder;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
@@ -117,7 +116,6 @@ public class AbstractWebModuleTest extends TestSupport {
     }
 
     protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString, WebAppInfo webAppInfo) throws Exception {
-        WebBeansFinder.clearInstances(getClass().getClassLoader());
         ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager = null;
         //Setup default JSP Factory
         Class.forName("org.apache.jasper.compiler.JspRuntimeContext");
@@ -187,7 +185,6 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 contextSource,
                 transactionManager,
-                null,
                 deploymentAttributes
         );
         app.doStart();

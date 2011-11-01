@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.j2ee.annotation;
 
 import java.io.Serializable;
@@ -29,11 +28,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.webbeans.inject.OWBInjector;
 import org.apache.xbean.recipe.ConstructionException;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
@@ -44,14 +43,19 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class Holder implements Serializable {
+
     private static final Logger log = LoggerFactory.getLogger(Holder.class);
+
     public static final Holder EMPTY = new Holder() {
     };
 
     private Map<String, Set<Injection>> injectionMap;
+
     private Map<String, LifecycleMethod> postConstruct;
+
     private Map<String, LifecycleMethod> preDestroy;
 
+    private List<Interceptor> interceptors = new CopyOnWriteArrayList<Interceptor>();
 
     public Holder() {
     }
@@ -150,9 +154,7 @@ public class Holder implements Serializable {
     }
 
     public boolean isEmpty() {
-        return (injectionMap == null || injectionMap.isEmpty())
-                && (postConstruct == null || postConstruct.isEmpty())
-                && (preDestroy == null || preDestroy.isEmpty());
+        return (injectionMap == null || injectionMap.isEmpty()) && (postConstruct == null || postConstruct.isEmpty()) && (preDestroy == null || preDestroy.isEmpty());
     }
 
     public Object newInstance(String className, ClassLoader classLoader, Context context) throws IllegalAccessException, InstantiationException {
@@ -163,7 +165,7 @@ public class Holder implements Serializable {
         try {
             clazz = classLoader.loadClass(className);
         } catch (ClassNotFoundException e) {
-            throw (InstantiationException)new InstantiationException("Can't load class " + className + " in classloader: " + classLoader).initCause(e);
+            throw (InstantiationException) new InstantiationException("Can't load class " + className + " in classloader: " + classLoader).initCause(e);
         }
         List<NamingException> problems = new ArrayList<NamingException>();
         while (clazz != Object.class) {
@@ -177,14 +179,15 @@ public class Holder implements Serializable {
         try {
             result = objectRecipe.create(classLoader);
         } catch (ConstructionException e) {
-            throw (InstantiationException)new InstantiationException("Could not construct object").initCause(e);
+            throw (InstantiationException) new InstantiationException("Could not construct object").initCause(e);
         }
-        // TODO we likely don't want to create a new one each time -- investigate the destroy() method
-        OWBInjector beanInjector = new OWBInjector();
+        InvocationContext invocationContext = new InvocationContext(context, result);
         try {
-            beanInjector.inject(result);
-        } catch (Exception e) {
-            throw (InstantiationException)new InstantiationException("web beans injection problem").initCause(e);
+            for (Interceptor interceptor : interceptors) {
+                interceptor.instancerCreated(invocationContext);
+            }
+        } catch (InterceptorException e) {
+            throw (InstantiationException) new InstantiationException("Interceptor invocation failed").initCause(e);
         }
 
         if (getPostConstruct() != null) {
@@ -245,4 +248,57 @@ public class Holder implements Serializable {
         }
     }
 
+    public boolean addInterceptor(Interceptor interceptor) {
+        return interceptors.add(interceptor);
+    }
+
+    public boolean removeInterceptor(Interceptor interceptor) {
+        return interceptors.remove(interceptor);
+    }
+
+    public static interface Interceptor {
+
+        public void instancerCreated(InvocationContext context) throws InterceptorException;
+
+        public void instanceDestoryed(InvocationContext context) throws InterceptorException;
+
+        public void postConstructInvoked(InvocationContext context) throws InterceptorException;
+    }
+
+    public static class InterceptorException extends Exception {
+
+        public InterceptorException(Throwable cause) {
+            super(cause);
+        }
+
+        public InterceptorException(String message) {
+            super(message);
+        }
+
+        public InterceptorException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+    }
+
+    public static class InvocationContext {
+
+        private final Context context;
+
+        private final Object instance;
+
+        public InvocationContext(Context context, Object instance) {
+            this.context = context;
+            this.instance = instance;
+        }
+
+        public Context getContext() {
+            return context;
+
+        }
+
+        public Object getInstance() {
+            return instance;
+        }
+    }
 }

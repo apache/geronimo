@@ -17,10 +17,12 @@
 
 package org.apache.geronimo.jetty8;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,15 +56,12 @@ import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.openejb.cdi.OpenWebBeansWebInitializer;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
-import org.apache.webbeans.config.WebBeansContext;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.SessionManager;
@@ -136,7 +135,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamReference(name = "J2EEApplication") J2EEApplication application,
                                 @ParamReference(name = "ContextSource") ContextSource contextSource,
                                 @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
-                                @ParamReference(name = "SharedOwbContext") SharedOwbContext sharedOwbContext,
 
                                 @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes
     ) throws Exception {
@@ -222,8 +220,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
             }
         }
 
-        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, abName.toString());
-        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, abName.getNameProperty(NameFactory.J2EE_NAME));
+        List<String> webModuleListenerClassNames = (List<String>) deploymentAttributes.get(WebApplicationConstants.WEB_MODULE_LISTENERS);
+        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager,  webModuleListenerClassNames == null ? Collections.<String>emptyList() : webModuleListenerClassNames);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
@@ -303,23 +302,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
-        WebBeansContext webBeansContext;
-        if (sharedOwbContext == null) {
-            webBeansContext = OpenWebBeansWebInitializer.newWebBeansContext(null);
-        } else {
-            webBeansContext= sharedOwbContext.getOWBContext();
-        }
-        Thread thread = Thread.currentThread();
-        ClassLoader cl = thread.getContextClassLoader();
-        thread.setContextClassLoader(classLoader);
-        try {
-            OpenWebBeansWebInitializer.initializeServletContext(webBeansContext, webAppContext.getServletContext());
-        } finally {
-            thread.setContextClassLoader(cl);
-        }
-        integrationContext.setOwbContext(webBeansContext);
     }
-
 
     public String getObjectName() {
         return objectName;

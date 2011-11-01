@@ -37,8 +37,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.openejb.cdi.GeronimoSingletonService;
-import org.apache.webbeans.config.WebBeansContext;
 import org.eclipse.jetty.server.Request;
 import org.osgi.framework.Bundle;
 
@@ -56,7 +54,6 @@ public class IntegrationContext {
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
     private final String webApplicationIdentity;
-    private WebBeansContext owbContext;
 
     public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, String webApplicationIdentity) {
         this.componentContext = componentContext;
@@ -179,22 +176,5 @@ public class IntegrationContext {
 
     public Map<ServletContainerInitializer, Set<Class<?>>> getServletContainerInitializerMap() {
         return servletContainerInitializerMap;
-    }
-
-
-    public WebBeansContext contextEntered() {
-        return GeronimoSingletonService.contextEntered(owbContext);
-    }
-
-    public void contextExited(WebBeansContext oldOWBContext) {
-        GeronimoSingletonService.contextExited(oldOWBContext);
-    }
-
-    public void setOwbContext(WebBeansContext owbContext) {
-        this.owbContext = owbContext;
-    }
-
-    public WebBeansContext getOWBContext() {
-        return owbContext;
     }
 }

@@ -1845,10 +1845,6 @@ only found in cxf
                         <groupId>org.apache.aries.testsupport</groupId>
                         <artifactId>org.apache.aries.testsupport.unit</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
                 </exclusions>
             </dependency>
             

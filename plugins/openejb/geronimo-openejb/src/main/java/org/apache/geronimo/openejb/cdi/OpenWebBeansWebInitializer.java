@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.servlet.ServletContext;
 
@@ -99,35 +100,35 @@ public class OpenWebBeansWebInitializer {
         webBeansContext.registerService(ContainerLifecycle.class, lifecycle);
 
         WebBeansContext oldContext = GeronimoSingletonService.contextEntered(webBeansContext);
+        //from OWB's WebBeansConfigurationListener
         try {
-            //from OWB's WebBeansConfigurationListener
-            try {
-                if (startup == null) {
-                    //this should only be used for servlet tests
-                    StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(),
-                            Collections.<BeanContext> emptyList());
-                    lifecycle.startApplication(startupObject);
-                    //lifecycle.startServletContext((ServletContext)startup);
-                } else if (startup instanceof StartupObject) {
-                    lifecycle.startApplication(startup);
-                    //((StartupObject)startup).getAppContext().setWebBeansContext(webBeansContext);
-                }
-            } catch (Exception e) {
-                //logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-                WebBeansUtil.throwRuntimeExceptions(e);
+            if (startup == null) {
+                //this should only be used for servlet tests
+                StartupObject startupObject = new StartupObject(new AppContext("none", SystemInstance.get(), Thread.currentThread().getContextClassLoader(), null, null, true), new AppInfo(),
+                        Collections.<BeanContext> emptyList());
+                lifecycle.startApplication(startupObject);
+                //lifecycle.startServletContext((ServletContext)startup);
+            } else if (startup instanceof StartupObject) {
+                lifecycle.startApplication(startup);
+                //((StartupObject)startup).getAppContext().setWebBeansContext(webBeansContext);
             }
-
+        } catch (Exception e) {
+            //logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+            WebBeansUtil.throwRuntimeExceptions(e);
         } finally {
             GeronimoSingletonService.contextExited(oldContext);
         }
         return webBeansContext;
     }
 
-    public static void initializeServletContext(WebBeansContext webBeansContext, ServletContext servletContext) {
+    public static ScheduledExecutorService initializeServletContext(WebBeansContext webBeansContext, ServletContext servletContext) {
         WebBeansContext oldContext = GeronimoSingletonService.contextEntered(webBeansContext);
         try {
             OpenEJBLifecycle lifecycle = (OpenEJBLifecycle) webBeansContext.getService(ContainerLifecycle.class);
-            lifecycle.startServletContext(servletContext);
+            //lifecycle.startServletContext(servletContext);
+            //startServletContext will eventually call the static method  initializeServletContext, which will return a ThreadPool reference
+            //We do need to keep that reference to prevent the thread leak
+            return OpenEJBLifecycle.initializeServletContext(servletContext, webBeansContext);
         } finally {
             GeronimoSingletonService.contextExited(oldContext);
         }

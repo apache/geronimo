@@ -708,11 +708,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 //                    webModuleData.setReferencePattern("SharedOwbContext", name);
 //                }
 //            }
-            //This shares a single OWB context for the whole ear
-            AbstractName name = EARContext.APPINFO_GBEAN_NAME_KEY.get(earContext.getGeneralData());
-            if (name != null) {
-                webModuleData.setReferencePattern("SharedOwbContext", name);
-            }
 
             if(tomcatWebApp.isSetSecurityRealmName()) {
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));

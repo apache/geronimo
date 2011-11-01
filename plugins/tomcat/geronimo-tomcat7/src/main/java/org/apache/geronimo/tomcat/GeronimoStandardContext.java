@@ -73,9 +73,9 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
-import org.apache.geronimo.openejb.cdi.OpenWebBeansWebInitializer;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -86,7 +86,6 @@ import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfterContext;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
-import org.apache.geronimo.tomcat.interceptor.OWBBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.WebApplicationIdentityBeforeAfter;
@@ -96,6 +95,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
 import org.apache.geronimo.web.WebApplicationConstants;
+import org.apache.geronimo.web.WebModuleListener;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
@@ -105,11 +105,12 @@ import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.IntrospectionUtils;
-import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -120,6 +121,8 @@ public class GeronimoStandardContext extends StandardContext {
     private static final long serialVersionUID = 3834587716552831032L;
 
     private static final boolean allowLinking = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking");
+
+    private static final Logger logger = LoggerFactory.getLogger(GeronimoStandardContext.class);
 
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
@@ -139,6 +142,8 @@ public class GeronimoStandardContext extends StandardContext {
 
     private Bundle bundle;
     private ServiceRegistration serviceRegistration;
+
+    private List webModuleListeners;
 
     private ThreadLocal<Stack<BeforeAfterContext>> beforeAfterContexts = new ThreadLocal<Stack<BeforeAfterContext>>() {
 
@@ -256,6 +261,25 @@ public class GeronimoStandardContext extends StandardContext {
                     }
                 }
             }
+
+            //Get WebModuleListener List
+            List<String> webModuleListenerClassNames = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.WEB_MODULE_LISTENERS);
+            if (webModuleListenerClassNames != null && webModuleListenerClassNames.size() > 0) {
+                webModuleListeners = new ArrayList(webModuleListenerClassNames.size());
+                for (String webModuleListenerClassName : webModuleListenerClassNames) {
+                    try {
+                        Class<?> cls = bundle.loadClass(webModuleListenerClassName);
+                        Object webModuleListener = cls.newInstance();
+                        webModuleListeners.add(webModuleListener);
+                    } catch (ClassNotFoundException e) {
+                        logger.warn("Unable to load the listener class" + webModuleListenerClassName, e);
+                    } catch (InstantiationException e) {
+                        logger.warn("Unable to create the listener instance " + webModuleListenerClassName, e);
+                    } catch (IllegalAccessException e) {
+                        logger.warn("Unable to create the listener instance " + webModuleListenerClassName, e);
+                    }
+                }
+            }
         }
 
         int index = 0;
@@ -269,17 +293,6 @@ public class GeronimoStandardContext extends StandardContext {
         if (enc != null) {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
-
-        WebBeansContext owbContext = ctx.getOWBContext();
-        if (owbContext == null) {
-            //hopefully for tests only
-            owbContext = OpenWebBeansWebInitializer.newWebBeansContext(null);
-        }
-        OpenWebBeansWebInitializer.initializeServletContext(owbContext, servletContext);
-        if (getInstanceManager() instanceof TomcatInstanceManager) {
-            ((TomcatInstanceManager) getInstanceManager()).setOWBContext(owbContext);
-        }
-        interceptor = new OWBBeforeAfter(interceptor, index++, servletContext, owbContext);
 
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
@@ -309,7 +322,7 @@ public class GeronimoStandardContext extends StandardContext {
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
-        interceptor = new WebApplicationIdentityBeforeAfter(interceptor, index++, ctx.getAbstractName().toString());
+        interceptor = new WebApplicationIdentityBeforeAfter(interceptor, index++, ctx.getAbstractName().getNameProperty(NameFactory.J2EE_NAME));
 
         addValve(new ProtectedTargetValve());
 
@@ -838,6 +851,22 @@ public class GeronimoStandardContext extends StandardContext {
         @Override
         public void invoke(Request request, Response response) throws IOException, ServletException {
             if (request == null && response == null) {
+                //Execute WebModuleListeners
+                ClassLoader oldClassLoader = null;
+                try {
+                    oldClassLoader = bindThread();
+                    if (webModuleListeners != null) {
+                        for (Object webModuleListener : webModuleListeners) {
+                            if (webModuleListener instanceof WebModuleListener) {
+                                ((WebModuleListener) webModuleListener).moduleInitialized(getServletContext());
+                            } else {
+                                logger.warn("Invalid WebModuleListener " + webModuleListener.getClass().getName());
+                            }
+                        }
+                    }
+                } finally {
+                    unbindThread(oldClassLoader);
+                }
                 try {
                     GeronimoStandardContext.super.startInternal();
                 } catch (LifecycleException e) {
@@ -853,6 +882,25 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
+    @Override
+    protected synchronized void stopInternal() throws LifecycleException {
+        super.stopInternal();
+        ClassLoader oldClassLoader = null;
+        try {
+            oldClassLoader = bindThread();
+            if (webModuleListeners != null) {
+                for (Object webModuleListener : webModuleListeners) {
+                    if (webModuleListener instanceof WebModuleListener) {
+                        ((WebModuleListener) webModuleListener).moduleDestoryed(getServletContext());
+                    } else {
+                        logger.warn("Invalid WebModuleListener " + webModuleListener.getClass().getName());
+                    }
+                }
+            }
+        } finally {
+            unbindThread(oldClassLoader);
+        }
+    }
 
     public BeforeAfter getBeforeAfter() {
         return beforeAfter;

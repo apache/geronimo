@@ -17,18 +17,28 @@
 
 package org.apache.geronimo.web;
 
+import javax.servlet.ServletContext;
+
 /**
+ * ServletContextListener is good choice for those components, which are required to be initialized in the starting process of
+ * the target applications. While it sometimes brings issues, e.g. those codes in other ServletContextListener hopes to do
+ * something, and order of the listeners may be undefined.
+ *
  * @version $Rev$ $Date$
  */
-public class WebApplicationIdentity {
+public interface WebModuleListener {
 
-    private static ThreadLocal<String> IDENTITY = new ThreadLocal<String>();
+    /**
+     * This method will be invoked before all Java EE supported components are initialized
+     * @param module
+     * @param context
+     */
+    public void moduleInitialized(ServletContext servletContext);
 
-    public static void setIdentity(String identity) {
-        IDENTITY.set(identity);
-    }
+    /**
+     * This method will be invoked after all Java EE supported components are destroyed
+     * @param event
+     */
+    public void moduleDestoryed(ServletContext servletContext);
 
-    public static String getIdentity() {
-        return IDENTITY.get();
-    }
 }

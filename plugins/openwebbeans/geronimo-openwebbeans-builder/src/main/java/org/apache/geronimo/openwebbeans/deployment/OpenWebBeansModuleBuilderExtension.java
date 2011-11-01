@@ -23,7 +23,6 @@ import java.lang.reflect.Member;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,10 +52,14 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.openejb.cdi.WebBeansConfigurationListener;
+import org.apache.geronimo.openwebbeans.OpenWebBeansWebAppContext;
+import org.apache.geronimo.openwebbeans.OpenWebBeansWebModuleListener;
+import org.apache.geronimo.openwebbeans.WebBeansConfigurationListener;
+import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
@@ -89,6 +92,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     //this is the geronimo copy
     private static final String CONTEXT_LISTENER_NAME = WebBeansConfigurationListener.class.getName();
 
+    private static final String WEB_MODULE_LISTENER_NAME = OpenWebBeansWebModuleListener.class.getName();
+
     public OpenWebBeansModuleBuilderExtension(
             @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
             @ParamAttribute(name = "jsfPluginEnvironment") Environment jsfPluginEnvironment,
@@ -100,13 +105,12 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
             throws DeploymentException {
-        if (!(module instanceof WebModule) /*|| !hasBeanXml(module)*/) {
+        if (!(module instanceof WebModule)) {
             // not a web module, nothing to do
             return;
         }
-
-        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
         if(hasBeanXml(module)){
+            EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
             EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), jsfPluginEnvironment);
         }
     }
@@ -114,13 +118,12 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl,
             Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (!(module instanceof WebModule) /*|| !hasBeanXml(module)*/) {
+        if (!(module instanceof WebModule)) {
             // not a web module, nothing to do
             return;
-        }       
-        
-        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
+        }
         if(hasBeanXml(module)){
+            EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
             EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), jsfPluginEnvironment);
         }
     }
@@ -138,23 +141,30 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             // not a web module, nothing to do
             return;
         }
+        if (!hasBeansXml(bundle)) {
+            return;
+        }
 
         WebModule webModule = (WebModule) module;
-
-//        if (!hasBeansXml(bundle)) {
-//            return;
-//        }
-
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
-        //add the ServletContextListener to the web app context
+
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
-        // add myfaces listener
+        Map<String, Object> deploymentAttributes = (Map<String, Object>)webAppData.getAttribute("deploymentAttributes");
+        List<String> webModuleListenerClassNames = (List<String>) deploymentAttributes.get(WebApplicationConstants.WEB_MODULE_LISTENERS);
+        if (webModuleListenerClassNames == null) {
+            webModuleListenerClassNames = new ArrayList<String>();
+            deploymentAttributes.put(WebApplicationConstants.WEB_MODULE_LISTENERS, webModuleListenerClassNames);
+        }
+        webModuleListenerClassNames.add(WEB_MODULE_LISTENER_NAME);
+
+
+        // add OpenWebBeans Lifcycle listener
         WebAppInfo webAppInfo = (WebAppInfo) webAppData.getAttribute("webAppInfo");
         if (webAppInfo != null && !webAppInfo.listeners.contains(CONTEXT_LISTENER_NAME)) {
             webAppInfo.listeners.add(0, CONTEXT_LISTENER_NAME);
         }
-        AbstractName moduleName = moduleContext.getModuleName();
+        AbstractName moduleName = module.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
@@ -170,18 +180,20 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         webModule.setClassFinder(classFinder);
         namingBuilders.buildNaming(webApp, geronimoWebApp, webModule, buildingContext);
         webModule.setClassFinder(originalFinder);
-        
 
-//        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
-//        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
-//        try {
-//            moduleContext.addGBean(providerData);
-//        } catch (GBeanAlreadyExistsException e) {
-//            throw new DeploymentException("Duplicate webbean config gbean in web module", e);
-//        }
-
-        //make the web app start second after the webbeans machinery
-//        webAppData.addDependency(webBeansGBeanName);
+        AbstractName openWebBeansWebAppContextGBeanName = moduleContext.getNaming().createChildName(moduleName, "OpenWebBeansWebAppContext", "OpenWebBeansWebAppContext");
+        GBeanData openWebBeansWebAppContextGBean = new GBeanData(openWebBeansWebAppContextGBeanName, OpenWebBeansWebAppContext.class);
+        try {
+            openWebBeansWebAppContextGBean.setAttribute("holder", holder);
+            AbstractName sharedOwbContextName = EARContext.APPINFO_GBEAN_NAME_KEY.get(earContext.getGeneralData());
+            if (sharedOwbContextName != null) {
+                openWebBeansWebAppContextGBean.setReferencePattern("SharedOwbContext", sharedOwbContextName);
+            }
+            moduleContext.addGBean(openWebBeansWebAppContextGBean);
+            webAppData.addDependency(openWebBeansWebAppContextGBeanName);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Duplicate webbean config gbean in web module", e);
+        }
     }
 
     private boolean hasBeansXml(Bundle bundle) {
@@ -214,7 +226,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         try {
             PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
-            
+
             //1. Generated the jar file list, which contains META-INF/beans.xml file
             final Set<String> annotationScanRequiredJarFiles = new HashSet<String>();
             String moduleNamePrefix = webModule.isStandAlone() ? "" : webModule.getTargetPath() + "/";
@@ -252,7 +264,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
                     return true;
                 }
             });
-            
+
             final String webInfClassesFolder = moduleNamePrefix + "WEB-INF/classes/";
             final boolean webInfClassesScanRequired = bundle.getEntry(moduleNamePrefix + "WEB-INF/beans.xml") != null;
 
@@ -260,7 +272,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(packageAdmin, bundle, new ResourceDiscoveryFilter() {
 
                 @Override
-                public boolean directoryDiscoveryRequired(String directory) {                    
+                public boolean directoryDiscoveryRequired(String directory) {
                     return directory.equals(webInfClassesFolder) && webInfClassesScanRequired;
                 }
 
@@ -305,5 +317,5 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             bundle.getBundleContext().ungetService(reference);
         }
     }
-    
+
 }

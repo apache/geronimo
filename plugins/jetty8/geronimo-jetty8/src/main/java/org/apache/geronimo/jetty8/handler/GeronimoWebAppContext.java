@@ -23,11 +23,13 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,12 +52,12 @@ import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.WebApplicationConstants;
-import org.apache.geronimo.web.WebApplicationIdentity;
+import org.apache.geronimo.web.WebApplicationName;
+import org.apache.geronimo.web.WebModuleListener;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
-import org.apache.webbeans.config.WebBeansContext;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Request;
@@ -71,11 +73,15 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GeronimoWebAppContext extends WebAppContext {
+
+    private static final Logger logger = LoggerFactory.getLogger(GeronimoWebAppContext.class);
 
     private final IntegrationContext integrationContext;
     private final String modulePath;
@@ -87,6 +93,7 @@ public class GeronimoWebAppContext extends WebAppContext {
     private ServiceRegistration serviceRegistration;
     boolean fullyStarted = false;
     private String webModuleName;
+    private final List webModuleListeners;
 
     public GeronimoWebAppContext(SecurityHandler securityHandler,
                                  SessionHandler sessionHandler,
@@ -95,7 +102,10 @@ public class GeronimoWebAppContext extends WebAppContext {
                                  IntegrationContext integrationContext,
                                  ClassLoader classLoader,
                                  String modulePath,
-                                 WebAppInfo webAppInfo, String policyContextId, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager) {
+                                 WebAppInfo webAppInfo,
+                                 String policyContextId,
+                                 ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
+                                 List<String> webModuleListenerClassNames) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         _scontext = new Context();
         this.integrationContext = integrationContext;
@@ -130,6 +140,24 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean annotationScanRequired = true;
         webSecurityConstraintStore = new WebSecurityConstraintStore(webAppInfo, integrationContext.getBundle(), annotationScanRequired, _scontext);
 
+        if (webModuleListenerClassNames != null && webModuleListenerClassNames.size() > 0) {
+            webModuleListeners = new ArrayList(webModuleListenerClassNames.size());
+            for (String webModuleListenerClassName : webModuleListenerClassNames) {
+                try {
+                    Class<?> cls = classLoader.loadClass(webModuleListenerClassName);
+                    Object webModuleListener = cls.newInstance();
+                    webModuleListeners.add(webModuleListener);
+                } catch (ClassNotFoundException e) {
+                    logger.warn("Unable to load the listener class" + webModuleListenerClassName, e);
+                } catch (InstantiationException e) {
+                    logger.warn("Unable to create the listener instance " + webModuleListenerClassName, e);
+                } catch (IllegalAccessException e) {
+                    logger.warn("Unable to create the listener instance " + webModuleListenerClassName, e);
+                }
+            }
+        } else {
+            webModuleListeners = Collections.emptyList();
+        }
     }
 
     public void setWebModuleName(String webModuleName) {
@@ -156,9 +184,17 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
-        WebBeansContext oldOwbContext = integrationContext.contextEntered();
+        String oldApplicationName = WebApplicationName.getName();
+        WebApplicationName.setName(integrationContext.getWebApplicationIdentity());
         try {
             setRestrictListeners(false);
+            for (Object webModuleListener : webModuleListeners) {
+                if (webModuleListener instanceof WebModuleListener) {
+                    ((WebModuleListener) webModuleListener).moduleInitialized(getServletContext());
+                } else {
+                    logger.warn("Invalid WebModuleListener " + webModuleListener.getClass().getName());
+                }
+            }
             try {
                 Assembler assembler = new Assembler();
                 assembler.assemble(getServletContext(), webAppInfo);
@@ -202,9 +238,9 @@ public class GeronimoWebAppContext extends WebAppContext {
                 integrationContext.restoreConnectorContext(connectorContext, null, newContext);
             }
         } finally {
-            integrationContext.contextExited(oldOwbContext);
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, null);
+            WebApplicationName.setName(oldApplicationName);
         }
     }
 
@@ -214,15 +250,25 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+        String oldApplicationName = WebApplicationName.getName();
+        WebApplicationName.setName(integrationContext.getWebApplicationIdentity());
         try {
             try {
                 super.doStop();
             } finally {
                 integrationContext.restoreConnectorContext(connectorContext, null, newContext);
             }
+            for (Object webModuleListener : webModuleListeners) {
+                if (webModuleListener instanceof WebModuleListener) {
+                    ((WebModuleListener) webModuleListener).moduleDestoryed(getServletContext());
+                } else {
+                    logger.warn("Invalid WebModuleListener " + webModuleListener.getClass().getName());
+                }
+            }
         } finally {
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, null);
+            WebApplicationName.setName(oldApplicationName);
         }
     }
 
@@ -232,9 +278,8 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(baseRequest);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(baseRequest, newContext);
-        WebBeansContext owbContext = integrationContext.contextEntered();
-        String oldApplicationIdentity = WebApplicationIdentity.getIdentity();
-        WebApplicationIdentity.setIdentity(integrationContext.getWebApplicationIdentity());
+        String oldApplicationName = WebApplicationName.getName();
+        WebApplicationName.setName(integrationContext.getWebApplicationIdentity());
         try {
             try {
                 super.doScope(target, baseRequest, request, response);
@@ -242,10 +287,9 @@ public class GeronimoWebAppContext extends WebAppContext {
                 integrationContext.restoreConnectorContext(connectorContext, baseRequest, newContext);
             }
         } finally {
-            integrationContext.contextExited(owbContext);
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, baseRequest);
-            WebApplicationIdentity.setIdentity(oldApplicationIdentity);
+            WebApplicationName.setName(oldApplicationName);
         }
     }
 
