@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.apache.geronimo.testsuite</groupId>
 		<artifactId>javaee6-testsuite</artifactId>
-		<version>3.0-beta-2-SNAPSHOT</version>
+		<version>3.0-beta-1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>restful-test</artifactId>
