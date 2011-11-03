@@ -636,4 +636,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
     }
 
+    @Override
+    public int getPriority() {
+        return 45;
+    }
+    
+    
 }
