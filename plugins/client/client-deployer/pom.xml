@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>client</artifactId>
-        <version>3.0-beta-1-SNAPSHOT</version>
+        <version>3.0-beta-1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -120,7 +120,7 @@
                                     <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-xml-content server="offline" >
+                            <config-xml-content server="offline">
                                 <gbean name="AppClientBuilder">
                                     <attribute name="host">${ServerHostname}</attribute>
                                     <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
