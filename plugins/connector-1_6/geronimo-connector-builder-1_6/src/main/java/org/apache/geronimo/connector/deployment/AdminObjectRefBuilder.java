@@ -635,5 +635,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             annotatedApp.getMessageDestinationRef().add(messageDestinationRef);
         }
     }
+    
+    @Override
+    public int getPriority() {
+        return 45;
+    }
 
 }
