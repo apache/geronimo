@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>security-testsuite</artifactId>
-        <version>3.0-beta-1</version>
+        <version>3.0-beta-2-SNAPSHOT</version>
     </parent>
 
     <artifactId>test-generic-auth</artifactId>

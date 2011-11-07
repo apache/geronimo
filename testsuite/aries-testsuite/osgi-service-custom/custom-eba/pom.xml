@@ -23,7 +23,7 @@
   <parent>
     <artifactId>osgi-service-custom</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0-beta-1</version>
+    <version>3.0-beta-2-SNAPSHOT</version>
   </parent>
   
   <artifactId>custom-eba</artifactId>
