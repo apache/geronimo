@@ -174,7 +174,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             }
 
         } catch (Exception e) {
-            throw new DeploymentException("Fail to scan javax.ws.rs.core.Application sub classes in application", e);
+            log.warn("Fail to scan javax.ws.rs.core.Application sub classes in application", e);
         } finally {
             bundle.getBundleContext().ungetService(reference);
         }
