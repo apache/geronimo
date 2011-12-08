@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -38,11 +39,14 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xbean.finder.AbstractFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class Module<T, U> {
+	private static final Logger log = LoggerFactory.getLogger(Module.class);
     private final boolean standAlone;
 
     private final AbstractName moduleName;
@@ -183,7 +187,21 @@ public abstract class Module<T, U> {
     }
 
     public URI resolve(String path) {
-        return targetPathURI.resolve(path);
+    	URI resultURI = null;
+    	try {
+    		resultURI = targetPathURI.resolve(path);
+    	} catch (Exception e) {
+    		log.warn("Exception=" + e + "; Cause=" + e.getCause()); 
+    		if (e instanceof java.lang.IllegalArgumentException) {    			
+    			try {
+    			URI substr = new URI(null, path, null);
+    			resultURI = targetPathURI.resolve(substr);
+    			} catch (Exception ex) {
+    				throw new RuntimeException("Exception=" + ex + "; Cause=" + ex.getCause());
+    			}
+    		}
+    	}    	
+        return resultURI;
     }
 
     public URI resolve(URI path) {
