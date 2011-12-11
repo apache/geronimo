@@ -399,7 +399,7 @@ public class ApplicationGBean implements GBeanLifecycle {
             try {
                 bundle.uninstall();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("Fail to uninstall", e);
             }
         }
         applicationBundles.clear();

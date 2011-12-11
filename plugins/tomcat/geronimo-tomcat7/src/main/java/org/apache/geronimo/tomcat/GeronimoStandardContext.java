@@ -829,7 +829,7 @@ public class GeronimoStandardContext extends StandardContext {
                 return;
             }
             TomcatDeploymentWatcher tomcatDeploymentWatcher = (TomcatDeploymentWatcher) bundleContext.getService(tomcatDeploymentWatcherReference);
-            tomcatDeploymentWatcher.deleteOnUndeployed(tomcatWebAppContext.getAbstractName(), tempDirectory);
+            tomcatDeploymentWatcher.deleteOnUndeployed(bundle, tomcatWebAppContext.getAbstractName(), tempDirectory);
         } catch (Exception e) {
             logger.warn("Unable to add temporary directory " + tempDirectory + "to the Tomcat deployment watcher, that folder will not be delete on the undeployment", e);
         } finally {
