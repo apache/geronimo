@@ -101,7 +101,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>${project.groupId}/${project.artifactId}/1.0.0/eba</moduleId>
+                                    <moduleId>application/${project.groupId}.${project.artifactId}/1.0.0/eba</moduleId>
                                 </configuration>
                             </execution>
                         </executions>
