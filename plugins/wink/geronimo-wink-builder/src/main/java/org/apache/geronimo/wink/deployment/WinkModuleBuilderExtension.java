@@ -58,7 +58,6 @@ import org.apache.wink.server.internal.servlet.RestServlet;
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.osgi.framework.Bundle;
@@ -175,7 +174,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             }
 
         } catch (Exception e) {
-            throw new DeploymentException("Fail to scan javax.ws.rs.core.Application sub classes in application", e);
+            log.warn("Fail to scan javax.ws.rs.core.Application sub classes in application", e);
         } finally {
             bundle.getBundleContext().ungetService(reference);
         }
@@ -195,7 +194,6 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
          * ...
          */
         Class<? extends Application> applicationClass;
-        BundleClassLoader bundleClassLoader = new BundleClassLoader(bundle);
         for (Servlet servlet : webApp.getServlet()) {
             List<ParamValue> params = servlet.getInitParam();
             for (ParamValue parm : params) {
@@ -207,7 +205,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
                         applicationClass = clazz;
                         Class<?> servletClass = null;
                         try {
-                            servletClass = bundleClassLoader.loadClass(servlet.getServletClass());
+                            servletClass = bundle.loadClass(servlet.getServletClass());
                         } catch (ClassNotFoundException e) {
                             log.warn("failed to load servlet class:" + servlet.getServletClass());
                         }

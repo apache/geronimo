@@ -20,7 +20,7 @@ package org.apache.geronimo.tomcat.interceptor;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.geronimo.web.WebApplicationIdentity;
+import org.apache.geronimo.web.WebApplicationName;
 
 /**
  * @version $Rev$ $Date$
@@ -42,15 +42,15 @@ public class WebApplicationIdentityBeforeAfter implements BeforeAfter {
     @Override
     public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         try {
-            beforeAfterContext.contexts[index] = WebApplicationIdentity.getIdentity();
-            WebApplicationIdentity.setIdentity(identity);
+            beforeAfterContext.contexts[index] = WebApplicationName.getName();
+            WebApplicationName.setName(identity);
             beforeAfterContext.clearRequiredFlags[index] = true;
             if (next != null) {
                 next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
             }
         } catch (RuntimeException e) {
             if (beforeAfterContext.clearRequiredFlags[index]) {
-                WebApplicationIdentity.setIdentity((String) beforeAfterContext.contexts[index]);
+                WebApplicationName.setName((String) beforeAfterContext.contexts[index]);
                 beforeAfterContext.clearRequiredFlags[index] = false;
             }
             throw e;
@@ -65,7 +65,7 @@ public class WebApplicationIdentityBeforeAfter implements BeforeAfter {
             }
         } finally {
             if (beforeAfterContext.clearRequiredFlags[index]) {
-                WebApplicationIdentity.setIdentity((String) beforeAfterContext.contexts[index]);
+                WebApplicationName.setName((String) beforeAfterContext.contexts[index]);
                 beforeAfterContext.clearRequiredFlags[index] = false;
             }
         }

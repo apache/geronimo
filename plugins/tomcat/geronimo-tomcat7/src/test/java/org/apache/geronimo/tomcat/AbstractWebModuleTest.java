@@ -63,7 +63,6 @@ import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.karaf.jaas.boot.ProxyLoginModule;
-import org.apache.webbeans.config.WebBeansFinder;
 import org.osgi.framework.Bundle;
 
 
@@ -94,7 +93,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     }
 
     protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain, WebAppInfo webAppInfo) throws Exception {
-        WebBeansFinder.clearInstances(getClass().getClassLoader());
+        //WebBeansFinder.clearInstances(getClass().getClassLoader());
         configurationBaseURL = cl.getResource("deployables/");
         //Setup default JSP Factory
         Class.forName("org.apache.jasper.compiler.JspRuntimeContext");
@@ -143,7 +142,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 deploymentAttributes, //Map<String, String> deploymentAttributes
                 webAppInfo, //webAppinfo
                 new HashMap<String, String>(), // Map<String,String> contextAttributes;
-                null,
                 null,
                 new AbstractName(new URI("default/test/1.0/war?J2EEApplication=null,j2eeType=WebModule,name=default/test/1.0/war")));  //kernel
         app.doStart();

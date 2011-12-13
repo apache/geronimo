@@ -624,6 +624,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     String entryName = entry.getName();
                     //   EAR/lib/sub-dir/*.jar should not be added into lib classpath.
                     if (libDir != null && entry.getName().startsWith(libDir) && entry.getName().endsWith(".jar") && entry.getName().substring(libDir.length()+1).indexOf("/") == -1) {
+                        JarUtils.assertTempFile();
                         NestedJarFile library = new NestedJarFile(earFile, entry.getName());
                         earContext.addIncludeAsPackedJar(URI.create(entry.getName()), library);
                         libClasspath.add(entry.getName());
@@ -921,6 +922,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
                         NestedJarFile moduleFile;
                         try {
+                            JarUtils.assertTempFile();
                             moduleFile = new NestedJarFile(earFile, modulePath);
                         } catch (IOException e) {
                             throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
@@ -964,6 +966,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             moduleTypeName = "a connector";
                         } else if (entry.getName().endsWith(".jar") && !isLibraryEntry(application, entry)) {
                             try {
+                                JarUtils.assertTempFile();
                                 NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
                                 Manifest mf = moduleFile.getManifest();
 
@@ -1008,6 +1011,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
                         NestedJarFile moduleFile;
                         try {
+                            JarUtils.assertTempFile();
                             moduleFile = new NestedJarFile(earFile, entry.getName());
                         } catch (IOException e) {
                             throw new DeploymentException("Invalid moduleFile: " + entry.getName(), e);
@@ -1090,6 +1094,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     String modulePath = gerExtModule.getInternalPath().trim();
                     applicationInfo.getModuleLocations().add(modulePath);
                     try {
+                        JarUtils.assertTempFile();
                         moduleFile = new NestedJarFile(earFile, modulePath);
                     } catch (IOException e) {
                         throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
@@ -1155,6 +1160,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             ZipEntry entry = entries.nextElement();
             if (entry.getName().endsWith(".jar") && isLibraryEntry(application, entry)) {
                 try {
+                    JarUtils.assertTempFile();
                     NestedJarFile moduleFile = new NestedJarFile(earFile, entry.getName());
 
                     if (moduleFile.getEntry("META-INF/beans.xml") == null) continue;

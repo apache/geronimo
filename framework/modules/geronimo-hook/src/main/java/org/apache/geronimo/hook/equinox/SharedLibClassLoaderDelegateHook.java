@@ -18,9 +18,13 @@
 package org.apache.geronimo.hook.equinox;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.geronimo.hook.BundleHelper;
 import org.apache.geronimo.hook.SharedLibraryRegistry;
@@ -81,7 +85,29 @@ public class SharedLibClassLoaderDelegateHook implements ClassLoaderDelegateHook
     }
 
     public Enumeration<URL> postFindResources(String name, BundleClassLoader classLoader, BundleData data) throws FileNotFoundException {
-        return null;
+        SharedLibraryRegistry sharedLibraryRegistry = BundleHelper.getSharedLibraryRegistry();
+        if (sharedLibraryRegistry == null) {
+            return null;
+        }
+        List<Bundle> dependentSharedLibBundles = sharedLibraryRegistry.getDependentSharedLibBundles(data.getBundleID());
+        if (dependentSharedLibBundles == null || dependentSharedLibBundles.isEmpty()) {
+            return null;
+        }
+        Set<URL> foundResources = new LinkedHashSet<URL>();
+        for (Bundle sharedLibBundle : dependentSharedLibBundles) {
+            try {
+                Enumeration<URL> en = sharedLibBundle.getResources(name);
+                if (en == null) {
+                    continue;
+                }
+                while (en.hasMoreElements()) {
+                    foundResources.add(en.nextElement());
+                }
+            } catch (IOException e) {
+                //ignore this bundle
+            }
+        }
+        return Collections.enumeration(foundResources);
     }
 
     public String preFindLibrary(String name, BundleClassLoader classLoader, BundleData data) throws FileNotFoundException {

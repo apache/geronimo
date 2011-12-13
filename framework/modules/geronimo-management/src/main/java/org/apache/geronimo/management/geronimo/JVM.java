@@ -44,4 +44,6 @@ public interface JVM extends org.apache.geronimo.management.JVM {
      */
     SystemLog getSystemLog();
 
+    boolean isRedefineClassesSupported();
+    
 }

@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -73,7 +72,6 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -517,14 +515,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 webModuleData.setAttribute("compactPath", Boolean.TRUE);
             }
 
-            LinkedHashSet<Module<?, ?>> submodules = module.getModules();
+            /*LinkedHashSet<Module<?, ?>> submodules = module.getModules();
             for (Module<?, ?> subModule: submodules) {
                 if (subModule.getSharedContext().get(SharedOwbContext.class) != null) {
                     GBeanData data = (GBeanData) subModule.getSharedContext().get(SharedOwbContext.class);
                     AbstractName name = data.getAbstractName();
                     webModuleData.setReferencePattern("SharedOwbContext", name);
                 }
-            }
+            }*/
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
             deploymentAttributes.put(WebApplicationConstants.META_COMPLETE, webApp.isMetadataComplete());

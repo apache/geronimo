@@ -29,7 +29,7 @@ import org.apache.webbeans.config.WebBeansContext;
  */
 public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
 
-    private final GeronimoSingletonService geronimoSingletonService = new GeronimoSingletonService();
+    private final GeronimoSingletonService geronimoSingletonService = GeronimoSingletonService.getInstance();
 
     public ThreadSingletonServiceAdapter() {
         super();
@@ -74,5 +74,9 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
     @Override
     public void clear(Object key) {
         geronimoSingletonService.clear(key);
+    }
+
+    public GeronimoSingletonService getGeronimoSingletonService() {
+        return geronimoSingletonService;
     }
 }

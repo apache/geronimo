@@ -56,7 +56,7 @@ public class TomcatEJBWebServiceContext extends StandardContext {
 
         //Create a dummy wrapper
         Wrapper wrapper = this.createWrapper();
-        String name = System.currentTimeMillis() + "";
+        String name = String.valueOf(System.currentTimeMillis());
         wrapper.setName(name);
         this.addChild(wrapper);
         this.addServletMapping("/*", name);

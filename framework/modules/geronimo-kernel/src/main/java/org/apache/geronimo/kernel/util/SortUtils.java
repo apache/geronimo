@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,12 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.kernel.util.JoinUtils;
-
 /**
  * @version $Rev$ $Date$
  */
-public class FragmentSortUtils {
+public class SortUtils {
 
     public static interface Visitor<T> {
 
@@ -48,7 +46,7 @@ public class FragmentSortUtils {
         boolean beforeOthers(T t);
     }
 
-    public static <T> List<T> sort(Collection<T> objects, Visitor<T> visitor) throws IllegalConfigurationException, CircularReferencesException {
+    public static <T> List<T> sort(Collection<T> objects, Visitor<T> visitor) throws IllegalNodeConfigException, CircularReferencesException {
 
         if (objects.size() == 0) {
             return Collections.emptyList();
@@ -61,7 +59,7 @@ public class FragmentSortUtils {
             String name = visitor.getName(obj);
             Node<T> node = new Node<T>(name, obj, visitor.afterOthers(obj), visitor.beforeOthers(obj), visitor.getAfterNames(obj), visitor.getBeforeNames(obj));
             if (node.beforeOthers && node.afterOthers) {
-                throw new IllegalConfigurationException(name, "Before others and after others could not be configured at the sametime ");
+                throw new IllegalNodeConfigException(name, "Before others and after others could not be configured at the sametime ");
             }
             nodes.put(name, node);
         }
@@ -70,7 +68,7 @@ public class FragmentSortUtils {
         for (Node<T> node : nodes.values()) {
             //Convert all the before and after configurations to dependOns
             if (node.after.contains(node.name)) {
-                throw new IllegalConfigurationException(node.name, "The fragment could not be configured to after itself");
+                throw new IllegalNodeConfigException(node.name, "The fragment could not be configured to after itself");
             }
             for (String afterNodeName : node.after) {
                 Node<T> afterNode = nodes.get(afterNodeName);
@@ -79,7 +77,7 @@ public class FragmentSortUtils {
                 }
             }
             if (node.before.contains(node.name)) {
-                throw new IllegalConfigurationException(node.name, "The fragment could not be configured to before itself");
+                throw new IllegalNodeConfigException(node.name, "The fragment could not be configured to before itself");
             }
             for (String beforeNodeName : node.before) {
                 Node<T> beforeNode = nodes.get(beforeNodeName);

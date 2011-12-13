@@ -18,12 +18,13 @@
     under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>mail-osgi-service</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0-beta-2-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>  
   
   <artifactId>mail-eba</artifactId>
@@ -100,7 +101,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>${project.groupId}/${project.artifactId}/1.0.0/eba</moduleId>
+                                    <moduleId>application/${project.groupId}.${project.artifactId}/1.0.0/eba</moduleId>
                                 </configuration>
                             </execution>
                         </executions>

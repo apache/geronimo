@@ -922,7 +922,6 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
-                <import-package>org.apache.webbeans.config</import-package>                
             </environment>
         </xml-attribute>
     </gbean>

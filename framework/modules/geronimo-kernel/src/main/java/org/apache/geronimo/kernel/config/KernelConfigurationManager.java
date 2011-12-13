@@ -22,21 +22,20 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -48,8 +47,8 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.osgi.framework.Bundle;
+import org.apache.geronimo.kernel.util.CircularReferencesException;
+import org.apache.geronimo.kernel.util.IllegalNodeConfigException;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,12 +251,19 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
             Configuration childConfiguration = (Configuration) iterator.next();
             stopRecursive(childConfiguration);
         }
-
-        Collection gbeans = configuration.getGBeans().values();
-
+        Collection<GBeanData> gbeans;
+        try {
+            List<GBeanData> sortedGBeans = ConfigurationUtil.sortGBeanDataByDependency(configuration.getGBeans().values());
+            Collections.reverse(sortedGBeans);
+            gbeans = sortedGBeans;
+        } catch (IllegalNodeConfigException e) {
+            gbeans = configuration.getGBeans().values();
+        } catch (CircularReferencesException e) {
+            gbeans = configuration.getGBeans().values();
+        }
         // stop the gbeans
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
+        for (Iterator<GBeanData> iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = iterator.next();
             AbstractName gbeanName = gbeanData.getAbstractName();
             try {
                 kernel.stopGBean(gbeanName);
@@ -269,8 +275,8 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         }
 
         // unload the gbeans
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
+        for (Iterator<GBeanData> iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = iterator.next();
             AbstractName gbeanName = gbeanData.getAbstractName();
             try {
                 kernel.unloadGBean(gbeanName);

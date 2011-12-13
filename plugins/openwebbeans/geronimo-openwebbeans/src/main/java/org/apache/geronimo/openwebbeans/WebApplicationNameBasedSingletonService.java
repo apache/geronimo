@@ -15,20 +15,27 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.web;
+package org.apache.geronimo.openwebbeans;
+
+import org.apache.geronimo.web.WebApplicationName;
+import org.apache.webbeans.config.WebBeansContext;
+import org.apache.webbeans.spi.SingletonService;
 
 /**
  * @version $Rev$ $Date$
  */
-public class WebApplicationIdentity {
+public class WebApplicationNameBasedSingletonService implements SingletonService<WebBeansContext> {
 
-    private static ThreadLocal<String> IDENTITY = new ThreadLocal<String>();
-
-    public static void setIdentity(String identity) {
-        IDENTITY.set(identity);
+    @Override
+    public WebBeansContext get(Object key) {
+        String webApplicationName = WebApplicationName.getName();
+        if (webApplicationName == null) {
+            return null;
+        }
+        return OpenWebBeansWebAppContext.getOpenWebBeansWebAppContext(webApplicationName).getWebBeansContext();
     }
 
-    public static String getIdentity() {
-        return IDENTITY.get();
+    @Override
+    public void clear(Object key) {
     }
 }

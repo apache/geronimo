@@ -40,6 +40,7 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
+import org.apache.geronimo.transformer.TransformerAgent;
 import org.apache.geronimo.logging.SystemLog;
 
 /**
@@ -202,7 +203,11 @@ public class JVMImpl implements JVM, StatisticsProvider {
     public SystemLog getSystemLog() {
         return systemLog;
     }
-
+    
+    public boolean isRedefineClassesSupported() {
+        return TransformerAgent.isRedefineClassesSupported();
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -34,7 +34,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -284,13 +283,13 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
         return result.size() == 0 ? null : result.toArray(new Artifact[result.size()]);
     }
     
-    public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+    public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws Exception {
         long[] ids = (long[])kernel.getAttribute(applicationGBeanName, "applicationContentBundleIds");
         
         return ids;
     }
     
-    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws Exception {
         Object name = kernel.invoke(applicationGBeanName, "getApplicationContentBundleSymbolicName", new Object[]{bundleId}, new String[]{long.class.getName()});
         if (name!=null) return (String)name;
         
@@ -300,8 +299,19 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     /**
      * Only support local bundle update
      */
-    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
-        kernel.invoke(applicationGBeanName, "updateApplicationContent", new Object[]{bundleId, bundleFile}, new String[]{long.class.getName(), bundleFile.getClass().getName()});
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws Exception {
+        Object[] arguments = new Object[] {bundleId, bundleFile};
+        String[] argumentTypes = new String[] {long.class.getName(), File.class.getName()};
+        kernel.invoke(applicationGBeanName, "updateApplicationContent", arguments, argumentTypes);
+    }
+    
+    /**
+     * Only support local bundle update
+     */
+    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws Exception {
+        Object[] arguments = new Object[] {bundleId, changesFile, updateArchive};
+        String[] argumentTypes = new String[] {long.class.getName(), File.class.getName(), boolean.class.getName()};
+        return (Boolean) kernel.invoke(applicationGBeanName, "hotSwapApplicationContent", arguments, argumentTypes);
     }
     
     public AbstractName getApplicationGBeanName(Artifact configurationId) {
@@ -382,6 +392,21 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
             }
         } else {
             return null;
+        }
+    }
+    
+    public boolean isRedefineClassesSupported() {
+        AbstractNameQuery jvmBeanQueary = new AbstractNameQuery("org.apache.geronimo.management.JVM");
+        Set<AbstractName> beanNames = kernel.listGBeans(jvmBeanQueary);
+        if (beanNames == null || beanNames.isEmpty()) {
+            return false;
+        }
+        try {
+            Boolean value = (Boolean) kernel.getAttribute(beanNames.iterator().next(), "redefineClassesSupported");
+            return (value != null) ? value.booleanValue() : false;
+        } catch (Exception e) {
+            log.debug("Error invoking JVM MBean", e);
+            return false;
         }
     }
 }

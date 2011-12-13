@@ -16,13 +16,11 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 
@@ -41,8 +39,6 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.osgi.web.WABApplicationConstants;
@@ -53,7 +49,6 @@ import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.tomcat.InstanceManager;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -266,7 +261,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        //Tomcat internally use empty string to represent the root context        
+        //Tomcat internally use empty string to represent the root context
         Context context = createContext(contextInfo.getContextPath().equals("/") ? "" : contextInfo.getContextPath(), contextInfo.getClassLoader(), contextInfo.getWebAppInfo());
         //Was a virtual server defined?
         String virtualServer = contextInfo.getVirtualServer();

@@ -20,11 +20,7 @@
 
 package org.apache.geronimo.openwebbeans.deployment;
 
-import java.util.Collections;
-
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 
 /**
  * @version $Rev: 741679 $ $Date: 2009-02-06 11:07:17 -0800 (Fri, 06 Feb 2009) $

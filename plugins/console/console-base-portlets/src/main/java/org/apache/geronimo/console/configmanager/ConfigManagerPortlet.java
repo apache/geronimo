@@ -307,9 +307,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                         }
                     } else if (info.getType() == ConfigurationModuleType.EBA) {
                         Configuration config = configManager.getConfiguration(info.getConfigID());
-                        if(config != null){
-                            for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {                               
-                                if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals("GBean")) {
+                        if (config != null && configManager.isRunning(info.getConfigID())) {
+                            for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
+                                if(entry.getKey().getNameProperty("name").equals("AriesApplication")) {
                                     try {
                                         ApplicationGBean applicationGBean = (ApplicationGBean)PortletManager.getKernel().getGBean(entry.getKey());
                                         long[] bundleIds = applicationGBean.getApplicationContentBundleIds();
@@ -317,16 +317,17 @@ public class ConfigManagerPortlet extends BasePortlet {
                                         for (long id : bundleIds){
                                             Bundle bundle = bundleContext.getBundle(id);
                                             if (bundle != null && bundle.getHeaders().get("Web-ContextPath") != null){
-                                                details.getContextPaths().add((String)bundle.getHeaders().get("Web-ContextPath"));                                                
+                                                details.getContextPaths().add((String)bundle.getHeaders().get("Web-ContextPath"));
                                             }
-                                        }                                        
-                                    } catch (GBeanNotFoundException e) {                                        
-                                        logger.error("Configuration not found", e);
-                                    } catch (InternalKernelException e) {                                        
-                                        logger.error("Configuration not found", e);
-                                    } catch (IllegalStateException e) {                                        
-                                        logger.error("Configuration not found", e);
-                                    } 
+                                        }
+                                    } catch (GBeanNotFoundException e) {
+                                        logger.error("AriesApplication GBean is not found", e);
+                                    } catch (InternalKernelException e) {
+                                        logger.error("AriesApplication GBean is not found", e);
+                                    } catch (IllegalStateException e) {
+                                        logger.error("AriesApplication GBean is not found", e);
+                                    }
+                                    break;
                                 }
                             }
                         }

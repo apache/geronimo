@@ -30,17 +30,25 @@ import org.osgi.framework.Bundle;
  */
 public class GeronimoSingletonService implements SingletonService<WebBeansContext> {
 
+    private static final GeronimoSingletonService INSTANCE = new GeronimoSingletonService();
+
     private static final ThreadLocal<WebBeansContext> contexts = new ThreadLocal<WebBeansContext>();
     private static Bundle bundle;
-    
+
     private static final WebBeansContext noContext = new WebBeansContext();
+
+    private SingletonService<WebBeansContext> webApplicationSingletonService;
 
     public static void init(Bundle owbBundle) {
         bundle = owbBundle;
-        WebBeansFinder.setSingletonService(new GeronimoSingletonService());
+        WebBeansFinder.setSingletonService(INSTANCE);
     }
 
-    public GeronimoSingletonService() {
+    private GeronimoSingletonService() {
+    }
+
+    public static GeronimoSingletonService getInstance() {
+        return INSTANCE;
     }
 
     public static WebBeansContext contextEntered(WebBeansContext newContext) {
@@ -55,20 +63,29 @@ public class GeronimoSingletonService implements SingletonService<WebBeansContex
 
     @Override
     public WebBeansContext get(Object key) {
-        return getContext();
-    }
-
-    private WebBeansContext getContext() {
         WebBeansContext context = contexts.get();
+        if (context == null && webApplicationSingletonService != null) {
+            context = webApplicationSingletonService.get(key);
+            if (context != null) {
+                return context;
+            }
+        }
         if (context == null) {
             contexts.set(noContext);
         }
         return context;
     }
 
-    @Override
-    public void clear(Object key) {
-        getContext().clear();
+    public SingletonService<WebBeansContext> getWebApplicationSingletonService() {
+        return webApplicationSingletonService;
     }
 
+    public void setWebApplicationSingletonService(SingletonService<WebBeansContext> webApplicationSingletonService) {
+        this.webApplicationSingletonService = webApplicationSingletonService;
+    }
+
+    @Override
+    public void clear(Object key) {
+        get(key).clear();
+    }
 }

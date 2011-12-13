@@ -83,7 +83,9 @@ public class JSR88_Util {
             command.setCommandContext(commandContext);
             command.doDeploy(targets[0], true);
         } catch (Exception e) {
-            // ignore exceptions
+            // Any better ideas?
+            if(EARConfigBuilder.appInfo.get() == null) throw new RuntimeException(e);
+            
         } finally {
             EARConfigBuilder.createPlanMode.set(Boolean.FALSE);
             applicationInfo = EARConfigBuilder.appInfo.get();

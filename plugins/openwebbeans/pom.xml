@@ -91,9 +91,9 @@
     </dependencyManagement>
 
     <modules>
-        <!--<module>geronimo-openwebbeans</module>-->
+        <module>geronimo-openwebbeans</module>
         <module>geronimo-openwebbeans-builder</module>
-        <!--<module>openwebbeans</module>-->
+        <module>openwebbeans</module>
         <module>openwebbeans-deployer</module>
     </modules>
 

@@ -15,22 +15,25 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.web;
 
-import java.util.List;
+import javax.servlet.ServletContext;
+
+import org.apache.geronimo.management.geronimo.WebModule;
 
 /**
  * @version $Rev$ $Date$
  */
-public class CircularReferencesException extends Exception {
+public class WebModuleEvent extends java.util.EventObject {
 
-    private final List<List> circuits;
+    private final ServletContext servletContext;
 
-    public CircularReferencesException(List<List> circuits) {
-        this.circuits = circuits;
+    public WebModuleEvent(WebModule module, ServletContext servletContext) {
+        super(module);
+        this.servletContext = servletContext;
     }
 
-    public List<List> getCircuits() {
-        return circuits;
+    public ServletContext getServletContext() {
+        return servletContext;
     }
 }

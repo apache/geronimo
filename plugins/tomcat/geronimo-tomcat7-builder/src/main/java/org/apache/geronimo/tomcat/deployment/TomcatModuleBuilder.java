@@ -219,22 +219,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         if (specDDUrl == null) {
             webApp = new WebApp();
         } else {
+            InputStream in = null;
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-
-                InputStream in = specDDUrl.openStream();
-                try {
-                    webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
-                } finally {
-                    in.close();
-                }
-
+                in = specDDUrl.openStream();
+                webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
+            } finally {
+                IOUtils.close(in);
             }
         }
 
-        AbstractName earName = null;
         String targetPath = ".";
         boolean standAlone = true;
 
@@ -251,13 +247,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
         idBuilder.resolve(environment, bundle.getSymbolicName(), "wab");
 
-        AbstractName moduleName;
-        if (earName == null) {
-            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
-        } else {
-            moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
-        }
+        AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+        AbstractName moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
 
         String name = webApp.getModuleName();
         if (name == null) {
@@ -288,24 +279,24 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             // on the J2ee management object
             specDD = JarUtils.readAll(specDDUrl);
 
-            InputStream in = null;
 
             // firstly validate the DD xml file, if it is defined by a schema.
             if (identifySpecDDSchemaVersion(specDD) >= 2.4f){
-                in = specDDUrl.openStream();
+                InputStream in = null;
                 try {
+                    in = specDDUrl.openStream();
                     JaxbJavaee.validateJavaee(JavaeeSchema.WEB_APP_3_0, in);
                 } catch (Exception e) {
                     throw new DeploymentException("Error validate web.xml for " + targetPath, e);
                 } finally {
-                    if (in != null)
-                        IOUtils.close(in);
+                    IOUtils.close(in);
                 }
             }
 
             // we found web.xml, if it won't parse that's an error.
-            in = specDDUrl.openStream();
+            InputStream in = null;
             try {
+                in = specDDUrl.openStream();
                 webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
             } catch (Exception e) {
                 // Output the target path in the error to make it clearer to the user which webapp
@@ -313,8 +304,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
                 throw new DeploymentException("Error unmarshal web.xml for " + targetPath, e);
             } finally {
-                if (in != null)
-                    IOUtils.close(in);
+                IOUtils.close(in);
             }
 
         } catch (Exception e) {
@@ -708,11 +698,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 //                    webModuleData.setReferencePattern("SharedOwbContext", name);
 //                }
 //            }
-            //This shares a single OWB context for the whole ear
-            AbstractName name = EARContext.APPINFO_GBEAN_NAME_KEY.get(earContext.getGeneralData());
-            if (name != null) {
-                webModuleData.setReferencePattern("SharedOwbContext", name);
-            }
 
             if(tomcatWebApp.isSetSecurityRealmName()) {
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));

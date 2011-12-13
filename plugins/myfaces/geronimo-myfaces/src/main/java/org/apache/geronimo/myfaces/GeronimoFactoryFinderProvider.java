@@ -41,7 +41,7 @@ import javax.faces.render.RenderKitFactory;
 import javax.faces.view.ViewDeclarationLanguageFactory;
 import javax.faces.view.facelets.TagHandlerDelegateFactory;
 
-import org.apache.geronimo.web.WebApplicationIdentity;
+import org.apache.geronimo.web.WebApplicationName;
 import org.apache.myfaces.spi.FactoryFinderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(GeronimoFactoryFinderProvider.class);
 
     public static final String APPLICATION_FACTORY = "javax.faces.application.ApplicationFactory";
@@ -148,13 +148,13 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
         Map<String, List<String>> factoryClassNames = null;
         Map<String, Object> factoryMap = null;
 
-        String webApplicationIdentity = WebApplicationIdentity.getIdentity();
-        if(webApplicationIdentity == null) {
+        String webApplicationName = WebApplicationName.getName();
+        if(webApplicationName == null) {
             throw new IllegalStateException("No web identity is attached to current request thread " + Thread.currentThread().getName());
         }
 
         synchronized (_registeredFactoryNames) {
-            factoryClassNames = _registeredFactoryNames.get(webApplicationIdentity);
+            factoryClassNames = _registeredFactoryNames.get(webApplicationName);
 
             if (factoryClassNames == null) {
                 String message = "No Factories configured for this Application. This happens if the faces-initialization "
@@ -170,11 +170,11 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
                 throw new IllegalArgumentException("no factory " + factoryName + " configured for this application.");
             }
 
-            factoryMap = _factories.get(webApplicationIdentity);
+            factoryMap = _factories.get(webApplicationName);
 
             if (factoryMap == null) {
                 factoryMap = new HashMap<String, Object>();
-                _factories.put(webApplicationIdentity, factoryMap);
+                _factories.put(webApplicationName, factoryMap);
             }
         }
 
@@ -260,7 +260,7 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
         }
         checkFactoryName(factoryName);
 
-        String webApplicationIdentity = WebApplicationIdentity.getIdentity();
+        String webApplicationIdentity = WebApplicationName.getName();
         if(webApplicationIdentity == null) {
             throw new IllegalStateException("No web identity is attached to current request thread " + Thread.currentThread().getName());
         }
@@ -286,14 +286,14 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
                 factoryClassNames.put(factoryName, classNameList);
             }
             classNameList.add(implName);
-            if (logger.isDebugEnabled()) {                
+            if (logger.isDebugEnabled()) {
                 logger.debug("Factory map of web application [" + webApplicationIdentity + "] is " + factoryClassNames);
             }
         }
     }
 
     public void releaseFactories() throws FacesException {
-        String webApplicationIdentity = WebApplicationIdentity.getIdentity();
+        String webApplicationIdentity = WebApplicationName.getName();
         if(webApplicationIdentity == null) {
             throw new IllegalStateException("No web identity is attached to current request thread " + Thread.currentThread().getName());
         }
@@ -310,7 +310,7 @@ public class GeronimoFactoryFinderProvider implements FactoryFinderProvider {
             if (factoryClassNames != null) {
                 factoryClassNames.clear();
             }
-            _registeredFactoryNames.remove(webApplicationIdentity);            
+            _registeredFactoryNames.remove(webApplicationIdentity);
         }
     }
 

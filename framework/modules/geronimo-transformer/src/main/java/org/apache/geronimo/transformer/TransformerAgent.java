@@ -16,18 +16,28 @@
  */
 package org.apache.geronimo.transformer;
 
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.UnmodifiableClassException;
 
 /**
  * @version $Rev$ $Date$
  */
 public class TransformerAgent {
 
+    private static final String REDEFINE_CLASSES_PROPERTY = "org.apache.geronimo.transformer.redefineClasses";
+    
+    private static Instrumentation instrumentation;
     private static final TransformerCollection transformerCollection = new TransformerCollection();
 
     public static void premain(String args, Instrumentation inst) {
         inst.addTransformer(transformerCollection);
+        
+        String redefineClasses = System.getProperty(REDEFINE_CLASSES_PROPERTY, "true");        
+        if ("true".equalsIgnoreCase(redefineClasses)) {
+            instrumentation = inst;
+        }
     }
 
     public static void addTransformer(ClassFileTransformer classFileTransformer) {
@@ -36,5 +46,22 @@ public class TransformerAgent {
 
     public static void removeTransformer(ClassFileTransformer classFileTransformer) {
         transformerCollection.removeTransformer(classFileTransformer);
+    }
+    
+    public static boolean isRedefineClassesSupported() {
+        return instrumentation != null && instrumentation.isRedefineClassesSupported();
+    }
+    
+    public static void redefine(ClassDefinition... definitions) throws UnmodifiableClassException {
+        if (!isRedefineClassesSupported()) {
+            throw new UnmodifiableClassException("Class redefinition is not supported");
+        }
+        try {
+            instrumentation.redefineClasses(definitions);
+        } catch (ClassNotFoundException e) {
+            UnmodifiableClassException ex = new UnmodifiableClassException();
+            ex.initCause(e);
+            throw ex;
+        }
     }
 }

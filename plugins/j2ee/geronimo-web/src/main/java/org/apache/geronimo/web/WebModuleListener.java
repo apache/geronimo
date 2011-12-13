@@ -15,27 +15,30 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.web;
+
+import javax.servlet.ServletContext;
 
 /**
+ * ServletContextListener is good choice for those components, which are required to be initialized in the starting process of
+ * the target applications. While it sometimes brings issues, e.g. those codes in other ServletContextListener hopes to do
+ * something, and order of the listeners may be undefined.
+ *
  * @version $Rev$ $Date$
  */
-public class IllegalConfigurationException extends Exception {
+public interface WebModuleListener {
 
-    private static final long serialVersionUID = -6131258240075237969L;
+    /**
+     * This method will be invoked before all Java EE supported components are initialized
+     * @param module
+     * @param context
+     */
+    public void moduleInitialized(ServletContext servletContext);
 
-    private String nodeName;
+    /**
+     * This method will be invoked after all Java EE supported components are destroyed
+     * @param event
+     */
+    public void moduleDestoryed(ServletContext servletContext);
 
-    public IllegalConfigurationException(String nodeName, String message) {
-        super(message);
-        this.nodeName = nodeName;
-    }
-
-    public IllegalConfigurationException(String message) {
-        super(message);
-    }
-
-    public String getNodeName() {
-        return nodeName;
-    }
 }

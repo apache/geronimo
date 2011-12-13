@@ -55,12 +55,10 @@ import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
-import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.openejb.cdi.SharedOwbContext;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -73,7 +71,6 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 import org.apache.tomcat.InstanceManager;
-import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +118,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Map<String, Object> deploymentAttributes;
     private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private final Map<String,String> contextAttributes;
-    private final WebBeansContext owbContext;
+    //private final WebBeansContext owbContext;
     private final InstanceManager instanceManager;
     private final AbstractName abName;
 
@@ -169,7 +166,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
             @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
             @ParamAttribute(name = "contextAttributes") Map<String, String> contextAttributes,
-            @ParamReference(name = "SharedOwbContext")SharedOwbContext sharedOwbContext,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abName)
             throws Exception {
@@ -284,7 +280,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             j2EEServer = null;
             j2EEApplication = null;
         }
-        owbContext = sharedOwbContext == null? null: sharedOwbContext.getOWBContext();
         instanceManager = new TomcatInstanceManager(this.holder, classLoader, componentContext);
     }
 
@@ -354,10 +349,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
         return docBase;
     }
-
-//    public void setDocBase(String docBase) {
-//        this.docBase = docBase;
-//    }
 
     public UserTransaction getUserTransaction() {
         return userTransaction;
@@ -565,11 +556,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return contextAttributes;
     }
 
-    @Override
-    public WebBeansContext getOWBContext() {
-        return owbContext;
-    }
-
     public void doStart() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         try {
@@ -584,9 +570,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 throw new IllegalStateException("JNDI environment was not set up correctly due to previous error");
             }
             DirContextURLStreamHandler.bind(classLoader, resources);
-            if (context instanceof StandardContext)
+            if (context instanceof StandardContext) {
                 statsProvider = new ModuleStats((StandardContext) context);
-            log.debug("TomcatWebAppContext started for " + contextPath);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("TomcatWebAppContext started for " + contextPath);
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }

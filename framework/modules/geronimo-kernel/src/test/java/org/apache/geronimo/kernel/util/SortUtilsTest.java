@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,13 +24,16 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils.Visitor;
+import org.apache.geronimo.kernel.util.CircularReferencesException;
+import org.apache.geronimo.kernel.util.IllegalNodeConfigException;
+import org.apache.geronimo.kernel.util.SortUtils;
+import org.apache.geronimo.kernel.util.SortUtils.Visitor;
 import org.junit.Test;
 
 /**
  * @version $Rev$ $Date$
  */
-public class FragmentSortUtilsTest {
+public class SortUtilsTest {
 
     @Test
     public void testFragmentSortA() throws Exception {
@@ -38,7 +41,7 @@ public class FragmentSortUtilsTest {
         for (int i = 0; i < 6; i++) {
             fragmentList.add(String.valueOf((char) ('A' + i)));
         }
-        List<String> sortedList = FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+        List<String> sortedList = SortUtils.sort(fragmentList, new Visitor<String>() {
 
             @Override
             public boolean afterOthers(String t) {
@@ -87,7 +90,7 @@ public class FragmentSortUtilsTest {
         for (int i = 0; i < 6; i++) {
             fragmentList.add(String.valueOf((char) ('A' + i)));
         }
-        List<String> sortedList = FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+        List<String> sortedList = SortUtils.sort(fragmentList, new Visitor<String>() {
 
             @Override
             public boolean afterOthers(String t) {
@@ -133,7 +136,7 @@ public class FragmentSortUtilsTest {
         for (int i = 0; i < 4; i++) {
             fragmentList.add(String.valueOf((char) ('A' + i)));
         }
-        List<String> sortedList = FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+        List<String> sortedList = SortUtils.sort(fragmentList, new Visitor<String>() {
 
             @Override
             public boolean afterOthers(String t) {
@@ -172,7 +175,7 @@ public class FragmentSortUtilsTest {
         }
         Exception actualException = null;
         try {
-            FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+            SortUtils.sort(fragmentList, new Visitor<String>() {
 
                 @Override
                 public boolean afterOthers(String t) {
@@ -200,12 +203,12 @@ public class FragmentSortUtilsTest {
                 }
 
             });
-        } catch (IllegalConfigurationException e) {
+        } catch (IllegalNodeConfigException e) {
             actualException = e;
         } catch (CircularReferencesException e) {
             Assert.fail("Should not get CircularReference Exception here");
         }
-        Assert.assertNotNull("Should get an IllegalConfigurationException", actualException);
+        Assert.assertNotNull("Should get an IllegalNodeConfigException", actualException);
     }
 
     @Test
@@ -214,9 +217,9 @@ public class FragmentSortUtilsTest {
         for (int i = 0; i < 2; i++) {
             fragmentList.add(String.valueOf((char) ('A' + i)));
         }
-        IllegalConfigurationException actualException = null;
+        IllegalNodeConfigException actualException = null;
         try {
-            FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+            SortUtils.sort(fragmentList, new Visitor<String>() {
 
                 @Override
                 public boolean afterOthers(String t) {
@@ -248,13 +251,13 @@ public class FragmentSortUtilsTest {
                 }
 
             });
-        } catch (IllegalConfigurationException e) {
+        } catch (IllegalNodeConfigException e) {
             actualException = e;
 
         } catch (CircularReferencesException e) {
             Assert.fail("Should not get CircularReferencesException here");
         }
-        Assert.assertNotNull("Should get an IllegalConfigurationException", actualException);
+        Assert.assertNotNull("Should get an IllegalNodeConfigException", actualException);
     }
 
     @Test
@@ -265,7 +268,7 @@ public class FragmentSortUtilsTest {
         }
         CircularReferencesException actualException = null;
         try {
-            FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+            SortUtils.sort(fragmentList, new Visitor<String>() {
 
                 @Override
                 public boolean afterOthers(String t) {
@@ -301,8 +304,8 @@ public class FragmentSortUtilsTest {
                 }
 
             });
-        } catch (IllegalConfigurationException e) {
-            Assert.fail("Should not get IllegalConfigurationException here");
+        } catch (IllegalNodeConfigException e) {
+            Assert.fail("Should not get IllegalNodeConfigException here");
         } catch (CircularReferencesException e) {
             actualException = e;
         }
@@ -317,7 +320,7 @@ public class FragmentSortUtilsTest {
         }
         Exception actualException = null;
         try {
-            FragmentSortUtils.sort(fragmentList, new Visitor<String>() {
+            SortUtils.sort(fragmentList, new Visitor<String>() {
 
                 @Override
                 public boolean afterOthers(String t) {
@@ -352,8 +355,8 @@ public class FragmentSortUtilsTest {
                 }
 
             });
-        } catch (IllegalConfigurationException e) {
-            Assert.fail("Should not get IllegalConfigurationException here");
+        } catch (IllegalNodeConfigException e) {
+            Assert.fail("Should not get IllegalNodeConfigException here");
         } catch (CircularReferencesException e) {
             actualException = e;
         }

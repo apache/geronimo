@@ -438,6 +438,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             } else {
                 path = resource.getInternalRar();
                 try {
+                    JarUtils.assertTempFile();
                     connectorFile = new NestedJarFile(moduleFile, path);
                 } catch (IOException e) {
                     throw new DeploymentException("Could not locate connector inside ear", e);
@@ -596,6 +597,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 for (String libEntryPath : libClasspath) {
                     if (libEntryPath.endsWith(".jar")) {
                         try {
+                            JarUtils.assertTempFile();
                             NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
                             appClientDeploymentContext.addIncludeAsPackedJar(URI.create(libEntryPath), library);
                         } catch (IOException e) {
@@ -640,6 +642,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
                     //Copy needed jar from ear to appclient configuration.
                     if (classpath.endsWith(".jar")) {
+                        JarUtils.assertTempFile();
                         NestedJarFile library = new NestedJarFile(earFile, classpath);
                         appClientDeploymentContext.addIncludeAsPackedJar(URI.create(classpath), library);
                     }

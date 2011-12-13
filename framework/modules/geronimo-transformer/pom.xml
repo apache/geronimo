@@ -48,6 +48,7 @@
                 <configuration>
                     <instructions>
                         <Premain-Class>org.apache.geronimo.transformer.TransformerAgent</Premain-Class>
+                        <Can-Redefine-Classes>true</Can-Redefine-Classes>
                     </instructions>
                 </configuration>
             </plugin>

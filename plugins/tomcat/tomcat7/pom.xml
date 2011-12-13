@@ -71,12 +71,12 @@
             <version>${project.version}</version>
         </dependency>
         
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb</artifactId>
             <version>${project.version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <!-- Required because tomcat STARTS its default web.xml which has a jasper servlet in it -->
         <dependency>

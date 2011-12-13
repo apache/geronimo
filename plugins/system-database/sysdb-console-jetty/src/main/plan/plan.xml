@@ -402,6 +402,14 @@ limitations under the License.
         <attribute name="specific">true</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-sqlserver2005-xa//rar</attribute>
     </gbean>
+    <gbean name="Database283" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">SQL Server 2008 XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-sqlserver2008-xa//rar</attribute>
+    </gbean>
     <gbean name="Database29" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">SQL Server (jTDS)</attribute>
         <attribute name="URLPrototype">jdbc:jtds:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>

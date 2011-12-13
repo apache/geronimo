@@ -204,12 +204,21 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     }
 
     @Override
-    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
         if(!isSameMachine) {
             throw new UnsupportedOperationException("Update EBA content operation is not supportted from a remote JMX connection");
         }
         
-        super.updateEBAContent(applicationGBeanName, bundleId, newfile);
+        super.updateEBAContent(applicationGBeanName, bundleId, bundleFile);
+    }
+    
+    @Override
+    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        if(!isSameMachine) {
+            throw new UnsupportedOperationException("Update EBA content operation is not supportted from a remote JMX connection");
+        }
+        
+        return super.hotSwapEBAContent(applicationGBeanName, bundleId, changesFile, updateArchive);
     }
     
     @Override

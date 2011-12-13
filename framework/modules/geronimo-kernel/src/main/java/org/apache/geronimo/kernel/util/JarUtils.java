@@ -55,17 +55,27 @@ public final class JarUtils {
     }
 
     public static final File DUMMY_JAR_FILE;
+    public static final String TEMP_FILE_NAME;
 
     private static final boolean jarUrlRewrite;
     static {
         //Why not always set this with true ? Online deployer also lock the jar files
-        jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.kernel.util.JarUtils.jarUrlRewrite", "true"));
+        jarUrlRewrite = Boolean.valueOf(System.getProperty("org.apache.geronimo.kernel.util.JarUtils.jarUrlRewrite", "true"));
         try {
             DUMMY_JAR_FILE = FileUtils.createTempFile(false);
+            TEMP_FILE_NAME = DUMMY_JAR_FILE.getCanonicalPath();
             new JarOutputStream(new FileOutputStream(JarUtils.DUMMY_JAR_FILE), new Manifest()).close();
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
+    }
+    
+    public static void assertTempFile() throws IOException {
+    	if(DUMMY_JAR_FILE.exists()) {
+    		return;
+    	} else {
+    		new JarOutputStream(new FileOutputStream(new File(JarUtils.TEMP_FILE_NAME)), new Manifest()).close();
+    	}
     }
 
     public static File toTempFile(JarFile jarFile, String path) throws IOException {
