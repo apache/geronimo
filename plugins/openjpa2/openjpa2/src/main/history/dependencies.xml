@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openjpa2</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-beta-2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -34,11 +34,6 @@
     <dependency>
         <groupId>org.apache.aries.jpa</groupId>
         <artifactId>org.apache.aries.jpa.container.context</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>scannotation</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -104,16 +99,6 @@
     <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-spi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

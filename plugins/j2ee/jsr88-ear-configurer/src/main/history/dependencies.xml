@@ -3,14 +3,9 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jsr88-ear-configurer</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-beta-2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>scannotation</artifactId>
-        <type>jar</type>
-    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-transaction</artifactId>
@@ -134,16 +129,6 @@
     <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-jee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-spi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

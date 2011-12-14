@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty8</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-beta-2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -14,11 +14,6 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jasper</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -37,6 +32,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
         <type>jar</type>
@@ -44,11 +44,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty8</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-persistence-jpa20</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -72,33 +67,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jms_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-ejbd</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-multicast</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-osgi-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-server</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-ee-common</artifactId>
+        <artifactId>openejb-jee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

@@ -3,9 +3,14 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>uddi-jetty</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-beta-2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-digester</artifactId>
+        <type>jar</type>
+    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>cxf</artifactId>
@@ -25,5 +30,10 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>uddi-db</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>
