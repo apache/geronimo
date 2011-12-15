@@ -82,7 +82,7 @@
         <openejbVersion>3.0.4</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <externalTomcatVersion>6.0.33.1</externalTomcatVersion>
-        <tomcatVersion>6.0.33</tomcatVersion>
+        <tomcatVersion>6.0.35.1-SNAPSHOT</tomcatVersion>
         <eclipseVersion>3.3.0-v_771</eclipseVersion>
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
