@@ -45,7 +45,7 @@
     </description>
 
     <properties>
-      <excludeTest>test-tomcat</excludeTest>
+      <excludeTest>test-jetty</excludeTest>
     </properties>
 
     <build>
