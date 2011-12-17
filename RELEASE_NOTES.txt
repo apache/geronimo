@@ -61,37 +61,38 @@ Plan Creator (added in Geronimo 2.1.2)
 Geronimo 2.1.8 Issues Resolved
 ------------------------------
 ** Bug
-GERONIMO-6161	Support MSSQL Server 2008 XA Datasource Creation
-GERONIMO-6146	Got ClassCastException when creating Oracle RAC datasource
-GERONIMO-6111	geronimo-tomcat6-javaee5-2.1.7 does not start in 64 bit Platform when using JAVA 7
-GERONIMO-5991	org.apache.myfaces.el.VariableResolverImpl throws java.lang.IllegalStateException when it unsets the scope as null
-GERONIMO-5950	AMQ-3121: Avoid connection creation while creating XAResource if the connection factory is not an xa connection factory
-GERONIMO-5825	Provide a option to prevent tar assemblies from generating.
-GERONIMO-5806	SharedLIb GBean should have priority set to PRIORITY_CLASSLOADER
-GERONIMO-5749	Command Line utility to enable/disable Monitoring server and Stat query Snapshot thread for DefaultServer
-GERONIMO-5712   Geronimo should remember the monitoring server enablement status.
-GERONIMO-5727	GERONIMO-5712 [Doc] Update doc about section: "Monitoring components on Geronimo Server"
-GERONIMO-5725	ActiveMQ errors showed when deployed daytrader sample
-GERONIMO-5723	derby system-database user authentication failure when shutdown server using sun jdk 1.6.0
-GERONIMO-5673	ModuleMojoSupport ignores stopOnFailure
-GERONIMO-5355	ClassCastException while starting snapshot (Stat Query) in G 215 Monitoring portlet through java client
-GERONIMO-5265	Modify the redeploy behavior to start all the running childs along with the parent
-GERONIMO-5181	Modification to Database connection pool parameters are not saved when restart Geronimo.
-GERONIMO-4861	Deployment Plan XML Parsing - Not add generated namespace names to closing tags
-GERONIMO-4668	Parse XML error after deploying a EJB security jar
-GERONIMO-5900	NullPointerException on JavaBeanDispatcher class when debug logging enabled
-GERONIMO-6171	Grails applications do not works correctly when deployed to ROOT folder
-GERONIMO-5700	Active MQ Fixes in geronimo for AMQ-1779, AMQ-1431 and AMQ-1760
-GERONIMO-5689	User-defined derby connection user name and password should be honored when enabling derby authentication
+GERONIMO-6146 Got ClassCastException when creating Oracle RAC datasource
+GERONIMO-6111 geronimo-tomcat6-javaee5-2.1.7 does not start in 64 bit Platform when using JAVA 7
+GERONIMO-5991 org.apache.myfaces.el.VariableResolverImpl throws java.lang.IllegalStateException when it unsets the scope as null
+GERONIMO-5950 AMQ-3121: Avoid connection creation while creating XAResource if the connection factory is not an xa connection factory
+GERONIMO-5825 Provide a option to prevent tar assemblies from generating.
+GERONIMO-5806 SharedLIb GBean should have priority set to PRIORITY_CLASSLOADER
+GERONIMO-5712 Geronimo should remember the monitoring server enablement status.
+GERONIMO-5727 GERONIMO-5712 [Doc] Update doc about section: "Monitoring components on Geronimo Server"
+GERONIMO-5725 ActiveMQ errors showed when deployed daytrader sample
+GERONIMO-5723 derby system-database user authentication failure when shutdown server using sun jdk 1.6.0
+GERONIMO-5673 ModuleMojoSupport ignores stopOnFailure
+GERONIMO-5355 ClassCastException while starting snapshot (Stat Query) in G 215 Monitoring portlet through java client
+GERONIMO-5181 Modification to Database connection pool parameters are not saved when restart Geronimo.
+GERONIMO-4861 Deployment Plan XML Parsing - Not add generated namespace names to closing tags
+GERONIMO-4668 Parse XML error after deploying a EJB security jar
+GERONIMO-5900 NullPointerException on JavaBeanDispatcher class when debug logging enabled
+GERONIMO-6171 Grails applications do not works correctly when deployed to ROOT folder
+GERONIMO-5700 Active MQ Fixes in geronimo for AMQ-1779, AMQ-1431 and AMQ-1760
+GERONIMO-5689 User-defined derby connection user name and password should be honored when enabling derby authentication
 
 ** Improvement
 GERONIMO-4540 Improve windows startup batch scripts to redirect stdout and stderr messages to GERONIMO_HOME/var/log/geronimo.out
 GERONIMO-6234 Upgrade some components for 2.1.8 release
 GERONIMO-6164 Passing more db2 specific properties through db2 xa connector
+GERONIMO-5265 Modify the redeploy behavior to start all the running childs along with the parent
+GERONIMO-6234 Upgrade some components for 2.1.8 release
+GERONIMO-6176 upgrade jaxb to 2.1.13 and use geronimo jaxb 2.1 spec
 
 ** New Feature
-GERONIMO-6234 Upgrade some components for 2.1.8 release
-
+GERONIMO-5749 Command Line utility to enable/disable Monitoring server and Stat query Snapshot thread for DefaultServer
+GERONIMO-6161 Support MSSQL Server 2008 XA Datasource Creation
+GERONIMO-6202 Add sql server 2008 tranql and update db2iseriesxa and db2xa tranql version
 
 Certification Status
 --------------------
