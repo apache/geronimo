@@ -8,7 +8,7 @@
         manages a geronimo-plugins.xml catalog in the local maven repository.</description>
   <groupId>org.apache.geronimo.buildsupport</groupId>
   <artifactId>car-maven-plugin</artifactId>
-  <version>3.0-beta-1-SNAPSHOT</version>
+  <version>3.0-SNAPSHOT</version>
   <goalPrefix>car</goalPrefix>
   <isolatedRealm>false</isolatedRealm>
   <inheritedByDefault>true</inheritedByDefault>
