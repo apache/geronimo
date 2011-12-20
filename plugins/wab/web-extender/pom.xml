@@ -42,10 +42,10 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-              <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint</artifactId>
-        </dependency>
+        <!--<dependency>-->
+              <!--<groupId>org.apache.geronimo.ext.aries.blueprint</groupId>-->
+            <!--<artifactId>org.apache.aries.blueprint</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.aries.web</groupId>

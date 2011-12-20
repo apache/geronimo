@@ -119,18 +119,6 @@
 -->
 
             <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>sxc-jaxb</artifactId>
-                <version>${sxcVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>sxc-runtime</artifactId>
-                <version>${sxcVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>2.0</version>

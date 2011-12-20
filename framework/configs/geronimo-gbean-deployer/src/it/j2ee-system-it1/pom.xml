@@ -63,14 +63,6 @@
             <groupId>asm</groupId>
             <artifactId>asm-all</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-runtime</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>

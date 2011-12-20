@@ -97,10 +97,11 @@
             <artifactId>org.apache.servicemix.bundles.howl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.ext.aries.blueprint</groupId>-->
+            <!--<artifactId>org.apache.aries.blueprint.api</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.aries.transaction</groupId>

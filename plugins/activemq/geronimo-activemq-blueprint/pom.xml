@@ -72,25 +72,26 @@
             <artifactId>activemq-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ops4j.pax.logging</groupId>-->
+            <!--<artifactId>pax-logging-api</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activeio-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-blueprint</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-blueprint</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.ext.aries.blueprint</groupId>-->
+            <!--<artifactId>org.apache.aries.blueprint.api</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
