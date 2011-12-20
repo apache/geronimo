@@ -41,7 +41,8 @@
                         <id>default</id>
                         <phases>
                             <process-resources>
-                                org.apache.maven.plugins:maven-resources-plugin:resources
+                                org.apache.maven.plugins:maven-resources-plugin:resources,
+                                org.apache.karaf.tooling:karaf-maven-plugin:install-kars
                             </process-resources>
                             <compile>
                                 org.apache.geronimo.buildsupport:car-maven-plugin:validate-configuration,

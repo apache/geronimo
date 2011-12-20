@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.ImportType;
+import org.apache.karaf.main.Main;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -679,6 +680,37 @@ public abstract class AbstractCarMojo
 
     protected Framework getFramework() throws BundleException {
         setLoggingLevel();
+
+        File karafHome = new File(new File(basedir, "target"), "assembly");
+        System.setProperty(Main.PROP_KARAF_HOME, karafHome.getAbsolutePath());
+        System.setProperty(Main.PROP_KARAF_BASE, karafHome.getAbsolutePath());
+        System.setProperty(Main.PROP_KARAF_DATA, new File(karafHome, "data").getAbsolutePath());
+        System.setProperty(Main.PROP_KARAF_INSTANCES, new File(karafHome, "instances").getAbsolutePath());
+
+        //enable mvn url handling
+//        new org.ops4j.pax.url.mvn.internal.Activator().start(framework.getBundleContext());
+        //don't allow mvn urls
+        if (systemProperties == null) {
+            systemProperties = new HashMap<String, String>();
+        }
+        systemProperties.put("geronimo.build.car", "true");
+        //Fix JIRA GERONIMO-5400
+        if (null == System.getProperty("openejb.log.factory")) {
+            systemProperties.put("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
+        }
+        systemProperties.put("karaf.startLocalConsole", "false");
+        systemProperties.put("openejb.geronimo", "true");
+        setSystemProperties();
+
+        Main main = new Main(new String[] {});
+        try {
+            main.launch();
+            return main.getFramework();
+        } catch (Exception e) {
+            if (1 == 1) {
+                throw new BundleException("Could not start karaf framwork", e);
+            }
+        }
 
         Map<String, String> properties = new HashMap<String, String>();
 //        properties.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
