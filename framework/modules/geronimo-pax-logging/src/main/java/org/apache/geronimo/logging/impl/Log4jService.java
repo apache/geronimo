@@ -510,27 +510,27 @@ public abstract class Log4jService implements SystemLog {
      * Force the logging system to reconfigure.
      */
     public void reconfigure() {
-        File file = resolveConfigurationFile();
-        if (file == null || !file.exists()) {
-            return;
-        } else {
-            log.debug("Reconfiguring from: {}", configurationFile);
-            lastChanged = file.lastModified();
-        }
-
-        try {
-            FileInputStream in = new FileInputStream(file);
-            Properties props = new Properties();
-            try {
-                props.load(in);
-            } finally {
-                try { in.close(); } catch (IOException ignore) {}
-            }
-            
-            update(props);                        
-        } catch (Exception e) {
-            e.printStackTrace();
-        }   
+//        File file = resolveConfigurationFile();
+//        if (file == null || !file.exists()) {
+//            return;
+//        } else {
+//            log.debug("Reconfiguring from: {}", configurationFile);
+//            lastChanged = file.lastModified();
+//        }
+//
+//        try {
+//            FileInputStream in = new FileInputStream(file);
+//            Properties props = new Properties();
+//            try {
+//                props.load(in);
+//            } finally {
+//                try { in.close(); } catch (IOException ignore) {}
+//            }
+//
+//            update(props);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     abstract protected void update(Properties properties) throws Exception;      
