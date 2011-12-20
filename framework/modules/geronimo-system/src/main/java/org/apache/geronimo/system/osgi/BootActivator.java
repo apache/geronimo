@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Dictionary;
 
+import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -76,7 +77,12 @@ public class BootActivator implements BundleActivator {
 
             // register Main service if Main GBean present
             if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) { 
-                registerMainService(bundleContext, kernel);
+                final Main main = kernel.getGBean(Main.class);
+                DaemonCLParser parser = new DaemonCLParser(System.out);
+                //TODO fish the args out of karaf Main
+                parser.parse(new String[] {});
+                main.execute(parser);
+//                registerMainService(bundleContext, kernel);
             }
 
         } else {
