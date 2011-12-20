@@ -690,9 +690,9 @@ public abstract class AbstractCarMojo
         // This list and the version numbers needs to be synchronized with the list
         // in the karaf framework config.properties file.
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES,
-                "org.osgi.framework;version=1.5.0," +
+                "org.osgi.framework;version=1.6.0," +
                         "org.osgi.framework.launch;version=1.0.0," +
-                        "org.osgi.framework.hooks.service;version=1.0.0," +
+                        "org.osgi.framework.hooks.service;version=1.1.0," +
                         "org.osgi.service.packageadmin;version=1.2.0," +
                         "org.osgi.service.startlevel;version=1.1.0," +
                         "org.osgi.service.url;version=1.0.0," +
@@ -889,7 +889,7 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.transformer," +
                         "org.apache.geronimo.hook," +
                         "org.apache.geronimo.mavenplugins.car," +
-                        "org.apache.karaf.jaas.boot;version=\"2.2.1\"," +
+                        "org.apache.karaf.jaas.boot;version=\"3.0.0.SNAPSHOT\"," +
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util," +
