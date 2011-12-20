@@ -34,7 +34,7 @@ public class Daemon extends EmbeddedDaemon {
 
     private Daemon() {
         //TODO osgi bundleContext == null
-        super(KernelFactory.newInstance(null).createKernel("geronimo"), null);
+//        super(KernelFactory.newInstance(null).createKernel("geronimo"), null);
     }
 
     @Override
@@ -43,19 +43,19 @@ public class Daemon extends EmbeddedDaemon {
         BundleContext bundleContext = null;
 
         // boot the kernel
-        try {
-            kernel.boot(bundleContext);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 1;
-        }
+//        try {
+//            kernel.boot(bundleContext);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return 1;
+//        }
 
         // add our shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
                 System.out.println("");
                 System.out.println("Server shutdown started");
-                kernel.shutdown();
+//                kernel.shutdown();
                 System.out.println("Server shutdown completed");
             }
         });
@@ -94,6 +94,6 @@ public class Daemon extends EmbeddedDaemon {
             parser.displayHelp();
             System.exit(1);
         }
-        new Daemon().execute(parser);
+//        new Daemon().execute(parser);
     }
 }

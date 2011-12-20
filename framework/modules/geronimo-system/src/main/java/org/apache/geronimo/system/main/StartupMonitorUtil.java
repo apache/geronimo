@@ -43,6 +43,9 @@ public class StartupMonitorUtil {
     private static final Logger log = LoggerFactory.getLogger(StartupMonitorUtil.class);
 
     public static synchronized void wrapUp(PrintStream out, Kernel kernel) {
+        if (kernel == null) {
+            out.println("No kernel supplied, no summary possible");
+        }
         List apps = new ArrayList();  // type = String (message)
         List webs = new ArrayList();  // type = WebAppInfo
         List ports = new ArrayList(); // type = AddressHolder

@@ -26,24 +26,28 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.geronimo.cli.CLParserException;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.FileUtils;
-import org.apache.geronimo.kernel.util.Main;
+import org.apache.karaf.info.ServerInfo;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,30 +55,83 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
-public class EmbeddedDaemon implements Main {
+
+@Component
+public class EmbeddedDaemon {
     private static final Logger log = LoggerFactory.getLogger(EmbeddedDaemon.class);
 
-    protected final Kernel kernel;
-    private Bundle bundle;
+    private BundleContext bundleContext;
     private StartupMonitor monitor;
     private LifecycleMonitor lifecycleMonitor;
     private List<Artifact> configs = new ArrayList<Artifact>();
+    
+    @Reference(name ="persistentConfigurationList", referenceInterface = PersistentConfigurationList.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private List<PersistentConfigurationList> configurationLists = new ArrayList<PersistentConfigurationList>();
+    
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ConfigurationManager configurationManager;
+    
+    //NB karaf server info
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ServerInfo serverInfo;
+    
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private Kernel kernel;
+
     static String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
     static String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
     static String GERONIMO_HOME = "org.apache.geronimo.home.dir";
     static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
             + "/var/config/config-substitutions.properties";
     
-    public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
-        this.kernel = kernel;
-        this.bundle = bundle;
+//    public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
+//        this.kernel = kernel;
+//        this.bundle = bundle;
+//    }
+
+    public void bindPersistentConfigurationList(PersistentConfigurationList config) {
+        configurationLists.add(config);
+    }
+    
+    public void unbindPersistentConfigurationList(PersistentConfigurationList config) {
+        configurationLists.remove(config);
     }
 
-    public int execute(Object opaque) {
-        if (!(opaque instanceof DaemonCLParser)) {
-            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DaemonCLParser.class + "]");
+    public void setConfigurationManager(ConfigurationManager configurationManager) {
+        this.configurationManager = configurationManager;
+    }
+    
+    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
+        if (configurationManager == this.configurationManager) {
+            this.configurationManager = null;
         }
-        DaemonCLParser parser = (DaemonCLParser) opaque;
+    }
+
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo  = serverInfo;
+    }
+    
+    public void unsetServerInfo(ServerInfo serverInfo) {
+        if (serverInfo == this.serverInfo) {
+            this.serverInfo = null;
+        }
+    }
+
+    public void setKernel(Kernel kernel) {
+        this.kernel  = kernel;
+    }
+
+    public void unsetKernel(Kernel kernel) {
+        if (kernel == this.kernel) {
+            this.kernel = null;
+        }
+    }
+
+    @Activate
+    public void execute(BundleContext bundleContext) throws CLParserException {
+        this.bundleContext = bundleContext;
+        DaemonCLParser parser = new DaemonCLParser(System.out);
+        parser.parse(serverInfo.getArgs());
         
         cleanCache(parser);
         initializeMonitor(parser);
@@ -90,7 +147,7 @@ public class EmbeddedDaemon implements Main {
         //GeronimoEnvironment.init();
 
         monitor.systemStarting(start);
-        return doStartup();       
+        doStartup();
     }
 
     protected void initializeSecure(DaemonCLParser parser) {
@@ -176,14 +233,12 @@ public class EmbeddedDaemon implements Main {
 
             monitor.systemStarted(kernel);
 
-            AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
 
             if (configs.isEmpty()) {
                 // --override wasn't used (nothing explicit), see what was running before
-                Set<AbstractName> configLists = kernel.listGBeans(query);
-                for (AbstractName configListName : configLists) {
+                for (PersistentConfigurationList persistentConfigurationList : configurationLists) {
                     try {
-                        configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
+                        configs.addAll(persistentConfigurationList.restore());
                     } catch (IOException e) {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
@@ -197,8 +252,6 @@ public class EmbeddedDaemon implements Main {
 
             // load the rest of the configurations
             try {
-                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-                try {
                     List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
                     int unloadedConfigsCount;
                     do {
@@ -226,9 +279,6 @@ public class EmbeddedDaemon implements Main {
                             status.setServerStarted(true);
                         }
                     }
-                } finally {
-                    ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-                }
             } catch (Exception e) {
                 //Exception caught when starting configurations, starting kernel shutdown
                 monitor.serverStartFailed(e);
@@ -237,9 +287,8 @@ public class EmbeddedDaemon implements Main {
             }
 
             // Tell every persistent configuration list that the kernel is now fully started
-            Set<AbstractName> configLists = kernel.listGBeans(query);
-            for (AbstractName configListName : configLists) {
-                kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
+            for (PersistentConfigurationList persistentConfigurationList : configurationLists) {
+                persistentConfigurationList.setKernelFullyStarted(true);
             }
 
             // Startup sequence is finished
@@ -270,12 +319,12 @@ public class EmbeddedDaemon implements Main {
         // so there might be some bundles, which depends on geronimo bundles, can not be resovled during osgi framework launch.
         // we need re-try start it after geronimo start.
         // This could be deleted after we smooth out geronimo life cycle with osgi.
-        for (Bundle b : bundle.getBundleContext().getBundles()) {
+        for (Bundle b : bundleContext.getBundles()) {
             if (BundleUtils.canStart(b)) {
                 try {
                     b.start(Bundle.START_TRANSIENT);
                 } catch (BundleException e) {
-                    log.warn("Bundle: " + bundle.getBundleId() + "can not start" + e.getMessage());
+                    log.warn("Bundle: " + b.getBundleId() + "can not start" + e.getMessage());
                 }
             }
         }
@@ -285,30 +334,30 @@ public class EmbeddedDaemon implements Main {
     }
 
     protected void shutdownKernel() {
-        try {
-            kernel.shutdown();
-        } catch (Exception e1) {
-            System.err.println("Exception caught during kernel shutdown");
-            e1.printStackTrace();
-        }
+//        try {
+//            kernel.shutdown();
+//        } catch (Exception e1) {
+//            System.err.println("Exception caught during kernel shutdown");
+//            e1.printStackTrace();
+//        }
     }
 
     protected int initializeKernel() throws Exception {
         return 0;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EmbeddedDaemon.class, "EmbeddedDaemon");
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("bundle", Bundle.class, false);
-        infoFactory.setConstructor(new String[]{"kernel", "bundle"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+//    public static final GBeanInfo GBEAN_INFO;
+//
+//    static {
+//        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EmbeddedDaemon.class, "EmbeddedDaemon");
+//        infoFactory.addAttribute("kernel", Kernel.class, false);
+//        infoFactory.addAttribute("bundle", Bundle.class, false);
+//        infoFactory.setConstructor(new String[]{"kernel", "bundle"});
+//        GBEAN_INFO = infoFactory.getBeanInfo();
+//    }
+//
+//    public static GBeanInfo getGBeanInfo() {
+//        return GBEAN_INFO;
+//    }
 
 }

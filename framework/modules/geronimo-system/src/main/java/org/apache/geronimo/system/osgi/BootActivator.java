@@ -81,7 +81,7 @@ public class BootActivator implements BundleActivator {
                 DaemonCLParser parser = new DaemonCLParser(System.out);
                 //TODO fish the args out of karaf Main
                 parser.parse(new String[] {});
-                main.execute(parser);
+//                main.execute(parser);
 //                registerMainService(bundleContext, kernel);
             }
 
@@ -104,18 +104,18 @@ public class BootActivator implements BundleActivator {
     }
     
     private void registerMainService(BundleContext bundleContext, Kernel kernel) {
-        try {
-            final Main main = kernel.getGBean(Main.class);
-            bundleContext.registerService(
-                    org.apache.geronimo.main.Main.class.getName(), 
-                    new org.apache.geronimo.main.Main() {
-                        public int execute(Object opaque) {
-                            return main.execute(opaque);
-                        }                    
-                    }, 
-                    null);
-        } catch (GBeanNotFoundException e) {
-            // ignore
-        }
+//        try {
+//            final Main main = kernel.getGBean(Main.class);
+//            bundleContext.registerService(
+//                    org.apache.geronimo.main.Main.class.getName(),
+//                    new org.apache.geronimo.main.Main() {
+//                        public int execute(Object opaque) {
+//                            return main.execute(opaque);
+//                        }
+//                    },
+//                    null);
+//        } catch (GBeanNotFoundException e) {
+//            // ignore
+//        }
     }
 }
