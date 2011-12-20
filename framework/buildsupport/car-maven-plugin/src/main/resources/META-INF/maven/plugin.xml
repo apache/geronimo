@@ -430,7 +430,7 @@ if none specified, plugin will install all dependencies of type &quot;car&quot;<
         <session implementation="org.apache.maven.execution.MavenSession">${session}</session>
         <encoding implementation="java.lang.String" default-value="${project.build.sourceEncoding}">${encoding}</encoding>
         <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
-        <targetRepositoryPath implementation="java.lang.String">repository</targetRepositoryPath>
+        <targetRepositoryPath implementation="java.lang.String">system</targetRepositoryPath>
       </configuration>
       <requirements>
         <requirement>

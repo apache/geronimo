@@ -64,7 +64,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
     /**
      * The location of the target repository.
      *
-     * @parameter expression="repository"
+     * @parameter expression="system"
      * @required
      */
     private String targetRepositoryPath = null;
@@ -145,16 +145,9 @@ public class InstallModulesMojo extends AbstractCarMojo {
      */
     private Set installedArtifacts = new HashSet();
 
-    //TODO OSGI figure out what this might be
-    private BundleContext bundleContext;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        // boot one ourselves
-        try {
-            bundleContext = getFramework().getBundleContext();
-        } catch (BundleException e) {
-            throw new MojoExecutionException("Could not create osqi framework", e);
-        }
+
         getDependencies(project, false);
         Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl();
         SourceRepository sourceRepo = new Maven2RepositoryAdapter(dependencyArtifacts, lookup);
@@ -177,15 +170,9 @@ public class InstallModulesMojo extends AbstractCarMojo {
         DownloadResults downloadPoller = new DownloadResults();
         String targetServerPath = targetServerDirectory.getAbsolutePath();
 
-        Kernel kernel = null;
-        try {
-            kernel = new BasicKernel("Assembly", bundleContext);
-        } catch (Exception e) {
-            throw new MojoExecutionException("Could not create kernel", e);
-        }
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
-            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, bundleContext);
+            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, null, null);
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
             if (overrides != null) {
                 for (Override override: this.overrides) {
@@ -195,13 +182,6 @@ public class InstallModulesMojo extends AbstractCarMojo {
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Could not use plugin installer bean", e);
-        } finally {
-            kernel.shutdown();            
-            try {
-                bundleContext.getBundle().stop();
-            } catch (BundleException e) {
-                // ignore
-            }
         }
         getLog().info("Installed plugins: ");
         for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {

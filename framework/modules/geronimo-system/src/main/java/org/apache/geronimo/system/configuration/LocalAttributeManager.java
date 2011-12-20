@@ -94,11 +94,11 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private ServerInfo serverInfo;
 
     @Property(value = "var/config/config.xml")
-    static final String CONFIG_FILE_KEY = ".configFile";
+    public static final String CONFIG_FILE_KEY = ".configFile";
     private String configFile;
 
     @Property(value = "var/config/config-substitutions.properties")
-    static final String CONFIG_SUBSTITUTIONS_FILE_KEY = ".configSubstitutionsFile";
+    public static final String CONFIG_SUBSTITUTIONS_FILE_KEY = ".configSubstitutionsFile";
     private String configSubstitutionsFileName;
 
 
@@ -130,14 +130,14 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
             + "# For example, try PortOffset=10 \n").getBytes();
 
     @Property(value = "org.apache.geronimo.config.substitution.")
-    static final String PREFIX_KEY = ".configSubstitutionsPrefix";
+    public static final String PREFIX_KEY = ".configSubstitutionsPrefix";
 
     @Property(boolValue = false)
-    static final String READ_ONLY_KEY = "readOnly";
+    public static final String READ_ONLY_KEY = "readOnly";
     private boolean readOnly;
 
     @Property(value = "default")
-    static final String SERVER_NAME_KEY = "serverName";
+    public static final String SERVER_NAME_KEY = "serverName";
     private String serverName;
 
 /*

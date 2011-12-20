@@ -22,6 +22,7 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -116,20 +117,22 @@ public class ServerInstanceData {
         //TODO osgi LocalPluginAttributeStore?
         PluginAttributeStore attributeStore;
         if (attributeManagerFrom == null) {
-            attributeStore = new LocalAttributeManager();
-            //TODO configure osgi
-//            getConfigFile(),
-//                    getConfigSubstitutionsFile(),
-//                    getConfigSubstitutionsPrefix(),
-//                    false,
-//                    serverInfo);
-//            ((LocalAttributeManager)attributeStore).load();
+            LocalAttributeManager attributeStorex = new LocalAttributeManager();
+            attributeStorex.setServerInfo(serverInfo);
+            Map<String, Object> config = new HashMap<String, Object>();
+            config.put(LocalAttributeManager.CONFIG_FILE_KEY, getConfigFile());
+            config.put(LocalAttributeManager.CONFIG_SUBSTITUTIONS_FILE_KEY, getConfigSubstitutionsFile());
+            config.put(LocalAttributeManager.PREFIX_KEY, getConfigSubstitutionsPrefix());
+            config.put(LocalAttributeManager.READ_ONLY_KEY, false);
+            attributeStorex.activate(config);
+            attributeStorex.load();
+            attributeStore = attributeStorex;
         } else {
             ServerInstance shared = serverInstances.get(attributeManagerFrom);
             if (shared == null) {
                 throw new IllegalArgumentException("Incorrect configuration: no server instance named '" + attributeManagerFrom + "' defined before being shared from '" + name + "'");
             }
-            attributeStore = (LocalPluginAttributeStore) shared.getAttributeStore();
+            attributeStore = shared.getAttributeStore();
         }
         return new ServerInstance(name, attributeStore, geronimoArtifactResolver);
     }

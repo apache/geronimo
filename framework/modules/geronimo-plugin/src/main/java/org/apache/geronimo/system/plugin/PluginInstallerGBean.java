@@ -73,6 +73,7 @@ import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -330,16 +331,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                                                                   Map<String, org.apache.geronimo.system.plugin.ServerInstance> servers) throws IOException {
         for (ServerInstance instance : servers.values()) {
             if ("default".equals(instance.getServerName())) {
-                KernelConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
-                        Collections.singleton(targetStore),
-                        instance.getAttributeStore(),
-                        (PersistentConfigurationList) instance.getAttributeStore(),
-                        artifactManager,
+                ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.singleton(targetStore),
                         instance.getArtifactResolver(),
                         Collections.<ListableRepository>singleton(targetRepo),
-                        null,
-                        bundleContext);
-                configurationManager.setOnline(false);
+                        null);
+//                configurationManager.setOnline(false);
                 return configurationManager;
             }
         }
