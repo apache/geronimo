@@ -96,10 +96,20 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
         return configurationManager.isConfiguration(artifact) || super.isConfiguration(artifact);
     }
 
+    @Override
     public synchronized Configuration getConfiguration(Artifact configurationId) {
         Configuration configuration = configurationManager.getConfiguration(configurationId);
         if (configuration == null) {
             configuration = super.getConfiguration(configurationId);
+        }
+        return configuration;
+    }
+
+    @Override
+    public synchronized Configuration getConfiguration(long bundleId) {
+        Configuration configuration = configurationManager.getConfiguration(bundleId);
+        if (configuration == null) {
+            configuration = super.getConfiguration(bundleId);
         }
         return configuration;
     }

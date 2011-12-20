@@ -24,18 +24,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.OsgiService;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.hook.BundleHelper;
 import org.apache.geronimo.hook.SharedLibraryRegistry;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -46,16 +45,15 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-@OsgiService
-@GBean(j2eeType = "ShareLibExtender")
-public class SharedLibExtender implements SynchronousBundleListener, SharedLibraryRegistry, GBeanLifecycle {
+@Component(immediate = true)
+@Service
+public class SharedLibExtender implements SynchronousBundleListener, SharedLibraryRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(SharedLibExtender.class);
 
-    private DependencyManager dependencyManager;
-
     private BundleContext bundleContext;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private ConfigurationManager configurationManager;
 
     private Map<Artifact, List<Bundle>> configruationSharedLibBundlesMap = new ConcurrentHashMap<Artifact, List<Bundle>>();
@@ -64,12 +62,35 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
 
     private final ReentrantLock registerLock = new ReentrantLock();
 
-    public SharedLibExtender(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
-            @ParamReference(name = "DependencyManager") DependencyManager dependencyManager,
-            @ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager) {
-        this.dependencyManager = dependencyManager;
-        this.bundleContext = bundleContext;
+//    public SharedLibExtender(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+//            @ParamReference(name = "DependencyManager") DependencyManager dependencyManager,
+//            @ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager) {
+//        this.bundleContext = bundleContext;
+//        this.configurationManager = configurationManager;
+//    }
+    
+    public void setConfigurationManager(ConfigurationManager configurationManager) {
         this.configurationManager = configurationManager;
+    }
+
+    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
+        if (this.configurationManager == configurationManager) {
+            this.configurationManager = null;
+        }
+    }
+    
+    @Activate
+    public void activate(BundleContext bundleContext) throws Exception {
+        this.bundleContext = bundleContext;
+        bundleContext.addBundleListener(this);
+        BundleHelper.setSharedLibraryRegistry(this);
+    }
+
+    @Deactivate
+    public void deactivate() throws Exception {
+        bundleContext.removeBundleListener(this);
+        this.bundleContext = null;
+        BundleHelper.setSharedLibraryRegistry(null);
     }
 
     @Override
@@ -100,17 +121,10 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
     }
 
     private void installSharedLibs(Bundle appBundle) {
-        Artifact artifact = dependencyManager.getArtifact(appBundle.getBundleId());
-        if (artifact == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Unable to recongnize the artifact id for the bundle " + appBundle.getSymbolicName());
-            }
+        Configuration configuration = configurationManager.getConfiguration(appBundle.getBundleId());
+        if (configuration == null) {
             return;
         }
-        if (!configurationManager.isConfiguration(artifact)) {
-            return;
-        }
-        Configuration configuration = configurationManager.getConfiguration(artifact);
         List<Bundle> dependentSharedLibBundles = new ArrayList<Bundle>();
         for (Artifact parentArtifact : configuration.getDependencyNode().getParents()) {
             List<Bundle> sharedLibBundles = configruationSharedLibBundlesMap.get(parentArtifact);
@@ -150,23 +164,4 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
         }
     }
 
-    @Override
-    public void doStart() throws Exception {
-        bundleContext.addBundleListener(this);
-        BundleHelper.setSharedLibraryRegistry(this);
-    }
-
-    @Override
-    public void doStop() throws Exception {
-        bundleContext.removeBundleListener(this);
-        BundleHelper.setSharedLibraryRegistry(null);
-    }
-
-    @Override
-    public void doFail() {
-        try {
-            doStop();
-        } catch (Exception e) {
-        }
-    }
 }

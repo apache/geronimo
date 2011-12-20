@@ -246,4 +246,9 @@ public class ConfigurationManagerGBean extends AbstractServiceWrapper<Configurat
     public Configuration getConfiguration(Artifact configurationId) {
         return get().getConfiguration(configurationId);
     }
+
+    @Override
+    public Configuration getConfiguration(long bundleId) {
+        return get().getConfiguration(bundleId);
+    }
 }

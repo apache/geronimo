@@ -79,6 +79,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected final Collection<DeploymentWatcher> watchers = new LinkedHashSet<DeploymentWatcher>();
 
     protected final Map<Artifact, Configuration> configurations = new LinkedHashMap<Artifact, Configuration>();
+    protected final Map<Long, Configuration> configurationsByID = new LinkedHashMap<Long, Configuration>();
     protected final Map<Artifact, Bundle> bundles = new LinkedHashMap<Artifact, Bundle>();
 
     protected BundleContext bundleContext;
@@ -342,6 +343,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
+    public Configuration getConfiguration(long bundleId) {
+        return configurationsByID.get(bundleId);
+    }
+
     public Bundle getBundle(Artifact id) {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
@@ -554,6 +560,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 getConfigurationIds(getLoadParents(configuration)),
                 getConfigurationIds(getStartParents(configuration)));
         configurations.put(configuration.getId(), configuration);
+        configurationsByID.put(configuration.getBundle().getBundleId(), configuration);
     }
 
     protected LinkedHashSet<Configuration> getLoadParents(Configuration configuration) throws NoSuchConfigException {
@@ -567,11 +574,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         for (Configuration childConfiguration : configuration.getChildren()) {
             ConfigurationSource childSource = new ConfigurationSource() {
 
+                @Override
                 public Configuration getConfiguration(Artifact configurationId) {
                     if (configurationId.equals(configuration.getId())) {
                         return configuration;
                     }
                     return configurationSource.getConfiguration(configurationId);
+                }
+
+                @Override
+                public Configuration getConfiguration(long bundleId) {
+                    return configurationSource.getConfiguration(bundleId);
                 }
             };
             getLoadParentsInternal(childConfiguration, parents, childSource);
@@ -596,6 +609,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                         return configuration;
                     }
                     return configurationSource.getConfiguration(configurationId);
+                }
+
+                @Override
+                public Configuration getConfiguration(long bundleId) {
+                    return configurationSource.getConfiguration(bundleId);
                 }
             };
             getStartParentsInternal(childConfiguration, parents, childSource);
@@ -962,7 +980,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         if (configurationModel.containsConfiguration(configurationId)) {
             configurationModel.removeConfiguration(configurationId);
         }
-        configurations.remove(configurationId);
+        Configuration conf = configurations.remove(configurationId);
+        if (conf != null) {
+            configurationsByID.remove(conf.getBundle().getBundleId());
+
+        }
     }
 
     protected void unload(Configuration configuration) {

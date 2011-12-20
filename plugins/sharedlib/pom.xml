@@ -39,7 +39,7 @@
     <modules>
         <module>geronimo-sharedlib</module>
         <module>sharedlib</module>
-        <module>sharedlib-extender</module>
+        <!--<module>sharedlib-extender</module>-->
     </modules>
 
 </project>

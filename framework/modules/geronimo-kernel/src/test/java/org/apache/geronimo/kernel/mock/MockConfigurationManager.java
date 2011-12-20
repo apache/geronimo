@@ -107,6 +107,11 @@ public class MockConfigurationManager implements ConfigurationManager {
         return configurations.get(configurationId);
     }
 
+    @Override
+    public Configuration getConfiguration(long bundleId) {
+        return null;
+    }
+
     public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
         return null;
     }

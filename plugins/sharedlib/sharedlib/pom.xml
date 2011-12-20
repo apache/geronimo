@@ -63,13 +63,24 @@
             <version>${project.version}</version>
             <type>kar</type>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>sharedlib-extender</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-sharedlib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-hook</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>j2ee-system</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
     </dependencies>
 
     <build>

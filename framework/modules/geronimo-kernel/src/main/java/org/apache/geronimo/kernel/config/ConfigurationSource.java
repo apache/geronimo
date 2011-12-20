@@ -37,4 +37,6 @@ public interface ConfigurationSource {
      */
     Configuration getConfiguration(Artifact configurationId);
 
+    Configuration getConfiguration(long bundleId);
+
 }
