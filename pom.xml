@@ -152,7 +152,7 @@
         <karaf.osgi.version>3.0.0-SNAPSHOT</karaf.osgi.version>
         <aries.blueprint.version>0.4</aries.blueprint.version>
         <aries.jmx.version>0.3.1-SNAPSHOT</aries.jmx.version>
-        <aries.util.version>0.4</aries.util.version>
+        <!--<aries.util.version>0.4</aries.util.version>-->
         <aries.jndi.version>0.3.1-SNAPSHOT</aries.jndi.version>
         <aries.proxy.version>0.4</aries.proxy.version>
     </properties>
@@ -1693,17 +1693,17 @@ only found in cxf
                 <version>${equinox.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <version>4.3.0</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.osgi</groupId>-->
+                <!--<artifactId>org.osgi.core</artifactId>-->
+                <!--<version>4.3.0</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.compendium</artifactId>
-                <version>4.2.0</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.osgi</groupId>-->
+                <!--<artifactId>org.osgi.compendium</artifactId>-->
+                <!--<version>4.2.0</version>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.apache.felix</groupId>
@@ -1715,6 +1715,7 @@ only found in cxf
                 <artifactId>org.apache.felix.scr.annotations</artifactId>
                 <version>1.4.0</version>
             </dependency>
+            <!-- ? needed to make scr commands work -->
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.shell</artifactId>
@@ -1730,147 +1731,149 @@ only found in cxf
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.bundlerepository</artifactId>
-                <version>${felix.bundlerepository.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.compendium</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>org.apache.felix.shell</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.osgi</groupId>
-                        <artifactId>org.osgi.core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xmlpull</groupId>
-                        <artifactId>xmlpull</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>net.sf.kxml</groupId>
-                        <artifactId>kxml2</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.easymock</groupId>
-                        <artifactId>easymock</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>org.apache.felix.bundlerepository</artifactId>-->
+                <!--<version>${felix.bundlerepository.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.felix</groupId>-->
+                        <!--<artifactId>org.osgi.core</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.felix</groupId>-->
+                        <!--<artifactId>org.osgi.compendium</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.felix</groupId>-->
+                        <!--<artifactId>org.apache.felix.shell</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.osgi</groupId>-->
+                        <!--<artifactId>org.osgi.core</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>xmlpull</groupId>-->
+                        <!--<artifactId>xmlpull</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>net.sf.kxml</groupId>-->
+                        <!--<artifactId>kxml2</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.easymock</groupId>-->
+                        <!--<artifactId>easymock</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.karaf.shell</groupId>
-                <artifactId>org.apache.karaf.shell.console</artifactId>
-                <version>${karaf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.felix.gogo</groupId>
-                        <artifactId>org.apache.felix.gogo.runtime</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.sonatype.jline</groupId>
-                        <artifactId>jline</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.fusesource.jansi</groupId>
-                        <artifactId>jansi</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.aries.blueprint</groupId>
-                        <artifactId>org.apache.aries.blueprint</artifactId>
-                    </exclusion>
-               </exclusions>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.karaf.shell</groupId>-->
+                <!--<artifactId>org.apache.karaf.shell.console</artifactId>-->
+                <!--<version>${karaf.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.felix.gogo</groupId>-->
+                        <!--<artifactId>org.apache.felix.gogo.runtime</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.sonatype.jline</groupId>-->
+                        <!--<artifactId>jline</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.fusesource.jansi</groupId>-->
+                        <!--<artifactId>jansi</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.aries.blueprint</groupId>-->
+                        <!--<artifactId>org.apache.aries.blueprint</artifactId>-->
+                    <!--</exclusion>-->
+               <!--</exclusions>-->
+            <!--</dependency>-->
+
+            <!-- we use this as a jar, I think karaf only specifies it as a plugin -->
             <dependency>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>karaf-maven-plugin</artifactId>
                 <version>${karaf.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.karaf.jaas</groupId>
-                <artifactId>org.apache.karaf.jaas.modules</artifactId>
-                <version>${karaf.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.apache.karaf.jaas</groupId>
-                <artifactId>org.apache.karaf.jaas.boot</artifactId>
-                <version>${karaf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.karaf</groupId>
-                <artifactId>org.apache.karaf.main</artifactId>
-                <version>${karaf.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.karaf.jaas</groupId>-->
+                <!--<artifactId>org.apache.karaf.jaas.modules</artifactId>-->
+                <!--<version>${karaf.version}</version>-->
+            <!--</dependency>-->
+            <!---->
+            <!--<dependency>-->
+                <!--<groupId>org.apache.karaf.jaas</groupId>-->
+                <!--<artifactId>org.apache.karaf.jaas.boot</artifactId>-->
+                <!--<version>${karaf.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.apache.karaf</groupId>-->
+                <!--<artifactId>org.apache.karaf.main</artifactId>-->
+                <!--<version>${karaf.version}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries</groupId>
-                <artifactId>org.apache.aries.util</artifactId>
-                <version>${aries.util.version}</version>
-                 <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.aries.testsupport</groupId>
-                        <artifactId>org.apache.aries.testsupport.unit</artifactId>
-                    </exclusion>
-                </exclusions> 
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries</groupId>-->
+                <!--<artifactId>org.apache.aries.util</artifactId>-->
+                <!--<version>${aries.util.version}</version>-->
+                 <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.aries.testsupport</groupId>-->
+                        <!--<artifactId>org.apache.aries.testsupport.unit</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions> -->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi</artifactId>
-                <version>${aries.jndi.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries.jndi</groupId>-->
+                <!--<artifactId>org.apache.aries.jndi</artifactId>-->
+                <!--<version>${aries.jndi.version}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries.jmx</groupId>
-                <artifactId>org.apache.aries.jmx</artifactId>
-                <version>${aries.jmx.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries.jmx</groupId>-->
+                <!--<artifactId>org.apache.aries.jmx</artifactId>-->
+                <!--<version>${aries.jmx.version}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries.jmx</groupId>
-                <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-                <version>${aries.jmx.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries.jmx</groupId>-->
+                <!--<artifactId>org.apache.aries.jmx.blueprint</artifactId>-->
+                <!--<version>${aries.jmx.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.slf4j</groupId>-->
+                        <!--<artifactId>slf4j-api</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries.proxy</groupId>
-                <artifactId>org.apache.aries.proxy</artifactId>
-                <version>${aries.proxy.version}</version>
-                <exclusions>
-                    <exclusion>
-                       <groupId>org.apache.aries.testsupport</groupId>
-                       <artifactId>org.apache.aries.testsupport.unit</artifactId>
-                    </exclusion>
-                </exclusions> 
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries.proxy</groupId>-->
+                <!--<artifactId>org.apache.aries.proxy</artifactId>-->
+                <!--<version>${aries.proxy.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                       <!--<groupId>org.apache.aries.testsupport</groupId>-->
+                       <!--<artifactId>org.apache.aries.testsupport.unit</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions> -->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.aries.proxy</groupId>
-                <artifactId>org.apache.aries.proxy.impl</artifactId>
-                <version>${aries.proxy.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions> 
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.aries.proxy</groupId>-->
+                <!--<artifactId>org.apache.aries.proxy.impl</artifactId>-->
+                <!--<version>${aries.proxy.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.slf4j</groupId>-->
+                        <!--<artifactId>slf4j-api</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions> -->
+            <!--</dependency>-->
             
             <!--<dependency>-->
                 <!--<groupId>org.apache.geronimo.ext.aries.blueprint</groupId>-->

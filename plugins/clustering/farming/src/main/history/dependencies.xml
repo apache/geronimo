@@ -28,8 +28,8 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-gbean-deployer</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -49,6 +49,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-farm</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

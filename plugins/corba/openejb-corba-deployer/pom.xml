@@ -36,6 +36,41 @@
     <description>Geronimo deployer for corba security configurations for openejb.</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>framework</artifactId>
+            <type>kar</type>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>framework</artifactId>
+            <version>${project.version}</version>
+            <type>kar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
         <!-- ideally we wouldn't need this -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -66,6 +101,20 @@
             <version>${project.version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi-spec</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.yoko</groupId>
+                    <artifactId>yoko-spec-corba</artifactId>
+                </exclusion>
+                <!--<exclusion>
+                    <groupId>org.apache.servicemix.bundles</groupId>
+                    <artifactId>org.apache.servicemix.bundles.bcel</artifactId>
+                </exclusion>-->
+            </exclusions>
+        </dependency>
         <!-- We need this dependency to pass the car-maven-plugin build after adding dependency in geronimo-corba module -->
         <dependency>
             <groupId>org.apache.yoko</groupId>

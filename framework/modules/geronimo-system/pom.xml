@@ -141,6 +141,11 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.bundlerepository</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -201,7 +206,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>org.apache.felix.bundlerepository;inline=org/apache/felix/utils/properties/*.class</Embed-Dependency>
+                        <!--<Embed-Dependency>org.apache.felix.bundlerepository;inline=org/apache/felix/utils/properties/*.class</Embed-Dependency>-->
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>javax.security.auth,
                         javax.security.auth.callback,
@@ -211,6 +216,7 @@
                         javax.security.auth.x500,
                         org.apache.log4j.helpers;resolution:=optional,
                         *</Import-Package>
+                        <Private-Package>org.apache.felix.utils.properties</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

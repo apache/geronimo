@@ -185,9 +185,7 @@ public class RepositoryViewPortlet extends BasePortlet {
                 // add alias
                 if (replacedArtifactString != null && replacedArtifactString.length() > 0) {
                     ExplicitDefaultArtifactResolver instance = KernelRegistry.getSingleKernel().getGBean(ExplicitDefaultArtifactResolver.class);
-                    Properties set = new Properties();
-                    set.put(replacedArtifactString, artifact.toString());
-                    instance.addAliases(set);
+                    instance.addAliases(Collections.singletonMap(replacedArtifactString, artifact.toString()));
                     addInfoMessage(actionRequest, "Replaced artifact: " + replacedArtifactString + " with: " + artifact.toString());
                 }
 

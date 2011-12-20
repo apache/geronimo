@@ -132,7 +132,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         JarFile rarFile = null;
         try {
             rarFile = JarUtils.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
-            GBeanBuilder serviceBuilder = new GBeanBuilder(null, null);
+            GBeanBuilder serviceBuilder = new GBeanBuilder();
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
                     transactionManagerName,
                     connectionTrackerName,
@@ -416,7 +416,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)), null, bundleContext);
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder()), null, bundleContext);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

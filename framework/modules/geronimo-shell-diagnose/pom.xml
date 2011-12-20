@@ -37,15 +37,8 @@
         </dependency>
 
         <dependency>
-                <groupId>org.apache.aries.proxy</groupId>
-                <artifactId>org.apache.aries.proxy</artifactId>
-                <!--<version>${aries.proxy.version}</version>-->
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                       <!--<groupId>org.apache.aries.testsupport</groupId>-->
-                       <!--<artifactId>org.apache.aries.testsupport.unit</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions> -->
+            <groupId>org.apache.aries.proxy</groupId>
+            <artifactId>org.apache.aries.proxy.api</artifactId>
             <scope>provided</scope>
         </dependency>
 

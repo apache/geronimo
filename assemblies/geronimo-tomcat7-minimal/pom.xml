@@ -66,6 +66,15 @@
             <type>kar</type>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>wab-tomcat</artifactId>
             <version>${project.version}</version>
@@ -87,6 +96,7 @@
                         <feature>kar</feature>
                         <feature>obr</feature>
                         <feature>framework</feature>
+                        <feature>org.apache.geronimo.javaee-specs</feature>
                     </startupFeatures>
                 </configuration>
             </plugin>

@@ -7,16 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>bval-jsr303</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty8</artifactId>
         <type>car</type>
@@ -32,6 +22,21 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deployment</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
         <type>jar</type>
@@ -39,11 +44,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty8-clustering-wadi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-persistence-jpa20</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -63,42 +63,42 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-activation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxr_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jms_1.1_spec</artifactId>
+        <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-osgi-registry</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-ejbd</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-multicast</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-osgi-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-server</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-ee-common</artifactId>
+        <artifactId>openejb-jee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

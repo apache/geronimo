@@ -35,6 +35,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-corba</artifactId>
             <version>${project.version}</version>
@@ -58,6 +63,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>

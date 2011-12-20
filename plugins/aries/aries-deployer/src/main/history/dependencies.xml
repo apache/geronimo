@@ -7,21 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm-all</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-cli</groupId>
-        <artifactId>commons-cli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -29,51 +14,6 @@
     <dependency>
         <groupId>org.apache.aries.application</groupId>
         <artifactId>org.apache.aries.application.utils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-jexl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.bundlerepository</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.configadmin</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.gogo.runtime</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>scannotation</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>sxc-jaxb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>sxc-runtime</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>woodstox-core-asl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -90,21 +30,6 @@
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>aries</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-cli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-common</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-crypto</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -152,6 +77,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-transformer</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-aries-builder</artifactId>
         <type>jar</type>
@@ -179,11 +109,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-security-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-activation_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -238,16 +163,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxws_2.2_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -268,11 +183,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-osgi-registry</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-saaj_1.3_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -283,32 +193,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-validation_1.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.karaf</groupId>
-        <artifactId>org.apache.karaf.util</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.karaf.jaas</groupId>
-        <artifactId>org.apache.karaf.jaas.boot</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.karaf.jaas</groupId>
-        <artifactId>org.apache.karaf.jaas.config</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.karaf.jaas</groupId>
-        <artifactId>org.apache.karaf.jaas.modules</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -319,21 +204,6 @@
     <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-jee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-spi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -352,26 +222,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-bundleutils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder</artifactId>
         <type>jar</type>
@@ -384,16 +234,6 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-reflect</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>stax2-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.ops4j.pax.logging</groupId>
-        <artifactId>pax-logging-api</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -88,7 +88,7 @@ public class PluginBootstrap2 {
         DependencyManager dm = new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
 //        dm.doStart();
 
-        GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
+        GBeanBuilder gBeanBuilder = new GBeanBuilder();
         ServiceConfigBuilder builder = new ServiceConfigBuilder();
         //null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {

@@ -56,7 +56,8 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <!-- TODO osgi this probably does need to be provided FIXME-->
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>

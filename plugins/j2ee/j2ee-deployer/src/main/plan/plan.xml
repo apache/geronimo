@@ -112,9 +112,9 @@
         <attribute name="credentialStoreName">?name=CredentialStore#</attribute>
     </gbean>
 
-    <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
+    <!--<gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>-->
 
-    <gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>
+    <!--<gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>-->
 
     <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollection">
         <references name="NamingBuilders">
@@ -182,5 +182,7 @@
         </references>
     </gbean>
     <gbean name="LifecycleMethodBuilder" class="org.apache.geronimo.naming.deployment.LifecycleMethodBuilder"/>
+
+    <gbean name="GBeanBuilder" class="org.apache.geronimo.deployment.service.GBeanBuilderGBean"/>
 
 </module>

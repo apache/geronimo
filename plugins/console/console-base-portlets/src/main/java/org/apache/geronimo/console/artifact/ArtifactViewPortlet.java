@@ -161,10 +161,8 @@ public class ArtifactViewPortlet extends BasePortlet {
     }
 
     private void renderEditing(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {
-        Properties set = new Properties();
         if (data.name != null && data.aliases != null) {
-            set.put(data.name, data.aliases);
-            instance.addAliases(set);
+            instance.addAliases(Collections.singletonMap(data.name, data.aliases));
         }
         populateList(renderRequest);
         listView.include(renderRequest, renderResponse);

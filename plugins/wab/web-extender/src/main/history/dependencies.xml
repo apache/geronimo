@@ -78,6 +78,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jacc_1.4_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -102,8 +107,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.karaf.jaas</groupId>
-        <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-saaj_1.3_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -117,13 +127,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-bundleutils</artifactId>
+        <artifactId>xbean-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-reflect</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

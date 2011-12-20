@@ -37,19 +37,9 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>scannotation</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction-1_6</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-cli</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
@@ -73,11 +63,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-el_2.2_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -93,27 +78,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jcdi_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-spi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

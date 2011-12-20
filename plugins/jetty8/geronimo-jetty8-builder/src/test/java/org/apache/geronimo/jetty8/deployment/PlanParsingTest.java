@@ -151,7 +151,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
-                Arrays.asList(new GBeanBuilder(null, null), securityBuilder),
+                Arrays.asList(new GBeanBuilder(), securityBuilder),
                 new NamingBuilderCollection(null),
                 null,
                 new MockResourceEnvironmentSetter(),

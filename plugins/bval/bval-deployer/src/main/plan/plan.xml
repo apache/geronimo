@@ -22,13 +22,13 @@
     <gbean name="BValNamingBuilder" class="org.apache.geronimo.bval.deployment.BValNamingBuilder">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-bval</artifactId>
-                        <type>jar</type>
-                    </dependency>
-                </dependencies>
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+                        <!--<artifactId>geronimo-bval</artifactId>-->
+                        <!--<type>jar</type>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
                 <import-package>javax.validation</import-package>
                 <import-package>org.apache.bval.jsr303</import-package>
             </environment>

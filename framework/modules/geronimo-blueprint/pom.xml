@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.aries.proxy</groupId>
-            <artifactId>org.apache.aries.proxy</artifactId>
+            <artifactId>org.apache.aries.proxy.api</artifactId>
             <scope>provided</scope>
         </dependency>
 

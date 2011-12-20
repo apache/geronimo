@@ -243,6 +243,11 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         }
 
         @Override
+        public Configuration getConfiguration(long bundleId) {
+            return null;
+        }
+
+        @Override
         public Artifact[] getInstalled(Artifact query) {
             return null;
         }

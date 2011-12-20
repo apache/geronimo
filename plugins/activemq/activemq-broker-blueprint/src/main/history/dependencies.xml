@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
         <type>jar</type>
@@ -62,11 +57,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-osgi-registry</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
         <type>jar</type>
@@ -77,18 +67,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-blueprint</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

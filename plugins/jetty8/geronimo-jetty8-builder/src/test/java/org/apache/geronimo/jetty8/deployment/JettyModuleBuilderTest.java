@@ -231,25 +231,41 @@ public class JettyModuleBuilderTest extends TestSupport {
         ((SchemaTypeImpl) GerSecurityDocument.type).addSubstitutionGroupMember(org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument.type.getDocumentElementName());
 
         kernel = KernelFactory.newInstance(bundle.getBundleContext()).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundle.getBundleContext());
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+
+        DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver();
+        artifactResolver.setArtifactManager(artifactManager);
+
+        KernelConfigurationManager configurationManager = new KernelConfigurationManager();
+        configurationManager.setArtifactManager(artifactManager);
+        configurationManager.setArtifactResolver(artifactResolver);
+        configurationManager.setKernel(kernel);
+        ConfigurationStore configStore = new MockConfigStore();
+        configurationManager.bindConfigurationStore(configStore);
+        configurationManager.activate(bundle.getBundleContext());
+        this.configurationManager = configurationManager;
+
+        artifactResolver.setConfigurationManager(configurationManager);
 
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
 
         GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.class);
         serverInfo.setAttribute("baseDirectory", ".");
 
-        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
+//        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
-        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-        configurationManagerData.setReferencePattern("Stores", configStoreName);
-        bootstrap.addGBean(configurationManagerData);
+//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+//        configurationManagerData.setReferencePattern("Stores", configStoreName);
+//        bootstrap.addGBean(configurationManagerData);
 
         GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.class);
         bootstrap.addGBean(serverData);
@@ -279,11 +295,11 @@ public class JettyModuleBuilderTest extends TestSupport {
         ctcName = ctc.getAbstractName();
         ctc.setReferencePattern("TransactionManager", tmName);
 
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, new MockBundleContext(getClass().getClassLoader(), null, null, null));
-
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
+//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, new MockBundleContext(getClass().getClassLoader(), null, null, null));
         configStore.install(bootstrap);
+        configurationManager.loadConfiguration(bootstrap.getId());
+//        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//        configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
@@ -356,7 +372,7 @@ public class JettyModuleBuilderTest extends TestSupport {
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
-                Arrays.asList(new GBeanBuilder(null, null), securityBuilder),
+                Arrays.asList(new GBeanBuilder(), securityBuilder),
                 new NamingBuilderCollection(null),
                 moduleBuilderExtensions,
                 new MockResourceEnvironmentSetter(),

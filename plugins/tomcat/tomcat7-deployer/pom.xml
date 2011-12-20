@@ -27,7 +27,7 @@
         <artifactId>tomcat</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>tomcat7-deployer</artifactId>
     <name>Geronimo Plugins, Tomcat :: Deployer</name>
@@ -37,11 +37,39 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>javaee-builder-support</artifactId>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>framework</artifactId>
+            <type>kar</type>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>framework</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
+            <type>kar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -74,9 +102,9 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-web-2.5-builder</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+        <!--<artifactId>geronimo-web-2.5-builder</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
     </dependencies>
 
@@ -94,7 +122,7 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/resources/schema</outputDirectory>
                             <artifactItems>
-                               <artifactItem>
+                                <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-web-2.5-builder</artifactId>
                                     <version>${project.version}</version>
@@ -114,10 +142,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <!--<deploymentConfig>${gbeanDeployer}</deploymentConfig>-->
-                        <deploymentConfig>org.apache.geronimo.configs/javaee-builder-support/${project.version}/car</deploymentConfig>
-                    </deploymentConfigs>
                     <category>Tomcat</category>
                     <dependencies>
                         <dependency>
@@ -129,8 +153,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" />
-                            <config-xml-content server="offline" />
+                            <config-xml-content server="default"/>
+                            <config-xml-content server="offline"/>
                             <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
                     </instance>

@@ -129,7 +129,7 @@ public class PlanParsingTest extends TestCase {
                 new WebAppInfo(),
                 null,
                 Collections.singleton(webServiceBuilder),
-                Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+                Arrays.asList(new GBeanBuilder(), new GeronimoSecurityBuilderImpl(null, null, null)),
                 new NamingBuilderCollection(null),
                 Collections.EMPTY_LIST,
                 null,

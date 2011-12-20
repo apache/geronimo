@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.bundlerepository</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb</artifactId>
         <type>car</type>
@@ -35,10 +40,5 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>console-tomcat</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        <type>jar</type>
     </dependency>
 </plugin-artifact>

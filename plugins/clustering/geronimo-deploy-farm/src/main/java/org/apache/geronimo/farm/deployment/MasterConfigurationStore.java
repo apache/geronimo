@@ -189,7 +189,8 @@ public class MasterConfigurationStore implements ConfigurationStore {
         String objectName,
         AbstractName abstractName,
         WritableListableRepository repository) {
-        return new RepositoryConfigurationStore(kernel, objectName, abstractName, repository);
+        //TODO OSGI is anything missing?
+        return new RepositoryConfigurationStore(repository);
     }
 
     protected ConfigurationNameBuilder newMasterConfigurationNameBuilder() {

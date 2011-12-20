@@ -64,7 +64,14 @@
             <version>${project.version}</version>
             <type>kar</type>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

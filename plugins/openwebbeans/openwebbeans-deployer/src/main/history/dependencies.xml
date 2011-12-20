@@ -17,6 +17,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openwebbeans</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openwebbeans-builder</artifactId>
         <type>jar</type>

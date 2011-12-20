@@ -141,10 +141,10 @@
         </dependency>
 
         <!-- aries jndi integration -->
-        <dependency>
-            <groupId>org.apache.aries.jndi</groupId>
-            <artifactId>org.apache.aries.jndi</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.aries.jndi</groupId>-->
+            <!--<artifactId>org.apache.aries.jndi</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
