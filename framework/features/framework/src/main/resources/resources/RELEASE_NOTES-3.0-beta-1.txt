@@ -1,0 +1,860 @@
+Release Notes -- Apache Geronimo -- Version 3.0-beta-1
+
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing-lists.html
+Source Code:   http://geronimo.apache.org/source-code.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+Documentation
+-------------
+Please see http://cwiki.apache.org/GMOxDOC30/documentation.html for the
+latest documentation on this release.
+
+
+IMPORTANT
+---------
+This is a Beta release, that means that is not the final version of
+Apache Geronimo v3.0
+Take a look at "Known Issues and Limitations" section for further details.
+
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 6.0+ (J2SE 1.6.0+) or greater.
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Certification Status
+--------------------
+Apache Geronimo v3.0-beta-1 has passed 100% of SUN's Java Enterprise Edition 6.0 
+Full Profile Certification Test Suite. See "Distributions" for further details.
+
+Distributions
+-------------
+Apache Geronimo v3.0-beta-1 is available in 6 distributions so you can pick
+the one that best fits your environment.
+
+The available distributions are as follows:
+
+Certified distributions:
+- Apache Geronimo server using Tomcat as the Web container and Axis2 as the Web 
+  Services engine. (Java EE 6 Full Profile Certificated)
+- Apache Geronimo server assembly using Tomcat as the Web container. (Java EE 6 
+  Web Profile Certified)
+  
+Non-Certified distributions:
+- Apache Geronimo server using Jetty as the Web container and CXF as the Web 
+  Services engine.
+- Apache Geronimo server assembly using Jetty as the Web container. 
+- A minimal Geronimo server (Little-G) assembly using the Jetty web-container.
+- A minimal Geronimo server (Little-G) assembly using the Tomcat web-container.
+
+
+Supported features
+------------------
+Support SUN's Java Enterprise Edition 6.0 Full Profile specification:
+- Servlet 3.0
+- JSP 2.2
+- JSTL 1.2
+- JSF 2.0
+- EL 2.2
+- EJB 3.1
+- JPA 2.0
+- JTA 1.1
+- JTS 1.0
+- JDBC 3.0
+- JNDI 1.2
+- JMS 1.1
+- JMX 1.2
+- JACC 1.4
+- JASS 1.0
+- JASPIC 1.0
+- JAX-WS 2.2
+- JAX-RPC 1.1
+- JAX-RS
+- JAXR 1.0
+- JAXB 2.2
+- JAXP 1.3
+- SAAJ 1.3
+- Java Mail 1.4
+- DI 1.0
+- Bean Validation 1.0
+- Common Annotations 1.0
+- CDI and DI 1.0
+- Debugging support for other languages 1.0
+- Managed Beans 1.0
+- Interceptors 1.1
+For details about Full Profile specifications, please visit Java EE specifications website.
+
+Support Apache Aries programming model, including support for 
+- Enterprise Bundle Application (EBA)
+- OSGi Web Application Bundle (WAB)
+- OSGi Blueprint Container service
+
+  
+Geronimo v3.0-beta-1 Issues Resolved
+------------------------------
+** Bug
+GERONIMO-6168 Got IllegalArgumentException when redirect undeploy output to a file on windows if server folder name is very long
+GERONIMO-6163 The changed values on EJB portlet are not persistent to config.xml
+GERONIMO-6159 bundle-classPath setting in the deployment plan of EAR doesn't work
+GERONIMO-6154 Add monitoring to basic console view
+GERONIMO-6151 Geronimo does not start with JRockit JVM
+GERONIMO-6146 Got ClassCastException when creating Oracle RAC datasource
+GERONIMO-6145 Factory info should not be shared among those web jsf applications in one EAR package
+GERONIMO-6144 NPE in DependencyManager if configurations/bundles are uninstalled
+GERONIMO-6143 Create a fragment context for each sub modules in the EAR package
+GERONIMO-6136 Portlet WARModules is unavailable if any war with errors is deployed
+GERONIMO-6133 The name of NamedXAResourceFactory is not configured while working with DataSource
+GERONIMO-6126 deploy of the Spring petclinic.war sample app fails
+GERONIMO-6125 The dojo tree should consider a tree entry which has no child as a leaf node.
+GERONIMO-6120 Could not connect to karaf shell by SSH
+GERONIMO-6118 Unable to create plan by Plan Creator
+GERONIMO-6116 differentiate the two "OpenEJB ORB Adapter" displayed in "Linstening on Ports" after server startup.
+GERONIMO-6110 On 3.0 we don't register the 61616 port and the IP address for the server socket is not correct.
+GERONIMO-6109 Derby connection failure in uddi when PortOffset is not 0
+GERONIMO-6108 Some labels could not display correctly in admin console's DBWizard page
+GERONIMO-6107 Quick lauch doesn't support searching twice
+GERONIMO-6104 @HandlerChain
+GERONIMO-6103 EJB Server and JNDI Viewer are not displayed correctly on Chrome
+GERONIMO-6102 Convert downloaded jdbc driver to OSGi bundle
+GERONIMO-6101 Server can't be shutdown via admin console
+GERONIMO-6099 Can't connect to Jconsole via secure JMX Connector
+GERONIMO-6096 OpenJPA related error pops up when add two servers which just protocol different in Monitoring porlet on admin console
+GERONIMO-6095 Info displayed incomplete of Default Server in Monitoring on admin console
+GERONIMO-6094 Some issues of confirm msg tld in admin console.
+GERONIMO-6093 Hot-deploy scenarios
+GERONIMO-6092 Unwanted application client entry is added in config.xml file
+GERONIMO-6091 Links of Common Console Actions are incorrect
+GERONIMO-6090 Don't scan for EE Injections in a CDI application in metadata complete web module
+GERONIMO-6088 Cross browser incompatibility of admin console
+GERONIMO-6086 geronimo commands to not configure the java.io.tmp directory properly
+GERONIMO-6081 Some admin console UI issues
+GERONIMO-6079 NPE in MyFacesWebAppContext.doStart() if jsf web application is packaged into an EAR
+GERONIMO-6076 Graphics cannot be displayed on monitoring porlet
+GERONIMO-6074 Do not bind/unbind the empty global/env context on the openejb root context
+GERONIMO-6057 HttpServletRequest.isUserInRole() returns wrong value
+GERONIMO-6054 Bundle null error happened when refresh an inactive bundle
+GERONIMO-6050 openejb-jar-2.2.xsd is out-of-date
+GERONIMO-6048 Move geronimo-naming.xsd and geronimo-application.xsd file to j2ee/geronimo-j2ee-schema module 
+GERONIMO-6047 Support to access app scope persistent reference configured in other modules of the ear package
+GERONIMO-6045 Support artifact alias for ResourceReference
+GERONIMO-6042 Deadlock in WAB extender
+GERONIMO-6041 Exception thrown when delete a connector via admin console
+GERONIMO-6040 Update DatabaseInitializationGBean, mailGBean in samples deployment plan
+GERONIMO-6030 Server can not shutdown using shutdown script
+GERONIMO-6028 Nothing prompted when hotdeploy a re-named eba application
+GERONIMO-6027 fail to create BIO HTTPS connector for Tomcat using admin console
+GERONIMO-6025 Validate that servlet and filter mapping url-patterns don't have internal line breaks
+GERONIMO-6023 Fail to lookup EJB LoadBeanRemote in EJB Mulicast Cluster
+GERONIMO-6022 Support use the @Resource(name="java:global/env/abc") for environment entry injection
+GERONIMO-6021 International characters in groupId/artifactId names
+GERONIMO-6019 EJB application is not uninstalled cleanly
+GERONIMO-6018 Geronimo does not support @ManagedBean defined in app client module.
+GERONIMO-6015 JACC PolicyContextID conflicts
+GERONIMO-6014 Got "javax.ejb.EJBException" when running javaee 6 sample jpa20demo-javaee6
+GERONIMO-6013 Got "javax.el.PropertyNotFoundException" when running javaee6 sample singletonejb-javaee6/
+GERONIMO-6012 Fail to build restfulorder-javaee6 sample
+GERONIMO-6011 Update geronimo-tomcat-config.1.0.xsd to include <context> element
+GERONIMO-6010 NPE when creating keystore from console
+GERONIMO-6004 Geronimo 3.0 trunk does not build unless you manually download and install geronimo-jaxws_2.2_spec-1.0.jar into your local maven repo
+GERONIMO-6001 EL spec did not handle the method of non-parameter correctly
+GERONIMO-6000 GBeanInstanceState related error happened and server can't be started
+GERONIMO-5999 Incorrect default value is used for the partName in the RequestWrapper/ResponseWrapper
+GERONIMO-5994 Hot deployer has a couple of issues
+GERONIMO-5993 MyFaces WebApplicationContext might not work if multiple JSF web applications in the same EAR package
+GERONIMO-5986 Error "Unable to create configuration for deployment" appeared when deploy a new JMS resource group for Active MQ 
+GERONIMO-5985 "export-package": unexpected elements
+GERONIMO-5984 Deployment failed when java ee application module has reference to another util lib which is packaged in the EAR as well
+GERONIMO-5983 The error "java.net.SocketException: error setting options: error setting options" happened when start server offline
+GERONIMO-5982 Server can't start after secured the default RMI port of the Geronimo server
+GERONIMO-5973 jmx-security module start failure
+GERONIMO-5969 Geronimo 3.0 does not support <lookup-name> tag in <ejb-ref> of application client module.
+GERONIMO-5966 Geronimo start failure: Error while starting; GBean is now in the FAILED state: abstractName="org.apache.geronimo.configs/transaction-1_6/3.0-SNAPSHOT/car
+GERONIMO-5965 car-maven-plugin cannot generate plugin for DataCDInfo sample, deployment exception like "A container of type STATELESS must be declared in the configuration file for bean: ejb/DataCDInfoJTAImpl"
+GERONIMO-5958 Repeated hot deployment of EBA fails
+GERONIMO-5957 gserviceReg.sh does not work
+GERONIMO-5954 font type and size between abbreviate and detail error messages in portlet are different
+GERONIMO-5953 Can't deploy WAB application via "deployer" in admin console porlet
+GERONIMO-5952 Error when i start the server Apache Geronimo v3.0
+GERONIMO-5946 error when starting server with -noverify option
+GERONIMO-5944 remove use of sxc from jaxb component, separate model and functionality
+GERONIMO-5942 "JspModuleBuilderExtension" and "TomcatModuleBuilder" warning message displayed when start eba application
+GERONIMO-5941 JSR-299 Policy Available test failure
+GERONIMO-5940 JSR-299 PersistenceContextInjectionTests are failing
+GERONIMO-5937 Currently, connector will call ContextManager.unresigterSubject in the after callback method even when the current subject is the default ContextManager.EMPTY subject. 
+GERONIMO-5932 javax.faces.FACELETS_LIBRARIES is not searched in the web.xml
+GERONIMO-5930 deployed an ejb web application then "unable to clear Sun JarFileFactory cache" error message appeared in geronimo.log file after shutdown the server 
+GERONIMO-5929 org.apache.geronimo.kernel.config.LiefcycleException when starting Hudson.war on G3.0
+GERONIMO-5923 geronimo 2.1/2.2 applicatoin that depend on openjpa config can't be deployed to geornimo 3.0 due to MissingDependencyException
+GERONIMO-5921 Cannot deploy WAB that uses JSF
+GERONIMO-5919 WAB does not support jsp.
+GERONIMO-5918 Aries application installer tries to re-resolve already resolved application
+GERONIMO-5916 GeronimoOpenWebbeans plugin is not loaded while the target application is of WAB type
+GERONIMO-5915 IOException reading directory monitor state from .DirectoryMonitor java.io.EOFException appear in geronimo.log file as info
+GERONIMO-5912 jms-mdb: Could not add resource adapter module gbean to context
+GERONIMO-5911 Deploy bug on Geronimo v3.0 server: java.lang.ClassCastException
+GERONIMO-5910 jaxws-calculator: Unable to resolve reference "Axis2ModuleRegistry"
+GERONIMO-5909 daytrader: java.lang.NullPointerException
+GERONIMO-5902 Ignore web service from web application side if it is also an EJB web service
+GERONIMO-5901 Merge the web service configurations from annotation and webservices.xml
+GERONIMO-5899 osgi sample "showmethemoney" 's running failure
+GERONIMO-5898 ClassCastException during deployment of some JCDI TCK
+GERONIMO-5897 LinkageError running JCDI TCK
+GERONIMO-5896 ContextNotActiveException running JCDI TCK
+GERONIMO-5894 deploy, undeploy, deploy of an app using hot-deploy directory fails on the second deploy
+GERONIMO-5893 faces configuration from.openwebbeans-jsf is always included
+GERONIMO-5890 DBInitialization did not start because SQL resource file not found
+GERONIMO-5887 NPE in WebBeansContext init process when starting geronimo jetty bulid
+GERONIMO-5885 Upgrade karaf from 2.1.2 to 2.2.1-SNAPSHOT 
+GERONIMO-5881 Support path containing parenthesis like c:\Programme File (x86)\ when start server
+GERONIMO-5880 NPE during installation of blog EBA
+GERONIMO-5878 NoClassDefFoundError: org.apache.axiom.om.impl.llom.factory.OMLinkedListImplFactory while running web service
+GERONIMO-5875 Add a standalone WAB Sample
+GERONIMO-5874 Merge global context(jca) in KernelContextGbean into blueprint service jcaContextProvider
+GERONIMO-5871 Blueprint application still not be differentiated in OSGI Bundles porlet
+GERONIMO-5869 No error messge display when reinstall a bundle without uninstall it after first install
+GERONIMO-5867 ejb corba call does not work
+GERONIMO-5863 Web access log of Tomcat is not generated
+GERONIMO-5862 mail/MaiSession is bound to a wrong jca global context
+GERONIMO-5854 DeploymentException "JACC manager gbean already present" when running "testsuite\javaee6-testsuite\servlet3.0-security-test"
+GERONIMO-5850 org.apache.commons.discovery.DiscoveryException: Unable to instantiate implementation class for org.apache.commons.logging.LogFactory
+GERONIMO-5849 Application client can't be undeployed clearly.
+GERONIMO-5845 java.lang.RuntimeException when using bin/deploy command to deploy an eba
+GERONIMO-5843 User should not operate any Java ee artifacts on the OSGi portlets in admin console.
+GERONIMO-5841 Unable to start web application for EBA bundle "HelloWorldWAB1.app.eba"
+GERONIMO-5840 Property in Require-Bundle "resolution:=optional" cannot start successfully in EBA
+GERONIMO-5837 NPE during second deploy using hot-deploy directory 
+GERONIMO-5832 Error message repeatedly show on server console when deployed web application twice 
+GERONIMO-5830 SQL statements failed to be executed in 'Datasources' in admin console
+GERONIMO-5829 Endless loop in org.apache.geronimo.deployment.tools.loader.AbstractDeployable
+GERONIMO-5828 javax.naming.NotContextException: jndiname when running a tck case
+GERONIMO-5827 Extracted jline32.dll is not deleted after the deploy command
+GERONIMO-5823 Database Pools of Derby Can't Be Created
+GERONIMO-5821 after method in Tomcat 7 is not always called if any RuntimeException is thrown in the chain
+GERONIMO-5820 The application file still exists in <geronimo_home>/hotbundles directory after the application was uninstalled via "OSGI Bundles" porlet
+GERONIMO-5819 Admin console exceptions when install app via deploy command and uninstall it via karaf shell command
+GERONIMO-5818 Message repeatedly shows in geronimo.log file when put WAB applicaton in <Geronimo_home>/deploy directory
+GERONIMO-5817 server CANNOT find annotation'@ManagedBean' when the classes are in the WEB-INF\lib\*.jar package
+GERONIMO-5816 javax.ejb.CreateException when creating corba stub call based on an EJB object.
+GERONIMO-5815 Classloader issue in geronimo corba module
+GERONIMO-5814 hotbundles is also enabled in the deployer process
+GERONIMO-5810 Limit tld scanning scope in BundleTldScanner
+GERONIMO-5803 EBA cannot work after server restart
+GERONIMO-5801 jaxb-impl bundle should export com.sun.* packages with a version
+GERONIMO-5798 obr:addurl/removeurl generate incorrect "obr.repository.url" property
+GERONIMO-5797 Add defaultEnvironment support for eba config builder
+GERONIMO-5796 jsf2.0-test is failed
+GERONIMO-5795 test-2.5-servlets has failure caused by unexpected IPv6 address
+GERONIMO-5793 OSGI Bundle "Stop" doesn't work according to Hot deployed "HelloWorld" osgi bundle sample
+GERONIMO-5787 Console testsuite failures are caused by the new DOJO navigation tree in G3.0
+GERONIMO-5786 The double refresh problem with EBAs
+GERONIMO-5783 WAB is lost when geronimo restart after a hard stop.
+GERONIMO-5781 Error shows when hot deploy "CounterApp_1.0.0.eba" sample
+GERONIMO-5777 Installed Bundles are not found if cache is cleared
+GERONIMO-5775 JCDI tck failures
+GERONIMO-5773 Referenced resource cannot be generated by plan creator
+GERONIMO-5771 CounterApp_1.0.0.eba hot deployment has exceptions
+GERONIMO-5769 Web Application Bundles (WABs) do not show up in admin console
+GERONIMO-5765 Display a warning message when web application is deployed with WAB manifest
+GERONIMO-5763 [StandardService] Failed to stop connector error happened when stopping geronimo server
+GERONIMO-5759 New Thread is used for context initialization in Tomcat 7.0.6
+GERONIMO-5757 javaee6-testsuite\jsf2.0-test testing failed since myfaces exception
+GERONIMO-5755 Cannot serialize when called webfragment in servlet3.0-test testsuite.
+GERONIMO-5751 LinkageError running CDI TCK
+GERONIMO-5748 Defects in ThreadSingletonServiceAdapter
+GERONIMO-5747 Unable to find FailOverService When start and run the server
+GERONIMO-5746 geronimo-activemq-rar is missing when deploy daytrader sample
+GERONIMO-5741 java.lang.ClassCastException at JCAConnectionFactoryImpl.getManagedConnectionFactoryInstance() line: 64
+GERONIMO-5740 Use filtrable DeploymentLoader in openejb plugin
+GERONIMO-5738 The value of HttpServletRequest.getRemoteUser()&getUserPrincipal() should be null after HttpServletRequest.logout() invokes
+GERONIMO-5734 Enable sharelib in osgi based geronimo
+GERONIMO-5731 car-maven-plugin pollutes system properties
+GERONIMO-5726 Support old DTD style tld files
+GERONIMO-5719 Add slight delay during async startup of ActiveMQ
+GERONIMO-5718 Shutdown of server with asyncStartup of ActiveMQ can hang
+GERONIMO-5714 JPA-cannot insert record relates with Foreign key writes with "mappedBy".
+GERONIMO-5712 Geronimo should remember the monitoring server enablement status.
+GERONIMO-5711 Do not start bundles with ImportType.classes
+GERONIMO-5708 Track: Unlock keystore command line utility does not work with Configured Encryption 
+GERONIMO-5705 Track: Encryption logic for connectionPassword attribute in ldap realm
+GERONIMO-5704 Track: Farming module provision of utilizing encrypted password instead of plain text
+GERONIMO-5702 Upgrade karaf from 1.6.0 to 2.1.2
+GERONIMO-5701 [Doc]Update doc about running hudson sample on Geronimo 3.0
+GERONIMO-5688 ContextNotActiveException while accessing a JSF application without using web beans components
+GERONIMO-5685 No initialized web beans context is attached while creating servlet instance
+GERONIMO-5684 Some txmanager Timers are not being created as daemon threads
+GERONIMO-5682 Allow to configure gbeans provided by the applications themselves
+GERONIMO-5680 Find a way to slove the wired bundle cache
+GERONIMO-5677 Can not restart Geronimo3.0 in eclipse
+GERONIMO-5673 ModuleMojoSupport ignores stopOnFailure
+GERONIMO-5672 Overriding an env-entry in geronimo-web.xml fails with a DeploymentException
+GERONIMO-5670 Webapp can not start because server said "couldn't start owb context" although the app don't contain openwebbean context.
+GERONIMO-5669 Exceptions occurs when executing "deploy encrypt secret" on Win2008
+GERONIMO-5667 Tomcat utils module needs to load MBean classes from catalina module
+GERONIMO-5665 destoryInternal method is called twice while destorying the children directly
+GERONIMO-5662 j_security_check 404 not found against security realm authentication
+GERONIMO-5661 Geronimo fails to start when there is a whitespace in Geronimo_HOME
+GERONIMO-5658 deploy --inPlace broken for quick start sample
+GERONIMO-5656 JASPI implementation not using ProviderLocator correctly. 
+GERONIMO-5649 txmanager could try to replace dead XAResources in commit and rollback tasks
+GERONIMO-5648 txmanager rollback needs retry scheduler too
+GERONIMO-5647 Avoid an NPE if no securiy realm is specified anywhere
+GERONIMO-5646 jetty web app can fail to start but not fail deployment
+GERONIMO-5643 fail to edit NIOHTTPConnector directly through console
+GERONIMO-5640 Qualified web resource permission for each role should be calculated based its own url set
+GERONIMO-5639 org.osgi.service.blueprint.container.ServiceUnavailableException when shutdown the server
+GERONIMO-5638 Remove the encrypt(String) method in ConfiguredEncryption
+GERONIMO-5635 corrupt JobSchedulerStore can cause server restart to fail 
+GERONIMO-5633 Failed to replicate session
+GERONIMO-5632 Failed to visit Geronimo Admin Console
+GERONIMO-5629 We need to add the new LegacyProcessor in our Openejb ConfigurationFactory chain
+GERONIMO-5628 OpenEJB Discovery protocol only works with an explicit IP address
+GERONIMO-5625 Incorrect default value for the javax.ejb.TimerConfig persistent attribute. 
+GERONIMO-5622 (tomcat Bug 49937) What to do with AsyncListeners is contradictory in the spec
+GERONIMO-5621 (tomcat Bug 49916) use an init param to jsp servlet for explicit jsps.
+GERONIMO-5620 (tomcat Bug 49952) Listeners added by ServletContainerInitializer are wiped out
+GERONIMO-5616 Tomcat native cluster not working because of ClassNotFoundException: org.apache.catalina.ha.session.SessionMessageImpl
+GERONIMO-5615 Failed to deploy war files after putting server directory under "C:\Documents and Settings\myDir"
+GERONIMO-5614 problem with "deploy:assemble-server" gogo command
+GERONIMO-5613 problem with "login" gogo command
+GERONIMO-5612 Filter no permission functions for built-in user "monitor"
+GERONIMO-5611 Problem with "deploy:install-plugin" command 
+GERONIMO-5608 Update connector attribute list for Tomcat 7
+GERONIMO-5607 geronimo-default keystore file not displayed on the administration console
+GERONIMO-5606 Bad persistenceUnitRoot for PUs in jars embedded in WARs
+GERONIMO-5604 Failed to expand deploy failed information in "Deployer" porlet if fail to deploy an application with Firefox and IE 6.0
+GERONIMO-5603 NPE error after deploy OpenEJB injection-of-env-entry sample
+GERONIMO-5602 SPNEGO support in Geronimo failed.
+GERONIMO-5601 Problem with "deploy:list-plugins" gogo command
+GERONIMO-5590 startup script does not consume --help option
+GERONIMO-5588 Web-ContextPath is not set as Web Application Bundle context-root if it's defined
+GERONIMO-5585 OpenJPA Fatal Error when access blog-jpa-eba
+GERONIMO-5583 Same Web Context-Paths in two EBA don't conflict after deployment
+GERONIMO-5579 Problem with "deploy:connect" gogo command
+GERONIMO-5578 incorrect behaviour of security-constraint configuration in web.xml 
+GERONIMO-5572 fail to show DOJO script in welcome page of AdminConsole , when use an external Apache HTTP server through AdminConsole
+GERONIMO-5570 fail to edit NIOHTTPConnector through console
+GERONIMO-5569 fail to log in with the encoding options based on another properties file in login modular
+GERONIMO-5568 fail to asembly custom server via admin console
+GERONIMO-5566 hot undeploy when server is offline
+GERONIMO-5563 Clicking on application URL in console opens app in the console frame with controls truncated. 
+GERONIMO-5561 Scan ManagedBean in the application to support EJB injection
+GERONIMO-5559 "javax.jms.JMSException: Could not connect to broker URL" server startup error exists after change default PortOffset value
+GERONIMO-5558 Transaction Commit status is not configured correctly
+GERONIMO-5557 Add more context level configurations for Tomcat
+GERONIMO-5556 Geronimo admin console seems to be missing the System Modules portlet page
+GERONIMO-5555 The version of the application when deploying an EBA is set incorrectly
+GERONIMO-5551 Failing to start the server with the error "Main not found" 
+GERONIMO-5549 Remove command-testsuite/gshell
+GERONIMO-5548 Default user "monitor" can't login admin console in Geronimo_3.0_trunk 
+GERONIMO-5547 Geronimo_3.0_trunk can't change the password for all users and register new user
+GERONIMO-5546 Geronimo 3.0 console testsuite failed because of dojo navigation tree.
+GERONIMO-5545 Geronimo 3.0 console-testsuite/advanced WebServerTest fail. XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content.
+GERONIMO-5544 Geronimo 3.0 console-testsuite/advanced WebServerTest testEditConnector fail. The Network Listeners can not edit.
+GERONIMO-5541 web module cannot see the PU defined in ejb module when deploying a EAR
+GERONIMO-5540 Enable connecting to a ldap server anonymously on console on Geronimo 2.1 and 3.0
+GERONIMO-5539 NPE error when visiting a defined http connector
+GERONIMO-5536 application configuration resources located in lib/*.jar can not be accessed by myfaces in OSGi enviroment
+GERONIMO-5531 Run server as windows service update
+GERONIMO-5529 javax.annotation.processing.AnnotationProcessing inappropriately throwing UnsupportedOperationException errors. 
+GERONIMO-5521 NoClassDefFoundError when deploying a datasource with non-OSGi jdbc lib dependencies
+GERONIMO-5520 Geronimo 3.0 testsuite testsuite/javaee6-testsuite/managedbean1.0-test can not run correctly:can not find managedbean created by javax.annotation.ManagedBean
+GERONIMO-5519 Transaction recovery might commit the wrong branch on an XAResource
+GERONIMO-5518 Support injection of primitive types using @Resource annotation
+GERONIMO-5515 Geronimo 3.0 testsuite testsuite/security-testsuite/test-security-annotation-ejb cannot run correctly:No LoginModules configured for the realm
+GERONIMO-5514 EJBContainer.PROVIDER value is supposed to be the EJBContainer subclass name, not the EJBContainerProvider like the description says
+GERONIMO-5513 The server can not deploy a app with JSF 2.0 features
+GERONIMO-5511 context-priority-classloader is not allowed in geronimo-web.xml for backwards compatibility
+GERONIMO-5508 Servlet 3.0 new features:accessing resource from jar files and ServletContainerInitializer fails on jetty-assembly trunk
+GERONIMO-5507 Fail to scan javax.servlet.ServletContainerInitializer
+GERONIMO-5505 Fail to scan web-fragment.xml files
+GERONIMO-5503 Run geronimo as Linux service update
+GERONIMO-5500 Problems using JAXB RI with Geronimo JAXB API
+GERONIMO-5493 Rename files' name in singletonejb-javaee6 Sample
+GERONIMO-5492 Can login Geronimo without any authentication
+GERONIMO-5491 Implement org.apache.catalina.Executor interface in TomcatExecutorWrapper
+GERONIMO-5483 jetty needs to give jasper the merged metadata complete web.xml
+GERONIMO-5479 EL 2.2 new feature: method invocation with parameters works incorrectly when the parameter is Integer.
+GERONIMO-5478 JSP 2.2 new configuration element <default-content-type> under <jsp-property-group> works incorrectly on tomcat-assembly server.
+GERONIMO-5477 Daytrader web assembly plugins cannot be compiled caused by NoClassDefFoundError
+GERONIMO-5476 @EJB does not injected in servlet class
+GERONIMO-5472 Java EE 6 sample: fileupload run incorrectly on tomcat-assembly.
+GERONIMO-5468 Support authenticate/login/logout methods in the HttpServletRequest interface
+GERONIMO-5467 Can't find EJB object through @EJB annotation
+GERONIMO-5447 Fix the testsuite
+GERONIMO-5438 latest geronimo-3 trunk doesn't compile against latest OpenEJB trunk
+GERONIMO-5436 ClassCastException in Deployer
+GERONIMO-5435 Could not package plugin when build sample javaee5\bank
+GERONIMO-5432 Encrypt password values in server.xml for geronimo 2.2 onwards
+GERONIMO-5424 Encrypt truststore pass for tomcat web ssl connector
+GERONIMO-5423 persistence units in ear's lib need to be global
+GERONIMO-5422 Warn don't fail if ra.xml lists nonexistent classes
+GERONIMO-5420 gogo comand deploy:install-plugin not working properly
+GERONIMO-5411 G 3.0-M1 jetty assembly does not support jar resource feature in servlet 3.0
+GERONIMO-5410 app-per-port sample does not run on G 3.0-M1 caused by an NPE
+GERONIMO-5408 bundle classpath, ear lib classpath, and module manifest classpaths are all mixed up
+GERONIMO-5407 XSSXSRFFilter error in G 3.0-M1 jetty build when trying to list plugins in admin console
+GERONIMO-5403 G 3.0-M1 car-maven-plugin generated plugin dependecies do not have version, that causes plugin installation are panic
+GERONIMO-5401 Geronimo encrypts empty passwords
+GERONIMO-5400 java.lang.NoClassDefFoundError when making plugins for samples with EJB module/classes
+GERONIMO-5398 CCE when making plugin for webfragment-javaee6 sample
+GERONIMO-5397 No new line after deploy commands finish
+GERONIMO-5396 java.util.logging resources doesn't get picked up
+GERONIMO-5395 G 3.0-M1 does not support EJB components packaged in the web app module(.war), refer to EJB 3.1 section 20.4
+GERONIMO-5392 invalid OSGi bundle number causes geronimo to blow up
+GERONIMO-5384 Geronimo console doesn't seem to handle % in sql statements right.
+GERONIMO-5381 Monitoring can not open graphs
+GERONIMO-5374 @ParameterReference and @Reference have different default namingType than GBeanInfoBuilder
+GERONIMO-5368 Search failed when find text in debug views
+GERONIMO-5361 Some samples require adding DatabaseInitializationGBean back to G trunk
+GERONIMO-5346 infer jndi type from injection target; check type consistency
+GERONIMO-5338 ActiveMQ port is not listed as a listening port and is always bound to localhost
+GERONIMO-5336 ServerHostName should default to 0.0.0.0 not localhost
+GERONIMO-5334 ClassNotFoundException during server startup 
+GERONIMO-5325 iframe causes some portlets display incorrectly
+GERONIMO-5324 the "Console navigation" is always displayed in Chinese although the browser language has been set to English-US
+GERONIMO-5322 Start ejb gbeans before servlet gbeans so injection can have a target
+GERONIMO-5311 Add support for configuration of multipoint server addresses
+GERONIMO-5310 Better ordering for config-substitutions.properties
+GERONIMO-5303 Improve metadata of encrypt command
+GERONIMO-5302 A successfully deployed war package(contained in a ear package) is not listed on admin console.
+GERONIMO-5300 Class not found:org/apache/axis2/jaxws/ClientConfigurationFactory
+GERONIMO-5299 Deploy plan for a web application with login-module attribute faiiled to be parsed.
+GERONIMO-5298 Bad version information in deployment plan will result in deploy failure
+GERONIMO-5295 Deployer unlockKeystore command cannot be utilized if keystore is created through Java provided KeyTool
+GERONIMO-5294 Remove the dependency of clustering over JMXConnector for 3.x
+GERONIMO-5292 Resources inside WEB-INF/lib/ [*.jar]/META-INF/resources directory can not be recognized
+GERONIMO-5290 Upgrade to maven 3
+GERONIMO-5288 Cannot use @EJB in java ee component(servlet, JSF) to inject ejb object
+GERONIMO-5284 Redeploy of Blog sample fails
+GERONIMO-5283 Server restart fails after a hard stop
+GERONIMO-5254 The ActiveMQ XML configuration is incorrect regarding memoryUsage limit 
+GERONIMO-5250 Make the EarContext shared data map type safe
+GERONIMO-5248 GBeanNotFoundException and NullPointerException while building the geronimo console. 
+GERONIMO-5243 /activemq-console does not require admin authentication
+GERONIMO-5214 connector builder should export interfaces that need to be used by users of the connector
+GERONIMO-5212 Do we need Karaf when starting Geronimo?
+GERONIMO-5210 Openejb under osgi in geronimo
+GERONIMO-5186 EJB spec EJBContainer.createEJBContainer() does not implement spec-defined search algorithm. 
+GERONIMO-5182 Fix compile errors caused by Jetty 8.0.0.M0 release
+GERONIMO-5173 activation spec unit tests fail when compiled with java 6. 
+GERONIMO-5168 Enable GShell Wrapper in Geronimo 3.0 
+GERONIMO-5167 " ERROR [JNDIReferenceFactory] null" when I deploy new JMS Resource Group for Active MQ
+GERONIMO-5155 Locking a keystore under "Available" results in exception
+GERONIMO-5152 Transaction manager doesn't retry stuff that might work later
+GERONIMO-5150 Connection pool idleReleaser should not expand the number of permits
+GERONIMO-5146 Geronimo should provide a default encrypted password for trustStore and keyStore
+GERONIMO-5135 Blueprint and gbeans need synchronization
+GERONIMO-5055 Informix tranql XA 1.2 snapshot leads to weird admin console
+GERONIMO-5032 Procrun issue: windows service is stoped when user log off console session
+GERONIMO-4997 Can not connect to a ldap server in an anonymous way
+GERONIMO-4968 Problemastic OS check in Windows startup command
+GERONIMO-4953 No way to set Tomcat native cluster on engine and host level
+GERONIMO-4941 JMS connector ports are not listed on the console after the server started
+GERONIMO-4930 Support wildcards in @ParamReference collection valued parameter types in gbeans
+GERONIMO-4903 Jetty Advanced Integration Test Failure
+GERONIMO-4896 Commands to a Secure JMX Connector require the SSL keyStorePassword to be specified on command line
+GERONIMO-4891 Null destination error when browsing a new created jms resource group.
+GERONIMO-4890 The graphs still can be seen under the view when I disable the server
+GERONIMO-4885 Configure default max heap and max permsize
+GERONIMO-4884 Using the default port number may cause unexpected build failure
+GERONIMO-4882 some doc update in G22 might be caused by bugs in code.
+GERONIMO-4876 "java.net.ConnectException" when I shutdown the server
+GERONIMO-4875 "edit" button shows under "Created time" column in monitoring portlet.
+GERONIMO-4873 Unable creating a new JMS Resource Group via "For another JMS provider... " under IE
+GERONIMO-4868 cglib ThreadLocal causing ClassLoader memory leak
+GERONIMO-4864 Unselecting graph(s) doesn't work when editing an existed view
+GERONIMO-4863 no other graphs can be chosen when I click "Modify this view" of a view
+GERONIMO-4862 it tells "java.net.ConnectException" when i shutdown the server after i change the log level
+GERONIMO-4844 There is an error after undeploy the application and deploy the application again when configure WADI clustering,
+GERONIMO-4825 can not config geronimo as a service in ubuntu
+GERONIMO-4822 Monitoring server via JMX cannot be restarted.
+GERONIMO-4798 can't start server because of an error of Http11AprProtocol
+GERONIMO-4757 "java.lang.IllegalStateException" error when use install-plugin goal
+GERONIMO-4688 hardcode port in plan.xml of plugin farming.
+GERONIMO-4625 JMS statistics does not work correctly while the server url is of vm protocol
+GERONIMO-4603 PropertiesLoginManager is hardwired to properties-login login module
+
+
+** Improvement
+GERONIMO-6187 Keystore files filter under var/security/keystores
+GERONIMO-6181 Better error messages when OSGi application fails to start
+GERONIMO-6179 Better logging when updating a bundle in OSGi applicationa
+GERONIMO-6157 Generate fixed version number for the import packages
+GERONIMO-6147 Cache the jaxb classes searching result in Axis2 BundleClassFinder
+GERONIMO-6132 Not search wired bundles in bundle classloader by default
+GERONIMO-6119 upgrade geronimo-system to use commons-jexl 2.0
+GERONIMO-6106 Clean up temp files created in the deployment process
+GERONIMO-6100 Limit the recorded dependency and reference number info for stateReason
+GERONIMO-6097 Use temp directory directly with reference:// to avoid zip the deployed application in the deployment process
+GERONIMO-6058 Replace StringBuffer usage with StringBuilder
+GERONIMO-6049 Upgrade tranql version in 3.0 trunk
+GERONIMO-6046 Add getBundleId API to geronimo-bundle-recorder so that GEP don't need use the SLOW listBundles method of OSGi JMX API
+GERONIMO-6024 support dd schema validation when deploy web app
+GERONIMO-5968 To support module priority so that we could control the sub-modules handling sequence during the deployment process.
+GERONIMO-5963 Keep bundles around if EBA start failed
+GERONIMO-5933 Extend geronimo server self-signed certificate validity period
+GERONIMO-5891 support application delete in hot-deploy when server is stopped
+GERONIMO-5888 Delete temp directories on exit
+GERONIMO-5884 Support wsdl-file override for web service client
+GERONIMO-5883 Use a system property to make Provider style web service more user-friendly
+GERONIMO-5855 Simplify EJB Deployment
+GERONIMO-5825 Provide a option to prevent tar assemblies from generating.
+GERONIMO-5788 Expose BundleContext in ServletContext under Spring-named attribute
+GERONIMO-5780 JUL output is lost after application resets logging
+GERONIMO-5779 Provide a tool for diagnosing OSGi resolver problems
+GERONIMO-5774 some osgi portlet improvements
+GERONIMO-5761 map the bundle resolved state to configuration load status
+GERONIMO-5713 MyFaces 2.0.3 Integration
+GERONIMO-5674 Dojo related improvement.
+GERONIMO-5609 Improve web application deployment time
+GERONIMO-5586 Provide a way to transform traditional jar to OSGi bundle when user install the jar into G repository.
+GERONIMO-5582 No Web Access URL Displayed next to applications after depploy an EBA
+GERONIMO-5537 Serialize WebApp in some form to improvie the server startup time
+GERONIMO-5527 Support -c/--clean option in the server startup script to clean cache for OSGi/tomcat
+GERONIMO-5496 Move the sort algorithm from the geronimo-web-builder to geronimo-j2ee-builder
+GERONIMO-5474 Improve efficiency of embbed jar resources handlering
+GERONIMO-5445 Use links to osgi jndi (that look up osgi services) rather than looking up gbeans
+GERONIMO-5444 Add slight delay during async startup of ActiveMQ
+GERONIMO-5433 improve geronimo openwebbeans plugin
+GERONIMO-5367 Some page should be improved into dojo style
+GERONIMO-5354 Support configuration from openejb portlet for added attributes of stateless ejb container.
+GERONIMO-5353 To support idleTimeout configuration for stateless ejb conainter.
+GERONIMO-5270 Enforce Java1.6 for Geronimo 3.0 build in maven and perhaps enforce the required maven version as well (2.2.1?).
+GERONIMO-5265 Modify the redeploy behavior to start all the running childs along with the parent
+GERONIMO-5194 Patch for geronimo-jcdi spec
+GERONIMO-5193 Upgrade DOJO from 1.3.2 to 1.4.2 in 22 branch and trunk.
+GERONIMO-5121 Update geronimo-jcdi and geronimo-atinject to pass TCK Signature Tests
+GERONIMO-5110 Upgrade to JSTL 1.2 version 
+GERONIMO-5101 geronimo-jcdi_1_0_spec Update for Releasing
+GERONIMO-5089 Reorganize the Geronimo console and rebase on Pluto 2. 
+GERONIMO-5088 Support OSGi as a Geronimo programming model
+GERONIMO-5085 CORBA/Yoko OSGi enhancements
+GERONIMO-5084 JAXB 2.2 enhancements
+GERONIMO-5083 JAX-RS 1.1 enhancements
+GERONIMO-5082 JAX-WS 2.2 enhancements
+GERONIMO-5081 Web Services for EE 1.3-MR2 enhancements
+GERONIMO-5080 Contexts and Dependency Injection 1.0 enhancements
+GERONIMO-5079 Dependency Injection 1.0 enhancements
+GERONIMO-5078 Managed Bean 1.0 enhancements
+GERONIMO-5077 Bean Validation 1.0 enhancements
+GERONIMO-5076 Interceptor 1.1 enhancements
+GERONIMO-5075 Convert the minimal assembly into a Java EE 6 Web Profile assembly
+GERONIMO-5074 EJB 3.1 Lite enhancements
+GERONIMO-5073 EJB 3.1 Enhancements
+GERONIMO-5072 Common Annotations 1.1 enhancements
+GERONIMO-5071 JASPIC 1.0 Enhancement 
+GERONIMO-5070 JACC 1.4 enhancements
+GERONIMO-5069 Java Connector Architecture 1.6 enhancements
+GERONIMO-5068 JPA 2.0 enhancements
+GERONIMO-5067 Java ee 6 datasource resource definition enhancements. 
+GERONIMO-5066 Java EE 6 Global JNDI enhancments
+GERONIMO-5065 EJBs in WAR files enhancement
+GERONIMO-5064 Java Server Faces 2.0 enhancement
+GERONIMO-5063 Expression Language 2.2 enhancements
+GERONIMO-5062 JSP 2.2 Enhancements
+GERONIMO-5061 Servlet 3.0 enhancements
+GERONIMO-5060 Many hard-code cluster names in code.
+GERONIMO-4987 Use ConcurrentHashMap instead of Collections.synchronizedMap(new HashMap())
+GERONIMO-4977 EN/Simp.Chinese UI information improvement for Console
+GERONIMO-4969 Remove Maven Repository Entries from project-config POM
+GERONIMO-4950 Improve usability of Geronimo Console
+GERONIMO-4929 Upgrade to latest tranql wrappers
+GERONIMO-4922 Use OSGI's way to manage the server repository
+GERONIMO-4883 ship agent-car-jmx and make it default agent, mark ejb agent as "load=false".
+GERONIMO-4874 Improve the console filter performance
+GERONIMO-4824 the created graphs can't be listed under view which is created before these graphs
+GERONIMO-4790 Migrate debug-views code to base on the up-to-date dojo
+GERONIMO-4761 MBean not found exception: agent-car-jmx 
+GERONIMO-4658 Console should let you add/edit artifact-aliases. When installing a jar, you should be able to add an artifact alias so it replaces something else.
+GERONIMO-4583 Remove obsolete plugins from plugins group
+GERONIMO-4540 Improve windows startup batch scripts to redirect stdout and stderr messages to GERONIMO_HOME/var/log/geronimo.out
+GERONIMO-3003 Encrypt password strings in deployment plans
+GERONIMO-2593 Document Javamail Session creation and usage
+
+** New Feature
+GERONIMO-6139 Support Java 1.7 Runtime
+GERONIMO-6084 Option to deploy WABs synchronously
+GERONIMO-6059 New look and feel of Geronimo 3.0 admin console
+GERONIMO-5998 Use the implementation configured in system property as the preference while searching the provider in the OSGi registy
+GERONIMO-5996 Development mode for Aries applications
+GERONIMO-5978 View bundle packages in Geronimo admin console
+GERONIMO-5976 Load JSP tag libraries from bundles
+GERONIMO-5935 Expose a configuration option to control whether optional bundles should be provisioned during EBA install
+GERONIMO-5926 Provide shell command to resolve Aries applications
+GERONIMO-5908 Updated @WebServiceRef with features, and lookup functionality 
+GERONIMO-5907 Added respect binding feature support
+GERONIMO-5906 Support MTOM feature support
+GERONIMO-5905 Addressing support with webservice/webserviceprovider/webserviceref
+GERONIMO-5861 Update a bundle within an EBA
+GERONIMO-5847 Create pure html OSGi portlet
+GERONIMO-5838 Support EBA module type in DeploymentManager.getAvailableModules(ModuleType, Target[])
+GERONIMO-5835 Support web service deployment in car-maven-plugin
+GERONIMO-5791 Add the function to show wired relations of bundes deployed in geronimo
+GERONIMO-5764 Support Bundles Deployment in deployment command line
+GERONIMO-5716 Add a function to view wired bundles in OSGi portlet
+GERONIMO-5715 [Sample] Add one sample of demonstrating Geronimo 3.0 Specific feature: JavaEE app interacts with OSGI 
+GERONIMO-5659 Inject Bundle or BundleContext via @Resource
+GERONIMO-5577 Support ServeltSecurity annotation when the servlets are added by ServletContext.addServlet methods
+GERONIMO-5517 Make Tomcat assembly accepts those new configurations on context level
+GERONIMO-5516 Add isAdvanced properties to AdminConsoleExtensionGBean
+GERONIMO-5502 Add OSGI management portlets.
+GERONIMO-5495 Upgrade the geronimo-openejb-2.0.xsd file for new persistence schema
+GERONIMO-5437 Make jetty integration more osgi friendly.... expose ContextHandlerCollection as a service.
+GERONIMO-5421 create new gogo command deploy:unlockKeystore 
+GERONIMO-5380 Optionally expose gbeans in the osgi serviice registry
+GERONIMO-5352 Bundlize jaxb-xjc and align its version with jaxb-impl
+GERONIMO-5233 Geronimo 3.0 Samples
+GERONIMO-5209 Geronimo support for tranql XA JDBC adapter for DB2 on ISeries
+GERONIMO-5197 Generic Header based authentication support in geronimo
+GERONIMO-5156 Command line utility to unlock a keystore and private key
+GERONIMO-5027 Redeploy option for farming
+GERONIMO-4865 Login module to enable Kerberos authentication
+GERONIMO-4823 role-based administration capabilities
+GERONIMO-4810 Predefine a "localhost" server with some predefined graphs and views
+GERONIMO-4619 JSR-303 Bean Validation Spec API
+GERONIMO-4493 Could not browser messages for Topic
+
+** Task
+GERONIMO-6061 Geronimo 3.0 trunk SNAPSHOT dependencies
+GERONIMO-6008 use openejb remote jndi system in client container to do global jndi lookup.
+GERONIMO-6007 Upgrade woodstox version to 4.1.1
+GERONIMO-6006 Upgrade MyFaces to 2.0.7
+GERONIMO-6003 Enable jaxws script files in the bin directory
+GERONIMO-5992 Remove the old webservice parsing codes of castor
+GERONIMO-5934 Use Axis2 1.7.0-SNAPSHOT version
+GERONIMO-5913 Use a patched axiom-all Geronimo bundle for TCK testing now
+GERONIMO-5895 Clear web accessibility violations in console portlets
+GERONIMO-5851 Add url-binding into testsuite
+GERONIMO-5846 Add some testsuite for Require-Bundle usage in OSGi EE programming model
+GERONIMO-5758 Add a short tutorial on how to create/build a blueprint bundle and deploy it to the server (using GEP)
+GERONIMO-5720 Add testsuite for JPA 2.0
+GERONIMO-5666 Add test cases for Restful Web Service new features into the testsuite.
+GERONIMO-5641 add ejb3.1-test in testsuite
+GERONIMO-5631 Can NOT find meta class & can NOT insert record in the table
+GERONIMO-5581 Add test case for programmatic access control on servlet
+GERONIMO-5571 Console support for EBA modules:list EBA modules,start EBA modules,stop EBA modules and uninstall EBA moules.
+GERONIMO-5552 Geronimo 3.0 testsuite testsuite/security-testsuite/test-security-basic-authentication for BASIC auth-method authentication.It passed on G3.0
+GERONIMO-5542 Add tests about new security methods in HttpServletRequest interfaces
+GERONIMO-5528 Add test cases for JSF2.0 new features into the Geronimo testsuite
+GERONIMO-5524 Security annotation on EJB testsuite:javax.annotation.security.RunAs RolesAllowed PermitAll DenyAll DeclareRoles
+GERONIMO-5523 Add testsuite for JTA 1.1
+GERONIMO-5498 Geronimo 3.0 testsuite for Managed Beans 1.0
+GERONIMO-5497 Geronimo 3.0 trunk testsuite for commonannotation1.1 new features:javax.annotation.sql.DataSourceDefinition and javax.annotation.sql.DataSourceDefinitions
+GERONIMO-5489 Add test cases for dependency injection for java 1.0 features into the testsuite.
+GERONIMO-5486 Add testsuite for Interceptors 1.1 in Java EE 6
+GERONIMO-5484 Create a document for JavaEE 6 sample application - EJBTimer 
+GERONIMO-5482 Add test cases for el 2.2 new features into the testsuite.
+GERONIMO-5481 Add test cases for jsp 2.2 new features into the testsuite.
+GERONIMO-5473 Add testing about EJB-3.1-Lite's new features into Testsuite
+GERONIMO-5471 Add test cases for servlet 3.0 new features into the testsuite.
+GERONIMO-5470 Add testsuite for BeanValidation feature in Java EE 6
+GERONIMO-5453 Add testing about Servlet-3.0's new secuirty features into Testsuite
+GERONIMO-5050 Integrate OpenWebBeans into Geronimo 3.0. 
+GERONIMO-5049 Add bean validation (JSR 303) to Geronimo 3.0
+GERONIMO-5048 Create an EJB Lite plugin for 3.0 Web Profile usage. 
+GERONIMO-4176 Documentation - Security - pluggable encryption system/custom keys
+
+
+** Sub-task
+GERONIMO-6075 Support bundle installation and uninstallation via Karaf shell
+GERONIMO-6072 Geronimo TxManager 3.1.1-SNAPSHOT
+GERONIMO-6071 woodstox-core-asl 4.1.1_1, jaxb-impl 2.2.3-1_1 , scout 1.2.3_1, saaj-impl 1.3.8_1, axis 1.4_2, axiom-all 1.2.12_1
+GERONIMO-6070 Axis2 1.6.1_1-SNAPSHOT
+GERONIMO-6069 JavaMail 1.8.3-SNAPSHOT
+GERONIMO-6068 Tomcat 7.0.19.1-SNAPSHOT
+GERONIMO-6067 MyFaces 2.0.8-SNAPSHOT
+GERONIMO-6066 OpenEJB 4.0.0-SNAPSHOT
+GERONIMO-6065 OpenJPA 2.1.1-SNAPSHOT
+GERONIMO-6064 OpenWebBeans 1.1.1-SNAPSHOT
+GERONIMO-6063 Yoko 1.3-SNAPSHOT
+GERONIMO-6062 XBean 3.8-SNAPSHOT
+GERONIMO-6039 testInjectionIntoWebServiceEndpoint(org.jboss.jsr299.tck.tests.lookup.injection.non.contextual.ws.InjectionIntoWebServiceEndPointTest)
+GERONIMO-5876 Drop jca context
+GERONIMO-5860 Reenable Log related portlets
+GERONIMO-5859 Reenable JMS related portlets
+GERONIMO-5699 Upgrade org.eclipse.osgi from 3.5.1.v20090827 to 3.6.0
+GERONIMO-5698 Add db2 for iSeries tranql xa connector to server 3.0 when it's ready
+GERONIMO-5600 Reenable EJB server admin console portlets
+GERONIMO-5598 Reenable debug views admin console portlets
+GERONIMO-5597 Reenable database-related admin console portlets
+GERONIMO-5596 Reenable plan creator admin console portlet
+GERONIMO-5595 Reenable clustering function
+GERONIMO-5594 Reenable hot deploy on G 3.0
+GERONIMO-5589 Display basic set of navigation items in a list instead of a tree
+GERONIMO-5584 identify basic set of navigation items
+GERONIMO-5574 Update console related docs for geronimo-4950 change
+GERONIMO-5466 Add javaee6-testsuite to include new tests about java ee 6 new features
+GERONIMO-5465 Update aries-testsuite
+GERONIMO-5462 Update secuirty-testsuite
+GERONIMO-5459 Update enterprise-testsuite to fix test failures
+GERONIMO-5458 Update corba-testsuite
+GERONIMO-5457 Update commands-testsuite to fix failures and remove dropped feature test
+GERONIMO-5264 Support Servlet 3.0 new features in Tomcat assembly
+GERONIMO-5253 Expose java:app/AppName and java:module/ModuleName in JNDI
+GERONIMO-5252 Update samples archetype for java ee 6
+GERONIMO-5232 Add support for @Resource.lookup based injection
+GERONIMO-5228 Add classes for parsing a validation.xml descriptor
+GERONIMO-5227 Add ValidatorFactory to servlet context for JSF usage. 
+GERONIMO-5226 Pass container ValidationFactory to the persistance manager when creating an entity manager. 
+GERONIMO-5225 Implement Bean Manager References (Java EE 6 spec section EE.5.19)
+GERONIMO-5224 Add JNDI integration of Managed Beans. 
+GERONIMO-5223 Integrate the Bean Validation RI into Geronimo. 
+GERONIMO-5222 Add support for application validation descriptor support for deployed applications. 
+GERONIMO-5221 Add naming support for Validator and ValidatorFactory. 
+GERONIMO-5219 Java EE Injection annotation scanning for 299 beans
+GERONIMO-5217 History.back and History.forward is not working correctly after change the console navigation to ajax.
+GERONIMO-5207 Replace jaxws api version from JRE with Geronimo jaxws 2.2 API bundle. 
+GERONIMO-5205 Integrate Aries JPA OSGi component and blueprint extensions
+GERONIMO-5141 Add Dependency Injection spec jar. 
+GERONIMO-5140 Build EJB 3.1 Lite plugin
+GERONIMO-5132 In debug mode Properties file login module reurns loginsucceeded as true for non existent users and null password GERONIMO-4983
+GERONIMO-5131 Retrieving group information from Active Directory server for authorization in Spnego
+GERONIMO-5128 login module for spnego support in geronimo
+GERONIMO-5120 Integrate new EJB features into geronimo
+GERONIMO-5119 Allow more granular selection of configured EJB features. 
+GERONIMO-5117 Implement builder support for war embedded EJBs. 
+GERONIMO-5116 Integrate the OpenEJB ManagedBean container support within Geronimo. 
+GERONIMO-5115 Integrate ManagedBean support with the JSF implementation. 
+GERONIMO-5113 Add naming builder support for processing DataSourceDefinition annotations. 
+GERONIMO-5109 Create a bean validation 2.0 spec jar
+GERONIMO-5103 Upgrade to JAX-WS compliant Axis2 implementation. 
+GERONIMO-5102 Create JAX-WS 2.2 spec jar 
+GERONIMO-5096 Integrate Wink JAX-RS implementation into Geronimo. 
+GERONIMO-5095 Create JAX-RS spec jar 
+GERONIMO-5092 Update the CORBA plugins for the OSGi classloading model. 
+GERONIMO-5091 Bundlize the yoko jar files. 
+GERONIMO-5057 Use those xmlbeans generated by JAVA EE 6 schema files
+GERONIMO-5056 Make jsr88 work in trunk
+GERONIMO-5047 Create javaee 6 Tomcat assemblies and plugin groups. 
+GERONIMO-5025 New module/app/global jndi contexts in javaee 6 spec
+GERONIMO-5019 geronimo-cdi-1.0 spec needs to be using the JEE6 dependencies, not the JEE5 versions. 
+GERONIMO-5009 Enable Java EE package deployment in Geronimo 3.0
+GERONIMO-5005 uddi osgi integration
+GERONIMO-5004 axis 1 osgi integration
+GERONIMO-5003 axis 1 bundle
+GERONIMO-4996 myfaces 2 osgi integration
+GERONIMO-4995 Jetty8 under osgi
+GERONIMO-4985 Adding JSR-330 and JSR-299 Spec. APIs
+GERONIMO-4982 ccpp (jsr 188) spec bundle
+GERONIMO-4980 Use Tomcat 7 in Geronimo 3.0
+GERONIMO-4971 Recognize Aries applications in Geronimo
+GERONIMO-4970 Remove those specs and impl which are shipped by JRE 1.6
+GERONIMO-4967 Enable Axis2 plugin in Geronimo 3.0
+GERONIMO-4965 bundleize pluto support and base console
+GERONIMO-4952 Figure out how to use User Admin service in Geronimo 3.0
+GERONIMO-4939 MultipartConfig changes needed
+GERONIMO-4938 Move geronimo-schema-j2ee and geronimo-schema-jee_5
+GERONIMO-4936 OpenJPA2 plugin needs to replace use of Configuration.getConfigurationClassLoader()
+GERONIMO-4935 WsdlGenerator needs to replace use of Configuration.addClassPath()
+GERONIMO-4934 Make application client container work under osgi
+GERONIMO-4931 Enable ActiveMQ plugin in the OSGI environment
+GERONIMO-4926 Fix ConfigurationMonitorGBean management of PCRegistry class. 
+GERONIMO-4925 Figure out whether we still need EditableConfigurationManager
+GERONIMO-4920 Convert Tomcat plugin to bundlized version. 
+GERONIMO-4912 Should plugins be packed jar files or exploded?
+GERONIMO-4830 Commit new debug-view portlets codes
+GERONIMO-4815 Update myfaces' version to 2.0
+GERONIMO-4681 Create a plugin group that mirrors the JEE6 web profile. 
+GERONIMO-4360 Connector 1.6 implementation
+
+
+
+Known Issues and Limitations
+----------------------------
+GERONIMO-6194 Sort gbeans while stopping the configuration
+GERONIMO-6191 can not query the persistence unit gbean when ejb is in a war
+GERONIMO-6190 Improve the summary list in the web console login page
+GERONIMO-6180 Persistence ref info should not processed by EJBBuilder
+GERONIMO-6169 Recursive lookup while the default comp entry is configured
+GERONIMO-6138 JDBC 4 API is not supported 
+GERONIMO-6137 Support to deploy web applications with other JSF vendors
+GERONIMO-6117 OpenWebBeansPlugin load optimization
+GERONIMO-6114 Avoid ServiceLoader lookup during OpenWebBeansInitializer
+GERONIMO-6089 Support for CDI beans in ear lib directory
+GERONIMO-6087 See if we can improve "Main not found" errors (and other startup issues)
+GERONIMO-6085 stop setting java.ext.dirs in geronimo scripts
+GERONIMO-6043 module init order doesn't always work due to gbean dependencies
+GERONIMO-6020 built-in ee beans
+GERONIMO-6005 Unclear how big a cdi context is for an ear
+GERONIMO-6002 Can't configure defaultJspServlet parameters
+GERONIMO-5990 Output a compound WSDL file for the queries from the clients
+GERONIMO-5956 issues when deploy a standalone ejb web services
+GERONIMO-5955 should not generate wsdl into an ejb archive
+GERONIMO-5939 Support OBR resolution during bundle install
+GERONIMO-5864 ServletContext.log doesn't log
+GERONIMO-5848 Don't version javax.xml.namespace coming from jre
+GERONIMO-5839 Workaround for WSDL path in EAR package
+GERONIMO-5834 add a do not fail option for server startup
+GERONIMO-5789 OWB always loads all app classes, even if its not a jcdi app.
+GERONIMO-5762 Some dirty files in the root of server code tree after built, they cannot be cleaned by mvn clean
+GERONIMO-5752 Updates needed to TemporaryClassLoader?
+GERONIMO-5750 override rat plugin to exclude the files we won't need to scan to make the rat:check result cleaner.
+GERONIMO-5743 ServletContext.getRealPath() returns null
+GERONIMO-5703 Track:Clustering module fails to start on disabling JMXService gbean
+GERONIMO-5681 Figure out how urlContextFactory works in Geronimo 3.0
+GERONIMO-5675 Add role based navigation customization support.
+GERONIMO-5655 switch to tomcat standard taglibs
+GERONIMO-5651 Add a own authenticator for Spnego login
+GERONIMO-5644 Share global annotation finder among different components
+GERONIMO-5626 Improvements in tomcat security contracts
+GERONIMO-5624 use info tree for tomcat web app deployment
+GERONIMO-5623 include all usable web.xml info in our info tree
+GERONIMO-5619 CertificatePropertiesFileLoginModule only works with tomcat, not jetty
+GERONIMO-5567 jetty servlet/filter gbeans but direct listener creation not compatible with servlet 3 startup order
+GERONIMO-5565 geronimo.out can grow unbounded
+GERONIMO-5564 No wait-for-server command in trunk
+GERONIMO-5554 blueprint deadlock during server start
+GERONIMO-5553 Fail to enchance entities on Geronimo
+GERONIMO-5506 jetty8 creates objects through the ServletContext's spec methods. We need to be sure to use them.
+GERONIMO-5487 myfaces listener installed in every web app from the tld
+GERONIMO-5480 Web security does not work on Equinox
+GERONIMO-5414 Remove references to corba in connector deployer
+GERONIMO-5360 Support resource-env-refs that are References to an ObjectFactory
+GERONIMO-5344 Hook env-entries and servlet init-params up to config admin
+GERONIMO-5343 Replace config-substitutions.properties by use of config admin
+GERONIMO-5280 geronimo-jaspi jaspic provider won't work well under osgi
+GERONIMO-5262 Make testsuites run again
+GERONIMO-5259 Annoying "access denied" security exceptions for oenwebbeans while java2 security is enabled.
+GERONIMO-5257 Convert persistence.xml version to 2.0 when embedded in geronimo plans
+GERONIMO-5245 Version property variables should be used for all configuration versions in the framework startup.properties file. 
+GERONIMO-5231 Override JVM libraries with newer versions
+GERONIMO-5229 PropertyEditors is too willing to pull in editors we don'e necessarly want
+GERONIMO-5220 mini-servers profile for plugin specific test servers
+GERONIMO-5195 change txmanager component version(s) to larger major version
+GERONIMO-5190 Use jaxb for plans instead of xmlbeans
+GERONIMO-5187 Isolation for Apache Aries applications
+GERONIMO-5170 Register connection factories in osgi service registry
+GERONIMO-5166 Enable car-maven-plugin to use Equinox
+GERONIMO-5164 Incomplete feature for deploy:new-instance command in geronimo3.0
+GERONIMO-5158 servlet 3.0 ServletSecurityElement has problems
+GERONIMO-5097 Integrate CXF JAX-RS implementation into Geronimo.
+GERONIMO-5090 Upgrade from java ee 5 to java ee 6 support
+GERONIMO-5087 Use OSGi for the Geronimo classloading model. 
+GERONIMO-5086 Apache Aries enhancements
+GERONIMO-5058 Move the term "j2ee" to "javaee" refered by plugin names and package names
+GERONIMO-5051 Taglib discovery does not work
+GERONIMO-5046 Remove need for system property <geronimo.build.car>true</geronimo.build.car> to get car-maven-plugin to work
+GERONIMO-5041 Use Aries InitialContextFactoryBuilder
+GERONIMO-5026 Class and resource discovery in OSGi
+GERONIMO-5021 Allow gbean classes to be loaded from another plugin
+GERONIMO-5016 Enable cxf in Geronimo 3.0
+GERONIMO-4988 add jms Axis2 transport
+GERONIMO-4974 ee apps or other plugins can't contain gbeans
+GERONIMO-4972 Nested child configurations from ears don't work well with osgi
+GERONIMO-4956 Tomcat should use Keystore GBean for access to Geronimo keystore
+GERONIMO-4921 Figure out how to handle OSGI cache in Geronimo
+GERONIMO-4913 Use pax mvn urls everywhere possible.
+GERONIMO-4911 osgi manifest for plugins is created in the car-maven-plugin, not the deployer
+GERONIMO-4909 How should we shut down plugin under osgi?
+GERONIMO-4908 RMIClassLoader is not compatible with osgi  
+       
+
