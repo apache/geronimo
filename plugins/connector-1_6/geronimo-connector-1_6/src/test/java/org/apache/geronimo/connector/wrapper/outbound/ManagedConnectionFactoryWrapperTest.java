@@ -126,7 +126,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         super.setUp();
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
         kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
-        kernel.boot();
+        kernel.boot(bundleContext);
         ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
 
         GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.class);

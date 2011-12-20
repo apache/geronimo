@@ -61,6 +61,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -113,6 +114,7 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.CONFIG_BUILDER)
+@OsgiService
 public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource, GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(EARConfigBuilder.class);

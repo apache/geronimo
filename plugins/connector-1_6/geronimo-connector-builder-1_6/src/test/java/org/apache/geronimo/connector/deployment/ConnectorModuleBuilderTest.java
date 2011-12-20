@@ -672,9 +672,29 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
+
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+
+        DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver();
+        artifactResolver.setArtifactManager(artifactManager);
+
+        repository = new MockRepository();
+        ConfigurationStore configStore = new MockConfigStore();
+
+        KernelConfigurationManager configurationManager = new KernelConfigurationManager();
+        configurationManager.setArtifactManager(artifactManager);
+        configurationManager.setArtifactResolver(artifactResolver);
+        configurationManager.setKernel(kernel);
+        configurationManager.activate(bundleContext);
+        configurationManager.bindRepository(repository);
+        configurationManager.bindConfigurationStore(configStore);
+        this.configurationManager = configurationManager;
+
+        artifactResolver.setConfigurationManager(configurationManager);
 
         ConfigurationData bootstrap = new ConfigurationData(bootId, naming);
+        bootstrap.setBundleContext(bundleContext);
 
 //        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 //
@@ -685,23 +705,23 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 //        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 //        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
 //        bootstrap.addGBean(configurationManagerData);
-        bootstrap.addGBean("ServerInfo", BasicServerInfo.class).setAttribute("baseDirectory", ".");
-
-        AbstractName repositoryName = bootstrap.addGBean("Repository", MockRepository.GBEAN_INFO).getAbstractName();
-
-        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
-
-        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-        configurationManagerData.setReferencePattern("Stores", configStoreName);
-        configurationManagerData.setReferencePattern("Repositories", repositoryName);
-        bootstrap.addGBean(configurationManagerData);
+//        bootstrap.addGBean("ServerInfo", BasicServerInfo.class).setAttribute("baseDirectory", ".");
+//
+//        AbstractName repositoryName = bootstrap.addGBean("Repository", MockRepository.GBEAN_INFO).getAbstractName();
+//
+//        AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
+//
+//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//
+//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//
+//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+//        configurationManagerData.setReferencePattern("Stores", configStoreName);
+//        configurationManagerData.setReferencePattern("Repositories", repositoryName);
+//        bootstrap.addGBean(configurationManagerData);
 
         GBeanData serverData = bootstrap.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
         serverName = serverData.getAbstractName();
@@ -712,17 +732,15 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.class);
         tm.setAttribute("defaultTransactionTimeoutSeconds", 10);
 
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext, configurationManager);
 
-        repository = (MockRepository) kernel.getGBean(repositoryName);
         Map<Artifact, File> repo = repository.getRepo();
         repo.put(Artifact.create("org.apache.geronimo.tests/test/1/car"), null);
         repo.put(bootId, null);
 
 
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 //        configurationManager.getConfiguration(bootstrap.getId());
-        ConfigurationStore configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
+//        ConfigurationStore configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
         configStore.install(bootstrap);
 
         defaultEnvironment = new Environment();

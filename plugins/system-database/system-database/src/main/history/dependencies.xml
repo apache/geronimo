@@ -27,6 +27,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-derby-embed-local</artifactId>
         <type>rar</type>
