@@ -28,6 +28,10 @@ import org.osgi.framework.Constants;
 
 public class ResourceBuilder {
     
+    private static String CAPABILITY_BUNDLE = "bundle";
+    private static String CAPABILITY_PACKAGE = "package";
+    private static String CAPABILITY_FRAGMENT = "fragment";
+    
     private BundleDescription bundleDescription;
 
     public ResourceBuilder(BundleDescription bundleDescription) {
@@ -96,7 +100,7 @@ public class ResourceBuilder {
             Require require = new Require();
             require.setMultiple(false);
             require.setOptional(importPackage.isOptional());
-            require.setName("package");
+            require.setName(CAPABILITY_PACKAGE);
             require.setContent("Import-Package: " + importPackage.getName());
 
             VersionRange range = importPackage.getVersionRange();
@@ -113,7 +117,7 @@ public class ResourceBuilder {
             Require require = new Require();
             require.setMultiple(false);
             require.setOptional(requireBundle.isOptional());
-            require.setName("bundle");
+            require.setName(CAPABILITY_BUNDLE);
             require.setContent("Require-Bundle: " + requireBundle.getName());
             
             VersionRange range = requireBundle.getVersionRange();
@@ -160,14 +164,22 @@ public class ResourceBuilder {
             require.setExtend(true);
             require.setMultiple(false);
             require.setOptional(false);
-            require.setName("bundle");
-            require.setContent("Fragment-Host: " + fragment.getName());
+            require.setName(CAPABILITY_BUNDLE);
+            require.setContent("Required Host: " + fragment.getName());
             
             VersionRange range = fragment.getVersionRange();
             String versionExpression = getVersionFilter(range);
             require.setFilter("(&(symbolicname=" + fragment.getName() + ")" + versionExpression + ")");  
             
             resource.getRequire().add(require);
+            
+            // Add "fragment" capability
+            Capability cap = new Capability();
+            cap.setName(CAPABILITY_FRAGMENT);
+            cap.getP().add(createP("host", null, fragment.getName()));
+            // XXX: capability can't express a version range so always set to 0.0.0.
+            cap.getP().add(createP("version", "version", "0.0.0"));
+            resource.getCapability().add(cap);
         }
     }
     
@@ -175,7 +187,7 @@ public class ResourceBuilder {
         List<BundleDescription.ExportPackage> exports = bundleDescription.getExportPackage();
         for (BundleDescription.ExportPackage exportPackage : exports) {
             Capability cap = new Capability();
-            cap.setName("package");
+            cap.setName(CAPABILITY_PACKAGE);
             cap.getP().add(createP("package", null, exportPackage.getName()));
             cap.getP().add(createP("version", "version", exportPackage.getVersion().toString()));
             resource.getCapability().add(cap);
@@ -184,7 +196,7 @@ public class ResourceBuilder {
 
     private void convertBundleToCapability(Resource resource, BundleDescription.SymbolicName symbolicName) {
         Capability cap = new Capability();
-        cap.setName("bundle");
+        cap.setName(CAPABILITY_BUNDLE);
         
         cap.getP().add(createP("symbolicname", null, symbolicName.getName()));
         cap.getP().add(createP("version", "version", bundleDescription.getVersion().toString()));
