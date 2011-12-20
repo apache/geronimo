@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -36,13 +35,13 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ModuleDocument;
@@ -59,7 +58,6 @@ import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -67,12 +65,16 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @version $Rev$ $Date$
  */
 @Component(immediate = true, metatype = true)
 @Service
+@References(value = {
+        @Reference(name = "xmlAttributeBuilder", referenceInterface = XmlAttributeBuilder.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
+        @Reference(name = "xmlReferenceBuilder", referenceInterface = XmlReferenceBuilder.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)})
 public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     private static final QName MODULE_QNAME = ModuleDocument.type.getDocumentElementName();
@@ -95,8 +97,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     @Reference(name = "repository", referenceInterface = Repository.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Collection<Repository> repositories = new LinkedHashSet<Repository>();
 
+//    private final Collection<XmlAttributeBuilder> xmlAttributeBuilders = new LinkedHashSet<XmlAttributeBuilder>();
+
+//    private final Collection<XmlReferenceBuilder> xmlReferenceBuilders = new LinkedHashSet<XmlReferenceBuilder>();
+
     private BundleContext bundleContext;
-//    private final Naming naming = new Jsr77Naming();
+
+    private final GBeanBuilder gbeanBuilder = new GBeanBuilder();
+    private ServiceRegistration sr;
+    //    private final Naming naming = new Jsr77Naming();
 //    private final NamespaceDrivenBuilder serviceBuilders = new GBeanBuilder(Collections.emptyList(), Collections.emptyList());
 //    private final GBeanBuilder serviceBuilders = new GBeanBuilder(Collections.emptyList(), Collections.emptyList());
 //    private BundleContext bundleContext;
@@ -118,11 +127,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 //    }
 
     public ServiceConfigBuilder() {
-//        this.naming = new Jsr77Naming();
-
-//        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
-//        this.bundleContext = bundleContext;
-        serviceBuilders.add(new GBeanBuilder(Collections.<XmlAttributeBuilder>emptySet(), Collections.<XmlReferenceBuilder>emptySet()));
+        serviceBuilders.add(gbeanBuilder);
     }
 
     public void setConfigurationManager(ConfigurationManager configurationManager) {
@@ -151,17 +156,38 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         serviceBuilders.remove(namespaceDrivenBuilder);
     }
 
+    public void bindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        gbeanBuilder.bindXmlAttributeBuilder(xmlAttributeBuilder);
+    }
+
+    public void unbindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        gbeanBuilder.unbindXmlAttributeBuilder(xmlAttributeBuilder);
+    }
+
+    public void bindXmlReferenceBuilder(XmlReferenceBuilder xmlReferenceBuilder) {
+        gbeanBuilder.bindXmlReferenceBuilder(xmlReferenceBuilder);
+    }
+
+    public void unbindXmlReferenceBuilder(XmlReferenceBuilder xmlReferenceBuilder) {
+        gbeanBuilder.unbindXmlReferenceBuilder(xmlReferenceBuilder);
+    }
+
 
 
     @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+        sr = bundleContext.registerService(new String[] {NamespaceDrivenBuilder.class.getName(), GBeanBuilder.class.getName()}, gbeanBuilder, null);
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
     @Deactivate
-    public void doStop() {
+    public void deactivate() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+        if (sr != null) {
+            sr.unregister();
+            sr = null;
+        }
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {

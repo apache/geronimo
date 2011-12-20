@@ -36,6 +36,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
@@ -53,7 +55,8 @@ import org.xml.sax.InputSource;
  * @version $Rev:$ $Date:$
  */
 
-@GBean(j2eeType = "XmlAttributeBuilder")
+@Component(immediate = true)
+@Service
 public class WebAppXmlAttributeBuilder extends PropertyEditorSupport implements XmlAttributeBuilder {
 
     @Override

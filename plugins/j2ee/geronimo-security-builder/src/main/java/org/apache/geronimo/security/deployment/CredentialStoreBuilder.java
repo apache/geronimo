@@ -23,6 +23,8 @@ package org.apache.geronimo.security.deployment;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -38,6 +40,8 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev$ $Date$
  */
+@Component(immediate = true)
+@Service
 public class CredentialStoreBuilder implements XmlAttributeBuilder {
 
     private static final String NAMESPACE = CredentialStoreDocument.type.getDocumentElementName().getNamespaceURI();
@@ -69,14 +73,14 @@ public class CredentialStoreBuilder implements XmlAttributeBuilder {
     }
 
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CredentialStoreBuilder.class, "XmlAttributeBuilder");
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+//    public static final GBeanInfo GBEAN_INFO;
+//
+//    static {
+//        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CredentialStoreBuilder.class, "XmlAttributeBuilder");
+//        GBEAN_INFO = infoBuilder.getBeanInfo();
+//    }
+//
+//    public static GBeanInfo getGBeanInfo() {
+//        return GBEAN_INFO;
+//    }
 }

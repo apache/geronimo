@@ -19,6 +19,8 @@ package org.apache.geronimo.corba.deployment.security.config.css;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.corba.security.config.css.CSSASMechConfig;
@@ -48,7 +50,6 @@ import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSasMechType;
 import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSAssociationOption;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -68,7 +69,8 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
-@GBean(j2eeType = "XmlAttributeBuilder")
+@Component(immediate = true)
+@Service
 public class CSSConfigEditor implements XmlAttributeBuilder {
     private static final String NAMESPACE = CSSCssDocument.type.getDocumentElementName().getNamespaceURI();
 

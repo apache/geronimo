@@ -78,13 +78,14 @@ public class ServiceConfigBuilderTest extends TestCase {
         jar.close();
     }
 
-    public void xtestJavaBeanXmlAttribute() throws Exception {
-        ReferenceCollection referenceCollection = new MockReferenceCollection();
+    public void testJavaBeanXmlAttribute() throws Exception {
+//        ReferenceCollection referenceCollection = new MockReferenceCollection();
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
-        referenceCollection.add(javaBeanXmlAttributeBuilder);
+//        referenceCollection.add(javaBeanXmlAttributeBuilder);
         Naming naming = new Jsr77Naming();
-        NamespaceDrivenBuilder gbeanBuilder = new GBeanBuilder(referenceCollection, null);
+        GBeanBuilder gbeanBuilder = new GBeanBuilder();
+        gbeanBuilder.bindXmlAttributeBuilder(javaBeanXmlAttributeBuilder);
 //        ConfigurationBuilder serviceBuilder = new ServiceConfigBuilder(parentEnvironment, null, Collections.singleton(gbeanBuilder), naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");

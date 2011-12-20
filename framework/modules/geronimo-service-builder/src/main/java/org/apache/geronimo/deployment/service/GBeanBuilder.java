@@ -18,12 +18,10 @@
 package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditorManager;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -42,7 +40,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
-import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.QNameSet;
@@ -54,43 +51,35 @@ import org.osgi.framework.Bundle;
  * @version $Rev$ $Date$
  */
 public class GBeanBuilder implements NamespaceDrivenBuilder {
-    protected Map attrRefMap;
-    protected Map refRefMap;
-    private final GBeanInfoFactory infoFactory;
+    protected final Map<String, XmlAttributeBuilder> attrRefMap = new HashMap<String, XmlAttributeBuilder>();
+    protected final Map<String, XmlReferenceBuilder> refRefMap = new HashMap<String, XmlReferenceBuilder>();
+    private final GBeanInfoFactory infoFactory = new MultiGBeanInfoFactory();
     public static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
     private static final QName GBEAN_QNAME = GbeanDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_QNAME_SET = QNameSet.singleton(GBEAN_QNAME);
 
-    public GBeanBuilder(Collection<XmlAttributeBuilder> xmlAttributeBuilders, Collection<XmlReferenceBuilder> xmlReferenceBuilders) {
-        if (xmlAttributeBuilders != null) {
-            ReferenceMap.Key key = new ReferenceMap.Key() {
-
-                public Object getKey(Object object) {
-                    return ((XmlAttributeBuilder) object).getNamespace();
-                }
-            };
-            attrRefMap = new ReferenceMap(xmlAttributeBuilders, new HashMap(), key);
-        } else {
-            attrRefMap = new HashMap();
-        }
-
-        if (xmlReferenceBuilders != null) {
-            ReferenceMap.Key key = new ReferenceMap.Key() {
-
-                public Object getKey(Object object) {
-                    return ((XmlReferenceBuilder) object).getNamespace();
-                }
-            };
-            refRefMap = new ReferenceMap(xmlReferenceBuilders, new HashMap(), key);
-        }
-        EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
-        attrRefMap.put(environmentBuilder.getNamespace(), environmentBuilder);
-        
-        infoFactory = newGBeanInfoFactory();
+    //TODO why is this here?
+    static {
+        PropertyEditorManager.registerEditor(Environment.class, EnvironmentBuilder.class);
+    }
+    public GBeanBuilder() {
+        bindXmlAttributeBuilder(new EnvironmentBuilder());
     }
 
-    protected GBeanInfoFactory newGBeanInfoFactory() {
-        return new MultiGBeanInfoFactory();
+    public void bindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        attrRefMap.put(xmlAttributeBuilder.getNamespace(), xmlAttributeBuilder);
+    }
+
+    public void unbindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        attrRefMap.remove(xmlAttributeBuilder.getNamespace());
+    }
+
+    public void bindXmlReferenceBuilder(XmlReferenceBuilder xmlReferenceBuilder) {
+        refRefMap.put(xmlReferenceBuilder.getNamespace(), xmlReferenceBuilder);
+    }
+
+    public void unbindXmlReferenceBuilder(XmlReferenceBuilder xmlReferenceBuilder) {
+        refRefMap.remove(xmlReferenceBuilder.getNamespace());
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
@@ -193,27 +182,6 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
 
     public QName getBaseQName() {
         return SERVICE_QNAME;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        PropertyEditorManager.registerEditor(Environment.class, EnvironmentBuilder.class);
-
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(GBeanBuilder.class, "ModuleBuilder");
-
-        infoBuilder.addInterface(NamespaceDrivenBuilder.class);
-
-        infoBuilder.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
-        infoBuilder.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");
-
-        infoBuilder.setConstructor(new String[]{"XmlAttributeBuilders", "XmlReferenceBuilders"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

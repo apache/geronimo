@@ -26,6 +26,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
@@ -42,6 +47,7 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.SecurityNames;
@@ -64,20 +70,29 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev$ $Date$
  */
+@Component(immediate = true)
+@Service
 public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = GerLoginConfigDocument.type.getDocumentElementName().getNamespaceURI();
     private static final QName LOGIN_MODULE_QNAME = new QName(LOGIN_CONFIG_NAMESPACE, "login-module");
     private static final QName SERVER_SIDE_QNAME = new QName(null, "server-side");
 
-    private final Naming naming;
-    private final Map xmlAttributeBuilderMap;
+    private final Naming naming = new Jsr77Naming();
+
+   @Reference(name = "xmlAttributeBuilder", referenceInterface = XmlAttributeBuilder.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+   private final Map<String, XmlAttributeBuilder> xmlAttributeBuilderMap;
+
+
+    public LoginConfigBuilder() {
+        xmlAttributeBuilderMap = new HashMap<String, XmlAttributeBuilder>();
+    }
 
     public LoginConfigBuilder(Kernel kernel, Collection xmlAttributeBuilderMap) {
         this(kernel.getNaming(), xmlAttributeBuilderMap);
     }
 
     public LoginConfigBuilder(Naming naming, Collection xmlAttributeBuilders) {
-        this.naming = naming;
+//        this.naming = naming;
         if (xmlAttributeBuilders != null) {
             ReferenceMap.Key key = new ReferenceMap.Key() {
 
@@ -90,6 +105,16 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
             xmlAttributeBuilderMap = new HashMap();
         }
     }
+
+
+    public void bindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        xmlAttributeBuilderMap.put(xmlAttributeBuilder.getNamespace(), xmlAttributeBuilder);
+    }
+
+    public void unbindXmlAttributeBuilder(XmlAttributeBuilder xmlAttributeBuilder) {
+        xmlAttributeBuilderMap.remove(xmlAttributeBuilder.getNamespace());
+    }
+
 
     public String getNamespace() {
         return LOGIN_CONFIG_NAMESPACE;
@@ -231,17 +256,17 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         return string == null ? null : string.trim();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
+//    public static final GBeanInfo GBEAN_INFO;
+//
     private static final GReferenceInfo USE_REFERENCE_INFO;
-
+//
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
-        infoBuilder.addAttribute("kernel", Kernel.class, false, false);
-        infoBuilder.addReference("xmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
-        infoBuilder.setConstructor(new String[]{"kernel", "xmlAttributeBuilders"});
-        infoBuilder.addInterface(XmlReferenceBuilder.class);
-        GBEAN_INFO = infoBuilder.getBeanInfo();
+//        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
+//        infoBuilder.addAttribute("kernel", Kernel.class, false, false);
+//        infoBuilder.addReference("xmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
+//        infoBuilder.setConstructor(new String[]{"kernel", "xmlAttributeBuilders"});
+//        infoBuilder.addInterface(XmlReferenceBuilder.class);
+//        GBEAN_INFO = infoBuilder.getBeanInfo();
 
         Set<GReferenceInfo> referenceInfos = JaasLoginModuleUse.GBEAN_INFO.getReferences();
         GReferenceInfo found = null;
@@ -258,8 +283,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         USE_REFERENCE_INFO = found;
 
     }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+//
+//    public static GBeanInfo getGBeanInfo() {
+//        return GBEAN_INFO;
+//    }
 }

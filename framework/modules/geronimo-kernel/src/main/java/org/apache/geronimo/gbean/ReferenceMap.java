@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class ReferenceMap implements Map, ReferenceCollectionListener {
-    private final Map map;
-    private final Key key;
+public class ReferenceMap<T, U> implements Map<T, U>, ReferenceCollectionListener {
+    private final Map<T, U> map;
+    private final Key<T, U> key;
 
     /**
      * Constructs the ReferenceMap using a new instance of
@@ -34,10 +34,10 @@ public class ReferenceMap implements Map, ReferenceCollectionListener {
      * @param map The map instance to which references will be added/removed
      * @param key
      */
-    public ReferenceMap(Collection collection, Map map, Key key) {
+    public ReferenceMap(Collection<U> collection, Map<T, U> map, Key<T, U> key) {
         this.map = map;
         this.key = key;
-        for (Object object : collection) {
+        for (U object : collection) {
             map.put(key.getKey(object), object);
         }
         if (collection instanceof ReferenceCollection) {
@@ -52,20 +52,20 @@ public class ReferenceMap implements Map, ReferenceCollectionListener {
      * @param collection Must be an instance of ReferenceCollection
      * @param key
      */
-    public ReferenceMap(Collection collection, Key key) {
-        this(collection, new HashMap(), key);
+    public ReferenceMap(Collection<U> collection, Key<T, U> key) {
+        this(collection, new HashMap<T, U>(), key);
     }
 
     public void memberAdded(ReferenceCollectionEvent event) {
-        map.put(key.getKey(event.getMember()), event.getMember());
+        map.put(key.getKey((U)event.getMember()), (U)event.getMember());
     }
 
     public void memberRemoved(ReferenceCollectionEvent event) {
-        map.remove(key.getKey(event.getMember()));
+        map.remove(key.getKey((U)event.getMember()));
     }
 
-    public interface Key {
-        public Object getKey(Object object);
+    public interface Key<T, V> {
+        public T getKey(V object);
     }
 
     public int size() {
@@ -84,19 +84,19 @@ public class ReferenceMap implements Map, ReferenceCollectionListener {
         return map.containsValue(value);
     }
 
-    public Object get(Object key) {
+    public U get(Object key) {
         return map.get(key);
     }
 
-    public Object put(Object key, Object value) {
+    public U put(T key, U value) {
         return map.put(key, value);
     }
 
-    public Object remove(Object key) {
+    public U remove(Object key) {
         return map.remove(key);
     }
 
-    public void putAll(Map t) {
+    public void putAll(Map<? extends T,? extends U> t) {
         map.putAll(t);
     }
 
@@ -104,15 +104,15 @@ public class ReferenceMap implements Map, ReferenceCollectionListener {
         map.clear();
     }
 
-    public Set keySet() {
+    public Set<T> keySet() {
         return map.keySet();
     }
 
-    public Collection values() {
+    public Collection<U> values() {
         return map.values();
     }
 
-    public Set entrySet() {
+    public Set<Entry<T, U>> entrySet() {
         return map.entrySet();
     }
 
