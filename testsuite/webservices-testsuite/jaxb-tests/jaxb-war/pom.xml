@@ -36,8 +36,8 @@
 
             <dependencies>
                 <dependency>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>

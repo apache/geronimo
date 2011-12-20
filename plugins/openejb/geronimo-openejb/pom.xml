@@ -114,10 +114,16 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-javaagent</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml</groupId>
+                    <artifactId>jsr173</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- g-transaction, g-security, g-naming  come transitively from this -->
