@@ -85,7 +85,8 @@ public class PluginBootstrap2 {
 //        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven2Repository repository = new Maven2Repository(localRepo);
-        new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
+        DependencyManager dm = new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
+        dm.doStart();
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
@@ -123,6 +124,8 @@ public class PluginBootstrap2 {
         finally {
             context.close();
         }
+        dm.doStop();
+
     }
 
     private void writeConfiguration(final ConfigurationData configurationData) throws IOException {
