@@ -18,6 +18,7 @@
 package org.apache.geronimo.transaction.wrapper.manager;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -110,7 +111,7 @@ public class GeronimoTransactionManagerGBean extends GeronimoTransactionManager 
         clazzes.add(TransactionSynchronizationRegistry.class.getName());
         clazzes.add(UserTransaction.class.getName());
         clazzes.add(RecoverableTransactionManager.class.getName());
-        serviceRegistration = bundleContext.registerService(clazzes.toArray(new String[clazzes.size()]), this, new Properties());
+        serviceRegistration = bundleContext.registerService(clazzes.toArray(new String[clazzes.size()]), this, new Hashtable<String, Object>());
     }
 
     public void doStop() throws Exception {
