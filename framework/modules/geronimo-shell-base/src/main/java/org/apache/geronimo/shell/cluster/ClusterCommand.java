@@ -23,9 +23,9 @@ import java.util.Map;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.geronimo.deployment.cli.CommandInstallCAR;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;

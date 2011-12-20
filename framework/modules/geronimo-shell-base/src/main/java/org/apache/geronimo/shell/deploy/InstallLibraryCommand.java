@@ -21,9 +21,9 @@ package org.apache.geronimo.shell.deploy;
 
 import java.util.Arrays;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.geronimo.cli.deployer.InstallLibraryCommandArgs;
 import org.apache.geronimo.deployment.cli.CommandInstallLibrary;
 import org.apache.geronimo.deployment.cli.ServerConnection;

@@ -19,9 +19,9 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.geronimo.cli.deployer.InstallBundleCommandArgs;
 import org.apache.geronimo.deployment.cli.CommandInstallBundle;
 import org.apache.geronimo.deployment.cli.ServerConnection;

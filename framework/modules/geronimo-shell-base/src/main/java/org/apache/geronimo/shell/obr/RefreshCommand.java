@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.shell.obr;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.obr.GeronimoOBRGBean;
 import org.osgi.framework.ServiceReference;

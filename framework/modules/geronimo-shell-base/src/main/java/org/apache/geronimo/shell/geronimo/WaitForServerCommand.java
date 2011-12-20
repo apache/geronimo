@@ -22,8 +22,8 @@ package org.apache.geronimo.shell.geronimo;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.shell.deploy.ConnectCommand;

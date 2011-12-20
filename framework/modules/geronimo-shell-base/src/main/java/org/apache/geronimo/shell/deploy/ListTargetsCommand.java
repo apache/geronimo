@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.commands.Command;
 import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.deployment.cli.AbstractCommand;
 import org.apache.geronimo.deployment.cli.CommandListTargets;

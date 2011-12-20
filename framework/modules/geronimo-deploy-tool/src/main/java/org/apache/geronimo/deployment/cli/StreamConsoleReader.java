@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 
 import jline.UnsupportedTerminal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +37,13 @@ public class StreamConsoleReader implements ConsoleReader {
 
     protected BufferedReader keyboard;
 
-    protected PrintWriter console;
+    protected PrintStream console;
 
     private jline.console.ConsoleReader jlineConsoleReader;
 
     private boolean jlineConsoleEnabled = true;
 
     public StreamConsoleReader(InputStream in, PrintStream out) {
-        this(in, new PrintWriter(out, true));
-    }
-
-    public StreamConsoleReader(InputStream in, PrintWriter out) {
         try {
             if ("jline.UnsupportedTerminal".equals(System.getProperty("jline.terminal"))) {
                 jlineConsoleReader = new jline.console.ConsoleReader(in, out, new UnsupportedTerminal());

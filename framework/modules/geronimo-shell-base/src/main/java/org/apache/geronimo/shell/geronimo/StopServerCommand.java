@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.shell.geronimo;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.commands.Command;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;

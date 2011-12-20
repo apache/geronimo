@@ -21,8 +21,8 @@ package org.apache.geronimo.shell.deploy;
 
 import java.io.IOException;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
 import org.apache.geronimo.deployment.cli.OfflineServerConnection;
 import org.apache.geronimo.deployment.cli.OnlineServerConnection;

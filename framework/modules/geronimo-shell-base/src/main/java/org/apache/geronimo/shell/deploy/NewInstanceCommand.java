@@ -21,8 +21,8 @@ package org.apache.geronimo.shell.deploy;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.system.plugin.NewServerInstance;
