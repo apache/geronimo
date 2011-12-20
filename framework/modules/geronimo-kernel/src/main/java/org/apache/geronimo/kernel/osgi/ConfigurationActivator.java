@@ -35,25 +35,27 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConfigurationActivator implements BundleActivator {
 
+    private static Logger log = LoggerFactory.getLogger(ConfigurationActivator.class);
     private Artifact id;
 
 
     public void start(BundleContext bundleContext) throws Exception {
-        ServiceReference kernelReference = null;
+        ServiceReference<ConfigurationManager> configurationManagerReference = null;
         InputStream in = null;
         try {
-            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
-            if (kernelReference == null) {
+            configurationManagerReference = bundleContext.getServiceReference(ConfigurationManager.class);
+            if (configurationManagerReference == null) {
                 return;
             }
-            Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
-            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+            ConfigurationManager manager = bundleContext.getService(configurationManagerReference);
             Bundle bundle = bundleContext.getBundle();
             in = bundle.getEntry("META-INF/config.ser").openStream();
             //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
@@ -62,15 +64,18 @@ public class ConfigurationActivator implements BundleActivator {
             manager.loadConfiguration(data);
             id = data.getId();
             //            manager.startConfiguration(id);
+        } catch (Exception e) {
+            log.warn("Exception trying to load configuration bundle " + bundleContext, e);
+            throw e;
         } finally {
             if (in != null)
                 try {
                     in.close();
                 } catch (Exception e) {
                 }
-            if (kernelReference != null)
+            if (configurationManagerReference != null)
                 try {
-                    bundleContext.ungetService(kernelReference);
+                    bundleContext.ungetService(configurationManagerReference);
                 } catch (Exception e) {
                 }
         }

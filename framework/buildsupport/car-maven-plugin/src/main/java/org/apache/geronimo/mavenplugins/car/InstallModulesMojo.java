@@ -177,7 +177,12 @@ public class InstallModulesMojo extends AbstractCarMojo {
         DownloadResults downloadPoller = new DownloadResults();
         String targetServerPath = targetServerDirectory.getAbsolutePath();
 
-        Kernel kernel = new BasicKernel("Assembly", bundleContext);
+        Kernel kernel = null;
+        try {
+            kernel = new BasicKernel("Assembly", bundleContext);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not create kernel", e);
+        }
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
             PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, bundleContext);

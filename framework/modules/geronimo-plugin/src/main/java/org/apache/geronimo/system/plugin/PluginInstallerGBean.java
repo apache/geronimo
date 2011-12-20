@@ -224,7 +224,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         final ArtifactManager artifactManager = new DefaultArtifactManager();
 
         forceMkdir(new File(targetServerPath));
-        serverInfo = new BasicServerInfo(targetServerPath, false, null);
+        serverInfo = new BasicServerInfo(targetServerPath, false);
         File targetRepositoryFile = serverInfo.resolve(targetRepositoryPath);
         forceMkdir(targetRepositoryFile);
         writeableRepo = new Maven2Repository(targetRepositoryFile);
@@ -1873,16 +1873,16 @@ public class PluginInstallerGBean implements PluginInstaller {
             return;
         }
         if (!pluginData.getConfigSubstitution().isEmpty()) {
-            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
-            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
+            Map<String, Map<String, String>> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
+            for (Map.Entry<String, Map<String, String>> entry : propertiesMap.entrySet()) {
                 String serverName = entry.getKey();
                 ServerInstance serverInstance = getServerInstance(serverName, servers);
                 serverInstance.getAttributeStore().addConfigSubstitutions(entry.getValue());
             }
         }
         if (!pluginData.getArtifactAlias().isEmpty()) {
-            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
-            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
+            Map<String, Map<String, String>> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
+            for (Map.Entry<String, Map<String, String>> entry : propertiesMap.entrySet()) {
                 String serverName = entry.getKey();
                 ServerInstance serverInstance = getServerInstance(serverName, servers);
                 serverInstance.getArtifactResolver().addAliases(entry.getValue());
@@ -1898,16 +1898,16 @@ public class PluginInstallerGBean implements PluginInstaller {
         return serverInstance;
     }
 
-    private Map<String, Properties> toPropertiesMap(List<PropertyType> propertyTypes) {
-        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+    private Map<String, Map<String, String>> toPropertiesMap(List<PropertyType> propertyTypes) {
+        Map<String, Map<String, String>> propertiesMap = new HashMap<String, Map<String, String>>();
         for (PropertyType propertyType : propertyTypes) {
             String serverName = propertyType.getServer();
-            Properties properties = propertiesMap.get(serverName);
+            Map<String, String> properties = propertiesMap.get(serverName);
             if (properties == null) {
-                properties = new Properties();
+                properties = new HashMap<String, String>();
                 propertiesMap.put(serverName, properties);
             }
-            properties.setProperty(propertyType.getKey(), propertyType.getValue());
+            properties.put(propertyType.getKey(), propertyType.getValue());
         }
         return propertiesMap;
     }

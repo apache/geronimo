@@ -143,6 +143,9 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
     }
 
     public static void marshallOBRModel(Repository repo, File obrFile) throws JAXBException {
+        if (!obrFile.getParentFile().exists()) {
+            obrFile.getParentFile().mkdirs();
+        }
         JAXBContext context = JAXBContext.newInstance(Repository.class);
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

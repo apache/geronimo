@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -236,13 +237,17 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
     }
 
-    public void testSwitchableLocalAttributeManager() throws Exception {
-        GBeanInfo gBeanInfo = SwitchableLocalAttributeManager.getGBeanInfo();
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
-        localAttributeManager = new LocalAttributeManager("target/test-config.xml", "target/test-config-substitutions.properties", "org.apache.geronimo.config.substitution.", false, new BasicServerInfo(basedir));
+        localAttributeManager = new LocalAttributeManager();
+        localAttributeManager.setServerInfo(new BasicServerInfo(basedir));
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(LocalAttributeManager.READ_ONLY_KEY, false);
+        properties.put(LocalAttributeManager.SERVER_NAME_KEY, "server");
+        properties.put(LocalAttributeManager.CONFIG_FILE_KEY, "target/test-config.xml");
+        properties.put(LocalAttributeManager.CONFIG_SUBSTITUTIONS_FILE_KEY, "target/test-config-substitutions.properties");
+        localAttributeManager.activate(properties);
+        //"target/test-config.xml", "target/test-config-substitutions.properties", "org.apache.geronimo.config.substitution.", false, new BasicServerInfo(basedir)
         configurationName = Artifact.create("configuration/name/1/car");
         ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+configurationName+",foo=bar");
         gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);

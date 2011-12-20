@@ -22,11 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.jar.JarFile;
@@ -35,28 +38,36 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.management.ObjectName;
-
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.ObjectNameUtil;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationDataTransformer;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoOConfigurationDataTransformer;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,53 +77,76 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType= "ConfigurationStore")
+@Component(immediate = true, metatype = true)
+@Service
 public class RepositoryConfigurationStore implements ConfigurationStore {
     private static final Logger log = LoggerFactory.getLogger(RepositoryConfigurationStore.class);
-    private final Kernel kernel;
-    private final ObjectName objectName;
-    private final AbstractName abstractName;
-    protected final WritableListableRepository repository;
-    private final InPlaceConfigurationUtil inPlaceConfUtil;
-    private final ConfigurationDataTransformer transformer;
+
+    @Property(value = "system")
+    private final static String REPOSITORY_ROOT = "repository.root";
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ServerInfo serverInfo;
+
+    private final Naming naming = new Jsr77Naming();
+    private final AbstractName abstractName = new AbstractName(URI.create("geronimo/base/0.0/car?name=ConfigurationStore"));
+    private final ObjectName objectName = abstractName.getObjectName();
+    protected WritableListableRepository repository;
+    private final InPlaceConfigurationUtil inPlaceConfUtil = new InPlaceConfigurationUtil();
+    private ServiceRegistration sr;
 
     public RepositoryConfigurationStore(WritableListableRepository repository) {
-        this(null, null, null, repository, NoOConfigurationDataTransformer.SINGLETON);
-    }
-
-    public RepositoryConfigurationStore(Kernel kernel,
-            String objectName,
-            AbstractName abstractName,
-            WritableListableRepository repository) {
-        this(kernel, objectName, abstractName, repository, NoOConfigurationDataTransformer.SINGLETON);
-    }
-
-    public RepositoryConfigurationStore(@ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel,
-            @ParamSpecial(type=SpecialAttributeType.objectName) String objectName,
-            @ParamSpecial(type=SpecialAttributeType.abstractName) AbstractName abstractName,
-            @ParamReference(name=GBEAN_REF_REPOSITORY, namingType=GBEAN_REF_REPOSITORY) WritableListableRepository repository,
-            @ParamReference(name=GBEAN_REF_CONFIG_DATA_TRANSFORMER) ConfigurationDataTransformer transformer) {
-        this.kernel = kernel;
-        this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
-        this.abstractName = abstractName;
+//        this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
+//        this.abstractName = abstractName;
         this.repository = repository;
-        if (null == transformer) {
-            this.transformer = NoOConfigurationDataTransformer.SINGLETON;
-        } else {
-            this.transformer = transformer;
-        }
 
-        inPlaceConfUtil = new InPlaceConfigurationUtil();
+//        inPlaceConfUtil = new InPlaceConfigurationUtil();
     }
 
+
+    public RepositoryConfigurationStore() {
+        log.info("created");
+    }
+
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
+    }
+
+    public void unsetServerInfo(ServerInfo serverInfo) {
+        if (serverInfo == this.serverInfo) {
+            this.serverInfo = null;
+        }
+    }
+
+    @Activate
+    public void activate(ComponentContext context) {
+        Dictionary<String, String> properties = context.getProperties();
+        String repoRoot = properties.get(REPOSITORY_ROOT);
+        File rootFile = serverInfo.resolve(repoRoot);
+        repository = new Maven2Repository(rootFile);
+        sr = context.getBundleContext().registerService(new String[] {Repository.class.getName(),
+                ListableRepository.class.getName(),
+                WritableListableRepository.class.getName(),
+                WriteableRepository.class.getName()
+        }, repository, null);
+    }
+
+     @Deactivate
+     public void deactivate() {
+         sr.unregister();
+     }
+
+    @Override
     public String getObjectName() {
         return objectName.getCanonicalName();
     }
 
+    @Override
     public AbstractName getAbstractName() {
         return abstractName;
     }
 
+    @Override
     public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -161,11 +195,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
         configurationData.setConfigurationDir(location);
         configurationData.setConfigurationStore(this);
-        if (kernel != null) {
-            configurationData.setNaming(kernel.getNaming());
-        }
-
-        transformer.transformDependencies(configurationData);
+        configurationData.setNaming(naming);
 
         return configurationData;
     }
@@ -174,6 +204,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return !location.exists() || !location.canRead();
     }
 
+    @Override
     public boolean containsConfiguration(Artifact configId) {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -197,6 +228,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
+    @Override
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
@@ -215,6 +247,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         return parentDirectory;
     }
 
+    @Override
     public Set<URL> resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -254,6 +287,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
+    @Override
     public void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -325,6 +359,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
+    @Override
     public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -337,6 +372,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         }
     }
 
+    @Override
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
         if (log.isDebugEnabled()) {
@@ -395,6 +431,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     */
     }
 
+    @Override
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
         if(!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
@@ -449,9 +486,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             }
         }
 
-        transformer.remove(configId);
     }
 
+    @Override
     public List<ConfigurationInfo> listConfigurations() {
         SortedSet<Artifact> artifacts = repository.list();
 

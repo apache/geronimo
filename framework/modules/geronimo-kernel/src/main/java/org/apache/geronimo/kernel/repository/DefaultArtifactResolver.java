@@ -24,30 +24,41 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.DependencyNodeUtil;
 
 /**
  * @version $Rev$ $Date$
  */
 
-@GBean(j2eeType = "ArtifactResolver")
+@Component(componentAbstract = true)
 public class DefaultArtifactResolver implements ArtifactResolver {
-    private final ArtifactManager artifactManager;
-    private final Collection<ListableRepository> repositories;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ArtifactManager artifactManager;
+
+    @Reference(name = "repository", referenceInterface = ListableRepository.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private final Collection<ListableRepository> repositories = new LinkedHashSet<ListableRepository>();
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    private ConfigurationManager configurationManager;
+
     private final Map<Artifact, Artifact> explicitResolution = new ConcurrentHashMap<Artifact, Artifact>();
-    private final Collection<ConfigurationManager> configurationManagers;
+
+    public DefaultArtifactResolver() {
+    }
 
     public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
         this.artifactManager = artifactManager;
-        this.repositories = Collections.singleton(repository);
-        configurationManagers = Collections.emptyList();
+        if (repository != null) {
+            repositories.add(repository);
+        }
     }
 
     public DefaultArtifactResolver(
@@ -56,17 +67,52 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             @ParamAttribute(name="explicitResolution")Map<Artifact, Artifact> explicitResolution,
             @ParamReference(name="ConfigurationManagers", namingType = "ConfigurationManager")Collection<ConfigurationManager> configurationManagers) {
         this.artifactManager = artifactManager;
-        this.repositories = repositories;
+        this.repositories.addAll(repositories);
         if (explicitResolution != null) {
             this.explicitResolution.putAll(explicitResolution);
         }
-        this.configurationManagers = configurationManagers;
+        if (!configurationManagers.isEmpty()) {
+            this.configurationManager = configurationManagers.iterator().next();
+        }
+    }
+
+    public void setArtifactManager(ArtifactManager artifactManager) {
+        this.artifactManager = artifactManager;
+    }
+
+    public void unsetArtifactManager(ArtifactManager artifactManager) {
+        if (this.artifactManager == artifactManager) {
+            this.artifactManager = null;
+        }
+    }
+
+    public void setConfigurationManager(ConfigurationManager configurationManager) {
+        this.configurationManager = configurationManager;
+    }
+
+    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
+        if (this.configurationManager == configurationManager) {
+            this.configurationManager = null;
+        }
+    }
+
+    public void bindRepository(ListableRepository repository) {
+        repositories.add(repository);
+    }
+
+    public void unbindRepository(ListableRepository repository) {
+        repositories.remove(repository);
     }
 
     protected Map<Artifact, Artifact> getExplicitResolution() {
         return explicitResolution;
     }
 
+    protected void activate(Map<Artifact, Artifact> explicitResolution) {
+        this.explicitResolution.putAll(explicitResolution);
+    }
+
+    @Override
     public Artifact generateArtifact(Artifact source, String defaultType) {
         if(source.isResolved()) {
             Artifact deAliased = explicitResolution.get(source);
@@ -83,6 +129,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return new Artifact(groupId, artifactId, version, type);
     }
 
+    @Override
     public Artifact queryArtifact(Artifact artifact) throws MultipleMatchesException {
         Artifact[] all = queryArtifacts(artifact);
         if(all.length > 1) {
@@ -91,6 +138,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return all.length == 0 ? null : all[0];
     }
 
+    @Override
     public Artifact[] queryArtifacts(Artifact artifact) {
         //see if there is an explicit resolution for this artifact.
         Artifact deAliased = explicitResolution.get(artifact);
@@ -104,10 +152,12 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return set.toArray(new Artifact[set.size()]);
     }
 
+    @Override
     public LinkedHashSet<Artifact> resolveInClassLoader(Collection<Artifact> artifacts) throws MissingDependencyException {
         return resolveInClassLoader(artifacts, Collections.<Configuration>emptySet());
     }
 
+    @Override
     public LinkedHashSet<Artifact> resolveInClassLoader(Collection<Artifact> artifacts, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
         LinkedHashSet<Artifact> resolvedArtifacts = new LinkedHashSet<Artifact>();
         for (Artifact artifact : artifacts) {
@@ -119,10 +169,12 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return resolvedArtifacts;
     }
 
+    @Override
     public Artifact resolveInClassLoader(Artifact source) throws MissingDependencyException {
         return resolveInClassLoader(source, Collections.<Configuration>emptySet());
     }
 
+    @Override
     public Artifact resolveInClassLoader(Artifact source, Collection<Configuration> parentConfigurations) throws MissingDependencyException {
         Artifact working = resolveVersion(parentConfigurations, source);
         if (working == null || !working.isResolved()) {
@@ -245,10 +297,10 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     private Configuration getConfiguration(Artifact parentId) {
-        if (configurationManagers.size() != 1) {
+        if (configurationManager == null) {
             throw new IllegalStateException("no configuration manager");
         }
-        return configurationManagers.iterator().next().getConfiguration(parentId);
+        return configurationManager.getConfiguration(parentId);
     }
 
     private Artifact getArtifactVersion(Collection<Artifact> artifacts, Artifact query) {

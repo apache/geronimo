@@ -523,7 +523,7 @@ public class GBeanTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         realKernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        realKernel.boot();
+        realKernel.boot(bundleContext);
         kernel = kernelWrapper.wrap(realKernel);
     }
 

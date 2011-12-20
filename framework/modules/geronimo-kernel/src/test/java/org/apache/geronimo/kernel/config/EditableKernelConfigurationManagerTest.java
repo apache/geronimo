@@ -87,8 +87,10 @@ public class EditableKernelConfigurationManagerTest extends RMockTestCase {
 
     //TODO this test is not valid for KernelConfigurationManager
     public void testThatFirstStoreOfListStoresIsDefaultStore() throws Exception {
-        stores.add(storeA);
-        stores.add(storeB);
+//        stores.add(storeA);
+//        stores.add(storeB);
+        manager.bindConfigurationStore(storeA);
+        manager.bindConfigurationStore(storeB);
 
         startVerification();
 

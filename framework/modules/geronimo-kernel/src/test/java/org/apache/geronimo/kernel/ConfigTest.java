@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
@@ -182,23 +183,21 @@ public class ConfigTest extends TestCase {
         System.setProperty("geronimo.build.car", "true");
         super.setUp();
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+        ArtifactManager artifactManager = new DefaultArtifactManager();
 
-        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+        DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver();
+        artifactResolver.setArtifactManager(artifactManager);
 
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        KernelConfigurationManager configurationManager = new KernelConfigurationManager();
+        configurationManager.setArtifactManager(artifactManager);
+        configurationManager.setArtifactResolver(artifactResolver);
+        configurationManager.setKernel(kernel);
+        configurationManager.activate(bundleContext);
+        this.configurationManager = configurationManager;
 
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-
+        artifactResolver.setConfigurationManager(configurationManager);
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
         configurationData.setBundleContext(bundleContext);

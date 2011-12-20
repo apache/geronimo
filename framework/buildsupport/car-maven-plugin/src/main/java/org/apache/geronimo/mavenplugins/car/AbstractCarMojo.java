@@ -23,6 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.*;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
@@ -65,10 +67,17 @@ import org.apache.maven.shared.filtering.MavenResourcesFiltering;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.startlevel.FrameworkStartLevel;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -705,7 +714,12 @@ public abstract class AbstractCarMojo
         Main main = new Main(new String[] {});
         try {
             main.launch();
-            return main.getFramework();
+            Framework framework = main.getFramework();
+            FrameworkStartLevel frameworkStartLevel = framework.adapt(FrameworkStartLevel.class);
+            while (frameworkStartLevel.getStartLevel() < 100) {
+                Thread.sleep(100l);
+            }
+            return framework;
         } catch (Exception e) {
             if (1 == 1) {
                 throw new BundleException("Could not start karaf framwork", e);
@@ -1064,4 +1078,75 @@ public abstract class AbstractCarMojo
             e.printStackTrace();
         }
     }
+
+    protected void listBundles(BundleContext ctx) {
+        StringBuilder b = new StringBuilder("Bundles:");
+        for (Bundle bundle: ctx.getBundles()) {
+            b.append("\n   Id:").append(bundle.getBundleId()).append("  status:").append(bundle.getState()).append("  ").append(bundle.getLocation());
+        }
+        getLog().info(b.toString());
+    }
+
+    protected void waitForBundles(BundleContext ctx, long timeout) throws MojoExecutionException {
+        long done = System.currentTimeMillis() + timeout;
+        while (done > System.currentTimeMillis()) {
+            boolean allStarted = true;
+            for (Bundle bundle: ctx.getBundles()) {
+                if (bundle.getState() != 32  && notFragment(bundle)) {
+                    allStarted = false;
+                    break;
+                }
+                if (allStarted) {
+                    return;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+                }
+            }
+        }
+        listBundles(ctx);
+        throw new MojoExecutionException("Cant start all the bundles");
+    }
+
+    protected boolean notFragment(Bundle bundle) {
+        return bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null;
+    }
+
+    protected Object getService(BundleContext ctx, String clazzName, String filter, long initialTimeout) throws MojoExecutionException {
+//        String filter = null;
+//        if (componentName != null) {
+//            filter = "(osgi.service.blueprint.compname=" + componentName + ")";
+//        }
+        long timeout = initialTimeout;
+        while (timeout > 0) {
+            ServiceReference sr = null;
+            if (filter == null) {
+                sr = ctx.getServiceReference(clazzName);
+            } else {
+                ServiceReference[] refs;
+                try {
+                    refs = ctx.getServiceReferences(clazzName, filter);
+                } catch (InvalidSyntaxException e) {
+                    throw new MojoExecutionException("filter syntax problem", e);
+                }
+                if (refs != null && refs.length == 1) {
+                    sr = refs[0];
+                }
+            }
+            if (sr != null) {
+//                services.add(sr);
+                return ctx.getService(sr);
+            }
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                throw new MojoExecutionException("Interrupted waiting for service " + clazzName + " at " + (initialTimeout - timeout)/1000 + " seconds");
+            }
+            timeout = timeout - 100;
+        }
+        throw new MojoExecutionException("Could not get service " + clazzName + " in " + initialTimeout/1000 + " seconds");
+    }
+
 }

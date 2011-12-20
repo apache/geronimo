@@ -72,7 +72,7 @@ public class PluginXmlUtil {
             PLUGIN_LIST_CONTEXT = JAXBContext.newInstance(PluginListType.class);
             PLUGIN_ARTIFACT_CONTEXT = JAXBContext.newInstance(PluginArtifactType.class);
         } catch (JAXBException e) {
-            throw new RuntimeException("Could not create jaxb contexts for plugin types");
+            throw new RuntimeException("Could not create jaxb contexts for plugin types", e);
         }
     }
 

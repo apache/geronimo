@@ -31,7 +31,6 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -178,9 +177,9 @@ public class PlanProcessorMojo
         Environment newEnvironment = new Environment();
         newEnvironment.setConfigId(configId);
         newEnvironment.setDependencies(dependencies);
-        if (boot) {
-            newEnvironment.setBundleActivator(BootActivator.class.getName());
-        }
+//        if (boot) {
+//            newEnvironment.setBundleActivator(BootActivator.class.getName());
+//        }
 
         EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
         EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);

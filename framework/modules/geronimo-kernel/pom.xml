@@ -34,6 +34,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-osgi-registry</artifactId>
         </dependency>
@@ -69,19 +75,26 @@
             <artifactId>xbean-reflect</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+            <!--<artifactId>org.apache.servicemix.bundles.xstream</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+            <!--<artifactId>org.apache.servicemix.bundles.xpp3</artifactId>-->
+        <!--</dependency>-->
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!-- commands -->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -107,6 +120,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

@@ -63,13 +63,13 @@
             <version>${project.version}</version>
             <type>kar</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-gbean-deployer-bootstrap</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -149,19 +149,19 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <startupFeatures>
-                        <feature>standard</feature>
-                        <feature>management</feature>
-                        <feature>ssh</feature>
-                        <feature>config</feature>
-                        <feature>kar</feature>
-                        <feature>obr</feature>
-                        <feature>framework</feature>
-                    </startupFeatures>
+                    <!--<startupFeatures>-->
+                        <!--<feature>standard</feature>-->
+                        <!--<feature>management</feature>-->
+                        <!--<feature>ssh</feature>-->
+                        <!--<feature>config</feature>-->
+                        <!--<feature>kar</feature>-->
+                        <!--<feature>obr</feature>-->
+                        <!--<feature>framework</feature>-->
+                    <!--</startupFeatures>-->
                     <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
+                        <!--<deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>-->
                     </deploymentConfigs>
-                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <!--<deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>-->
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>

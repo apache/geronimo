@@ -54,6 +54,9 @@
                                 org.apache.geronimo.buildsupport:car-maven-plugin:package,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:archive-car
                             </package>
+                            <!--<package>-->
+                                <!--org.apache.geronimo.buildsupport:car-maven-plugin:package-->
+                            <!--</package>-->
                             <install>
                                 org.apache.maven.plugins:maven-install-plugin:install,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:update-pluginlist

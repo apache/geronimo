@@ -34,13 +34,13 @@
     <packaging>car</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-gbean-deployer</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         
         <!-- parent config -->
         <dependency>

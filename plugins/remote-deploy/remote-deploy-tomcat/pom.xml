@@ -81,7 +81,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <!--<deploymentConfig>${gbeanDeployer}</deploymentConfig>-->
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>

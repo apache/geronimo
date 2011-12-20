@@ -61,7 +61,7 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
     private static final QName GBEAN_QNAME = GbeanDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_QNAME_SET = QNameSet.singleton(GBEAN_QNAME);
 
-    public GBeanBuilder(Collection xmlAttributeBuilders, Collection xmlReferenceBuilders) {
+    public GBeanBuilder(Collection<XmlAttributeBuilder> xmlAttributeBuilders, Collection<XmlReferenceBuilder> xmlReferenceBuilders) {
         if (xmlAttributeBuilders != null) {
             ReferenceMap.Key key = new ReferenceMap.Key() {
 

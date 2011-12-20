@@ -30,12 +30,12 @@ public class BootstrapTest extends TestCase {
     private File kernelState;
 
     public void testCreate() throws Exception {
-        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
-        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("test.kernel"));
-        kernel.boot();
-        assertEquals("test.kernel kernel should be registered", kernel, KernelRegistry.getKernel("test.kernel"));
+        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("kernel");
+        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("kernel"));
+        kernel.boot(bundleContext);
+        assertEquals("test.kernel kernel should be registered", kernel, KernelRegistry.getKernel("kernel"));
         kernel.shutdown();
-        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("test.kernel"));
+        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("kernel"));
     }
 
     protected void setUp() throws Exception {

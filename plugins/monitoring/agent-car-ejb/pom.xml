@@ -77,7 +77,7 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <!--<deploymentConfig>${gbeanDeployer}</deploymentConfig>-->
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${openejbDeployer}</deploymentConfig>
                     </deploymentConfigs>

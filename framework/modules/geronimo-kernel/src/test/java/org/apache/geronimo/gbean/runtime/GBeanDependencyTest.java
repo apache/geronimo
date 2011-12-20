@@ -51,7 +51,7 @@ public class GBeanDependencyTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
     }
 
     protected void tearDown() throws Exception {

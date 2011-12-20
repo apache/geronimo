@@ -266,13 +266,13 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework.features</groupId>
-            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework.features</groupId>-->
+            <!--<artifactId>org.apache.geronimo.javaee-specs</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>xml</type>-->
+            <!--<classifier>features</classifier>-->
+        <!--</dependency>-->
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework.features</groupId>-->
             <!--<artifactId>org.apache.geronimo.jaxb-support</artifactId>-->
@@ -447,12 +447,12 @@
             <artifactId>geronimo-shell</artifactId>
             <version>${version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>j2ee-system</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>j2ee-system</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <!--agent -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -471,6 +471,25 @@
             <artifactId>yoko-rmi-spec</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- TODO osgi these should probably be in a separate deployer feature -->
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
     <build>
         <!--<resources>-->

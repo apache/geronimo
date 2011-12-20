@@ -26,12 +26,16 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
  */
+@Component
+@Service
 public class DefaultArtifactManager implements ArtifactManager {
     private final Map<Artifact, Set<Artifact>> artifactsByLoader = new HashMap<Artifact, Set<Artifact>>();
     private final Map<String, List<Artifact>> artifactsByArtifact = new HashMap<String, List<Artifact>>();
@@ -100,15 +104,15 @@ public class DefaultArtifactManager implements ArtifactManager {
         return results;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactManager.class, "ArtifactManager");
-        infoFactory.addInterface(ArtifactManager.class);
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+//    public static final GBeanInfo GBEAN_INFO;
+//
+//    static {
+//        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactManager.class, "ArtifactManager");
+//        infoFactory.addInterface(ArtifactManager.class);
+//        GBEAN_INFO = infoFactory.getBeanInfo();
+//    }
+//
+//    public static GBeanInfo getGBeanInfo() {
+//        return GBEAN_INFO;
+//    }
 }

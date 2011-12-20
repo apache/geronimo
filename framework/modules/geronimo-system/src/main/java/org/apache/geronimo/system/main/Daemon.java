@@ -44,7 +44,7 @@ public class Daemon extends EmbeddedDaemon {
 
         // boot the kernel
         try {
-            kernel.boot();
+            kernel.boot(bundleContext);
         } catch (Exception e) {
             e.printStackTrace();
             return 1;
@@ -61,18 +61,18 @@ public class Daemon extends EmbeddedDaemon {
         });
 
         // load this configuration
-        InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
-        try {
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+//        InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
+//        try {
+//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, configurationManager);
+//        } finally {
+//            if (in != null) {
+//                try {
+//                    in.close();
+//                } catch (IOException ignored) {
+//                    // ignored
+//                }
+//            }
+//        }
         return 0;
     }
 

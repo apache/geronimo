@@ -313,8 +313,9 @@ public interface Kernel {
     /**
      * Brings the kernel online
      * @throws Exception if the kernel can not boot
+     * @param bundleContext
      */
-    void boot() throws Exception;
+    void boot(BundleContext bundleContext) throws Exception;
 
     /**
      * Returns the time this kernel was last booted.

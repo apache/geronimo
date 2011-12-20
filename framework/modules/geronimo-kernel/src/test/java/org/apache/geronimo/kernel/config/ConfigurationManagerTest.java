@@ -682,13 +682,13 @@ public class ConfigurationManagerTest extends TestCase {
         shouldFail.clear();
 
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
-        GBeanData artifactManagerData = buildGBeanData("name", "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(artifactManagerData, bundleContext);
-        kernel.startGBean(artifactManagerData.getAbstractName());
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
-        ArtifactManager artifactManager = (ArtifactManager) kernel.getGBean(artifactManagerData.getAbstractName());
+//        GBeanData artifactManagerData = buildGBeanData("name", "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//        kernel.loadGBean(artifactManagerData, bundleContext);
+//        kernel.startGBean(artifactManagerData.getAbstractName());
+//        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
+        ArtifactManager artifactManager = new DefaultArtifactManager();
 
 
         artifact1 = new Artifact("test", "1", "1.1", "bar");

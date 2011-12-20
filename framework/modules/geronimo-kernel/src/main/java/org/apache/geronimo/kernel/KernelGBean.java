@@ -364,8 +364,8 @@ public class KernelGBean implements Kernel{
         return kernel.getShortNameFor(service);
     }
 
-    public void boot() throws Exception {
-        kernel.boot();
+    public void boot(BundleContext bundleContext) throws Exception {
+//        kernel.boot();
     }
 
     public Date getBootTime() {

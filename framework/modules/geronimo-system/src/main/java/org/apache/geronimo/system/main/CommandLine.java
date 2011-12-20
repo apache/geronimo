@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -133,48 +132,48 @@ public class CommandLine {
 
     protected void loadBootstrapConfiguration() throws Exception {
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
-        BundleContext bundleContext = null;
-        InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
-        try {
-            // load the configuration
-            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+//        BundleContext bundleContext = null;
+//        InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
+//        try {
+//            // load the configuration
+//            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, configurationManager);
+//        } finally {
+//            if (in != null) {
+//                try {
+//                    in.close();
+//                } catch (IOException ignored) {
+//                    // ignored
+//                }
+//            }
+//        }
     }
 
     protected Kernel getBootedKernel() throws Exception {
         BundleContext bundleContext = null;
         kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-        kernel.boot();
+        kernel.boot(bundleContext);
         return kernel;
     }
 
     protected void startKernel(Artifact moduleId) throws Exception {
         getBootedKernel();
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
-        BundleContext bundleContext = null;
-        for (Enumeration modules = bundleContext.getBundle().getResources("META-INF/config.ser"); modules.hasMoreElements(); ) {
-            URL moduleDataURL = (URL) modules.nextElement();
-            InputStream in = moduleDataURL.openStream();
-            try {
-                ConfigurationData moduleData = ConfigurationUtil.readConfigurationData(in);
-                if (moduleId.matches(moduleData.getId())) {
-                    // load the configuration
-                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext);
-                    return;
-                }
-            } finally {
-                in.close();
-            }
-        }
-        throw new NoSuchConfigException(moduleId);
+//        BundleContext bundleContext = null;
+//        for (Enumeration modules = bundleContext.getBundle().getResources("META-INF/config.ser"); modules.hasMoreElements(); ) {
+//            URL moduleDataURL = (URL) modules.nextElement();
+//            InputStream in = moduleDataURL.openStream();
+//            try {
+//                ConfigurationData moduleData = ConfigurationUtil.readConfigurationData(in);
+//                if (moduleId.matches(moduleData.getId())) {
+//                    // load the configuration
+//                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext, configurationManager);
+//                    return;
+//                }
+//            } finally {
+//                in.close();
+//            }
+//        }
+//        throw new NoSuchConfigException(moduleId);
     }
 
     protected void loadConfigurations(List configurations) throws NoSuchConfigException, LifecycleException, MissingDependencyException, GBeanNotFoundException {

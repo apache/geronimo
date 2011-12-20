@@ -870,8 +870,9 @@ public class KernelDelegate implements Kernel {
 
     /**
      * Throws UnsupportedOperationException.  A remote kernel will alreayd be booted.
+     * @param bundleContext
      */
-    public void boot() throws Exception {
+    public void boot(BundleContext bundleContext) throws Exception {
         throw new UnsupportedOperationException("A remote kernel can not be booted");
     }
 

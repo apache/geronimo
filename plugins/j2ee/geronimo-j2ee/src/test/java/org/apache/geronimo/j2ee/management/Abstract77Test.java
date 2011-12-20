@@ -92,7 +92,7 @@ public abstract class Abstract77Test extends TestCase {
         super.setUp();
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
         kernel = KernelFactory.newInstance(bundleContext).createKernel(DOMAIN);
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         // server info
         SERVER_INFO_DATA.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));

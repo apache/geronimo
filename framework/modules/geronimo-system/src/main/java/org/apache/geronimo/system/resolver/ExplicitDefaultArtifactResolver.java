@@ -27,6 +27,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Collections;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -43,7 +49,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = "ArtifactResolver")
+@Component(metatype = true, immediate = true, inherit = true)
+@Service
 public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver implements LocalAliasedArtifactResolver {
     private static final String COMMENT = "#You can use this file to indicate that you want to substitute one module for another.\n" +
             "#format is oldartifactid=newartifactId e.g.\n" +
@@ -51,8 +58,15 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
             "#versions can be ommitted on the left side but not the right.\n" +
             "#This can also specify explicit versions in the same format.";
 
-    private final String artifactAliasesFile;
-    private final ServerInfo serverInfo;
+    @Property(value = "var/config/artifact_aliases.properties")
+    static final String ARTIFACT_ALIASES_FILE = "versionMapLocation";
+    private String artifactAliasesFile;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ServerInfo serverInfo;
+
+    public ExplicitDefaultArtifactResolver() {
+    }
 
     public ExplicitDefaultArtifactResolver(String versionMapLocation,
                                            ArtifactManager artifactManager,
@@ -72,6 +86,21 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         this.serverInfo = serverInfo;
     }
 
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
+    }
+
+    public void unsetServerInfo(ServerInfo serverInfo) {
+        if (this.serverInfo == serverInfo) {
+            this.serverInfo = null;
+        }
+    }
+
+    @Activate
+    public void Activate(Map<String, String> properties) throws IOException {
+        artifactAliasesFile = properties.get(ARTIFACT_ALIASES_FILE);
+        super.activate(buildExplicitResolution(artifactAliasesFile,  null, serverInfo));
+    }
 
     public String getArtifactAliasesFile() {
         return artifactAliasesFile;
@@ -102,6 +131,18 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
             String resolvedString = (String) entry.getValue();
+            Artifact source = Artifact.createPartial(key.trim());
+            Artifact resolved = Artifact.create(resolvedString.trim());
+            explicitResolution.put(source, resolved);
+        }
+        return explicitResolution;
+    }
+
+    private static Map<Artifact, Artifact> mapToArtifactMap(Map<String, String> properties) {
+        Map<Artifact, Artifact> explicitResolution = new HashMap<Artifact, Artifact>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String key = entry.getKey();
+            String resolvedString = entry.getValue();
             Artifact source = Artifact.createPartial(key.trim());
             Artifact resolved = Artifact.create(resolvedString.trim());
             explicitResolution.put(source, resolved);
@@ -144,8 +185,8 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
      * @param properties Properties object containing the new aliases
      * @throws IOException if the modified aliases map cannot be saved.
      */
-    public synchronized void addAliases(Properties properties) throws IOException {
-        Map<Artifact, Artifact> explicitResolutions = propertiesToArtifactMap(properties);
+    public synchronized void addAliases(Map<String, String> properties) throws IOException {
+        Map<Artifact, Artifact> explicitResolutions = mapToArtifactMap(properties);
         getExplicitResolution().putAll(explicitResolutions);
         saveExplicitResolution(getExplicitResolution(), artifactAliasesFile, serverInfo);
     }

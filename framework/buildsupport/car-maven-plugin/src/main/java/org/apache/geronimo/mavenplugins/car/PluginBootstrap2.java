@@ -86,10 +86,11 @@ public class PluginBootstrap2 {
 
         Maven2Repository repository = new Maven2Repository(localRepo);
         DependencyManager dm = new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
-        dm.doStart();
+//        dm.doStart();
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder();
+        //null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
             public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
                 StringBuilder configurationPathBuilder = new StringBuilder("repository");

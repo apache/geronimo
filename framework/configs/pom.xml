@@ -33,19 +33,19 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>geronimo-gbean-deployer</module>
-        <module>geronimo-gbean-deployer-bootstrap</module>
-        <module>client-system</module>
+        <!--<module>geronimo-gbean-deployer</module>-->
+        <!--<module>geronimo-gbean-deployer-bootstrap</module>-->
+        <!--<module>client-system</module>-->
         <module>j2ee-security</module>
         <module>j2ee-system</module>
         <module>jsr88-cli</module>
-        <module>jsr88-deploymentfactory</module>
-        <module>offline-deployer</module>
-        <module>online-deployer</module>
+        <!--<module>jsr88-deploymentfactory</module>-->
+        <!--<module>offline-deployer</module>-->
+        <!--<module>online-deployer</module>-->
         <module>rmi-naming</module>
         <module>plugin</module>
         <module>server-security-config</module>
-        <module>shutdown</module>
+        <!--<module>shutdown</module>-->
         <module>jmx-security</module>
         <module>bundle-recorder</module>
         <!--<module>karaf-framework</module>-->

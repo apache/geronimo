@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * Interface to a store for Configurations.

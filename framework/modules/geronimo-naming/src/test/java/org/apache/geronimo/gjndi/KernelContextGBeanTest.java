@@ -18,20 +18,17 @@ package org.apache.geronimo.gjndi;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
 import org.apache.geronimo.gjndi.binding.ResourceBinding;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -41,11 +38,11 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.xbean.naming.context.ImmutableContext;
-import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -178,22 +175,21 @@ public class KernelContextGBeanTest extends AbstractContextTest {
         super.setUp();
 
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+        ArtifactManager artifactManager = new DefaultArtifactManager();
 
-        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+        DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver();
+        artifactResolver.setArtifactManager(artifactManager);
 
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        KernelConfigurationManager configurationManager = new KernelConfigurationManager();
+        configurationManager.setArtifactManager(artifactManager);
+        configurationManager.setArtifactResolver(artifactResolver);
+        configurationManager.setKernel(kernel);
+        configurationManager.activate(bundleContext);
+        this.configurationManager = configurationManager;
 
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        artifactResolver.setConfigurationManager(configurationManager);
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
         configurationData.setBundleContext(bundleContext);

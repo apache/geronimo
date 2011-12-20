@@ -137,8 +137,10 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                             removed.getDependency().add(test);
                         }
                     }
+
+                    File treeListing = saveTreeListing();
                     if (!added.isEmpty() || !removed.getDependency().isEmpty()) {
-                        saveDependencyChanges(added, removed);
+                        saveDependencyChanges(added, removed, treeListing);
                         if (overwriteChangedDependencies) {
                             writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
                         }
@@ -156,7 +158,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         }
     }
 
-    protected void saveDependencyChanges(Collection<DependencyType> dependencies, PluginArtifactType removed)
+    protected void saveDependencyChanges(Collection<DependencyType> dependencies, PluginArtifactType removed, File treeListing)
             throws Exception {
         File addedFile = new File(filteredDependencyFile.getParentFile(), "dependencies.added.xml");
         PluginArtifactType added = toPluginArtifactType(dependencies);
@@ -164,9 +166,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
 
         File removedFile = new File(filteredDependencyFile.getParentFile(), "dependencies.removed.xml");
         writeDependencies(removed,  removedFile);
-        
-        File treeListing = saveTreeListing();
-        
+
         StringWriter out = new StringWriter();
         out.write("Dependencies have changed:\n");
         if (!added.getDependency().isEmpty()) {

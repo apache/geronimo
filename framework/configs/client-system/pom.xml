@@ -34,11 +34,32 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>framework</artifactId>
+            <type>kar</type>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>runtime</scope>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>framework</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
+            <type>kar</type>
         </dependency>
 
         <dependency>
@@ -75,35 +96,35 @@
         </dependency>
 
         <!-- used by plugin installer -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaxb_2.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox-core-asl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>woodstox-core-asl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.woodstox</groupId>-->
+            <!--<artifactId>stax2-api</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
@@ -136,7 +157,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
-                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <!--<deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>-->
                     <boot>true</boot>
 
                     <category>Geronimo Core</category>

@@ -114,7 +114,7 @@ public class ConfigurationEntryTest extends AbstractTest {
 //        super.setUp();
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         GBeanData gbean;
 

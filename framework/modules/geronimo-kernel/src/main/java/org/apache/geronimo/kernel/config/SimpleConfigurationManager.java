@@ -28,6 +28,12 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -46,23 +52,36 @@ import org.apache.geronimo.kernel.repository.Version;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = "ConfigurationManager")
+
+@Component(componentAbstract = true)
 public class SimpleConfigurationManager implements ConfigurationManager {
     protected static final Logger log = LoggerFactory.getLogger(SimpleConfigurationManager.class);
-    protected final Collection<ConfigurationStore> stores;
-    private final ArtifactResolver artifactResolver;
+
+    protected final ConfigurationModel configurationModel;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ArtifactResolver artifactResolver;
+
+    @Reference(referenceInterface = ConfigurationStore.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected final Collection<ConfigurationStore> stores = new LinkedHashSet<ConfigurationStore>();
+
+    @Reference(referenceInterface = Repository.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected final Collection<Repository> repositories = new LinkedHashSet<Repository>();
+
+    @Reference(referenceInterface = DeploymentWatcher.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected final Collection<DeploymentWatcher> watchers = new LinkedHashSet<DeploymentWatcher>();
+
     protected final Map<Artifact, Configuration> configurations = new LinkedHashMap<Artifact, Configuration>();
     protected final Map<Artifact, Bundle> bundles = new LinkedHashMap<Artifact, Bundle>();
-    protected final ConfigurationModel configurationModel;
-    protected final Collection<? extends Repository> repositories;
-    protected final Collection<DeploymentWatcher> watchers;
-    protected final BundleContext bundleContext;
+
+    protected BundleContext bundleContext;
 
     //TODO need thread local of loaded configurations OSGI GROSS!!
     private final ThreadLocal<Map<Artifact, Configuration>> loadedConfigurations = new ThreadLocal<Map<Artifact, Configuration>>() {
@@ -78,15 +97,19 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     private Object reloadingConfigurationLock = new Object();
 
+    public SimpleConfigurationManager() {
+        this.configurationModel = new ConfigurationModel();
+    }
+
     public SimpleConfigurationManager(Collection<ConfigurationStore> stores, ArtifactResolver artifactResolver, Collection<? extends Repository> repositories, BundleContext bundleContext) {
         this(stores, artifactResolver, repositories, Collections.<DeploymentWatcher>emptySet(), bundleContext);
     }
 
-    public SimpleConfigurationManager(@ParamReference(name = "Stores", namingType = "ConfigurationStore") Collection<ConfigurationStore> stores,
-                                      @ParamReference(name = "ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver,
-                                      @ParamReference(name = "Repositories", namingType = "Repository") Collection<? extends Repository> repositories,
-                                      @ParamReference(name = "Watchers") Collection<DeploymentWatcher> watchers,
-                                      @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
+    public SimpleConfigurationManager(Collection<ConfigurationStore> stores,
+                                      ArtifactResolver artifactResolver,
+                                      Collection<? extends Repository> repositories,
+                                      Collection<DeploymentWatcher> watchers,
+                                      BundleContext bundleContext) {
         this(stores, artifactResolver, repositories, watchers, bundleContext, new ConfigurationModel());
     }
 
@@ -101,10 +124,50 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             if (watcher == null) throw new NullPointerException("null DeploymentWatcher");
         }
         this.configurationModel = configurationModel;
-        this.stores = stores;
+        this.stores.addAll(stores);
         this.artifactResolver = artifactResolver;
-        this.repositories = repositories;
-        this.watchers = watchers;
+        this.repositories.addAll(repositories);
+        this.watchers.addAll(watchers);
+        this.bundleContext = bundleContext;
+    }
+
+
+    public void setArtifactResolver(ArtifactResolver artifactResolver) {
+        this.artifactResolver = artifactResolver;
+    }
+
+    public void unsetArtifactResolver(ArtifactResolver artifactResolver) {
+        if (this.artifactResolver == artifactResolver) {
+            this.artifactResolver = null;
+        }
+    }
+
+    public void bindConfigurationStore(ConfigurationStore configurationStore) {
+        stores.add(configurationStore);
+    }
+
+    public void unbindConfigurationStore(ConfigurationStore configurationStore) {
+        stores.remove(configurationStore);
+    }
+
+    public void bindRepository(Repository repository) {
+        repositories.add(repository);
+    }
+
+    public void unbindRepository(Repository repository) {
+        repositories.remove(repository);
+    }
+
+    public void bindDeploymentWatcher(DeploymentWatcher deploymentWatcher) {
+        watchers.add(deploymentWatcher);
+    }
+
+    public void unbindDeploymentWatcher(DeploymentWatcher deploymentWatcher) {
+        watchers.remove(deploymentWatcher);
+    }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 
@@ -309,6 +372,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             Bundle bundle = bundleContext.installBundle(location);
             if (BundleUtils.canStart(bundle)) {
                 bundle.start(Bundle.START_TRANSIENT);
+                if (bundle.getState() != 32) {
+//                    throw new IllegalStateException("Cant start bundle " + configurationId);
+                    bundle.start();   //should throw an exception if bundle won't start. start triggers ConfigurationActivator which does most of the load work.
+                }
             }
             bundles.put(configurationId, bundle);
         } catch (Exception e) {

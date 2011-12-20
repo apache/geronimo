@@ -56,7 +56,7 @@ public class BootActivator implements BundleActivator {
             StartupMonitor monitor = new LongStartupMonitor();
             monitor.systemStarting(System.currentTimeMillis());
             Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-            kernel.boot();
+            kernel.boot(bundleContext);
             monitor.systemStarted(kernel);
             Dictionary dictionary = null;//new Hashtable();
             kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
@@ -68,7 +68,7 @@ public class BootActivator implements BundleActivator {
                 //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
                 ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
                 data.setBundleContext(bundleContext);
-                AbstractName name = ConfigurationUtil.loadBootstrapConfiguration(kernel, data, bundleContext, false);
+//                AbstractName name = ConfigurationUtil.loadBootstrapConfiguration(kernel, data, bundleContext, false, configurationManager);
 //                Artifact id = data.getId();
 //                manager.startConfiguration(id);
             } finally {

@@ -66,7 +66,7 @@ public abstract class AbstractTest extends TestSupport {
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
 
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         GBeanData gbean;
 

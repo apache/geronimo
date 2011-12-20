@@ -24,6 +24,12 @@ import org.apache.geronimo.kernel.KernelFactory;
  */
 public class BasicKernelFactory extends KernelFactory {
     public Kernel createKernel(String kernelName) {
-        return new BasicKernel(kernelName, getBundleContext());
+        BasicKernel kernel = new BasicKernel();
+//        try {
+//            kernel.boot(getBundleContext());
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+        return kernel;
     }
 }

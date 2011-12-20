@@ -336,7 +336,7 @@ public class GBeanAttributeTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         AbstractName name = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         gbeanInstance = new GBeanInstance(new GBeanData(name, MockGBean.getGBeanInfo()),

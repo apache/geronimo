@@ -19,6 +19,8 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +46,8 @@ public class PropertyEditors {
         // and explicitly register the Boolean editor.
         PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
         PropertyEditorManager.registerEditor(Integer.class, IntegerEditor.class);
+        PropertyEditorManager.registerEditor(URI.class, URIEditor.class);
+        PropertyEditorManager.registerEditor(URL.class, URLEditor.class);
     }
 
     /**

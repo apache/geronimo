@@ -2,7 +2,7 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="declarative-services">
     <feature>
         <bundle>mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</bundle>
-        <bundle>mvn:org.apache.felix/org.apache.felix.scr/1.6.0</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.scr/1.6.1-SNAPSHOT</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.shell/1.4.2</bundle>
     </feature>
 </features>

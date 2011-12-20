@@ -70,7 +70,7 @@ public class MainConfigurationBootstrapper {
     
     public void bootKernel(BundleContext bundleContext) throws Exception {
         kernel = KernelFactory.newInstance(bundleContext).createKernel("MainBootstrapper");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         Runtime.getRuntime().addShutdownHook(new Thread("MainBootstrapper shutdown thread") {
             public void run() {
@@ -80,18 +80,18 @@ public class MainConfigurationBootstrapper {
     }
     
     public void loadBootConfiguration(BundleContext bundleContext) throws Exception {
-        InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
-        try {
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    // ignored
-                }
-            }
-        }
+//        InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
+//        try {
+//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true, configurationManager);
+//        } finally {
+//            if (in != null) {
+//                try {
+//                    in.close();
+//                } catch (IOException ignored) {
+//                    // ignored
+//                }
+//            }
+//        }
     }
     
     public void loadPersistentConfigurations() throws Exception {

@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>pluto-support</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-beta-1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -72,11 +72,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.portals</groupId>
         <artifactId>portlet-api_2.0_spec</artifactId>
         <type>jar</type>
@@ -119,21 +114,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-bundleutils</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

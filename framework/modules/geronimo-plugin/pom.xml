@@ -47,25 +47,25 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox-core-asl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>woodstox-core-asl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>        
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.woodstox</groupId>-->
+            <!--<artifactId>stax2-api</artifactId>        -->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>

@@ -36,13 +36,16 @@ public class SimpleGBeanTest extends TestCase {
     public void test() throws Exception {
         // boot the kernel
         Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel.boot(bundleContext);
 
         // load the configuration manager bootstrap service
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-        bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-        ConfigurationManager configurationManager = kernel.getGBean(ConfigurationManager.class);
+//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+//        bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+//        ConfigurationManager configurationManager = kernel.getGBean(ConfigurationManager.class);
+        KernelConfigurationManager configurationManager = new KernelConfigurationManager();
+        configurationManager.setKernel(kernel);
+        configurationManager.activate(bundleContext);
 
         // create a configuration for our test bean
         Artifact configurationId = new Artifact("test", "test", "", "car");

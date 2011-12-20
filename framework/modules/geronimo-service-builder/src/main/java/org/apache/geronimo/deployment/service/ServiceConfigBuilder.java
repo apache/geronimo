@@ -25,11 +25,18 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
-
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -42,24 +49,17 @@ import org.apache.geronimo.deployment.xbeans.ModuleDocument;
 import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -71,10 +71,9 @@ import org.osgi.framework.BundleContext;
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = "ConfigBuilder")
-public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycle {
-    private final Environment defaultEnvironment;
-    private final Collection<Repository> repositories;
+@Component(immediate = true, metatype = true)
+@Service
+public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     private static final QName MODULE_QNAME = ModuleDocument.type.getDocumentElementName();
     public static final String SERVICE_MODULE = "ServiceModule";
@@ -85,49 +84,84 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/deployment/javabean", "http://geronimo.apache.org/xml/ns/deployment/javabean-1.0");
     }
 
-    private final Naming naming;
-    private final ConfigurationManager configurationManager;
-    private final NamespaceDrivenBuilderCollection serviceBuilders;
-    private final BundleContext bundleContext;
+    private final Naming naming = new Jsr77Naming();
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Collection<Repository> repositories, Naming naming, BundleContext bundleContext) {
-        this(defaultEnvironment, repositories, Collections.<NamespaceDrivenBuilder>emptyList(), naming, null, bundleContext);
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, policy = ReferencePolicy.DYNAMIC)
+    private ConfigurationManager configurationManager;
+
+    @Reference(name = "serviceBuilder", referenceInterface = NamespaceDrivenBuilder.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private final Collection<NamespaceDrivenBuilder> serviceBuilders = new LinkedHashSet<NamespaceDrivenBuilder>();
+
+    @Reference(name = "repository", referenceInterface = Repository.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private final Collection<Repository> repositories = new LinkedHashSet<Repository>();
+
+    private BundleContext bundleContext;
+//    private final Naming naming = new Jsr77Naming();
+//    private final NamespaceDrivenBuilder serviceBuilders = new GBeanBuilder(Collections.emptyList(), Collections.emptyList());
+//    private final GBeanBuilder serviceBuilders = new GBeanBuilder(Collections.emptyList(), Collections.emptyList());
+//    private BundleContext bundleContext;
+
+//    public ServiceConfigBuilder(@ParamReference(name="Repository", namingType = "Repository")Collection<Repository> repositories,
+//                                @ParamReference(name="ServiceBuilders", namingType = "ModuleBuilder")Collection<NamespaceDrivenBuilder> serviceBuilders,
+//                                @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+//                                @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException {
+//        this(repositories, serviceBuilders, kernel.getNaming(), bundleContext);
+//    }
+
+//    public void doStart() throws Exception {
+//        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+//    }
+//
+//
+//    public void doFail() {
+//        doStop();
+//    }
+
+    public ServiceConfigBuilder() {
+//        this.naming = new Jsr77Naming();
+
+//        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+//        this.bundleContext = bundleContext;
+        serviceBuilders.add(new GBeanBuilder(Collections.<XmlAttributeBuilder>emptySet(), Collections.<XmlReferenceBuilder>emptySet()));
     }
 
-    public ServiceConfigBuilder(@ParamAttribute(name="defaultEnvironment")Environment defaultEnvironment,
-                                @ParamReference(name="Repository", namingType = "Repository")Collection<Repository> repositories,
-                                @ParamReference(name="ServiceBuilders", namingType = "ModuleBuilder")Collection<NamespaceDrivenBuilder> serviceBuilders,
-                                @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
-                                @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException {
-        this(defaultEnvironment, repositories, serviceBuilders, kernel.getNaming(), ConfigurationUtil.getConfigurationManager(kernel), bundleContext);
+    public void setConfigurationManager(ConfigurationManager configurationManager) {
+        this.configurationManager = configurationManager;
     }
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Collection<Repository> repositories, Collection<NamespaceDrivenBuilder> serviceBuilders, Naming naming, BundleContext bundleContext) {
-        this(defaultEnvironment, repositories, serviceBuilders, naming, null, bundleContext);
+    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
+        if (this.configurationManager == configurationManager) {
+            this.configurationManager = null;
+        }
     }
 
-    public void doStart() throws Exception {
+    public void bindRepository(Repository repository) {
+        repositories.add(repository);
+    }
+
+    public void unbindRepository(Repository repository) {
+        repositories.remove(repository);
+    }
+
+    public void bindServiceBuilder(NamespaceDrivenBuilder namespaceDrivenBuilder) {
+        serviceBuilders.add(namespaceDrivenBuilder);
+    }
+
+    public void unbindServiceBuilder(NamespaceDrivenBuilder namespaceDrivenBuilder) {
+        serviceBuilders.remove(namespaceDrivenBuilder);
+    }
+
+
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Deactivate
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
-    }
-
-    public void doFail() {
-        doStop();
-    }
-
-    private ServiceConfigBuilder(Environment defaultEnvironment, Collection<Repository> repositories, Collection<NamespaceDrivenBuilder> serviceBuilders, Naming naming, ConfigurationManager configurationManager, BundleContext bundleContext) {
-        this.naming = naming;
-        this.configurationManager = configurationManager;
-
-//        EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
-        this.defaultEnvironment = defaultEnvironment;
-
-        this.repositories = repositories;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
-        this.bundleContext = bundleContext;
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -197,7 +231,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
         ModuleType configType = (ModuleType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
         idBuilder.resolve(environment, module == null ? "" : new File(module.getName()).getName(), "car");
         if(!environment.getConfigId().isResolved()) {
             throw new IllegalStateException("Service Module ID is not fully populated ("+environment.getConfigId()+")");
@@ -217,7 +251,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         type.setGroupId(configId.getGroupId());
         type.setType(configId.getType());
         type.setVersion(configId.getVersion().toString());
-        Environment environment = EnvironmentBuilder.buildEnvironment(moduleType.getEnvironment(), defaultEnvironment);
+        Environment environment = EnvironmentBuilder.buildEnvironment(moduleType.getEnvironment());
         if(!environment.getConfigId().isResolved()) {
             throw new IllegalStateException("Module ID should be fully resolved by now (not "+environment.getConfigId()+")");
         }
@@ -249,7 +283,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
                 context.addIncludeAsPackedJar(URI.create(file.getName()), jar);
             }
             context.initializeConfiguration();
-            serviceBuilders.build(moduleType, context, context);
+            for (NamespaceDrivenBuilder builder: serviceBuilders) {
+                builder.build(moduleType, context, context);
+            }
             return context;
         } catch (DeploymentException de) {
             cleanupContext(context);

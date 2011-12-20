@@ -17,11 +17,11 @@
 package org.apache.geronimo.system.configuration;
 
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 
 /**
@@ -38,9 +38,11 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
      */
     public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException;
 
-    void addConfigSubstitutions(Properties properties);
+    void addConfigSubstitutions(Map<String, String> properties);
 
     boolean isModuleInstalled(Artifact artifact);
 
     String substitute(final String in);
+
+    String getServerName();
 }

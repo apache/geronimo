@@ -49,35 +49,59 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- needed by geronimo-jaxrpc_1.1_spec -->
+<!--
+        &lt;!&ndash; needed by geronimo-jaxrpc_1.1_spec &ndash;&gt;
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-saaj_1.3_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- needed by geronimo-jaxrpc_1.1_spec -->
+        &lt;!&ndash; needed by geronimo-jaxrpc_1.1_spec &ndash;&gt;
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- needed by geronimo-ejb_3.1_spec -->
+        &lt;!&ndash; needed by geronimo-ejb_3.1_spec &ndash;&gt;
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- needed by geronimo-j2ee-management_1.1_spec -->
+        &lt;!&ndash; needed by geronimo-j2ee-management_1.1_spec &ndash;&gt;
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
         </dependency>
     </dependencies>
-    
+<!--
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Import-Package>javax.ejb;resolution:=optional,
+                        javax.servlet.http;resolution:=optional,
+                        javax.xml.soap;resolution:=optional,
+                        *</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+-->
+
 </project>
 

@@ -20,6 +20,7 @@
 
 package org.apache.geronimo.system.resolver;
 
+import java.util.Map;
 import java.util.Properties;
 import java.io.IOException;
 
@@ -29,5 +30,5 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
  * @version $Rev$ $Date$
  */
 public interface AliasedArtifactResolver extends ArtifactResolver {
-    void addAliases(Properties properties) throws IOException;
+    void addAliases(Map<String, String> properties) throws IOException;
 }

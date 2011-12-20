@@ -21,24 +21,14 @@
 package org.apache.geronimo.kernel.osgi;
 
 import java.util.Dictionary;
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.net.URL;
 import java.io.InputStream;
-import java.io.IOException;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -52,31 +42,31 @@ public class KernelActivator implements BundleActivator {
     private ServiceRegistration kernelRegistration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-        kernel.boot();
-        Dictionary dictionary = null;//new Hashtable();
-        kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
-        //boot the root configuration
-        Bundle bundle = bundleContext.getBundle();
-        URL plan = bundle.getEntry("META-INF/config.ser");
-        InputStream in = plan.openStream();
-        try {
-            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
-            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
-            data.setBundleContext(bundleContext);
-            AbstractName name = ConfigurationUtil.loadBootstrapConfiguration(kernel, data, bundleContext, false);
-//            Artifact id = data.getId();
-//            manager.startConfiguration(id);
-        } finally {
-            in.close();
-        }
+//        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
+//        kernel.boot(bundleContext);
+//        Dictionary dictionary = null;//new Hashtable();
+//        kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
+//        //boot the root configuration
+//        Bundle bundle = bundleContext.getBundle();
+//        URL plan = bundle.getEntry("META-INF/config.ser");
+//        InputStream in = plan.openStream();
+//        try {
+//            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
+//            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
+//            data.setBundleContext(bundleContext);
+//            AbstractName name = ConfigurationUtil.loadBootstrapConfiguration(kernel, data, bundleContext, false, configurationManager);
+////            Artifact id = data.getId();
+////            manager.startConfiguration(id);
+//        } finally {
+//            in.close();
+//        }
 
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        Kernel kernel = (Kernel) bundleContext.getService(kernelRegistration.getReference());
-        kernel.shutdown();
-        kernelRegistration.unregister();
-        kernelRegistration = null;
+//        Kernel kernel = (Kernel) bundleContext.getService(kernelRegistration.getReference());
+//        kernel.shutdown();
+//        kernelRegistration.unregister();
+//        kernelRegistration = null;
     }
 }

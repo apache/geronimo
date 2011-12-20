@@ -163,20 +163,20 @@ public final class ConfigurationUtil {
         return configurationMarshaler.newGBeanState(gbeans);
     }
 
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext) throws Exception {
-        return loadBootstrapConfiguration(kernel, in, bundleContext, false);
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext, ConfigurationManager configurationManager) throws Exception {
+        return loadBootstrapConfiguration(kernel, in, bundleContext, false, configurationManager);
     }
 
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext, boolean enableBootRepo, ConfigurationManager configurationManager) throws Exception {
         ConfigurationData configurationData = readConfigurationData(in);
-        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, enableBootRepo);
+        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, enableBootRepo, configurationManager);
     }
 
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext) throws Exception {
-        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, false);
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext, ConfigurationManager configurationManager) throws Exception {
+        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, false, configurationManager);
     }
 
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext, boolean enableBootRepo, ConfigurationManager configurationManager) throws Exception {
         if (kernel == null) throw new NullPointerException("kernel is null");
         if (configurationData == null) throw new NullPointerException("configurationData is null");
         if (bundleContext == null) throw new NullPointerException("bundle is null");
@@ -219,7 +219,7 @@ public final class ConfigurationUtil {
         // start the gbeans
         startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
 
-        ConfigurationManager configurationManager = getConfigurationManager(kernel);
+//        ConfigurationManager configurationManager = getConfigurationManager(kernel);
         configurationManager.loadConfiguration(configId);
         return gbeanData.getAbstractName();
     }

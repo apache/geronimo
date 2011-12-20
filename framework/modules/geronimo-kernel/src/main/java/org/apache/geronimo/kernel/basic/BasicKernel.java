@@ -19,10 +19,15 @@ package org.apache.geronimo.kernel.basic;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import javax.management.ObjectName;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanData;
@@ -70,6 +75,8 @@ import org.osgi.framework.BundleContext;
  *
  * @version $Rev:386276 $ $Date$
  */
+@Component
+@Service
 public class BasicKernel implements Kernel
 {
     private static final Logger log = LoggerFactory.getLogger(BasicKernel.class);
@@ -83,7 +90,7 @@ public class BasicKernel implements Kernel
     /**
      * Name of this kernel
      */
-    private final String kernelName;
+    private String kernelName = "kernel";
 
     private BundleContext bundleContext;
 
@@ -100,48 +107,102 @@ public class BasicKernel implements Kernel
     /**
      * The registry
      */
-    private final BasicRegistry registry;
+    private final BasicRegistry registry = new BasicRegistry();
 
     /**
      * Listeners for when the kernel shutdown
      */
     private final LinkedList shutdownHooks = new LinkedList();
 
-    /**
-     * This manager is used by the kernel to manage dependencies between gbeans
-     */
-    private DependencyManager dependencyManager;
 
     /**
      * Monitors the lifecycle of all gbeans.
      */
-    private BasicLifecycleMonitor lifecycleMonitor;
-    private LifecycleMonitor publicLifecycleMonitor;
+    private BasicLifecycleMonitor lifecycleMonitor = new BasicLifecycleMonitor(this);;
+    private LifecycleMonitor publicLifecycleMonitor = new LifecycleMonitorFlyweight(lifecycleMonitor);;
+
+    /**
+     * This manager is used by the kernel to manage dependencies between gbeans
+     */
+     private DependencyManager dependencyManager = new BasicDependencyManager(publicLifecycleMonitor);
 
     /**
      * This factory gbean proxies, and tracks all proxies in the system
      */
-    private ProxyManager proxyManager;
+//    private ProxyManager proxyManager = new BasicProxyManager(this);
 
     private static final Naming INSTANCE = new Jsr77Naming();
 
-    /**
-     * Construct a Kernel with the specified name.
-     *
-     * @param kernelName the name of the kernel
-     * @param bundleContext bundle context kernel is configured in.
-     */
-    public BasicKernel(String kernelName, BundleContext bundleContext) {
-        if (kernelName.indexOf(':') >= 0 || kernelName.indexOf('*') >= 0 || kernelName.indexOf('?') >= 0) {
-            throw new IllegalArgumentException("Kernel name may not contain a ':', '*' or '?' character");
-        }
-        if (bundleContext == null) {
-            throw new NullPointerException("bundleContext required");
-        }
-        this.kernelName = kernelName;
-        this.bundleContext = bundleContext;
-        this.registry = new BasicRegistry();
+    public BasicKernel() {
     }
+
+    public BasicKernel(String name, BundleContext bundleContext) throws Exception {
+        //TODO not clear if usage of this constructor requires boot.
+        boot(bundleContext);
+    }
+
+    /**
+     * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
+     * and the registration of ConfigurationStore
+     *
+     * @throws java.lang.Exception if the boot fails
+     */
+    @Activate
+    public void boot(BundleContext bundleContext) throws Exception {
+        if (running) {
+            return;
+        }
+        bootTime = new Date();
+        log.debug("Starting boot");
+
+        // todo cleanup when boot fails
+        KernelRegistry.registerKernel(this);
+
+        registry.start(this);
+
+//        lifecycleMonitor = new BasicLifecycleMonitor(this);
+//        publicLifecycleMonitor = new LifecycleMonitorFlyweight(lifecycleMonitor);
+//        dependencyManager = new BasicDependencyManager(publicLifecycleMonitor);
+//        proxyManager = new BasicProxyManager(this);
+
+        // load and start the kernel gbean
+        GBeanData kernelGBeanData = new GBeanData(KERNEL_NAME, KernelGBean.GBEAN_INFO);
+        loadGBean(kernelGBeanData, bundleContext);
+//        loadGBean(kernelGBeanData, bundleContext.getBundle(), bundleContext.getBundle());
+        startGBean(KERNEL_NAME);
+
+        running = true;
+        log.debug("Booted");
+    }
+
+    /**
+     * Shut down this kernel instance, unregistering the MBeans and releasing
+     * the MBeanServer.
+     */
+    @Deactivate
+    public void shutdown() {
+        if (!running) {
+            return;
+        }
+        running = false;
+        log.debug("Starting kernel shutdown");
+
+        notifyShutdownHooks();
+
+        registry.stop();
+
+         dependencyManager.close();
+         dependencyManager = null;
+
+        synchronized (this) {
+            notify();
+        }
+
+        KernelRegistry.unregisterKernel(this);
+
+        log.debug("Kernel shutdown complete");
+    }
+
 
     public String getKernelName() {
         return kernelName;
@@ -154,9 +215,9 @@ public class BasicKernel implements Kernel
     /**
      * @deprecated this will be removed as when we add generalized dependencies to gbeans... the only current user is Configuration
      */
-    public DependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
+     public DependencyManager getDependencyManager() {
+         return dependencyManager;
+     }
 
     /**
      * Gets the lifecycle monitor.
@@ -171,7 +232,7 @@ public class BasicKernel implements Kernel
      * @deprecated don't use this yet... it may change or go away
      */
     public ProxyManager getProxyManager() {
-        return proxyManager;
+        return null;
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
@@ -280,6 +341,15 @@ public class BasicKernel implements Kernel
         }
     }
 
+/*
+    //delegated from Configuration
+    @Override
+    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
+        return registry.findGBeanDatas(patterns);
+    }
+*/
+
+
     public Object getGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         return getGBean(shortName, null);
     }
@@ -362,6 +432,16 @@ public class BasicKernel implements Kernel
         registry.register(gbeanInstance);
         lifecycleBroadcaster.fireLoadedEvent();
     }
+/*
+    public void loadGBean(GBeanData gbeanData, Bundle gbeanBundle, Bundle configurationBundle) throws GBeanAlreadyExistsException, InternalKernelException {
+        AbstractName abstractName = gbeanData.getAbstractName();
+        Set interfaces = gbeanData.getGBeanInfo().getInterfaces();
+        LifecycleBroadcaster lifecycleBroadcaster = lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces);
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, gbeanBundle, configurationBundle);
+        registry.register(gbeanInstance);
+        lifecycleBroadcaster.fireLoadedEvent();
+    }
+*/
 
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
@@ -561,19 +641,13 @@ public class BasicKernel implements Kernel
             return null;
         }
 
-        // check if service is a proxy
-        AbstractName name = proxyManager.getProxyTarget(service);
-        if (name != null) {
-            return name;
-        }
-
         // try the registry
         GBeanInstance gbeanInstance = registry.getGBeanInstanceByInstance(service);
         if (gbeanInstance != null) {
             return gbeanInstance.getAbstractName();
         }
 
-        // didn't fing the name
+        // didn't find the name
         return null;
     }
 
@@ -583,38 +657,6 @@ public class BasicKernel implements Kernel
             return (String) name.getName().get("name");
         }
         return null;
-    }
-
-    /**
-     * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
-     * and the registration of ConfigurationStore
-     *
-     * @throws java.lang.Exception if the boot fails
-     */
-    public void boot() throws Exception {
-        if (running) {
-            return;
-        }
-        bootTime = new Date();
-        log.debug("Starting boot");
-
-        // todo cleanup when boot fails
-        KernelRegistry.registerKernel(this);
-
-        registry.start(this);
-
-        lifecycleMonitor = new BasicLifecycleMonitor(this);
-        publicLifecycleMonitor = new LifecycleMonitorFlyweight(lifecycleMonitor);
-        dependencyManager = new BasicDependencyManager(publicLifecycleMonitor);
-        proxyManager = new BasicProxyManager(this);
-
-        // load and start the kernel gbean
-        GBeanData kernelGBeanData = new GBeanData(KERNEL_NAME, KernelGBean.GBEAN_INFO);
-        loadGBean(kernelGBeanData, bundleContext);
-        startGBean(KERNEL_NAME);
-
-        running = true;
-        log.debug("Booted");
     }
 
     public Date getBootTime() {
@@ -632,33 +674,6 @@ public class BasicKernel implements Kernel
         synchronized (shutdownHooks) {
             shutdownHooks.remove(hook);
         }
-    }
-
-    /**
-     * Shut down this kernel instance, unregistering the MBeans and releasing
-     * the MBeanServer.
-     */
-    public void shutdown() {
-        if (!running) {
-            return;
-        }
-        running = false;
-        log.debug("Starting kernel shutdown");
-
-        notifyShutdownHooks();
-
-        registry.stop();
-
-        dependencyManager.close();
-        dependencyManager = null;
-
-        synchronized (this) {
-            notify();
-        }
-
-        KernelRegistry.unregisterKernel(this);
-
-        log.debug("Kernel shutdown complete");
     }
 
     private void notifyShutdownHooks() {
@@ -682,6 +697,7 @@ public class BasicKernel implements Kernel
     public Bundle getBundleFor(AbstractName name) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(name);
         return gbeanInstance.getBundle();
+//        return gbeanInstance.getGbeanBundle();
     }
 
     public Bundle getBundleFor(String shortName) throws GBeanNotFoundException {
@@ -695,6 +711,7 @@ public class BasicKernel implements Kernel
     public Bundle getBundleFor(String shortName, Class type) throws GBeanNotFoundException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         return gbeanInstance.getBundle();
+//        return gbeanInstance.getGbeanBundle();
     }
 
     /**

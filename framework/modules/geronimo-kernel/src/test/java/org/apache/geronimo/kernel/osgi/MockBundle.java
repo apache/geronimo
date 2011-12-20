@@ -54,6 +54,7 @@ public class MockBundle implements Bundle {
     private final String location;
     private final long id;
     private BundleContext bundleContext;
+    private int state = 2;
 
     public MockBundle(ClassLoader classLoader, String location, long id) {
         this.classLoader = classLoader;
@@ -66,19 +67,23 @@ public class MockBundle implements Bundle {
     }
 
     public int getState() {
-        return 0;
+        return state;
     }
 
     public void start(int i) throws BundleException {
+        state = 32;
     }
 
     public void start() throws BundleException {
+        state = 32;
     }
 
     public void stop(int i) throws BundleException {
+        state = 2;
     }
 
     public void stop() throws BundleException {
+        state = 2;
     }
 
     public void update() throws BundleException {

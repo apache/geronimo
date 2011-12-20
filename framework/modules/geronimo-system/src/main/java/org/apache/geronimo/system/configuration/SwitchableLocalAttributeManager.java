@@ -22,6 +22,9 @@ import java.util.List;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.SwitchablePersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -31,11 +34,19 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev: 486815 $ $Date: 2006-12-14 06:45:10 +1100 (Thu, 14 Dec 2006) $
  */
+
+@GBean
 public class SwitchableLocalAttributeManager extends LocalAttributeManager implements SwitchablePersistentConfigurationList {
     private boolean online;
     
-    public SwitchableLocalAttributeManager(String configFile, String substitutionsFile, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
-        super(configFile, substitutionsFile, configSubstitutionsPrefix, readOnly, serverInfo);
+    public SwitchableLocalAttributeManager(
+            @ParamAttribute(name="configFile") String configFile,
+            @ParamAttribute(name="substitutionsFile") String substitutionsFile,
+            @ParamAttribute(name="configSubstitutionsPrefix") String configSubstitutionsPrefix,
+            @ParamAttribute(name="readOnly") boolean readOnly,
+            @ParamReference(name = "ServerInfo")ServerInfo serverInfo) {
+        //TODO convert to delegation if this is actually needed.
+//        super(configFile, substitutionsFile, configSubstitutionsPrefix, readOnly, serverInfo);
     }
 
     @Override
@@ -86,18 +97,18 @@ public class SwitchableLocalAttributeManager extends LocalAttributeManager imple
         }
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SwitchableLocalAttributeManager.class, LocalAttributeManager.GBEAN_INFO);
-
-        infoFactory.addInterface(SwitchablePersistentConfigurationList.class);
-        
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
+//    public static final GBeanInfo GBEAN_INFO;
+//
+//    static {
+//        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SwitchableLocalAttributeManager.class);  //, LocalAttributeManager.GBEAN_INFO
+//
+//        infoFactory.addInterface(SwitchablePersistentConfigurationList.class);
+//
+//        GBEAN_INFO = infoFactory.getBeanInfo();
+//    }
+//
+//    public static GBeanInfo getGBeanInfo() {
+//        return GBEAN_INFO;
+//    }
+//
 }

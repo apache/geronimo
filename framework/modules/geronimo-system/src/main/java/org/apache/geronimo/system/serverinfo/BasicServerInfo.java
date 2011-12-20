@@ -19,12 +19,10 @@ package org.apache.geronimo.system.serverinfo;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.JarURLConnection;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -67,7 +65,7 @@ public class BasicServerInfo implements ServerInfo {
     public BasicServerInfo(String defaultBaseDirectory) throws Exception {
         this(defaultBaseDirectory, true, null);
     }
-    
+
     public BasicServerInfo(String defaultBaseDirectory, boolean useSystemProperties) throws Exception {
         this(defaultBaseDirectory, useSystemProperties, null);
     }

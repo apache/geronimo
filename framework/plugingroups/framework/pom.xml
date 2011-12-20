@@ -78,12 +78,14 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>client-system</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -113,12 +115,14 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>shutdown</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -127,13 +131,15 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
+-->
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>bundle-recorder</artifactId>

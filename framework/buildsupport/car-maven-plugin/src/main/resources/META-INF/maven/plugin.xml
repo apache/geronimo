@@ -969,7 +969,7 @@ if the included module is a EBA application.</description>
         <escapeString implementation="java.lang.String">${maven.resources.escapeString}</escapeString>
         <resourcesDir implementation="java.io.File">${project.build.directory}/resources</resourcesDir>
         <basedir implementation="java.io.File">${basedir}</basedir>
-        <targetRepository implementation="java.io.File">${project.build.directory}/repository</targetRepository>
+        <targetRepository implementation="java.io.File">${project.build.directory}/assembly/system</targetRepository>
         <outputDirectory implementation="java.io.File">${project.build.directory}</outputDirectory>
         <explicitResolutionProperties implementation="java.io.File">${project.build.directory}/explicit-versions.properties</explicitResolutionProperties>
         <project implementation="org.apache.maven.project.MavenProject">${project}</project>
@@ -1192,10 +1192,10 @@ Probably don&apos;t want to change this.
         <deployerName implementation="java.lang.String">org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
         <escapeString implementation="java.lang.String">${maven.resources.escapeString}</escapeString>
         <basedir implementation="java.io.File">${basedir}</basedir>
-        <targetRepository implementation="java.io.File">${project.build.directory}/repository</targetRepository>
+        <targetRepository implementation="java.io.File">${project.build.directory}/assembly/system</targetRepository>
         <outputDirectory implementation="java.io.File">${project.build.directory}</outputDirectory>
         <explicitResolutionProperties implementation="java.io.File">${project.build.directory}/explicit-versions.properties</explicitResolutionProperties>
-        <defaultDeploymentConfig implementation="java.lang.String">org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car</defaultDeploymentConfig>
+        <defaultDeploymentConfig implementation="java.lang.String">org.apache.geronimo.framework/j2ee-system/${geronimoVersion}/car</defaultDeploymentConfig>
         <project implementation="org.apache.maven.project.MavenProject">${project}</project>
         <planFile implementation="java.io.File">${project.build.directory}/work/plan.xml</planFile>
         <session implementation="org.apache.maven.execution.MavenSession">${session}</session>

@@ -71,7 +71,9 @@ public class ServiceConfigBuilderTest extends TestCase {
         File file = new File(url.getPath());
         JarFile jar = new JarFile(file);
         assertTrue(file.exists());
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, new Jsr77Naming(), bundleContext);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder();
+        builder.activate(bundleContext);
+        //parentEnvironment, null, new Jsr77Naming(), bundleContext);
         assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
         jar.close();
     }

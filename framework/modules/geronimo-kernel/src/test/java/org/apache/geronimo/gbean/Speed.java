@@ -94,7 +94,7 @@ public class Speed extends TestSupport {
 
         // start a kernel
         Kernel kernel = KernelFactory.newInstance(getBundleContext()).createKernel("speed");
-        kernel.boot();
+        kernel.boot(bundleContext);
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
@@ -223,7 +223,7 @@ public class Speed extends TestSupport {
 
         // start a kernel
         Kernel kernel = KernelFactory.newInstance(getBundleContext()).createKernel("speed");
-        kernel.boot();
+        kernel.boot(bundleContext);
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");

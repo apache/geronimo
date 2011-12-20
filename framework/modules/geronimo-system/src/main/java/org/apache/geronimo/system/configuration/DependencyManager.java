@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,9 +37,13 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -74,19 +79,21 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-@GBean
-@OsgiService
-public class DependencyManager implements SynchronousBundleListener, GBeanLifecycle {
+@Component
+public class DependencyManager implements SynchronousBundleListener {
 
     private static final Logger log = LoggerFactory.getLogger(DependencyManager.class);
 
-    private final BundleContext bundleContext;
+    private BundleContext bundleContext;
 
-    private final Collection<Repository> repositories;
+    @Reference(name = "repository", referenceInterface = Repository.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private final Collection<Repository> repositories = new LinkedHashSet<Repository>();
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private RepositoryAdmin repositoryAdmin;
 
-    private final ArtifactResolver artifactResolver;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ArtifactResolver artifactResolver;
 
     private final Map<Long, PluginArtifactType> pluginMap = Collections.synchronizedMap(new WeakHashMap<Long, PluginArtifactType>());
 
@@ -100,14 +107,43 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
 
     private final Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
 
-    private ServiceReference respositoryAdminReference;
-
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
             @ParamReference(name = "ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver) {
         this.bundleContext = bundleContext;
-        this.repositories = repositories;
+        this.repositories.addAll(repositories);
         this.artifactResolver = artifactResolver;
+    }
+
+    public DependencyManager() {
+    }
+
+    public void setArtifactResolver(ArtifactResolver artifactResolver) {
+        this.artifactResolver = artifactResolver;
+    }
+
+    public void unsetArtifactResolver(ArtifactResolver artifactResolver) {
+        if (this.artifactResolver == artifactResolver) {
+            this.artifactResolver = null;
+        }
+    }
+
+    public void setRepositoryAdminr(RepositoryAdmin repositoryAdmin) {
+        this.repositoryAdmin = repositoryAdmin;
+    }
+
+    public void unsetRepositoryAdmin(RepositoryAdmin repositoryAdmin) {
+        if (this.repositoryAdmin == repositoryAdmin) {
+            this.repositoryAdmin = null;
+        }
+    }
+
+    public void bindRepository(Repository repository) {
+        repositories.add(repository);
+    }
+
+    public void unbindRepository(Repository repository) {
+        repositories.remove(repository);
     }
 
     public void bundleChanged(BundleEvent bundleEvent) {
@@ -290,8 +326,14 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 
-    private void addArtifactBundleEntry(Bundle bundle) {
-        Artifact artifact = toArtifact(bundle.getLocation());
+    private PluginArtifactType addArtifactBundleEntry(Bundle bundle) {
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        Artifact artifact;
+        if (pluginArtifactType == null) {
+            artifact = toArtifact(bundle.getLocation());
+        } else {
+            artifact = pluginArtifactType.getModuleId().toArtifact();
+        }
         if (artifact != null) {
             artifactBundleMap.put(artifact, bundle);
             bundleIdArtifactMap.put(bundle.getBundleId(), artifact);
@@ -300,6 +342,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                 log.debug("fail to resovle artifact from the bundle location " + bundle.getLocation());
             }
         }
+        return pluginArtifactType;
     }
 
     private void removeArtifactBundleEntry(Bundle bundle) {
@@ -428,8 +471,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         if (bundleIdArtifactMap.containsKey(bundle.getBundleId())) {
             return;
         }
-        addArtifactBundleEntry(bundle);
-        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        PluginArtifactType pluginArtifactType = addArtifactBundleEntry(bundle);
         if (pluginArtifactType == null) {
             return;
         }
@@ -489,7 +531,23 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                         artifact = artifactResolver.resolveInClassLoader(artifact);
                     }
                     String location = locateBundle(artifact);
-                    Bundle b = bundleContext.installBundle(location);
+                    Bundle b = null;
+                    try {
+                        b = bundleContext.installBundle(location);
+                    } catch (BundleException e) {
+                        if (e.getType() == 9) {
+                            String name = e.getMessage().substring(e.getMessage().indexOf(":") + 2);
+                            for (Bundle test: bundleContext.getBundles()) {
+                                if (name.startsWith(test.getSymbolicName()) && name.endsWith(test.getVersion().toString())) {
+                                    b = test;
+                                    break;
+                                }
+                            }
+                        }
+                        if (b == null) {
+                            throw e;
+                        }
+                    }
                     if (dependencyHierarchyBuildingRequired) {
                         long startingBundleId = b.getBundleId();
                         dependentBundleIds.add(startingBundleId);
@@ -530,19 +588,24 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
             return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion()
                     + ("jar".equals(configurationId.getType()) ? "" : "/" + configurationId.getType());
         }
-        for (Repository repo : repositories) {
-            if (repo.contains(configurationId)) {
-                return "reference:file://" + repo.getLocation(configurationId).getAbsolutePath();
+        if (System.getProperty("geronimo.build.car") != null) {
+            for (Repository repo : repositories) {
+                if (repo.contains(configurationId)) {
+                    return "reference:file://" + repo.getLocation(configurationId).getAbsolutePath();
+                }
             }
         }
-        throw new NoSuchConfigException(configurationId);
+        return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion()
+                + ("jar".equals(configurationId.getType()) ? "" : "/" + configurationId.getType());
+//        throw new NoSuchConfigException(configurationId);
     }
 
-    @Override
-    public void doStart() throws Exception {
+    @Activate
+    public void doStart(BundleContext bundleContext) throws Exception {
+        this.bundleContext = bundleContext;
         bundleContext.addBundleListener(this);
-        respositoryAdminReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        repositoryAdmin = respositoryAdminReference == null ? null : (RepositoryAdmin) bundleContext.getService(respositoryAdminReference);
+//        respositoryAdminReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+//        repositoryAdmin = respositoryAdminReference == null ? null : (RepositoryAdmin) bundleContext.getService(respositoryAdminReference);
         //init installed bundles
         for (Bundle bundle : bundleContext.getBundles()) {
             installed(bundle);
@@ -567,14 +630,14 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 
-    @Override
+    @Deactivate
     public void doStop() throws Exception {
-        if (respositoryAdminReference != null) {
-            try {
-                bundleContext.ungetService(respositoryAdminReference);
-            } catch (Exception e) {
-            }
-        }
+//        if (respositoryAdminReference != null) {
+//            try {
+//                bundleContext.ungetService(respositoryAdminReference);
+//            } catch (Exception e) {
+//            }
+//        }
         bundleContext.removeBundleListener(this);
         //Some clean up work
         pluginMap.clear();
@@ -585,11 +648,4 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         bundleIdArtifactMap.clear();
     }
 
-    @Override
-    public void doFail() {
-        try {
-            doStop();
-        } catch (Exception e) {
-        }
-    }
 }

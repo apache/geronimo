@@ -26,6 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -61,18 +67,30 @@ import org.slf4j.LoggerFactory;
  * @version $Rev:386276 $ $Date$
  */
 
-@GBean(j2eeType = "ConfigurationManager")
-@OsgiService
+@Component(inherit = true, immediate = true, metatype = true)
+@Service
 public class KernelConfigurationManager extends SimpleConfigurationManager implements GBeanLifecycle {
 
-    protected final Kernel kernel;
-    protected final ManageableAttributeStore attributeStore;
-    protected final PersistentConfigurationList configurationList;
-    private final ArtifactManager artifactManager;
-    private final ShutdownHook shutdownHook;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected Kernel kernel;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected ManageableAttributeStore attributeStore;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected PersistentConfigurationList configurationList;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ArtifactManager artifactManager;
+
+    private ShutdownHook shutdownHook;
+
     private boolean online = true;
 
-    public KernelConfigurationManager(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+    public KernelConfigurationManager() {
+    }
+
+    public KernelConfigurationManager(Kernel kernel,
                                       @ParamReference(name = "Stores", namingType = "ConfigurationStore") Collection<ConfigurationStore> stores,
                                       @ParamReference(name = "AttributeStore", namingType = "AttributeStore") ManageableAttributeStore attributeStore,
                                       @ParamReference(name = "PersistentConfigurationList") PersistentConfigurationList configurationList,
@@ -92,6 +110,49 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         this.artifactManager = artifactManager;
 
         shutdownHook = new ShutdownHook(kernel, configurationModel);
+    }
+
+    public void setArtifactManager(ArtifactManager artifactManager) {
+        this.artifactManager = artifactManager;
+    }
+
+    public void unsetArtifactManager(ArtifactManager artifactManager) {
+        this.artifactManager = null;
+    }
+
+    public void setAttributeStore(ManageableAttributeStore attributeStore) {
+        this.attributeStore = attributeStore;
+    }
+
+    public void unsetAttributeStore(ManageableAttributeStore attributeStore) {
+        this.attributeStore = null;
+    }
+
+    public void setConfigurationList(PersistentConfigurationList configurationList) {
+        this.configurationList = configurationList;
+    }
+
+    public void unsetConfigurationList(PersistentConfigurationList configurationList) {
+        this.configurationList = null;
+    }
+
+    public void setKernel(Kernel kernel) {
+        this.kernel = kernel;
+    }
+    public void unsetKernel(Kernel kernel) {
+        this.kernel = null;
+    }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        super.activate(bundleContext);
+        shutdownHook = new ShutdownHook(kernel, getConfigurationModel());
+        kernel.registerShutdownHook(shutdownHook);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        kernel.unregisterShutdownHook(shutdownHook);
     }
 
     private static ArtifactResolver createArtifactResolver(ArtifactResolver artifactResolver, ArtifactManager artifactManager, Collection<ListableRepository> repositories) {
