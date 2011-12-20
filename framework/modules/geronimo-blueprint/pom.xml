@@ -33,8 +33,12 @@
     <description>Classes to adapt blueprint to geronimo</description>
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
+            <groupId>org.apache.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries.proxy</groupId>
+            <artifactId>org.apache.aries.proxy</artifactId>
         </dependency>
 
         <dependency>

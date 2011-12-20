@@ -212,7 +212,22 @@ public class MockBundle implements Bundle {
         return null;
     }
 
+    @Override
+    public <A> A adapt(Class<A> aClass) {
+        return null;
+    }
+
+    @Override
+    public File getDataFile(String s) {
+        return null;
+    }
+
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    @Override
+    public int compareTo(Bundle bundle) {
+        return 0;
     }
 }

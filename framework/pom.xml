@@ -34,13 +34,14 @@
     <packaging>pom</packaging>
     
     <properties>        
-        <felix.configadmin.version>1.2.4</felix.configadmin.version>        
-        <felix.framework.version>3.0.2</felix.framework.version>       
-        <pax.url.version>1.1.2</pax.url.version>        
+        <!--<felix.configadmin.version>1.2.4</felix.configadmin.version>        -->
+        <!--<felix.framework.version>3.0.2</felix.framework.version>       -->
+        <!--<pax.url.version>1.1.2</pax.url.version>        -->
     </properties>
     
     <dependencyManagement>
         <dependencies>
+<!--
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
@@ -71,7 +72,7 @@
                         <artifactId>org.osgi.core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- see FELIX-2179  -->
+                        &lt;!&ndash; see FELIX-2179  &ndash;&gt;
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
                     </exclusion>
@@ -115,6 +116,7 @@
                 <artifactId>pax-url-wrap</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
+-->
 
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
@@ -183,6 +185,7 @@
             <modules>
                 <module>modules</module>
                 <module>buildsupport</module>
+                <module>features</module>
                 <module>configs</module>
                 <module>plugingroups</module>
                 <module>assemblies</module>

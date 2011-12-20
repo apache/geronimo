@@ -22,6 +22,7 @@ package org.apache.geronimo.kernel.osgi;
 
 import java.io.InputStream;
 import java.io.File;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.HashMap;
@@ -155,6 +156,11 @@ public class MockBundleContext implements BundleContext {
     public void removeFrameworkListener(FrameworkListener frameworkListener) {
     }
 
+    @Override
+    public <S> ServiceRegistration<S> registerService(Class<S> sClass, S s, Dictionary<String, ?> stringDictionary) {
+        return null;
+    }
+
     public ServiceRegistration registerService(String[] strings, Object o, Dictionary dictionary) {
         return null;
     }
@@ -177,6 +183,16 @@ public class MockBundleContext implements BundleContext {
         return serviceReferences.get(s);
     }
 
+    @Override
+    public <S> ServiceReference<S> getServiceReference(Class<S> sClass) {
+        return null;
+    }
+
+    @Override
+    public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> sClass, String s) throws InvalidSyntaxException {
+        return null;
+    }
+
     public Object getService(ServiceReference serviceReference) {
         return ((MockServiceReference)serviceReference).service;
     }
@@ -190,6 +206,11 @@ public class MockBundleContext implements BundleContext {
     }
 
     public Filter createFilter(String s) throws InvalidSyntaxException {
+        return null;
+    }
+
+    @Override
+    public Bundle getBundle(String s) {
         return null;
     }
 
