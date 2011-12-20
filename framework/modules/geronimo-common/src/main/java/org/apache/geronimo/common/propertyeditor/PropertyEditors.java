@@ -19,13 +19,18 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 
 /**
@@ -44,8 +49,14 @@ public class PropertyEditors {
         // Append the geronimo propertyeditors package to the global search path.
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
         // and explicitly register the Boolean editor.
+        PropertyEditorManager.registerEditor(AbstractName.class, AbstractNameEditor.class);
+        PropertyEditorManager.registerEditor(AbstractNameQuery.class, AbstractNameQueryEditor.class);
+        PropertyEditorManager.registerEditor(ArrayList.class, ArrayListEditor.class);
+        PropertyEditorManager.registerEditor(Artifact.class, ArtifactEditor.class);
         PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
+        PropertyEditorManager.registerEditor(File.class, FileEditor.class);
         PropertyEditorManager.registerEditor(Integer.class, IntegerEditor.class);
+        PropertyEditorManager.registerEditor(Properties.class, PropertiesEditor.class);
         PropertyEditorManager.registerEditor(URI.class, URIEditor.class);
         PropertyEditorManager.registerEditor(URL.class, URLEditor.class);
     }
