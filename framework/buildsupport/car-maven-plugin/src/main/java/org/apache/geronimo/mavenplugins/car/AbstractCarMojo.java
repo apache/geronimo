@@ -576,7 +576,9 @@ public abstract class AbstractCarMojo
         }
 
         private Accept accept(Artifact dependency, Accept previous) {
-            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")
+                    || dependency.getType().equals("kar")
+                    || (dependency.getType().equals("xml") && "features".equals(dependency.getClassifier()))) {
                 return Accept.STOP;
             }
             String scope = dependency.getScope();

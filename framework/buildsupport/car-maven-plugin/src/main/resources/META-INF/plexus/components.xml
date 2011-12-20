@@ -126,7 +126,10 @@
                     <lifecycle>
                         <id>default</id>
                         <phases>
-                            <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
+                            <process-resources>
+                                org.apache.maven.plugins:maven-resources-plugin:resources,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:install-kars
+                            </process-resources>
                             <compile>org.apache.geronimo.buildsupport:car-maven-plugin:install-modules</compile>
                             <package>org.apache.geronimo.buildsupport:car-maven-plugin:archive</package>
                             <install>org.apache.maven.plugins:maven-install-plugin:install</install>
