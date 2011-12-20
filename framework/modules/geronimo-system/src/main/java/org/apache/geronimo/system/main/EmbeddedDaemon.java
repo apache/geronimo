@@ -64,17 +64,17 @@ public class EmbeddedDaemon {
     private StartupMonitor monitor;
     private LifecycleMonitor lifecycleMonitor;
     private List<Artifact> configs = new ArrayList<Artifact>();
-    
-    @Reference(name ="persistentConfigurationList", referenceInterface = PersistentConfigurationList.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+
+    @Reference(name = "persistentConfigurationList", referenceInterface = PersistentConfigurationList.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private List<PersistentConfigurationList> configurationLists = new ArrayList<PersistentConfigurationList>();
-    
+
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private ConfigurationManager configurationManager;
-    
+
     //NB karaf server info
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private ServerInfo serverInfo;
-    
+
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private Kernel kernel;
 
@@ -83,7 +83,7 @@ public class EmbeddedDaemon {
     static String GERONIMO_HOME = "org.apache.geronimo.home.dir";
     static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
             + "/var/config/config-substitutions.properties";
-    
+
 //    public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
 //        this.kernel = kernel;
 //        this.bundle = bundle;
@@ -92,7 +92,7 @@ public class EmbeddedDaemon {
     public void bindPersistentConfigurationList(PersistentConfigurationList config) {
         configurationLists.add(config);
     }
-    
+
     public void unbindPersistentConfigurationList(PersistentConfigurationList config) {
         configurationLists.remove(config);
     }
@@ -100,7 +100,7 @@ public class EmbeddedDaemon {
     public void setConfigurationManager(ConfigurationManager configurationManager) {
         this.configurationManager = configurationManager;
     }
-    
+
     public void unsetConfigurationManager(ConfigurationManager configurationManager) {
         if (configurationManager == this.configurationManager) {
             this.configurationManager = null;
@@ -108,9 +108,9 @@ public class EmbeddedDaemon {
     }
 
     public void setServerInfo(ServerInfo serverInfo) {
-        this.serverInfo  = serverInfo;
+        this.serverInfo = serverInfo;
     }
-    
+
     public void unsetServerInfo(ServerInfo serverInfo) {
         if (serverInfo == this.serverInfo) {
             this.serverInfo = null;
@@ -118,7 +118,7 @@ public class EmbeddedDaemon {
     }
 
     public void setKernel(Kernel kernel) {
-        this.kernel  = kernel;
+        this.kernel = kernel;
     }
 
     public void unsetKernel(Kernel kernel) {
@@ -132,7 +132,7 @@ public class EmbeddedDaemon {
         this.bundleContext = bundleContext;
         DaemonCLParser parser = new DaemonCLParser(System.out);
         parser.parse(serverInfo.getArgs());
-        
+
         cleanCache(parser);
         initializeMonitor(parser);
         initializeOverride(parser);
@@ -142,7 +142,7 @@ public class EmbeddedDaemon {
 
         System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
         System.out.flush();
-        
+
         // Perform initialization tasks common with the various Geronimo environments
         //GeronimoEnvironment.init();
 
@@ -175,9 +175,7 @@ public class EmbeddedDaemon {
                 System.setProperty("javax.net.ssl.trustStore", value1);
                 System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
                 System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-            }
-
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -191,7 +189,7 @@ public class EmbeddedDaemon {
             }
         }
     }
-    
+
     private static String[] getCleanDirectoryList() {
         String directoryList = System.getProperty("geronimo.cleanDirectoryList");
         if (directoryList != null) {
@@ -200,10 +198,10 @@ public class EmbeddedDaemon {
             return new String[0];
         }
     }
-    
+
     protected void cleanCache(DaemonCLParser parser) {
         if (parser.isCleanCache()) {
-            String [] dirList = getCleanDirectoryList();
+            String[] dirList = getCleanDirectoryList();
             for (String dir : dirList) {
                 File file = new File(dir);
                 FileUtils.recursiveDelete(file);
@@ -225,7 +223,7 @@ public class EmbeddedDaemon {
     }
 
     protected int doStartup() {
-        try {            
+        try {
             int exitCode = initializeKernel();
             if (0 != exitCode) {
                 return exitCode;
@@ -250,50 +248,67 @@ public class EmbeddedDaemon {
 
             monitor.foundModules(configs.toArray(new Artifact[configs.size()]));
 
+            new Thread() {
+                public void run() {
+                    try {
+                        List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
+                        int unloadedConfigsCount;
+                        do {
+                            unloadedConfigsCount = unloadedConfigs.size();
+                            LinkedHashSet<Artifact> sorted = configurationManager.sort(unloadedConfigs, lifecycleMonitor);
+                            for (Artifact configID : sorted) {
+                                monitor.moduleLoading(configID);
+                                configurationManager.loadConfiguration(configID, lifecycleMonitor);
+                                unloadedConfigs.remove(configID);
+                                monitor.moduleLoaded(configID);
+                                monitor.moduleStarting(configID);
+                                configurationManager.startConfiguration(configID, lifecycleMonitor);
+                                monitor.moduleStarted(configID);
+                            }
+                        } while (unloadedConfigsCount > unloadedConfigs.size());
+                        if (!unloadedConfigs.isEmpty()) {
+                            throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+                        }
+                        // the server has finished loading the persistent configuration so inform the gbean
+                        AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
+                        Set<AbstractName> statusBeans = kernel.listGBeans(startedQuery);
+                        for (AbstractName statusName : statusBeans) {
+                            ServerStatus status = (ServerStatus) kernel.getGBean(statusName);
+                            if (status != null) {
+                                status.setServerStarted(true);
+                            }
+                        }
+                        // Tell every persistent configuration list that the kernel is now fully started
+                        for (PersistentConfigurationList persistentConfigurationList : configurationLists) {
+                            persistentConfigurationList.setKernelFullyStarted(true);
+                        }
+
+                        // Startup sequence is finished
+                        monitor.startupFinished();
+                        monitor = null;
+
+                        // Because currently we start Geronimo bundles out of the osgi framework life cycle,
+                        // so there might be some bundles, which depends on geronimo bundles, can not be resovled during osgi framework launch.
+                        // we need re-try start it after geronimo start.
+                        // This could be deleted after we smooth out geronimo life cycle with osgi.
+                        for (Bundle b : bundleContext.getBundles()) {
+                            if (BundleUtils.canStart(b)) {
+                                try {
+                                    b.start(Bundle.START_TRANSIENT);
+                                } catch (BundleException e) {
+                                    log.warn("Bundle: " + b.getBundleId() + "can not start" + e.getMessage());
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        //Exception caught when starting configurations, starting kernel shutdown
+                        monitor.serverStartFailed(e);
+                        shutdownKernel();
+                    }
+
+                }
+            }.start();
             // load the rest of the configurations
-            try {
-                    List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
-                    int unloadedConfigsCount;
-                    do {
-                        unloadedConfigsCount = unloadedConfigs.size();
-                        LinkedHashSet<Artifact> sorted = configurationManager.sort(unloadedConfigs, lifecycleMonitor);
-                        for (Artifact configID : sorted) {
-                            monitor.moduleLoading(configID);
-                            configurationManager.loadConfiguration(configID, lifecycleMonitor);
-                            unloadedConfigs.remove(configID);
-                            monitor.moduleLoaded(configID);
-                            monitor.moduleStarting(configID);
-                            configurationManager.startConfiguration(configID, lifecycleMonitor);
-                            monitor.moduleStarted(configID);
-                        }
-                    } while (unloadedConfigsCount > unloadedConfigs.size());
-                    if (!unloadedConfigs.isEmpty()) {
-                        throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
-                    }
-                    // the server has finished loading the persistent configuration so inform the gbean
-                    AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
-                    Set<AbstractName> statusBeans = kernel.listGBeans(startedQuery);
-                    for (AbstractName statusName : statusBeans) {
-                        ServerStatus status = (ServerStatus) kernel.getGBean(statusName);
-                        if (status != null) {
-                            status.setServerStarted(true);
-                        }
-                    }
-            } catch (Exception e) {
-                //Exception caught when starting configurations, starting kernel shutdown
-                monitor.serverStartFailed(e);
-                shutdownKernel();
-                return 1;
-            }
-
-            // Tell every persistent configuration list that the kernel is now fully started
-            for (PersistentConfigurationList persistentConfigurationList : configurationLists) {
-                persistentConfigurationList.setKernelFullyStarted(true);
-            }
-
-            // Startup sequence is finished
-            monitor.startupFinished();
-            monitor = null;
 
             /*
             // capture this thread until the kernel is ready to exit
@@ -314,22 +329,8 @@ public class EmbeddedDaemon {
             e.printStackTrace();
             return 1;
         }
-        
-        // Because currently we start Geronimo bundles out of the osgi framework life cycle,
-        // so there might be some bundles, which depends on geronimo bundles, can not be resovled during osgi framework launch.
-        // we need re-try start it after geronimo start.
-        // This could be deleted after we smooth out geronimo life cycle with osgi.
-        for (Bundle b : bundleContext.getBundles()) {
-            if (BundleUtils.canStart(b)) {
-                try {
-                    b.start(Bundle.START_TRANSIENT);
-                } catch (BundleException e) {
-                    log.warn("Bundle: " + b.getBundleId() + "can not start" + e.getMessage());
-                }
-            }
-        }
-        
-        
+
+
         return 0;
     }
 
