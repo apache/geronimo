@@ -34,6 +34,12 @@
     <name>Geronimo Plugins, AXIS :: Builder</name>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
         <!-- g-webservices-builder comes transitively from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -58,6 +64,11 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-axis</artifactId>
             <scope>test</scope>
         </dependency>
 
