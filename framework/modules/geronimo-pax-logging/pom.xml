@@ -50,6 +50,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

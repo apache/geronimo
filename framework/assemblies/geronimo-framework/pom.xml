@@ -186,6 +186,7 @@
                         <feature>ssh</feature>
                         <feature>config</feature>
                         <feature>kar</feature>
+                        <feature>obr</feature>
                         <feature>framework</feature>
                     </startupFeatures>
                 </configuration>

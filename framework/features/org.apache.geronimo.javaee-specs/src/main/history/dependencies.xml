@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="org.apache.geronimo.javaee-specs">
+    <feature>
+        <bundle>mvn:org.apache.geronimo.bundles/jaxb-impl/2.2.3-1_1</bundle>
+        <bundle>mvn:org.apache.geronimo.bundles/woodstox-core-asl/4.1.2_1</bundle>
+        <bundle>mvn:org.apache.geronimo.javamail/geronimo-javamail_1.4_mail/1.8.3</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-activation_1.1_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-atinject_1.0_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-ejb_3.1_spec/1.0.2</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/1.0.2</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-interceptor_1.1_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.6_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jacc_1.4_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jaspic_1.0_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-javaee-deployment_1.1MR3_spec/1.0.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jaxb_2.2_spec/1.0.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jaxr_1.0_spec/2.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jaxrpc_1.1_spec/2.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jcdi_1.0_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jpa_2.0_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jsp_2.2_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-osgi-registry/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-saaj_1.3_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-servlet_3.0_spec/1.0</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-stax-api_1.2_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-validation_1.0_spec/1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-ws-metadata_2.0_spec/1.1.3</bundle>
+        <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.1</bundle>
+    </feature>
+</features>

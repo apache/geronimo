@@ -34,7 +34,10 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>declarative-services</module>
         <module>framework</module>
+        <module>org.apache.geronimo.javaee-specs</module>
+        <module>org.apache.geronimo.jaxb-support</module>
     </modules>
 
 <!--
