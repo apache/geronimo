@@ -457,7 +457,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                         }
                     }
                 } catch (BundleException e) {
-                    log.warn("Could not install bundle for artifact: " + artifact, e);
+                    log.warn("Could not install bundle for artifact: " + artifact + " from location "  + location +  " due to " + e.getMessage());
                 }
             }
             fullDependentBundleIdsMap.put(bundle.getBundleId(), fullDependentBundleIds);
