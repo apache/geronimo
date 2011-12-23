@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.rmi.registry.Registry;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     /**
      * Utility method for issuing shell prompts.
      *
-     * @param prompt The prompt string.
+     * @param msg The prompt string.
      *
      * @return The string return result.
      */
@@ -154,12 +155,17 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     }
 
     public boolean isEmbedded(Kernel kernel) {
+        return true;
+        //TODO GERONIMO-6243 is this code ever runnable not embedded?  If so figure out a better test.  EmbeddedDaemon is not a gbean or service, just
+        // a DS component.
+/*
         if (kernel != null) {
             Set<AbstractName> deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
             return !deamon.isEmpty();
         } else {
             return false;
         }
+*/
     }
 
     public boolean isEmbeddedServer(String hostname, int port) {
@@ -168,9 +174,12 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
         }
         Kernel kernel = getKernel();
         try {
-            int embeddedPort = (Integer) kernel.getAttribute("RMIRegistry", "port");
-            if (port != embeddedPort) {
-                return false;
+            ServiceReference sr = bundleContext.getServiceReference(Registry.class);
+            if (sr != null) {
+                int embeddedPort = (Integer)sr.getProperty("port");
+                if (port != embeddedPort) {
+                    return false;
+                }
             }
             // If it runs here, the user should have access to the local shell.
             // we should only identify whether the host name is any interface of the local machine, and ignore whether the server is really listening on this interface.
