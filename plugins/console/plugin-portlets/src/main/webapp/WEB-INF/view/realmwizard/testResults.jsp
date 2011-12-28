@@ -83,7 +83,7 @@
       <tr>
       </c:if>
         <td>${principal.name}</td>
-        <td>${principal.class.name}</td>
+        <td>${principal['class'].name}</td>
       </tr>
       </c:forEach>
     </c:if>
