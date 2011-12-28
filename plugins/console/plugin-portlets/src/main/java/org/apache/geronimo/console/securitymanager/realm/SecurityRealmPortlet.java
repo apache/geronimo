@@ -452,7 +452,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                             final String testName = objectName.getKeyProperty(NameFactory.J2EE_NAME);
                             final String testApp = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
                             if (testName.equals(poolName) && testApp.equals(appName)) {
-                                String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
+                                String moduleName = objectName.getKeyProperty(NameFactory.RESOURCE_ADAPTER_MODULE);
 
                                 ArtifactType artifactType = dependenciesType.addNewDependency();
                                 Artifact artifact = Artifact.create(moduleName);
