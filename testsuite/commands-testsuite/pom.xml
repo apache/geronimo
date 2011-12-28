@@ -46,8 +46,8 @@
 
     <modules>
         <module>deploy</module>
-        <!--<module>jaxws</module>
-        <module>shutdown</module>-->
+        <module>jaxws</module>
+        <module>shutdown</module>
     </modules>
     
     <profiles>
