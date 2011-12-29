@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.1.8
+Release Notes -- Apache Geronimo -- Version ##VERSION##
 
 
 Geronimo URLs
@@ -58,51 +58,26 @@ Plan Creator (added in Geronimo 2.1.2)
   the user through a sequence of steps and generates geronimo-web.xml automatically.
 
 
-Geronimo 2.1.8 Issues Resolved
+Geronimo ##VERSION## Issues Resolved
 ------------------------------
 ** Bug
-GERONIMO-6146 Got ClassCastException when creating Oracle RAC datasource
-GERONIMO-6111 geronimo-tomcat6-javaee5-2.1.7 does not start in 64 bit Platform when using JAVA 7
-GERONIMO-5991 org.apache.myfaces.el.VariableResolverImpl throws java.lang.IllegalStateException when it unsets the scope as null
-GERONIMO-5950 AMQ-3121: Avoid connection creation while creating XAResource if the connection factory is not an xa connection factory
-GERONIMO-5825 Provide a option to prevent tar assemblies from generating.
-GERONIMO-5806 SharedLIb GBean should have priority set to PRIORITY_CLASSLOADER
-GERONIMO-5712 Geronimo should remember the monitoring server enablement status.
-GERONIMO-5727 GERONIMO-5712 [Doc] Update doc about section: "Monitoring components on Geronimo Server"
-GERONIMO-5725 ActiveMQ errors showed when deployed daytrader sample
-GERONIMO-5723 derby system-database user authentication failure when shutdown server using sun jdk 1.6.0
-GERONIMO-5673 ModuleMojoSupport ignores stopOnFailure
-GERONIMO-5355 ClassCastException while starting snapshot (Stat Query) in G 215 Monitoring portlet through java client
-GERONIMO-5181 Modification to Database connection pool parameters are not saved when restart Geronimo.
-GERONIMO-4861 Deployment Plan XML Parsing - Not add generated namespace names to closing tags
-GERONIMO-4668 Parse XML error after deploying a EJB security jar
-GERONIMO-5900 NullPointerException on JavaBeanDispatcher class when debug logging enabled
-GERONIMO-6171 Grails applications do not works correctly when deployed to ROOT folder
-GERONIMO-5700 Active MQ Fixes in geronimo for AMQ-1779, AMQ-1431 and AMQ-1760
-GERONIMO-5689 User-defined derby connection user name and password should be honored when enabling derby authentication
+
 
 ** Improvement
-GERONIMO-4540 Improve windows startup batch scripts to redirect stdout and stderr messages to GERONIMO_HOME/var/log/geronimo.out
-GERONIMO-6234 Upgrade some components for 2.1.8 release
-GERONIMO-6164 Passing more db2 specific properties through db2 xa connector
-GERONIMO-5265 Modify the redeploy behavior to start all the running childs along with the parent
-GERONIMO-6234 Upgrade some components for 2.1.8 release
-GERONIMO-6176 upgrade jaxb to 2.1.13 and use geronimo jaxb 2.1 spec
+
 
 ** New Feature
-GERONIMO-5749 Command Line utility to enable/disable Monitoring server and Stat query Snapshot thread for DefaultServer
-GERONIMO-6161 Support MSSQL Server 2008 XA Datasource Creation
-GERONIMO-6202 Add sql server 2008 tranql and update db2iseriesxa and db2xa tranql version
+
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.8 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v##VERSION## has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.1.8 is available in five distributions so you can pick the 
+Apache Geronimo v##VERSION## is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
@@ -131,18 +106,4 @@ All programming elements of the Java EE 5.0 Specification are available.
 Known Issues and Limitations
 ----------------------------
 ** Bug
-GERONIMO-5750	override rat plugin to exclude the files we won't need to scan to make the rat:check result cleaner.
-GERONIMO-6172	Active Request Count query in monitor portlet shows nothing
-GERONIMO-6152	Obscure password when build time
-GERONIMO-6116	differentiate the two "OpenEJB ORB Adapter" displayed in "Linstening on Ports" after server startup.
-GERONIMO-5825	Provide a option to prevent tar assemblies from generating.
-GERONIMO-5824	jpa JTA transaction and missing jta-data-source should be warned about or rejected
-GERONIMO-6189	web access URL is not included virtual host infomation
-GERONIMO-6173	Update doc accordingly since monitor portlet has default server/querys
-GERONIMO-6158	Plan creator is not loading all fields from xml descriptor inside WAR
-GERONIMO-6156	make console more virtual hosts aware
-GERONIMO-6142	add backup/restore capability to Derby portlet
-GERONIMO-6073	Rotation and appending of console output when Geronimo is run a windows service
-GERONIMO-5873	starttls.required is not supported by JavaMail
-GERONIMO-5745	Override wsdl endpoint address
 
