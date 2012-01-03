@@ -224,37 +224,8 @@ public class PackageMojo extends AbstractCarMojo {
         org.apache.geronimo.kernel.repository.Artifact geronimoArtifact = mavenToGeronimoArtifact(project.getArtifact());
         org.apache.geronimo.kernel.repository.Maven2Repository repo = new org.apache.geronimo.kernel.repository.Maven2Repository(targetRepository);
         return repo.getLocation(geronimoArtifact);
-
-//        //
-//        // HACK: Generate the filename in the repo... really should delegate this to the repo impl
-//        //
-//
-//        File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
-//        dir = new File(dir, project.getArtifactId());
-//        dir = new File(dir, project.getVersion());
-//        dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
-//
-//        return dir;
     }
 
-//    public void executeBootShell() throws Exception {
-//        getLog().debug("Starting bootstrap shell...");
-//
-//        PluginBootstrap2 boot = new PluginBootstrap2();
-//
-//        boot.setBuildDir(outputDirectory);
-//        boot.setCarFile(getArtifactInRepositoryDir());
-//        boot.setLocalRepo(repository);
-//        boot.setPlan(planFile);
-//        Framework framework = getFramework();
-//        BundleContext bundleContext = framework.getBundleContext();
-//        boot.setBundleContext(bundleContext);
-//
-//        // Keep the same behavior with RepositoryConfigurationStore
-//        boot.setExpanded(false);
-//
-//        boot.bootstrap();
-//    }
 
     //
     // Deployment
@@ -467,112 +438,11 @@ public class PackageMojo extends AbstractCarMojo {
         return false;
     }
 
-    /**
-     * Boot the in-Maven deployment system.
-     * <p/>
-     * <p>
-     * This contains Repository and ConfigurationStore GBeans that map to
-     * the local maven installation.
-     * </p>
-     */
-//    private AbstractName bootDeployerSystem() throws Exception {
-//        getLog().debug("Booting deployer system...");
-//
-//        org.apache.geronimo.kernel.repository.Artifact baseId =
-//                new org.apache.geronimo.kernel.repository.Artifact("geronimo", "packaging", "fixed", "car");
-//        Naming naming = kernel.getNaming();
-//        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
-//        ClassLoader cl = getClass().getClassLoader();
-//        Set<AbstractName> repoNames = new HashSet<AbstractName>();
-//
-//        //
-//        // NOTE: Install an adapter for the source repository that will leverage the Maven2 repository subsystem
-//        //       to allow for better handling of SNAPSHOT values.
-//        //
-//        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), bundleContext.getBundle()));
-//        Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
-//            private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
-//                return lookupHolder.get();
-//            }
-//
-//            public File getBasedir() {
-//                return getDelegate().getBasedir();
-//            }
-//
-//            public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
-//                return getDelegate().getLocation(artifact);
-//            }
-//        };
-//        repoGBean.setAttribute("lookup", lookup);
-//        repoGBean.setAttribute("dependencies", dependencyArtifacts);
-//        repoNames.add(repoGBean.getAbstractName());
-//
-//        // Target repo
-//        GBeanData targetRepoGBean = bootstrap.addGBean("TargetRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), bundleContext.getBundle()));
-//        URI targetRepositoryURI = targetRepository.toURI();
-//        targetRepoGBean.setAttribute("root", targetRepositoryURI);
-//        repoNames.add(targetRepoGBean.getAbstractName());
-//        targetRepositoryAName = targetRepoGBean.getAbstractName();
-//
-//        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-//        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.class);
-//        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionProperties.getAbsolutePath());
-//        ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
-//        artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
-//        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
-//
-//        GBeanData dependencyManager = bootstrap.addGBean("DependencyManager", DependencyManager.class);
-//        dependencyManager.setReferencePattern("Repositories", repoGBean.getAbstractName());
-//        dependencyManager.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
-//
-//        Set storeNames = new HashSet();
-//
-//        // Source config store
-//        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(MavenConfigStore.class.getName(), bundleContext.getBundle());
-//        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
-//        if (configStoreInfo.getReference("Repository") != null) {
-//            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
-//        }
-//        storeNames.add(storeGBean.getAbstractName());
-//
-//        // Target config store
-//        GBeanInfo targetConfigStoreInfo = GBeanInfo.getGBeanInfo(RepositoryConfigurationStore.class.getName(), bundleContext.getBundle());
-//        GBeanData targetStoreGBean = bootstrap.addGBean("TargetConfigStore", targetConfigStoreInfo);
-//        if (targetConfigStoreInfo.getReference("Repository") != null) {
-//            targetStoreGBean.setReferencePattern("Repository", targetRepoGBean.getAbstractName());
-//        }
-//        storeNames.add(targetStoreGBean.getAbstractName());
-//
-//        targetConfigStoreAName = targetStoreGBean.getAbstractName();
-//        targetSet = true;
-//
-//        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
-//        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.class);
-//        configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
-//        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
-//        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
-//        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
-//        configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
-//
-//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext, configurationManager);
-//
-//        return repoGBean.getAbstractName();
-//    }
 
     private static final Class[] DEPLOY_SIGNATURE = {
             boolean.class,
             File.class,
             File.class,
-//            File.class,
-//            Boolean.TYPE,
-//            String.class,
-//            String.class,
-//            String.class,
-//            String.class,
-//            String.class,
-//            String.class,
-//            String.class,
-//            String.class,
     };
 
     private List invokeDeployer(final Object deployer, final String targetConfigStore) throws Exception {
@@ -580,16 +450,6 @@ public class PackageMojo extends AbstractCarMojo {
                 Boolean.FALSE, // Not in-place
                 moduleFile,
                 planFile,
-//                null, // Target file
-//                Boolean.TRUE, // Install
-//                null, // main-class
-//                null, // main-gbean
-//                null, // main-method
-//                null, // Manifest configurations
-//                null, // class-path
-//                null, // endorsed-dirs
-//                null, // extension-dirs
-//                null //target config store (ignored)
         };
 
         Method m = deployer.getClass().getMethod("deploy", DEPLOY_SIGNATURE);
