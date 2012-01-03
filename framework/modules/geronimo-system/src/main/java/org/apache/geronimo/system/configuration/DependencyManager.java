@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.aries.util.tracker.RecursiveBundleTracker;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -43,10 +44,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.AbstractRepository;
@@ -69,10 +66,10 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.framework.Version;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +77,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 @Component
-public class DependencyManager implements SynchronousBundleListener {
+public class DependencyManager {
 
     private static final Logger log = LoggerFactory.getLogger(DependencyManager.class);
 
@@ -107,9 +104,12 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
 
-    public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
-            @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
-            @ParamReference(name = "ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver) {
+    private RecursiveBundleTracker bt;
+
+    //used in tests
+    protected DependencyManager(BundleContext bundleContext,
+            Collection<Repository> repositories,
+            ArtifactResolver artifactResolver) {
         this.bundleContext = bundleContext;
         this.repositories.addAll(repositories);
         this.artifactResolver = artifactResolver;
@@ -144,6 +144,59 @@ public class DependencyManager implements SynchronousBundleListener {
 
     public void unbindRepository(Repository repository) {
         repositories.remove(repository);
+    }
+
+
+    @Activate
+    public void doStart(BundleContext bundleContext) throws Exception {
+        this.bundleContext = bundleContext;
+        int stateMask = Bundle.INSTALLED | Bundle.RESOLVED | Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING | Bundle.UNINSTALLED;
+        bt = new RecursiveBundleTracker(bundleContext, stateMask, new BundleTrackerCustomizer() {
+            @Override
+            public Object addingBundle(Bundle bundle, BundleEvent bundleEvent) {
+                if (bundleEvent == null) {
+                    // existing bundles first added to the tracker with no event change
+                    installed(bundle);
+                } else {
+                    bundleChanged(bundleEvent);
+                }
+
+                return bundle;
+            }
+
+            @Override
+            public void modifiedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
+                if (bundleEvent == null) {
+                    // existing bundles first added to the tracker with no event change
+                    return;
+                } else {
+                    bundleChanged(bundleEvent);
+                }
+            }
+
+            @Override
+            public void removedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
+                if (bundleEvent == null) {
+                    // existing bundles first added to the tracker with no event change
+                    return;
+                } else {
+                    bundleChanged(bundleEvent);
+                }
+            }
+        });
+        bt.open();
+    }
+
+    @Deactivate
+    public void doStop() throws Exception {
+        bt.close();
+        //Some clean up work
+        pluginMap.clear();
+        dependentBundleIdsMap.clear();
+        fullDependentBundleIdsMap.clear();
+        bundleExportPackagesMap.clear();
+        artifactBundleMap.clear();
+        bundleIdArtifactMap.clear();
     }
 
     public void bundleChanged(BundleEvent bundleEvent) {
@@ -598,54 +651,6 @@ public class DependencyManager implements SynchronousBundleListener {
         return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion()
                 + ("jar".equals(configurationId.getType()) ? "" : "/" + configurationId.getType());
 //        throw new NoSuchConfigException(configurationId);
-    }
-
-    @Activate
-    public void doStart(BundleContext bundleContext) throws Exception {
-        this.bundleContext = bundleContext;
-        bundleContext.addBundleListener(this);
-//        respositoryAdminReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-//        repositoryAdmin = respositoryAdminReference == null ? null : (RepositoryAdmin) bundleContext.getService(respositoryAdminReference);
-        //init installed bundles
-        for (Bundle bundle : bundleContext.getBundles()) {
-            installed(bundle);
-        }
-        //Check the car who loads me ...
-        try {
-            PluginArtifactType pluginArtifact = getCachedPluginMetadata(bundleContext.getBundle());
-            if (pluginArtifact != null) {
-                Set<Long> dependentBundleIds = new HashSet<Long>();
-                for (DependencyType dependency : pluginArtifact.getDependency()) {
-                    Bundle dependentBundle = getBundle(dependency.toArtifact());
-                    if (dependentBundle != null) {
-                        dependentBundleIds.add(dependentBundle.getBundleId());
-                    }
-                }
-                long bundleId = bundleContext.getBundle().getBundleId();
-                dependentBundleIdsMap.put(bundleId, dependentBundleIds);
-                fullDependentBundleIdsMap.put(bundleId, dependentBundleIds);
-            }
-        } catch (Exception e) {
-            log.error("Fail to read the dependency info from bundle " + bundleContext.getBundle().getLocation());
-        }
-    }
-
-    @Deactivate
-    public void doStop() throws Exception {
-//        if (respositoryAdminReference != null) {
-//            try {
-//                bundleContext.ungetService(respositoryAdminReference);
-//            } catch (Exception e) {
-//            }
-//        }
-        bundleContext.removeBundleListener(this);
-        //Some clean up work
-        pluginMap.clear();
-        dependentBundleIdsMap.clear();
-        fullDependentBundleIdsMap.clear();
-        bundleExportPackagesMap.clear();
-        artifactBundleMap.clear();
-        bundleIdArtifactMap.clear();
     }
 
 }
