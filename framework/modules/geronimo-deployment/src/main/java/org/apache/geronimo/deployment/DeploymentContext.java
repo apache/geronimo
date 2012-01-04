@@ -41,7 +41,6 @@ import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.IllegalConfigurationException;
 import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
@@ -63,7 +62,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -552,11 +550,7 @@ public class DeploymentContext {
 
         // TODO OSGI figure out exports
         environment.addToBundleClassPath(bundleClassPath);
-        // TODO OSGI leave out if we use a extender mechanism
-        if (environment.getBundleActivator() == null) {
-            environment.setBundleActivator(ConfigurationActivator.class.getName());
-            environment.addImportPackage(getImportPackageName(ConfigurationActivator.class.getName()));
-        }
+
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
@@ -570,7 +564,9 @@ public class DeploymentContext {
             }
         } else {
             LinkedHashSet<String> imports = getImports(gbeans);
-            addImport(imports, environment.getBundleActivator());
+            if (environment.getBundleActivator() != null) {
+                addImport(imports, environment.getBundleActivator());
+            }
             environment.addImportPackages(imports);
             environment.addDynamicImportPackage("*");
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());

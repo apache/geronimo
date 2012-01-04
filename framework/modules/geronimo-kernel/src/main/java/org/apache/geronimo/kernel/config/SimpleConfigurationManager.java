@@ -380,7 +380,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 bundle.start(Bundle.START_TRANSIENT);
                 if (bundle.getState() != 32) {
 //                    throw new IllegalStateException("Cant start bundle " + configurationId);
-                    bundle.start();   //should throw an exception if bundle won't start. start triggers ConfigurationActivator which does most of the load work.
+                    bundle.start();   //should throw an exception if bundle won't start. start triggers loading in DependencyManager.
                 }
             }
             bundles.put(configurationId, bundle);

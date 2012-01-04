@@ -44,6 +44,14 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.AbstractRepository;
@@ -104,6 +112,13 @@ public class DependencyManager {
 
     private final Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
 
+    //configuration activator
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private Kernel kernel;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ConfigurationManager configurationManager;
+
     private RecursiveBundleTracker bt;
 
     //used in tests
@@ -146,6 +161,26 @@ public class DependencyManager {
         repositories.remove(repository);
     }
 
+    public void setKernel(Kernel kernel) {
+        this.kernel = kernel;
+    }
+
+    public void unsetKernel(Kernel kernel) {
+        if (this.kernel == kernel) {
+            this.kernel = null;
+        }
+    }
+
+    public void setConfigurationManager(ConfigurationManager configurationManager) {
+        this.configurationManager = configurationManager;
+    }
+
+    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
+        if (this.configurationManager == configurationManager) {
+            this.configurationManager = null;
+        }
+    }
+
 
     @Activate
     public void doStart(BundleContext bundleContext) throws Exception {
@@ -157,6 +192,7 @@ public class DependencyManager {
                 if (bundleEvent == null) {
                     // existing bundles first added to the tracker with no event change
                     installed(bundle);
+                    start(bundle);
                 } else {
                     bundleChanged(bundleEvent);
                 }
@@ -206,6 +242,9 @@ public class DependencyManager {
             installed(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.STARTING) {
             starting(bundleEvent.getBundle());
+            start(bundleEvent.getBundle());
+        } else if (eventType == BundleEvent.STOPPING) {
+            stop(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.UNINSTALLED) {
             uninstall(bundleEvent.getBundle());
         }
@@ -652,5 +691,62 @@ public class DependencyManager {
                 + ("jar".equals(configurationId.getType()) ? "" : "/" + configurationId.getType());
 //        throw new NoSuchConfigException(configurationId);
     }
+
+    //Activator replacement
+
+    public void start(Bundle bundle) {
+        InputStream in = null;
+        try {
+            in = bundle.getEntry("META-INF/config.ser").openStream();
+            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
+            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
+            data.setBundleContext(bundle.getBundleContext());
+            configurationManager.loadConfiguration(data);
+//            Artifact id = data.getId();
+            //            manager.startConfiguration(id);
+        } catch (Exception e) {
+            log.warn("Exception trying to load configuration bundle " + bundle, e);
+//            throw e;
+        } finally {
+            if (in != null)
+                try {
+                    in.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+
+    public void stop(Bundle bundle) {
+        try {
+            Artifact id = bundleIdArtifactMap.get(bundle.getBundleId());
+            if (id == null) {
+                return;
+            }
+            AbstractName name = Configuration.getConfigurationAbstractName(id);
+            //TODO investigate how this is called and whether just stopping/unloading the configuration gbean will
+            //leave the configuration model in a consistent state.  We might need a shutdown flag set elsewhere to avoid
+            //overwriting the load attribute in config.xml. This code mimics the shutdown hook in KernelConfigurationManager
+            //see https://issues.apache.org/jira/browse/GERONIMO-4909
+            try {
+                kernel.stopGBean(name);
+            } catch (GBeanNotFoundException e) {
+            } catch (InternalKernelException e) {
+            } catch (IllegalStateException e) {
+            }
+            try {
+                kernel.unloadGBean(name);
+            } catch (GBeanNotFoundException e) {
+            } catch (InternalKernelException e) {
+            } catch (IllegalStateException e) {
+            }
+            //TODO this code is more symmetrical with start, but currently sets the load attribute to false in config.xml,
+            //which prevents restarting the server.
+            //            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+            //            manager.unloadConfiguration(id);
+        } catch (InvalidConfigException e) {
+            log.warn("cannot stop Configuration for bundle " + bundle.getBundleId());
+        }
+    }
+
 
 }

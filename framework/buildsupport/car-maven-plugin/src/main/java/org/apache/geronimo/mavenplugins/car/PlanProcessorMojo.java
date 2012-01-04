@@ -177,9 +177,6 @@ public class PlanProcessorMojo
         Environment newEnvironment = new Environment();
         newEnvironment.setConfigId(configId);
         newEnvironment.setDependencies(dependencies);
-//        if (boot) {
-//            newEnvironment.setBundleActivator(BootActivator.class.getName());
-//        }
 
         EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
         EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);
