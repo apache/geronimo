@@ -290,8 +290,14 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 
-    private void addArtifactBundleEntry(Bundle bundle) {
-        Artifact artifact = toArtifact(bundle.getLocation());
+    private PluginArtifactType addArtifactBundleEntry(Bundle bundle) {
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        Artifact artifact;
+        if (pluginArtifactType == null) {
+            artifact = toArtifact(bundle.getLocation());
+        } else {
+            artifact = pluginArtifactType.getModuleId().toArtifact();
+        }
         if (artifact != null) {
             artifactBundleMap.put(artifact, bundle);
             bundleIdArtifactMap.put(bundle.getBundleId(), artifact);
@@ -300,13 +306,13 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                 log.debug("fail to resovle artifact from the bundle location " + bundle.getLocation());
             }
         }
+        return pluginArtifactType;
     }
 
     private void removeArtifactBundleEntry(Bundle bundle) {
-        Artifact artifact = toArtifact(bundle.getLocation());
+        Artifact artifact = bundleIdArtifactMap.remove(bundle.getBundleId());
         if (artifact != null) {
             artifactBundleMap.remove(artifact);
-            bundleIdArtifactMap.remove(bundle.getBundleId());
         }
     }
 
@@ -428,8 +434,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         if (bundleIdArtifactMap.containsKey(bundle.getBundleId())) {
             return;
         }
-        addArtifactBundleEntry(bundle);
-        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        PluginArtifactType pluginArtifactType = addArtifactBundleEntry(bundle);
         if (pluginArtifactType == null) {
             return;
         }

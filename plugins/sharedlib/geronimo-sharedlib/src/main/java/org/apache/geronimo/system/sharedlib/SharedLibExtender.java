@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,7 +33,6 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.hook.BundleHelper;
 import org.apache.geronimo.hook.SharedLibraryRegistry;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.DependencyManager;
@@ -64,7 +64,8 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
 
     private final ReentrantLock registerLock = new ReentrantLock();
 
-    public SharedLibExtender(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+    public SharedLibExtender(
+            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
             @ParamReference(name = "DependencyManager") DependencyManager dependencyManager,
             @ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager) {
         this.dependencyManager = dependencyManager;
@@ -100,20 +101,14 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
     }
 
     private void installSharedLibs(Bundle appBundle) {
-        Artifact artifact = dependencyManager.getArtifact(appBundle.getBundleId());
-        if (artifact == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Unable to recongnize the artifact id for the bundle " + appBundle.getSymbolicName());
-            }
-            return;
-        }
-        if (!configurationManager.isConfiguration(artifact)) {
-            return;
-        }
-        Configuration configuration = configurationManager.getConfiguration(artifact);
+        Set<Long> dependentBundleIds = dependencyManager.getFullDependentBundleIds(appBundle.getBundleId());
         List<Bundle> dependentSharedLibBundles = new ArrayList<Bundle>();
-        for (Artifact parentArtifact : configuration.getDependencyNode().getParents()) {
-            List<Bundle> sharedLibBundles = configruationSharedLibBundlesMap.get(parentArtifact);
+        for (Long bundleId : dependentBundleIds) {
+            Artifact currArtifact = dependencyManager.getArtifact(bundleId);
+            if (currArtifact == null) {
+                continue;
+            }
+            List<Bundle> sharedLibBundles = configruationSharedLibBundlesMap.get(currArtifact);
             if (sharedLibBundles != null) {
                 dependentSharedLibBundles.addAll(sharedLibBundles);
             }
