@@ -106,7 +106,7 @@
                                     <attribute name="protocol">rmi</attribute>
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{JMXPort + PortOffset}</attribute>
-                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>
+                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/jmxrmi</attribute>
                                 </gbean>
                              </config-xml-content>
                             <config-substitution key="JMXPort">9999</config-substitution>

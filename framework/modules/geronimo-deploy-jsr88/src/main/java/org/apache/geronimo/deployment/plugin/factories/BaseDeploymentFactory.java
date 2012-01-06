@@ -167,7 +167,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         String[] credentials = new String[]{username, password};
         environment.put(JMXConnector.CREDENTIALS, credentials);
         environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, BaseDeploymentFactory.class.getClassLoader());
-        String connectorName = "/JMXConnector";
+        String connectorName = "/jmxrmi";
         if (params.isSecure()) {
             connectorName = "/JMXSecureConnector";
             SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();

@@ -74,7 +74,7 @@ public class ServerProxy
     }
 
     public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {
-        this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector", username, password);
+        this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/jmxrmi", username, password);
     }
 
     public ServerProxy(final String url, final String username, final String password) throws Exception {

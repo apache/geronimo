@@ -144,7 +144,7 @@ public class StopServer implements Main {
     public MBeanServerConnection getMBeanServerConnection() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
-        String connectorName = "/JMXConnector";
+        String connectorName = "/jmxrmi";
         if (secure) {
             connectorName = "/JMXSecureConnector";
             SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();

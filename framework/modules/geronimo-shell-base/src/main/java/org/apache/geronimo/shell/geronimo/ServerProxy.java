@@ -109,7 +109,7 @@ public class ServerProxy
     }
     
     private static String createJMXServiceURL(String hostname, int port, boolean secure) {
-        String connectorName = (secure) ? "/JMXSecureConnector" : "/JMXConnector";
+        String connectorName = (secure) ? "/JMXSecureConnector" : "/jmxrmi";
         return "service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + connectorName;
     }
     

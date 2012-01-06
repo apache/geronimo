@@ -20,6 +20,8 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.DeployerGBean"/>
+
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>

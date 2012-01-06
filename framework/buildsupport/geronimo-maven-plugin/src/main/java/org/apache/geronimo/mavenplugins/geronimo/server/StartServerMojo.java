@@ -174,7 +174,7 @@ public class StartServerMojo
 
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");
-        java.setClassname("org.apache.geronimo.cli.daemon.DaemonCLI");
+        java.setClassname("org.apache.karaf.main.Main");
         Path path = java.createClasspath();
         File libDir = new File(geronimoHome, "lib");
         FileSet fileSet = new FileSet();
