@@ -192,7 +192,10 @@ public class DependencyManager {
                 if (bundleEvent == null) {
                     // existing bundles first added to the tracker with no event change
                     installed(bundle);
-                    start(bundle);
+                    //make sure existing bundle is at least starting
+                    if (bundle.getBundleContext() != null) {
+                        start(bundle);
+                    }
                 } else {
                     bundleChanged(bundleEvent);
                 }
