@@ -1693,11 +1693,12 @@ only found in cxf
                 <version>${equinox.version}</version>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>org.osgi</groupId>-->
-                <!--<artifactId>org.osgi.core</artifactId>-->
-                <!--<version>4.3.0</version>-->
-            <!--</dependency>-->
+            <!-- todo karaf now includes these classes, get rid of this? Most likely will cause java 7 compilation problems-->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>4.3.0</version>
+            </dependency>
 
             <!--<dependency>-->
                 <!--<groupId>org.osgi</groupId>-->
