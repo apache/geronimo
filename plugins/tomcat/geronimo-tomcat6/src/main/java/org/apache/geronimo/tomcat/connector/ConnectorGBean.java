@@ -157,6 +157,15 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public void setMaxPostSize(int bytes) {
         connector.setMaxPostSize(bytes);
     }
+    
+    public int getMaxParameterCount(){
+    	int value = connector.getMaxParameterCount();
+    	return value == 0 ? 10000 : value;
+    }
+    
+    public void setMaxParameterCount(int count){
+    	connector.setMaxParameterCount(count);
+    }
 
     public String getProtocol() {
         //This is totally wrong on the Geronimo side and needs to be re-thought out.
@@ -287,6 +296,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
                         "allowTrace",
                         "emptySessionPath",
                         "enableLookups",
+                        "maxParameterCount",
                         "maxPostSize",
                         "maxSavePostSize",
                         "protocol",
@@ -307,6 +317,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
                         "allowTrace",
                         "emptySessionPath",
                         "enableLookups",
+                        "maxParameterCount",
                         "maxPostSize",
                         "maxSavePostSize",
                         "protocol",
