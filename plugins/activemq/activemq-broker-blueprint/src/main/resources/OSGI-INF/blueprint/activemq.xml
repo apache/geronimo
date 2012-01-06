@@ -24,12 +24,12 @@
 
 <b:blueprint xmlns:b="http://www.osgi.org/xmlns/blueprint/v1.0.0"
              xmlns:amq="http://activemq.apache.org/schema/core"
-             xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+             xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
 
-    <ext:property-placeholder id="property-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true">
+    <ext:property-placeholder id="property-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true" evaluator="jexl">
         <ext:default-properties>
             <ext:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
             <ext:property name="activemq.data" value="var/activemq"/>
