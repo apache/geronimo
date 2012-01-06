@@ -131,6 +131,8 @@
         <attribute name="port">4201</attribute>
     </gbean>
 
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.ArtifactManagerGBean"/>
+
     <gbean name="ClientArtifactResolver" class="org.apache.geronimo.client.builder.OptionalExplicitDefaultArtifactResolver">
         <reference name="ArtifactManager">
             <name>ArtifactManager</name>

@@ -53,6 +53,7 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
@@ -147,7 +148,7 @@ public abstract class EARConfigBuilderTestSupport
         super.setUp();
         bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), locations);
         ((MockBundleContext)bundleContext).setConfigurationManager(new MockConfigurationManager());
-        bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
+        bundleContext.registerService(OsgiMetaDataProvider.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         Set<Artifact> repo = new HashSet<Artifact>();
         repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
         repository = new MockRepository(repo);

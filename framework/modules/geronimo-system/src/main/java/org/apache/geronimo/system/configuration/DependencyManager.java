@@ -44,6 +44,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -84,8 +85,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-@Component
-public class DependencyManager {
+@Component(immediate = true)
+@Service //for OsgiMetaDataBuilder
+public class DependencyManager implements OsgiMetaDataProvider {
 
     private static final Logger log = LoggerFactory.getLogger(DependencyManager.class);
 
@@ -253,10 +255,12 @@ public class DependencyManager {
         }
     }
 
+    @Override
     public Set<ExportPackage> getExportedPackages(Bundle bundle) {
         return getExportedPackages(bundle.getBundleId());
     }
 
+    @Override
     public Set<ExportPackage> getExportedPackages(Long bundleId) {
         synchronized (bundleExportPackagesMap) {
             Set<ExportPackage> exportPackages = bundleExportPackagesMap.get(bundleId);
@@ -307,6 +311,7 @@ public class DependencyManager {
         return dependentBundles;
     }
 
+    @Override
     public Set<Long> getFullDependentBundleIds(Bundle bundle) {
         return getFullDependentBundleIds(bundle.getBundleId());
     }
@@ -316,6 +321,7 @@ public class DependencyManager {
         return fullDependentBundleIds == null ? Collections.<Long> emptySet() : new HashSet<Long>(fullDependentBundleIds);
     }
 
+    @Override
     public Bundle getBundle(Artifact artifact) {
         if (!artifact.isResolved()) {
             try {
@@ -328,6 +334,7 @@ public class DependencyManager {
         return artifactBundleMap.get(artifact);
     }
 
+    @Override
     public Artifact getArtifact(long bundleId) {
         return bundleIdArtifactMap.get(bundleId);
     }
@@ -549,6 +556,7 @@ public class DependencyManager {
         }
     }
 
+    @Override
     public PluginArtifactType getCachedPluginMetadata(Bundle bundle) {
         PluginArtifactType pluginArtifactType = pluginMap.get(bundle.getBundleId());
         if (pluginArtifactType == null) {

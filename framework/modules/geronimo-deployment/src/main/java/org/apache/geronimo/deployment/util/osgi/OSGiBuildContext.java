@@ -29,7 +29,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
@@ -48,7 +48,7 @@ public class OSGiBuildContext {
 
     private Set<String> hiddenImportPackageNames;
 
-    private DependencyManager dependencyManager;
+    private OsgiMetaDataProvider osgiMetaDataProvider;
 
     private Environment environment;
 
@@ -58,11 +58,11 @@ public class OSGiBuildContext {
 
     private ArtifactResolver clientArtifactResolver;
 
-    public OSGiBuildContext(Environment environment, List<String> hiddenImportPackageNamePrefixes, Set<String> hiddenImportPackageNames, DependencyManager dependencyManager,
+    public OSGiBuildContext(Environment environment, List<String> hiddenImportPackageNamePrefixes, Set<String> hiddenImportPackageNames, OsgiMetaDataProvider dependencyManager,
             boolean inverseClassLoading) {
         this.hiddenImportPackageNamePrefixes = hiddenImportPackageNamePrefixes;
         this.hiddenImportPackageNames = hiddenImportPackageNames;
-        this.dependencyManager = dependencyManager;
+        this.osgiMetaDataProvider = dependencyManager;
         this.environment = environment;
         this.inverseClassLoading = inverseClassLoading;
     }
@@ -94,8 +94,8 @@ public class OSGiBuildContext {
         return false;
     }
 
-    public DependencyManager getDependencyManager() {
-        return dependencyManager;
+    public OsgiMetaDataProvider getOsgiMetaDataProvider() {
+        return osgiMetaDataProvider;
     }
 
     public Environment getEnvironment() {
@@ -103,7 +103,7 @@ public class OSGiBuildContext {
     }
 
     public Set<ExportPackage> getEffectExportPackages(Long bundleId) {
-        Set<ExportPackage> exportPackages = new HashSet<ExportPackage>(dependencyManager.getExportedPackages(bundleId));
+        Set<ExportPackage> exportPackages = new HashSet<ExportPackage>(osgiMetaDataProvider.getExportedPackages(bundleId));
         for (Iterator<ExportPackage> it = exportPackages.iterator(); it.hasNext();) {
             ExportPackage exportPackage = it.next();
             if (isHiddenExportPackage(exportPackage) || exportPackage.getDirectives().get("mandatory") != null) {
@@ -129,11 +129,11 @@ public class OSGiBuildContext {
         if (clientModule) {
             return getFullClientDependentBundleIds(bundle.getBundleId());
         }
-        return dependencyManager.getFullDependentBundleIds(bundle);
+        return osgiMetaDataProvider.getFullDependentBundleIds(bundle);
     }
 
     private Set<Long> getFullClientDependentBundleIds(long bundleId) {
-        Artifact artifact = dependencyManager.getArtifact(bundleId);
+        Artifact artifact = osgiMetaDataProvider.getArtifact(bundleId);
         if (artifact == null) {
             return Collections.emptySet();
         }
@@ -151,11 +151,11 @@ public class OSGiBuildContext {
         if (resolvedClientArtifact == null) {
             return;
         }
-        Bundle resolvedBundle = dependencyManager.getBundle(resolvedClientArtifact);
+        Bundle resolvedBundle = osgiMetaDataProvider.getBundle(resolvedClientArtifact);
         if (resolvedBundle == null || dependentBundleIds.contains(resolvedBundle.getBundleId())) {
             return;
         }
-        PluginArtifactType pluginArtifact = dependencyManager.getCachedPluginMetadata(resolvedBundle);
+        PluginArtifactType pluginArtifact = osgiMetaDataProvider.getCachedPluginMetadata(resolvedBundle);
         if (pluginArtifact != null) {
             for (DependencyType dependency : pluginArtifact.getDependency()) {
                 Artifact resolvedDependentArtifact = resolveArtifact(dependency.toArtifact());

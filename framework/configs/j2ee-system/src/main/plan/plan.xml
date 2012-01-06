@@ -45,6 +45,9 @@ specific services - those should be provided by children.
     <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalPluginAttributeStoreGBean">
     </gbean>
 
+    <gbean name="PersistentConfigurationList" class="org.apache.geronimo.kernel.config.PersistentConfigurationListGBean">
+    </gbean>
+
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerGBean">
     </gbean>
 

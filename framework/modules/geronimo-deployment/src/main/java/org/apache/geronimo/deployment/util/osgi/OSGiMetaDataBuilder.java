@@ -30,6 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.apache.xbean.osgi.bundle.util.HeaderParser;
 import org.apache.xbean.osgi.bundle.util.HeaderParser.HeaderElement;
@@ -72,12 +73,12 @@ public class OSGiMetaDataBuilder {
         processClassloadingRules(environment);
         ServiceReference serviceReference = null;
         try {
-            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
-            DependencyManager dependencyManager = null;
+            serviceReference = bundleContext.getServiceReference(OsgiMetaDataProvider.class.getName());
+            OsgiMetaDataProvider osgiMetaDataProvider = null;
             if (serviceReference != null) {
-                dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+                osgiMetaDataProvider = (OsgiMetaDataProvider) bundleContext.getService(serviceReference);
             }
-            OSGiBuildContext context = createOSGiBuildContext(environment, dependencyManager, clientModule);
+            OSGiBuildContext context = createOSGiBuildContext(environment, osgiMetaDataProvider, clientModule);
             processImportPackages(context);
         } finally {
             if (serviceReference != null) {
@@ -97,7 +98,7 @@ public class OSGiMetaDataBuilder {
         }*/
     }
 
-    protected OSGiBuildContext createOSGiBuildContext(Environment environment, DependencyManager dependencyManager, boolean clientModule) throws IllegalConfigurationException {
+    protected OSGiBuildContext createOSGiBuildContext(Environment environment, OsgiMetaDataProvider osgiMetaDataProvider, boolean clientModule) throws IllegalConfigurationException {
         List<String> hiddenImportPackageNamePrefixes = new ArrayList<String>();
         Set<String> hiddenImportPackageNames = new HashSet<String>();
 
@@ -168,7 +169,7 @@ public class OSGiMetaDataBuilder {
         }
         environment.removeDynamicImportPackages(removedDynamicImportPackages);
 
-        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, environment.getClassLoadingRules()
+        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, osgiMetaDataProvider, environment.getClassLoadingRules()
                 .isInverseClassLoading());
         osgiBuildContext.setClientModule(clientModule);
         if (clientModule) {

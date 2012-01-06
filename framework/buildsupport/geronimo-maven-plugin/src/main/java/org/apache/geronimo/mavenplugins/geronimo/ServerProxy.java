@@ -123,7 +123,7 @@ public class ServerProxy
     }
     
     public boolean isFullyStarted() {
-        boolean fullyStarted = true;
+        boolean fullyStarted = false;
 
         try {
             AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
@@ -132,8 +132,8 @@ public class ServerProxy
             while (iter.hasNext()) {
                 AbstractName name = (AbstractName)iter.next();
                 boolean started = getBooleanAttribute(name, "kernelFullyStarted");
-                if (!started) {
-                    fullyStarted = false;
+                if (started) {
+                    fullyStarted = true;
                     break;
                 }
             }

@@ -47,6 +47,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
@@ -96,7 +97,7 @@ public class SingleFileHotDeployerTest extends TestSupport {
         }
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, Collections.singletonMap(baseLocation, NEW_ID));
         ((MockBundleContext)bundleContext).setConfigurationManager(new MockConfigurationManager());
-        bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
+        bundleContext.registerService(OsgiMetaDataProvider.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         File someFile = new File(dir, "someFile");
         someFile.createNewFile();
 

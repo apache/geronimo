@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -43,14 +43,14 @@ public class HighVersionFirstExportPackagesSelector implements ExportPackagesSel
     public Map<Long, Set<ExportPackage>> select(OSGiBuildContext context) {
         Map<Long, Set<ExportPackage>> bundleIdExportPackages = new HashMap<Long, Set<ExportPackage>>();
         Map<String, Version> packageNameVersionMap = new HashMap<String, Version>();
-        DependencyManager dependencyManager = context.getDependencyManager();
+        OsgiMetaDataProvider osgiMetaDataProvider = context.getOsgiMetaDataProvider();
         for (Dependency dependency : context.getEnvironment().getDependencies()) {
             Artifact resolvedArtifact = context.resolveArtifact(dependency.getArtifact());
             if(resolvedArtifact == null) {
                 logger.warn("Dependency " + dependency.getArtifact() + " could not be resolved, its export packages are ignored");
                 continue;
             }
-            Bundle dependentBundle = dependencyManager.getBundle(resolvedArtifact);
+            Bundle dependentBundle = osgiMetaDataProvider.getBundle(resolvedArtifact);
             if (dependentBundle == null) {
                 logger.warn("Fail to resolve the bundle corresponding to the artifact " + dependency.getArtifact() + ", its export packages are ignored");
                 continue;
