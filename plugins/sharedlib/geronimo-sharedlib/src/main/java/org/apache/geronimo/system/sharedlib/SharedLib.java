@@ -132,11 +132,11 @@ public class SharedLib implements GBeanLifecycle {
         if (dynamicImportPackages != null) {
             List<HeaderElement> headerElements = HeaderParser.parseHeader(dynamicImportPackages);
             //From shared library perspective, dynamic * should not be used
-            for (Iterator<HeaderElement> it = headerElements.iterator(); it.hasNext();) {
+            /*for (Iterator<HeaderElement> it = headerElements.iterator(); it.hasNext();) {
                 if (it.next().getName().equals("*")) {
                     it.remove();
                 }
-            }
+            }*/
             if (headerElements.size() > 0) {
                 manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, HeaderBuilder.build(headerElements)));
             }
