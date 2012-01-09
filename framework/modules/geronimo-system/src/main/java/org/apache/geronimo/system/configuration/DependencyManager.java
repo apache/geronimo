@@ -261,7 +261,7 @@ public class DependencyManager implements OsgiMetaDataProvider {
     }
 
     @Override
-    public Set<ExportPackage> getExportedPackages(Long bundleId) {
+    public Set<ExportPackage> getExportedPackages(long bundleId) {
         synchronized (bundleExportPackagesMap) {
             Set<ExportPackage> exportPackages = bundleExportPackagesMap.get(bundleId);
             if (exportPackages == null) {
@@ -296,7 +296,7 @@ public class DependencyManager implements OsgiMetaDataProvider {
         return getFullDependentBundles(bundle.getBundleId());
     }
 
-    public Set<Bundle> getFullDependentBundles(Long bundleId) {
+    public Set<Bundle> getFullDependentBundles(long bundleId) {
         Set<Long> fullDependentBundleIds = getFullDependentBundleIds(bundleId);
         if (fullDependentBundleIds.size() == 0) {
             return Collections.<Bundle> emptySet();
@@ -310,13 +310,13 @@ public class DependencyManager implements OsgiMetaDataProvider {
         }
         return dependentBundles;
     }
-
-    @Override
+    
     public Set<Long> getFullDependentBundleIds(Bundle bundle) {
         return getFullDependentBundleIds(bundle.getBundleId());
     }
 
-    public Set<Long> getFullDependentBundleIds(Long bundleId) {
+    @Override
+    public Set<Long> getFullDependentBundleIds(long bundleId) {
         Set<Long> fullDependentBundleIds = fullDependentBundleIdsMap.get(bundleId);
         return fullDependentBundleIds == null ? Collections.<Long> emptySet() : new HashSet<Long>(fullDependentBundleIds);
     }
@@ -448,10 +448,9 @@ public class DependencyManager implements OsgiMetaDataProvider {
     }
 
     private void removeArtifactBundleEntry(Bundle bundle) {
-        Artifact artifact = toArtifact(bundle.getLocation());
+        Artifact artifact = bundleIdArtifactMap.remove(bundle.getBundleId());
         if (artifact != null) {
             artifactBundleMap.remove(artifact);
-            bundleIdArtifactMap.remove(bundle.getBundleId());
         }
     }
 

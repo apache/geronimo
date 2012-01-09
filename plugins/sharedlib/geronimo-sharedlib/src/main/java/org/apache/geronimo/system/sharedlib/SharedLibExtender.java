@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,9 +33,9 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.hook.BundleHelper;
 import org.apache.geronimo.hook.SharedLibraryRegistry;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -54,7 +55,7 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
     private BundleContext bundleContext;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    private ConfigurationManager configurationManager;
+    private OsgiMetaDataProvider osgiMetaDataProvider;
 
     private Map<Artifact, List<Bundle>> configruationSharedLibBundlesMap = new ConcurrentHashMap<Artifact, List<Bundle>>();
 
@@ -62,23 +63,23 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
 
     private final ReentrantLock registerLock = new ReentrantLock();
 
-//    public SharedLibExtender(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
-//            @ParamReference(name = "DependencyManager") DependencyManager dependencyManager,
-//            @ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager) {
-//        this.bundleContext = bundleContext;
-//        this.configurationManager = configurationManager;
-//    }
-    
-    public void setConfigurationManager(ConfigurationManager configurationManager) {
-        this.configurationManager = configurationManager;
+    //    public SharedLibExtender(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+    //            @ParamReference(name = "DependencyManager") DependencyManager dependencyManager,
+    //            @ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager) {
+    //        this.bundleContext = bundleContext;
+    //        this.configurationManager = configurationManager;
+    //    }
+
+    public void setOsgiMetaDataProvider(OsgiMetaDataProvider osgiMetaDataProvider) {
+        this.osgiMetaDataProvider = osgiMetaDataProvider;
     }
 
-    public void unsetConfigurationManager(ConfigurationManager configurationManager) {
-        if (this.configurationManager == configurationManager) {
-            this.configurationManager = null;
+    public void unsetOsgiMetaDataProvider(OsgiMetaDataProvider osgiMetaDataProvider) {
+        if (this.osgiMetaDataProvider == osgiMetaDataProvider) {
+            this.osgiMetaDataProvider = null;
         }
     }
-    
+
     @Activate
     public void activate(BundleContext bundleContext) throws Exception {
         this.bundleContext = bundleContext;
@@ -121,13 +122,18 @@ public class SharedLibExtender implements SynchronousBundleListener, SharedLibra
     }
 
     private void installSharedLibs(Bundle appBundle) {
-        Configuration configuration = configurationManager.getConfiguration(appBundle.getBundleId());
-        if (configuration == null) {
+        if (osgiMetaDataProvider == null) {
+            logger.warn("No OsgiMetaDataProvider service found, shared libs will not be installed for the application bundle {}", appBundle.getSymbolicName());
             return;
         }
+        Set<Long> dependentBundleIds = osgiMetaDataProvider.getFullDependentBundleIds(appBundle.getBundleId());
         List<Bundle> dependentSharedLibBundles = new ArrayList<Bundle>();
-        for (Artifact parentArtifact : configuration.getDependencyNode().getParents()) {
-            List<Bundle> sharedLibBundles = configruationSharedLibBundlesMap.get(parentArtifact);
+        for (long dependentBundleId : dependentBundleIds) {
+            Artifact currArtifact = osgiMetaDataProvider.getArtifact(dependentBundleId);
+            if (currArtifact == null) {
+                continue;
+            }
+            List<Bundle> sharedLibBundles = configruationSharedLibBundlesMap.get(currArtifact);
             if (sharedLibBundles != null) {
                 dependentSharedLibBundles.addAll(sharedLibBundles);
             }

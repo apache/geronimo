@@ -31,9 +31,10 @@ import java.util.zip.ZipEntry;
 import org.apache.geronimo.jasper.TldProvider;
 import org.apache.geronimo.jasper.TldRegistry;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -72,11 +73,11 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
         Set<Bundle> dependentBundles = new HashSet<Bundle>();
         
         // add in bundles from dependency manager
-        ServiceReference serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+        ServiceReference serviceReference = bundleContext.getServiceReference(OsgiMetaDataProvider.class.getName());
         if (serviceReference != null) {
-            DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+            OsgiMetaDataProvider osgiMetaDataProvider = (OsgiMetaDataProvider) bundleContext.getService(serviceReference);
             try {
-                dependentBundles.addAll(dependencyManager.getFullDependentBundles(bundle.getBundleId()));
+                dependentBundles.addAll(osgiMetaDataProvider.getFullDependentBundles(bundle.getBundleId()));
             } finally {
                 bundleContext.ungetService(serviceReference);
             }

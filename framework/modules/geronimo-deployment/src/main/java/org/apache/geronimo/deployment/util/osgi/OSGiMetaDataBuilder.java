@@ -29,7 +29,6 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.apache.xbean.osgi.bundle.util.HeaderParser;

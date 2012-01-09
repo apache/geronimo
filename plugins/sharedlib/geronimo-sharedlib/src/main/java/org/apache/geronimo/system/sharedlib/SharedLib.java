@@ -20,7 +20,6 @@ package org.apache.geronimo.system.sharedlib;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,12 +130,6 @@ public class SharedLib implements GBeanLifecycle {
         String dynamicImportPackages = (String)bundleContext.getBundle().getHeaders().get(Constants.DYNAMICIMPORT_PACKAGE);
         if (dynamicImportPackages != null) {
             List<HeaderElement> headerElements = HeaderParser.parseHeader(dynamicImportPackages);
-            //From shared library perspective, dynamic * should not be used
-            for (Iterator<HeaderElement> it = headerElements.iterator(); it.hasNext();) {
-                if (it.next().getName().equals("*")) {
-                    it.remove();
-                }
-            }
             if (headerElements.size() > 0) {
                 manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, HeaderBuilder.build(headerElements)));
             }
@@ -161,7 +154,7 @@ public class SharedLib implements GBeanLifecycle {
             BundleUtils.resolve(sharedLibBundle);
         }
         //5. register the shared library bundle to the shared library bundle extender
-        ServiceReference sharedLibExtenderReference = null;
+        ServiceReference<?> sharedLibExtenderReference = null;
         try {
             sharedLibExtenderReference = bundleContext.getServiceReference(SharedLibExtender.class.getName());
             if (sharedLibExtenderReference != null) {
@@ -244,7 +237,7 @@ public class SharedLib implements GBeanLifecycle {
             delegatingBundle.removeBundle(sharedLibBundle);
         }
         //2. unregister the share lib bundle to the share lib bundle extender
-        ServiceReference sharedLibExtenderReference = null;
+        ServiceReference<?> sharedLibExtenderReference = null;
         try {
             sharedLibExtenderReference = bundleContext.getServiceReference(SharedLibExtender.class.getName());
             if (sharedLibExtenderReference != null) {

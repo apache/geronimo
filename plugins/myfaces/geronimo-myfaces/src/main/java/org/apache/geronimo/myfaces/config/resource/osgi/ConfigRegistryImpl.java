@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.myfaces.FacesConfigDigester;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.myfaces.config.element.FacesConfig;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
@@ -128,9 +129,9 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         Set<Bundle> dependentBundles = new HashSet<Bundle>();
         
         // add in bundles from dependency manager
-        ServiceReference serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+        ServiceReference serviceReference = bundleContext.getServiceReference(OsgiMetaDataProvider.class.getName());
         if (serviceReference != null) {
-            DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+            OsgiMetaDataProvider dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
             try {
                 dependentBundles.addAll(dependencyManager.getFullDependentBundles(bundleId));
             } finally {

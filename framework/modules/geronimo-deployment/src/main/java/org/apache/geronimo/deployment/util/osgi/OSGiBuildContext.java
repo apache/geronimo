@@ -129,7 +129,7 @@ public class OSGiBuildContext {
         if (clientModule) {
             return getFullClientDependentBundleIds(bundle.getBundleId());
         }
-        return osgiMetaDataProvider.getFullDependentBundleIds(bundle);
+        return osgiMetaDataProvider.getFullDependentBundleIds(bundle.getBundleId());
     }
 
     private Set<Long> getFullClientDependentBundleIds(long bundleId) {

@@ -33,9 +33,11 @@ import org.osgi.framework.Bundle;
 public interface OsgiMetaDataProvider {
     Set<BundleDescription.ExportPackage> getExportedPackages(Bundle bundle);
 
-    Set<BundleDescription.ExportPackage> getExportedPackages(Long bundleId);
+    Set<BundleDescription.ExportPackage> getExportedPackages(long bundleId);
 
-    Set<Long> getFullDependentBundleIds(Bundle bundle);
+    Set<Long> getFullDependentBundleIds(long bundleId);
+    
+    Set<Bundle> getFullDependentBundles(long bundleId);
 
     Bundle getBundle(Artifact artifact);
 
