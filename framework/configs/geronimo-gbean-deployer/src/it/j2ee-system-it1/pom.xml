@@ -60,8 +60,8 @@
 
         <!-- Used by TemporaryClassLoader in kernel -->
         <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-all</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.asm</artifactId>
         </dependency>
 
         <dependency>
