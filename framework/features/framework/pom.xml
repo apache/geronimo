@@ -260,9 +260,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework.features</groupId>
-            <artifactId>declarative-services</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.karaf.scr</groupId>
+            <artifactId>org.apache.karaf.scr.feature</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

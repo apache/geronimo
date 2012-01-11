@@ -50,14 +50,14 @@ public class LogManagerPortlet extends BasePortlet {
             return;
         }
         SystemLog log = PortletManager.getCurrentSystemLog(renderRequest);
-        renderRequest.setAttribute("configFile", log.getConfigFileName());
+//        renderRequest.setAttribute("configFile", log.getConfigFileName());
 //        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
         renderRequest.setAttribute("logLevel", log.getRootLoggerLevel());
-        try{
-            renderRequest.setAttribute("refreshPeriod", Integer.valueOf(log.getRefreshPeriodSeconds()));
-        }catch(NumberFormatException e){
-            //ignore
-        }
+//        try{
+//            renderRequest.setAttribute("refreshPeriod", Integer.valueOf(log.getRefreshPeriodSeconds()));
+//        }catch(NumberFormatException e){
+//            //ignore
+//        }
 
         normalView.include(renderRequest, renderRespose);
     }
@@ -88,13 +88,13 @@ public class LogManagerPortlet extends BasePortlet {
                 }catch(NumberFormatException e){
                     //ignore
                 }
-                if (refreshPeriodInt != log.getRefreshPeriodSeconds()) {
-                    log.setRefreshPeriodSeconds(refreshPeriodInt);
-                }
+//                if (refreshPeriodInt != log.getRefreshPeriodSeconds()) {
+//                    log.setRefreshPeriodSeconds(refreshPeriodInt);
+//                }
             }
-            if (!log.getConfigFileName().equals(configFile)) {
-                log.setConfigFileName(configFile);
-            }
+//            if (!log.getConfigFileName().equals(configFile)) {
+//                log.setConfigFileName(configFile);
+//            }
             if (!currentLevel.equals(logLevel)) {
                 log.setRootLoggerLevel(logLevel);
             }

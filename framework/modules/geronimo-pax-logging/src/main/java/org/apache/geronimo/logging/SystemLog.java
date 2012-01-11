@@ -31,12 +31,12 @@ public interface SystemLog {
     /**
      * Gets the name of the file that configures the log system
      */
-    String getConfigFileName();
+//    String getConfigFileName();
     
     /**
      * Sets the name of the file that the log system should configure itself from.
      */
-    void setConfigFileName(String fileName);
+//    void setConfigFileName(String fileName);
     
     /**
      * Gets the name of the log level used for the root logger.
@@ -52,13 +52,13 @@ public interface SystemLog {
      * Indicates how often the log system should check to see if its
      * configuration file has been updated.
      */
-    int getRefreshPeriodSeconds();
+//    int getRefreshPeriodSeconds();
     
     /**
      * Sets how often the log system should check to see if its
      * configuration file has been updated.
      */
-    void setRefreshPeriodSeconds(int seconds);
+//    void setRefreshPeriodSeconds(int seconds);
     
     /**
      * Gets the name of all log files used by this log system.  Typically there

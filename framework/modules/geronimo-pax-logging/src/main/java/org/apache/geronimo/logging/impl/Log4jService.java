@@ -20,25 +20,19 @@ package org.apache.geronimo.logging.impl;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+//import org.apache.felix.scr.annotations.Component;
+//import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.logging.SystemLog;
-import org.apache.geronimo.main.ServerInfo;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -49,7 +43,10 @@ import org.apache.log4j.Logger;
  *
  * @version $Rev$ $Date$
  */
-public abstract class Log4jService implements SystemLog {
+
+//@Component(immediate = true)
+//@Service
+public class Log4jService implements SystemLog {
     // A substitution variable in the file path in the config file
     private final static Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{.*?\\}");
     // Next 6 are patterns that identify log messages in our default format
@@ -68,60 +65,6 @@ public abstract class Log4jService implements SystemLog {
     private final static Pattern UNKNOWN_DEBUG_START = Pattern.compile("(DEBUG|INFO|WARN|ERROR|FATAL)");
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Log4jService.class);
-
-    public static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
-
-    /**
-     * The URL to the configuration file.
-     */
-    private String configurationFile;
-
-    /**
-     * The time (in seconds) between checking for new config.
-     */
-    private int refreshPeriod;
-
-    /**
-     * The properties service
-     */
-    private final ServerInfo serverInfo;
-
-    /**
-     * The URL watch timer (in daemon mode).
-     */
-    private Timer timer = new Timer(true);
-
-    /**
-     * A monitor to check when the config URL changes.
-     */
-    private TimerTask monitor;
-
-    /**
-     * Last time the file was changed.
-     */
-    private long lastChanged = -1;
-
-    /**
-     * Is this service running?
-     */
-    private boolean running = false;
-    
-    /**
-     * Construct a <code>Log4jService</code>.
-     *
-     * @param configurationFile The log4j configuration file.
-     * @param refreshPeriod The refresh refreshPeriod (in seconds).
-     */
-    public Log4jService(String configurationFile, int refreshPeriod, ServerInfo serverInfo) {
-        this.refreshPeriod = refreshPeriod;
-        this.configurationFile = configurationFile;
-        this.serverInfo = serverInfo;
-        try {
-            Logger.getLogger(this.getClass().getName()).setLevel(Level.INFO);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Gets the level of the root logger.
@@ -206,136 +149,136 @@ public abstract class Log4jService implements SystemLog {
         Logger.getLogger(logger).setLevel(Level.toLevel(level));
     }
 
-    /**
-     * Get the refresh period.
-     *
-     * @return the refresh period (in seconds)
-     */
-    public synchronized int getRefreshPeriodSeconds() {
-        return refreshPeriod;
-    }
+//    /**
+//     * Get the refresh period.
+//     *
+//     * @return the refresh period (in seconds)
+//     */
+//    public synchronized int getRefreshPeriodSeconds() {
+//        return refreshPeriod;
+//    }
+//
+//    /**
+//     * Set the refresh period.
+//     *
+//     * @param period the refresh period (in seconds)
+//     * @throws IllegalArgumentException if refresh period is < 5
+//     */
+//    public synchronized void setRefreshPeriodSeconds(final int period) {
+//        if (period < 5) {
+//            throw new IllegalArgumentException("Refresh period must be at least 5 seconds");
+//        }
+//
+//        if (this.refreshPeriod != period) {
+//            this.refreshPeriod = period;
+//            schedule();
+//        }
+//    }
 
-    /**
-     * Set the refresh period.
-     *
-     * @param period the refresh period (in seconds)
-     * @throws IllegalArgumentException if refresh period is < 5
-     */
-    public synchronized void setRefreshPeriodSeconds(final int period) {
-        if (period < 5) {
-            throw new IllegalArgumentException("Refresh period must be at least 5 seconds");
-        }
+//    /**
+//     * Get the logging configuration URL.
+//     *
+//     * @return the logging configuration URL
+//     */
+//    public synchronized String getConfigFileName() {
+//        return configurationFile;
+//    }
+//
+//    /**
+//     * Set the logging configuration URL.
+//     *
+//     * @param configurationFile the logging configuration file
+//     */
+//    public synchronized void setConfigFileName(final String configurationFile) {
+//        if (configurationFile == null) {
+//            throw new IllegalArgumentException("configurationFile is null");
+//        }
+//
+//        log.debug("Using configuration file: {}", configurationFile);
+//
+//        // ensure that the file name has really been updated
+//        if (!this.configurationFile.equals(configurationFile)) {
+//            this.configurationFile = configurationFile;
+//            lastChanged = -1;
+//            reconfigure();
+//        }
+//    }
 
-        if (this.refreshPeriod != period) {
-            this.refreshPeriod = period;
-            schedule();
-        }
-    }
-
-    /**
-     * Get the logging configuration URL.
-     *
-     * @return the logging configuration URL
-     */
-    public synchronized String getConfigFileName() {
-        return configurationFile;
-    }
-
-    /**
-     * Set the logging configuration URL.
-     *
-     * @param configurationFile the logging configuration file
-     */
-    public synchronized void setConfigFileName(final String configurationFile) {
-        if (configurationFile == null) {
-            throw new IllegalArgumentException("configurationFile is null");
-        }
-        
-        log.debug("Using configuration file: {}", configurationFile);
-        
-        // ensure that the file name has really been updated
-        if (!this.configurationFile.equals(configurationFile)) {
-            this.configurationFile = configurationFile;
-            lastChanged = -1;
-            reconfigure();
-        }
-    }
-
-    /**
-     * Get the content of logging configuration file.
-     *
-     * @return the content of logging configuration file
-     */
-    public synchronized String getConfiguration() {
-        File file = resolveConfigurationFile();
-        if (file == null || !file.canRead()) {
-            return null;
-        }
-        Reader in = null;
-        try {
-            StringBuilder configuration = new StringBuilder();
-            in = new InputStreamReader(new FileInputStream(file));
-            char[] buffer = new char[4096];
-            for (int size = in.read(buffer); size >= 0; size = in.read(buffer)) {
-                configuration.append(buffer, 0, size);
-            }
-            return configuration.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Overwrites the content of logging configuration file.
-     *
-     * @param configuration the new content of logging configuration file
-     */
-    public synchronized void setConfiguration(final String configuration) throws IOException {
-        if (configuration == null || configuration.length() == 0) {
-            throw new IllegalArgumentException("configuration is null or an empty string");
-        }
-
-        File file = resolveConfigurationFile();
-        if (file == null) {
-            throw new IllegalStateException("Configuration file is null");
-        }
-
-        // make parent directory if necessary
-        if (!file.getParentFile().exists()) {
-            if (!file.getParentFile().mkdirs()) {
-                throw new IllegalStateException("Could not create parent directory of log configuration file: " + file.getParent());
-            }
-        }
-
-        // verify that the file is writable or does not exist
-        if (file.exists() && !file.canWrite()) {
-            throw new IllegalStateException("Configuration file is not writable: " + file.getAbsolutePath());
-        }
-
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(file);
-            out.write(configuration.getBytes());
-            log.info("Updated configuration file: {}", file);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+//    /**
+//     * Get the content of logging configuration file.
+//     *
+//     * @return the content of logging configuration file
+//     */
+//    public synchronized String getConfiguration() {
+//        File file = resolveConfigurationFile();
+//        if (file == null || !file.canRead()) {
+//            return null;
+//        }
+//        Reader in = null;
+//        try {
+//            StringBuilder configuration = new StringBuilder();
+//            in = new InputStreamReader(new FileInputStream(file));
+//            char[] buffer = new char[4096];
+//            for (int size = in.read(buffer); size >= 0; size = in.read(buffer)) {
+//                configuration.append(buffer, 0, size);
+//            }
+//            return configuration.toString();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (in != null) {
+//                try {
+//                    in.close();
+//                } catch (IOException e1) {
+//                    e1.printStackTrace();
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * Overwrites the content of logging configuration file.
+//     *
+//     * @param configuration the new content of logging configuration file
+//     */
+//    public synchronized void setConfiguration(final String configuration) throws IOException {
+//        if (configuration == null || configuration.length() == 0) {
+//            throw new IllegalArgumentException("configuration is null or an empty string");
+//        }
+//
+//        File file = resolveConfigurationFile();
+//        if (file == null) {
+//            throw new IllegalStateException("Configuration file is null");
+//        }
+//
+//        // make parent directory if necessary
+//        if (!file.getParentFile().exists()) {
+//            if (!file.getParentFile().mkdirs()) {
+//                throw new IllegalStateException("Could not create parent directory of log configuration file: " + file.getParent());
+//            }
+//        }
+//
+//        // verify that the file is writable or does not exist
+//        if (file.exists() && !file.canWrite()) {
+//            throw new IllegalStateException("Configuration file is not writable: " + file.getAbsolutePath());
+//        }
+//
+//        OutputStream out = null;
+//        try {
+//            out = new FileOutputStream(file);
+//            out.write(configuration.getBytes());
+//            log.info("Updated configuration file: {}", file);
+//        } finally {
+//            if (out != null) {
+//                try {
+//                    out.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
     public synchronized String[] getLogFileNames() {
         List list = new ArrayList();
@@ -506,119 +449,4 @@ public abstract class Log4jService implements SystemLog {
         return searchFile(file, minLevel, textPattern, firstLine, lastLine, maxResults, includeStackTraces);
     }
 
-    /**
-     * Force the logging system to reconfigure.
-     */
-    public void reconfigure() {
-//        File file = resolveConfigurationFile();
-//        if (file == null || !file.exists()) {
-//            return;
-//        } else {
-//            log.debug("Reconfiguring from: {}", configurationFile);
-//            lastChanged = file.lastModified();
-//        }
-//
-//        try {
-//            FileInputStream in = new FileInputStream(file);
-//            Properties props = new Properties();
-//            try {
-//                props.load(in);
-//            } finally {
-//                try { in.close(); } catch (IOException ignore) {}
-//            }
-//
-//            update(props);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    abstract protected void update(Properties properties) throws Exception;      
-    
-    private synchronized void schedule() {
-        if (timer != null) {
-            // kill the old monitor
-            if (monitor != null) {
-                monitor.cancel();
-            }
-
-            // start the new one
-            monitor = new URLMonitorTask();
-            TimerTask task = monitor;
-            timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
-            task.run();
-        }
-    }
-
-    public synchronized void start() {
-        reconfigure();
-
-        timer = new Timer(true);
-
-        // Periodically check the configuration file
-        schedule();
-
-        log.info("----------------------------------------------");
-        log.info("Started Logging Service");
-        
-        log.debug("Log4jService created with configFileName={}, refreshPeriodSeconds={}", configurationFile, refreshPeriod);
-        
-        running = true;
-    }
-
-    public synchronized void stop() {
-        running = false;
-        if (monitor != null) {
-            monitor.cancel();
-            monitor = null;
-        }
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-
-        log.info("Stopping Logging Service");
-        log.info("----------------------------------------------");
-
-        try {
-            LogManager.shutdown();
-        } catch (Throwable e) {
-            log.info("could not shut down LogManager", e);
-        }
-    }
-
-    private synchronized File resolveConfigurationFile() {
-        try {
-            return serverInfo.resolveServer(configurationFile);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private class URLMonitorTask extends TimerTask {
-        public void run() {
-            try {
-                long lastModified;
-                synchronized (this) {
-                    if (running == false) {
-                        return;
-                    }
-
-                    File file = resolveConfigurationFile();
-                    if (file == null) {
-                        return;
-                    }
-
-                    lastModified = file.lastModified();
-                }
-
-                if (lastChanged < lastModified) {
-                    lastChanged = lastModified;
-                    reconfigure();
-                }
-            } catch (Exception e) {
-            }
-        }
-    }
-    
 }

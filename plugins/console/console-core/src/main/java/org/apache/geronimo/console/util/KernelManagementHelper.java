@@ -399,7 +399,11 @@ public class KernelManagementHelper implements ManagementHelper {
         int i = 0;
         for (Iterator it = set.iterator(); it.hasNext();) {
             AbstractName name = (AbstractName) it.next();
-            result[i++] = kernel.getProxyManager().createProxy(name, iface.getClassLoader());
+            try {
+                result[i++] = kernel.getGBean(name);
+            } catch (GBeanNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
         return result;
     }
