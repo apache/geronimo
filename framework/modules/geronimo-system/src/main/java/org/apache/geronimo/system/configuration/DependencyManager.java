@@ -705,24 +705,27 @@ public class DependencyManager implements OsgiMetaDataProvider {
     //Activator replacement
 
     public void start(Bundle bundle) {
-        InputStream in = null;
-        try {
-            in = bundle.getEntry("META-INF/config.ser").openStream();
-            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
-            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
-            data.setBundleContext(bundle.getBundleContext());
-            configurationManager.loadConfiguration(data);
+        URL url = bundle.getEntry("META-INF/config.ser");
+        if (url != null) {
+            InputStream in = null;
+            try {
+                in = url.openStream();
+                //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
+                ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
+                data.setBundleContext(bundle.getBundleContext());
+                configurationManager.loadConfiguration(data);
 //            Artifact id = data.getId();
-            //            manager.startConfiguration(id);
-        } catch (Exception e) {
-            log.warn("Exception trying to load configuration bundle " + bundle, e);
+                //            manager.startConfiguration(id);
+            } catch (Exception e) {
+                log.warn("Exception trying to load configuration bundle " + bundle, e);
 //            throw e;
-        } finally {
-            if (in != null)
-                try {
-                    in.close();
-                } catch (Exception e) {
-                }
+            } finally {
+                if (in != null)
+                    try {
+                        in.close();
+                    } catch (Exception e) {
+                    }
+            }
         }
     }
 
