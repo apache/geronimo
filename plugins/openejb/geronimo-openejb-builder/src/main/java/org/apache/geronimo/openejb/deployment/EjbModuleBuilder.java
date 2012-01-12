@@ -182,6 +182,8 @@ import org.slf4j.LoggerFactory;
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBuilderExtension {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleBuilder.class);
+    
+    private static final String DEFAULT_BUNDLE_CLASSPATH = ".";
 
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
@@ -643,6 +645,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             EARContext moduleContext;
             if (module.isStandAlone()) {
                 moduleContext = earContext;
+                earContext.addToClassPath(DEFAULT_BUNDLE_CLASSPATH);
             } else {
                 moduleContext = new FragmentContext(earContext, ConfigurationModuleType.EJB);
                 //            Environment environment = earContext.getConfiguration().getEnvironment();
