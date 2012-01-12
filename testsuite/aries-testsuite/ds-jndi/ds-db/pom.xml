@@ -24,7 +24,7 @@
   <parent>
     <artifactId>ds-jndi</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0-beta-2-SNAPSHOT</version>
   </parent>
   
   
