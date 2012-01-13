@@ -27,12 +27,14 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.system.main.Daemon;
 
 public class ServerManagerPortlet extends BasePortlet {
 
@@ -48,22 +50,33 @@ public class ServerManagerPortlet extends BasePortlet {
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
+        Bundle framework = ((BundleReference)getClass().getClassLoader()).getBundle().getBundleContext().getBundle(0);
         if (actionRequest.getParameter("reboot") != null) {
             log.info("Reboot initiated by user request: " + actionRequest.getUserPrincipal().getName());
-            new Thread() {
-                public void run() {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                    }
-                    kernel.shutdown();
-                    Daemon.main(new String[0]);
-                }
-            }.start();
+            try {
+                framework.update();
+            } catch (BundleException e) {
+                log.info("Problem rebooting", e);
+            }
+//            new Thread() {
+//                public void run() {
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                    }
+//                    kernel.shutdown();
+//                    Daemon.main(new String[0]);
+//                }
+//            }.start();
         } else if(actionRequest.getParameter("shutdown") != null) {
             log.info("Shutting down by user request: " + actionRequest.getUserPrincipal().getName());
-            kernel.shutdown();
-            System.exit(0);
+//            kernel.shutdown();
+//            System.exit(0);
+            try {
+                framework.stop();
+            } catch (BundleException e) {
+                log.info("Problem rebooting", e);
+            }
         }
     }
 
