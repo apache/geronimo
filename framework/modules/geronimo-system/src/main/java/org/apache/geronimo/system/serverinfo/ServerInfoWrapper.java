@@ -29,6 +29,14 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 
 /**
+ * Supply a geronimo ServerInfo based on the karaf ServerInfo.
+ * Note that geronimo's idea of home and base are backwards from karaf's idea.
+ *
+ * Geronimo: base is the install directory, home is where e.g. var is
+ * Karaf: home is the install directory, base is where e.g. etc, system, are.
+ *
+ * Thus the karaf methods called may look wrong.
+ *
  * @version $Rev:$ $Date:$
  */
 @Component(immediate = true, metatype = true)
@@ -50,42 +58,42 @@ public class ServerInfoWrapper implements ServerInfo {
 
     @Override
     public String resolvePath(String filename) {
-        return delegate.resolveBasePath(filename);
-    }
-
-    @Override
-    public String resolveServerPath(String filename) {
         return delegate.resolveHomePath(filename);
     }
 
     @Override
-    public File resolve(String filename) {
-        return delegate.resolveBase(filename);
+    public String resolveServerPath(String filename) {
+        return delegate.resolveBasePath(filename);
     }
 
     @Override
-    public File resolveServer(String filename) {
+    public File resolve(String filename) {
         return delegate.resolveHome(filename);
     }
 
     @Override
-    public URI resolve(URI uri) {
-        return delegate.resolveBase(uri);
+    public File resolveServer(String filename) {
+        return delegate.resolveBase(filename);
     }
 
     @Override
-    public URI resolveServer(URI uri) {
+    public URI resolve(URI uri) {
         return delegate.resolveHome(uri);
     }
 
     @Override
+    public URI resolveServer(URI uri) {
+        return delegate.resolveBase(uri);
+    }
+
+    @Override
     public String getBaseDirectory() {
-        return delegate.getBaseDirectory().getAbsolutePath();
+        return delegate.getHomeDirectory().getAbsolutePath();
     }
 
     @Override
     public String getCurrentBaseDirectory() {
-        return delegate.getBaseDirectory().getAbsolutePath();
+        return delegate.getHomeDirectory().getAbsolutePath();
     }
 
     @Override
