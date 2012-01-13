@@ -111,6 +111,7 @@ public class StartServerCommand extends BaseJavaCommand {
              protected void process() throws Exception {
                  try {
                      Java javaTask = (Java) ant.createTask("java");
+                     //TODO KARAF won't work
                      javaTask.setClassname("org.apache.geronimo.cli.daemon.DaemonCLI");
                      Path path = javaTask.createClasspath();
                      File libDir = new File(geronimoHome, "lib");

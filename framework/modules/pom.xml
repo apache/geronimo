@@ -61,7 +61,7 @@
         <module>geronimo-deploy-jsr88</module>
         <module>geronimo-deploy-config</module>
         <module>geronimo-rmi-loader</module>
-        <module>geronimo-main</module>
+        <!--<module>geronimo-main</module>-->
         <module>geronimo-bundle-recorder</module>
         <module>geronimo-hook</module>
     </modules>

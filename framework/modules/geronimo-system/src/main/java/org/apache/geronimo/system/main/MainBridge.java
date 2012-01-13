@@ -32,15 +32,16 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.main.Main;
+//import org.apache.geronimo.main.Main;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * TODO is this used?  How?
  * @version $Rev:385659 $ $Date$
  */
-public class MainBridge implements Main, GBeanLifecycle {
+public class MainBridge implements /*Main,*/ GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(MainBridge.class);
 
     protected final Kernel kernel;
@@ -118,7 +119,7 @@ public class MainBridge implements Main, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
+//        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
     }
 
     public void doStop() throws Exception {

@@ -266,161 +266,24 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework.features</groupId>-->
-            <!--<artifactId>org.apache.geronimo.javaee-specs</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>xml</type>-->
-            <!--<classifier>features</classifier>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework.features</groupId>-->
-            <!--<artifactId>org.apache.geronimo.jaxb-support</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>xml</type>-->
-            <!--<classifier>features</classifier>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.deployer</groupId>-->
-            <!--<artifactId>org.apache.karaf.deployer.blueprint</artifactId>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-                    <!--<artifactId>org.apache.servicemix.bundles.junit</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.deployer</groupId>-->
-            <!--<artifactId>org.apache.karaf.deployer.features</artifactId>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-                    <!--<artifactId>org.apache.servicemix.bundles.junit</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.features</groupId>-->
-            <!--<artifactId>org.apache.karaf.features.core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.features</groupId>-->
-            <!--<artifactId>org.apache.karaf.features.command</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.features</groupId>-->
-            <!--<artifactId>org.apache.karaf.features.management</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.console</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.obr</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.osgi</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.log</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.config</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.packages</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.commands</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.shell</groupId>-->
-            <!--<artifactId>org.apache.karaf.shell.ssh</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.jaas</groupId>-->
-            <!--<artifactId>org.apache.karaf.jaas.boot</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.karaf.jaas</groupId>-->
-            <!--<artifactId>org.apache.karaf.jaas.config</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.bundlerepository</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.fileinstall</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.mina</groupId>-->
-            <!--<artifactId>mina-core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.configadmin</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.metatype</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.prefs</artifactId>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ops4j.pax.logging</groupId>-->
-            <!--<artifactId>pax-logging-api</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
+         </dependency>
+         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-pax-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ops4j.pax.url</groupId>-->
-            <!--<artifactId>pax-url-mvn</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ops4j.pax.url</groupId>-->
-            <!--<artifactId>pax-url-wrap</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.apache.sshd</groupId>-->
-            <!--<artifactId>sshd-core</artifactId>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-main</artifactId>-->
+            <!--<version>${project.version}</version>-->
         <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.osgi</groupId>-->
-            <!--<artifactId>org.eclipse.osgi</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.framework</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.aries</groupId>-->
-            <!--<artifactId>org.apache.aries.util</artifactId>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-main</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
@@ -447,12 +310,6 @@
             <artifactId>geronimo-shell</artifactId>
             <version>${version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>j2ee-system</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
         <!--agent -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -635,12 +492,12 @@
                                     <outputDirectory>target/classes/resources/lib</outputDirectory>
                                     <destFileName>geronimo-rmi-loader.jar</destFileName>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.framework</groupId>
-                                    <artifactId>geronimo-main</artifactId>
-                                    <outputDirectory>target/classes/resources/lib</outputDirectory>
-                                    <destFileName>geronimo-main.jar</destFileName>
-                                </artifactItem>
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
+                                    <!--<artifactId>geronimo-main</artifactId>-->
+                                    <!--<outputDirectory>target/classes/resources/lib</outputDirectory>-->
+                                    <!--<destFileName>geronimo-main.jar</destFileName>-->
+                                <!--</artifactItem>-->
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>
                                     <artifactId>geronimo-cli</artifactId>
