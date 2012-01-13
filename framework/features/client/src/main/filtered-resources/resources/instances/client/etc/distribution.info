@@ -18,28 +18,10 @@
 ################################################################################
 
 #
-# These properties are used to configure Karaf's ssh shell.
+# This file contains the general platform information required by the itests to find out
+# about the current versions.
 #
 
-#
-# Via sshPort and sshHost you define the address you can login into Karaf.
-#
-sshPort=8101
-sshHost=0.0.0.0
+karafVersion=3.0.0-SNAPSHOT
+name=Apache Karaf
 
-#
-# sshRealm defines which JAAS domain to use for password authentication.
-#
-sshRealm=karaf
-
-#
-# The location of the hostKey file defines where the private/public key of the server
-# is located. If no file is at the defined location it will be ignored.
-#
-hostKey=${karaf.base}/etc/host.key
-
-#
-# Role name used for SSH access authorization
-# If not set, this defaults to the ${karaf.admin.role} configured in etc/system.properties
-#
-# sshRole=admin

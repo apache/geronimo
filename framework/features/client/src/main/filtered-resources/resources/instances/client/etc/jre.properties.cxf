@@ -151,10 +151,10 @@ jre-1.5= \
 #   - javax.transaction* is exported with a mandatory attribute
 jre-1.6= \
  javax.accessibility, \
- javax.activation, \
+# javax.activation, \
  javax.activity, \
- javax.annotation, \
- javax.annotation.processing, \
+# javax.annotation;version="1.1", \
+ javax.annotation.processing;version="1.1", \
  javax.crypto, \
  javax.crypto.interfaces, \
  javax.crypto.spec, \
@@ -165,8 +165,8 @@ jre-1.6= \
  javax.imageio.plugins.jpeg, \
  javax.imageio.spi, \
  javax.imageio.stream, \
- javax.jws, \
- javax.jws.soap, \
+# javax.jws, \
+# javax.jws.soap, \
  javax.lang.model, \
  javax.lang.model.element, \
  javax.lang.model.type, \
@@ -231,12 +231,12 @@ jre-1.6= \
  javax.tools, \
  javax.transaction; javax.transaction.xa; partial=true; mandatory:=partial, \
  javax.xml, \
- javax.xml.bind;version="2.2", \
- javax.xml.bind.annotation;version="2.2", \
- javax.xml.bind.annotation.adapters;version="2.2", \
- javax.xml.bind.attachment;version="2.2", \
- javax.xml.bind.helpers;version="2.2", \
- javax.xml.bind.util;version="2.2", \
+# javax.xml.bind, \
+# javax.xml.bind.annotation, \
+# javax.xml.bind.annotation.adapters, \
+# javax.xml.bind.attachment, \
+# javax.xml.bind.helpers, \
+# javax.xml.bind.util, \
  javax.xml.crypto, \
  javax.xml.crypto.dom, \
  javax.xml.crypto.dsig, \
@@ -246,22 +246,22 @@ jre-1.6= \
  javax.xml.datatype, \
  javax.xml.namespace, \
  javax.xml.parsers, \
- javax.xml.soap, \
- javax.xml.stream;version="1.2", \
- javax.xml.stream.events;version="1.2", \
- javax.xml.stream.util;version="1.2", \
+# javax.xml.soap, \
+# javax.xml.stream, \
+# javax.xml.stream.events, \
+# javax.xml.stream.util, \
  javax.xml.transform, \
  javax.xml.transform.dom, \
  javax.xml.transform.sax, \
  javax.xml.transform.stax, \
  javax.xml.transform.stream, \
  javax.xml.validation, \
- javax.xml.ws, \
- javax.xml.ws.handler, \
- javax.xml.ws.handler.soap, \
- javax.xml.ws.http, \
- javax.xml.ws.soap, \
- javax.xml.ws.spi, \
+# javax.xml.ws, \
+# javax.xml.ws.handler, \
+# javax.xml.ws.handler.soap, \
+# javax.xml.ws.http, \
+# javax.xml.ws.soap, \
+# javax.xml.ws.spi, \
  javax.xml.ws.wsaddressing, \
  javax.xml.xpath, \
  org.ietf.jgss, \
@@ -313,9 +313,9 @@ jre-1.6= \
 #   - javax.transaction* is exported with a mandatory attribute
 jre-1.7= \
  javax.accessibility, \
- javax.activation, \
+# javax.activation, \
  javax.activity, \
- javax.annotation;version="1.1", \
+# javax.annotation;version="1.1", \
  javax.annotation.processing;version="1.1", \
  javax.crypto, \
  javax.crypto.interfaces, \
@@ -327,8 +327,8 @@ jre-1.7= \
  javax.imageio.plugins.jpeg, \
  javax.imageio.spi, \
  javax.imageio.stream, \
- javax.jws, \
- javax.jws.soap, \
+# javax.jws, \
+# javax.jws.soap, \
  javax.lang.model, \
  javax.lang.model.element, \
  javax.lang.model.type, \
@@ -393,12 +393,12 @@ jre-1.7= \
  javax.tools, \
  javax.transaction; javax.transaction.xa; partial=true; mandatory:=partial, \
  javax.xml, \
- javax.xml.bind, \
- javax.xml.bind.annotation, \
- javax.xml.bind.annotation.adapters, \
- javax.xml.bind.attachment, \
- javax.xml.bind.helpers, \
- javax.xml.bind.util, \
+# javax.xml.bind, \
+# javax.xml.bind.annotation, \
+# javax.xml.bind.annotation.adapters, \
+# javax.xml.bind.attachment, \
+# javax.xml.bind.helpers, \
+# javax.xml.bind.util, \
  javax.xml.crypto, \
  javax.xml.crypto.dom, \
  javax.xml.crypto.dsig, \
@@ -408,22 +408,22 @@ jre-1.7= \
  javax.xml.datatype, \
  javax.xml.namespace, \
  javax.xml.parsers, \
- javax.xml.soap, \
- javax.xml.stream, \
- javax.xml.stream.events, \
- javax.xml.stream.util, \
+# javax.xml.soap, \
+# javax.xml.stream, \
+# javax.xml.stream.events, \
+# javax.xml.stream.util, \
  javax.xml.transform, \
  javax.xml.transform.dom, \
  javax.xml.transform.sax, \
  javax.xml.transform.stax, \
  javax.xml.transform.stream, \
  javax.xml.validation, \
- javax.xml.ws, \
- javax.xml.ws.handler, \
- javax.xml.ws.handler.soap, \
- javax.xml.ws.http, \
- javax.xml.ws.soap, \
- javax.xml.ws.spi, \
+# javax.xml.ws, \
+# javax.xml.ws.handler, \
+# javax.xml.ws.handler.soap, \
+# javax.xml.ws.http, \
+# javax.xml.ws.soap, \
+# javax.xml.ws.spi, \
  javax.xml.ws.wsaddressing, \
  javax.xml.xpath, \
  org.ietf.jgss, \
