@@ -34,65 +34,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>declarative-services</module>
+        <!--<module>declarative-services</module>-->
         <module>framework</module>
+        <module>client</module>
         <module>org.apache.geronimo.javaee-specs</module>
         <module>org.apache.geronimo.jaxb-support</module>
     </modules>
-
-<!--
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                &lt;!&ndash; Install as extention to allow 'car' packaging to be used. &ndash;&gt;
-                <extensions>true</extensions>
-                <configuration>
-                    <systemProperties>
-                        <geronimo.build.car>true</geronimo.build.car>
-                    </systemProperties>
-                    <archive>
-                        &lt;!&ndash; Do not include META-INF/maven to avoid long file problems on windows &ndash;&gt;
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-                    <osiApproved>true</osiApproved>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                        <useTransitiveDependencies>true</useTransitiveDependencies>
-                    </useMavenDependencies>
-                    <warnOnDependencyChange>${warnOnDependencyChange}</warnOnDependencyChange>
-                    <logDependencyChanges>${logDependencyChanges}</logDependencyChanges>
-                    <overwriteChangedDependencies>${overwriteChangedDependencies}</overwriteChangedDependencies>
-                    <commonInstance>
-                        <plugin-artifact>
-                            <geronimo-version>${geronimoVersion}</geronimo-version>
-                            <jvm-version>1.6</jvm-version>
-                            &lt;!&ndash;<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>&ndash;&gt;
-                            <source-repository>${pluginSrcRepoLocal}</source-repository>
-                            <source-repository>${pluginSrcRepoCentral}</source-repository>
-                            <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
-                            <artifact-alias key="${project.groupId}/${project.artifactId}//car">${project.groupId}/${project.artifactId}/${project.version}/car</artifact-alias>
-                        </plugin-artifact>
-                    </commonInstance>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
--->
-
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>geronimo-gbean-deployer/src/it/j2ee-system-it1</module>
-                <module>geronimo-gbean-deployer/src/it/j2ee-system-it2</module>
-                <module>geronimo-gbean-deployer/src/it/metadatageneration-it3</module>
-                <module>geronimo-gbean-deployer/src/it/metadatageneration-it4</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>

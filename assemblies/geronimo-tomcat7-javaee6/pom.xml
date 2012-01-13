@@ -73,6 +73,12 @@
             <type>xml</type>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.features</groupId>
+            <artifactId>client</artifactId>
+            <version>${project.version}</version>
+            <type>kar</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
