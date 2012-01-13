@@ -83,7 +83,7 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
 
     @Override
     protected void init() {
-        contextConfig();
+        super.init();
     }
 
     @Override
