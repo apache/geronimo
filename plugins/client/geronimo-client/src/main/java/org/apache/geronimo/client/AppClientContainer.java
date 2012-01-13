@@ -29,10 +29,17 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -41,15 +48,19 @@ import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.SubjectInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.xbean.recipe.StaticRecipe;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.APP_CLIENT)
 public final class AppClientContainer implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(AppClientContainer.class);
     private static final Class[] MAIN_ARGS = {String[].class};
@@ -66,18 +77,22 @@ public final class AppClientContainer implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private final Kernel kernel;
     private final Holder holder;
+    private final ServerInfo serverInfo;
+    private final Bundle bundle;
     private CallbackHandler callbackHandler;
 
-    public AppClientContainer(String mainClassName,
-            AbstractName appClientModuleName,
-            String realmName,
-            String callbackHandlerClassName,
-            SubjectInfo defaultSubject,
-            Holder holder,
-            AppClientPlugin jndiContext,
-            CredentialStore credentialStore,
-            ClassLoader classLoader,
-            Kernel kernel
+    public AppClientContainer(@ParamAttribute(name = "mainClassName") String mainClassName,
+            @ParamAttribute(name = "appClientModuleName") AbstractName appClientModuleName,
+            @ParamAttribute(name = "realmName") String realmName,
+            @ParamAttribute(name = "callbackHandlerClassName") String callbackHandlerClassName,
+            @ParamAttribute(name = "defaultSubject") SubjectInfo defaultSubject,
+            @ParamAttribute(name = "holder") Holder holder,
+            @ParamReference(name = "JNDIContext") AppClientPlugin jndiContext,
+            @ParamReference(name = "CredentialStore") CredentialStore credentialStore,
+            @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle
     ) throws Exception {
         // set the geronimo identity resolver hook for openejb
         System.setProperty("openejb.client.identityResolver", "geronimo");
@@ -99,6 +114,8 @@ public final class AppClientContainer implements GBeanLifecycle {
         this.classLoader = classLoader;
         this.kernel = kernel;
         this.jndiContext = jndiContext;
+        this.serverInfo = serverInfo;
+        this.bundle = bundle;
 
         try {
             Class mainClass = classLoader.loadClass(mainClassName);
@@ -108,6 +125,7 @@ public final class AppClientContainer implements GBeanLifecycle {
         } catch (NoSuchMethodException e) {
             throw new AppClientInitializationException("Main-Class " + mainClassName + " does not have a main method", e);
         }
+        main();
     }
 
     public AbstractName getAppClientModuleName() {
@@ -118,7 +136,11 @@ public final class AppClientContainer implements GBeanLifecycle {
         return mainClassName;
     }
 
-    public void main(final String[] args) throws Exception {
+    public void main() throws Exception {
+        String[] originalArgs = serverInfo.getArgs();
+        ClientCLParser parser = new ClientCLParser(System.out);
+        parser.parse(originalArgs);
+        final String[] args = parser.getApplicationClientArgs();
         //TODO reorganize this so it makes more sense.  maybe use an interceptor stack.
         //TODO track resource ref shared and app managed security
         Thread thread = Thread.currentThread();
@@ -202,6 +224,12 @@ public final class AppClientContainer implements GBeanLifecycle {
             thread.setContextClassLoader(oldClassLoader);
             ContextManager.popCallers(oldCallers);
         }
+        //shut down the server
+        BundleContext bundleContext = bundle.getBundleContext();
+        Bundle framework = bundleContext.getBundle(0);
+        if (framework != null) {
+            framework.stop();
+        }
     }
 
     public void doStart() throws Exception {
@@ -223,46 +251,6 @@ public final class AppClientContainer implements GBeanLifecycle {
         } catch (Exception e) {
             //ignore
         }
-    }
-
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientContainer.class, NameFactory.APP_CLIENT);
-
-
-        infoFactory.addAttribute("mainClassName", String.class, true);
-        infoFactory.addAttribute("appClientModuleName", AbstractName.class, true);
-        infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
-        infoFactory.addAttribute("defaultSubject", SubjectInfo.class, true);
-        infoFactory.addAttribute("holder", Holder.class, true);
-
-        infoFactory.addReference("JNDIContext", AppClientPlugin.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addReference("CredentialStore", CredentialStore.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
-
-        infoFactory.setConstructor(new String[]{"mainClassName",
-                "appClientModuleName",
-                "realmName",
-                "callbackHandlerClassName",
-                "defaultSubject",
-                "holder",
-                "JNDIContext",
-                "CredentialStore",
-                "classLoader",
-                "kernel"
-        });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

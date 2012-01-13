@@ -171,6 +171,11 @@ public class BasicServerInfo implements ServerInfo {
         return base.getAbsolutePath();
     }
 
+    @Override
+    public String[] getArgs() {
+        throw new RuntimeException("not implemented");
+    }
+
     public String getVersion() {
         return ServerConstants.getVersion();
     }

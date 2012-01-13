@@ -65,6 +65,11 @@ public class ServerInfoGBean  extends AbstractServiceWrapper<ServerInfo> impleme
     }
 
     @Override
+    public String[] getArgs() {
+        return get().getArgs();
+    }
+
+    @Override
     public String getVersion() {
         return get().getVersion();
     }

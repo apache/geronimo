@@ -89,6 +89,11 @@ public class ServerInfoWrapper implements ServerInfo {
     }
 
     @Override
+    public String[] getArgs() {
+        return delegate.getArgs();
+    }
+
+    @Override
     public String getVersion() {
         return null;
     }

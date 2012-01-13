@@ -69,6 +69,11 @@ public interface ServerInfo {
      */
     public String getCurrentBaseDirectory();
 
+    /**
+     * command line arguments
+     */
+    public String[] getArgs();
+
     public String getVersion();
 
     public String getBuildDate();
