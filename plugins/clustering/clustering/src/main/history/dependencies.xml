@@ -13,6 +13,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deployment</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-service-builder</artifactId>
         <type>jar</type>
     </dependency>
@@ -29,6 +34,16 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-clustering</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -41,11 +41,11 @@
         <module>geronimo-plugin-farm</module>
         <module>clustering</module>
         <module>wadi-clustering</module>
-        <module>farming</module>
-        <module>plugin-farm</module>
-        <module>plugin-farm-member</module>
+        <!--<module>farming</module>-->
+        <!--<module>plugin-farm</module>-->
+        <!--<module>plugin-farm-member</module>-->
         <!--<module>geronimo-plugin-farm-node</module>-->
-        <module>plugin-farm-datasource</module>
+        <!--<module>plugin-farm-datasource</module>-->
     </modules>
 
     <profiles>
