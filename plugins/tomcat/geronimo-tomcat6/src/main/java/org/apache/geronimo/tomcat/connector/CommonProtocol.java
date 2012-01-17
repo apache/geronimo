@@ -25,6 +25,8 @@ public interface CommonProtocol {
     public void setEmptySessionPath(boolean emptySessionPath);
     public boolean getEnableLookups();
     public void setEnableLookups(boolean enableLookups);
+	public int getMaxParameterCount();
+    public void setMaxParameterCount(int count);
     public int getMaxPostSize();
     public void setMaxPostSize(int bytes);
     public int getMaxSavePostSize();
