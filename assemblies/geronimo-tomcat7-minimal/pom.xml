@@ -97,6 +97,8 @@
                         <feature>obr</feature>
                         <feature>framework</feature>
                         <feature>org.apache.geronimo.javaee-specs</feature>
+                        <feature>aries-annotation</feature>
+                        <feature>org.apache.karaf.scr.feature</feature>
                     </startupFeatures>
                 </configuration>
             </plugin>

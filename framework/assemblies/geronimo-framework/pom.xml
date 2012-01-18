@@ -188,6 +188,7 @@
                         <feature>kar</feature>
                         <feature>obr</feature>
                         <feature>framework</feature>
+                        <feature>aries-annotation</feature>
                     </startupFeatures>
                 </configuration>
             </plugin>
