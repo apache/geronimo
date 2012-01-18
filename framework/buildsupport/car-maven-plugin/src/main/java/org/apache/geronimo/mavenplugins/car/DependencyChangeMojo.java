@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.Comparator;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
@@ -43,6 +45,7 @@ import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.xml.sax.SAXException;
 
 /**
  * Check if the dependencies have changed
@@ -114,6 +117,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                 test.setImport(null);
             }
             Collection<DependencyType> added = new LinkedHashSet<DependencyType>(dependencies);
+            PluginArtifactType removed = new PluginArtifactType();
             if (dependencyFile.exists()) {
                 //filter dependencies file
                 filter(dependencyFile, filteredDependencyFile);
@@ -121,7 +125,6 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                 FileReader in = new FileReader(filteredDependencyFile);
                 try {
                     PluginArtifactType pluginArtifactType = PluginXmlUtil.loadPluginArtifactMetadata(in);
-                    PluginArtifactType removed = new PluginArtifactType();
                     for (DependencyType test: pluginArtifactType.getDependency()) {
                         boolean t1 = added.contains(test);
                         int s1 = added.size();
@@ -138,15 +141,17 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                         }
                     }
 
-                    File treeListing = saveTreeListing();
-                    if (!added.isEmpty() || !removed.getDependency().isEmpty()) {
-                        saveDependencyChanges(added, removed, treeListing);
-                        if (overwriteChangedDependencies) {
-                            writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
-                        }
-                    }
+                } catch (Exception e) {
+                    getLogger().warn("Could not read dependencies.xml file at " + dependencyFile, e);
                 } finally {
                     in.close();
+                }
+                File treeListing = saveTreeListing();
+                if (!added.isEmpty() || !removed.getDependency().isEmpty()) {
+                    saveDependencyChanges(added, removed, treeListing);
+                    if (overwriteChangedDependencies) {
+                        writeDependencies(toPluginArtifactType(dependencies), dependencyFile);
+                    }
                 }
             } else {
                 writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
@@ -154,7 +159,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         } catch (MojoFailureException e) {
             throw e;
         } catch (Exception e) {
-            throw new MojoExecutionException("Could not read or write dependency history info", e);
+            throw new MojoExecutionException("Could not write dependency history info", e);
         }
     }
 
