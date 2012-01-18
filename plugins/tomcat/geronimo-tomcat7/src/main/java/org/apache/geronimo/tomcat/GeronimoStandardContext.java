@@ -47,11 +47,15 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
 import javax.servlet.ServletSecurityElement;
 
 import org.apache.catalina.Container;
@@ -87,6 +91,7 @@ import org.apache.geronimo.tomcat.interceptor.BeforeAfterContext;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.RequestListenerBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.WebApplicationIdentityBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
@@ -104,6 +109,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -283,7 +289,10 @@ public class GeronimoStandardContext extends StandardContext {
         }
 
         int index = 0;
-        BeforeAfter interceptor = new InstanceContextBeforeAfter(null,
+        
+        BeforeAfter interceptor = new RequestListenerBeforeAfter(null, index++);
+        
+        interceptor = new InstanceContextBeforeAfter(interceptor,
                 index++,
                 index++, ctx.getUnshareableResources(),
                 ctx.getApplicationManagedSecurityResources(),
@@ -1048,6 +1057,15 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
     }
+    
+    @Override
+    public boolean fireRequestInitEvent(ServletRequest request) {
+        return true;
+    } 
+    
+    public boolean fireRequestInitEventInBeforeAfter(ServletRequest request) {
+        return super.fireRequestInitEvent(request);
+    } 
 
     private static byte[] getChecksum(URL url) throws Exception {
         InputStream in = null;
