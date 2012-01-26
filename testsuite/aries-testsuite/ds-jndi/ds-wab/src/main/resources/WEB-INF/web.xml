@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0"
-    metadata-complete="true">
+    >
 
        <welcome-file-list>
         <welcome-file>index.html</welcome-file>

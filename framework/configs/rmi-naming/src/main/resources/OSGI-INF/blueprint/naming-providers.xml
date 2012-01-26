@@ -77,4 +77,11 @@ limitations under the License.
         </bean>
     </service>
 
+    <service id="defaultInitialContextFactoryBuilder"
+             interface="javax.naming.spi.InitialContextFactoryBuilder">
+        <bean class="org.apache.geronimo.naming.defaultcontext.DefaultInitialContextFactoryBuilder">
+        </bean>
+    </service>
+
+
 </blueprint>
