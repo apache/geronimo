@@ -211,8 +211,7 @@ public class ApplicationUpdateHelper {
                 }
                 
                 // compute & load existing class
-                String className = getClassName(classPath, name);
-                Class<?> clazz = bundle.loadClass(className);
+                Class<?> clazz = loadClass(bundle, classPath, name);
                 
                 // get the new class bytes
                 InputStream in = zipFile.getInputStream(entry);
@@ -264,23 +263,35 @@ public class ApplicationUpdateHelper {
         }
         return classPath;
     }
-    
-    /*
-     * Get the class name to load based on the Bundle-ClassPath entries.
-     */
-    private String getClassName(String[] classPath, String classEntryName) {
-        if (classPath != null) {
-            /*
-             * It is possible that the class entry name could match multiple class path entries
-             * but that is pretty rare - so let's ignore this case for now.
-             */
-            for (String classPathEntry : classPath) {            
-                if (classEntryName.startsWith(classPathEntry)) {
-                    classEntryName = classEntryName.substring(classPathEntry.length() + 1);
-                    break;
+
+    private Class<?> loadClass(Bundle bundle, String[] classPath, String classEntryName) throws ClassNotFoundException {
+        if (classPath == null) {
+            String className = getClassName("", classEntryName);
+            return bundle.loadClass(className);
+        } else {
+            List<String> classes = null;
+            for (String classPathEntry : classPath) {
+                String className = getClassName(classPathEntry, classEntryName);
+                LOG.debug("Attempting to load {} ", className);
+                try {
+                    return bundle.loadClass(className);
+                } catch (Throwable t) {
+                    LOG.debug("Failed to load " + className, t);
+                    // keep trying
+                    if (classes == null) {
+                        classes =  new ArrayList<String>(classPath.length);
+                    }
+                    classes.add(className);
                 }
             }
+            throw new ClassNotFoundException(classes.toString());
         }
+    }
+        
+    private String getClassName(String classPathEntry, String classEntryName) {
+        if (classPathEntry.length() > 0 && classEntryName.startsWith(classPathEntry)) {
+            classEntryName = classEntryName.substring(classPathEntry.length() + 1);            
+        }        
         return classEntryName.substring(0, classEntryName.length() - ".class".length()).replace('/', '.');
     }
     
