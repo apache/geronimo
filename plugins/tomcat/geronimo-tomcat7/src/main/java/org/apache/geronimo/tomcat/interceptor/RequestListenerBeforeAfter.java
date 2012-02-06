@@ -24,35 +24,24 @@ import org.apache.geronimo.tomcat.GeronimoStandardContext;
 public class RequestListenerBeforeAfter implements BeforeAfter{
     private final BeforeAfter next;
     private final int index;
+    private final GeronimoStandardContext standardContext;
 
-    public RequestListenerBeforeAfter(BeforeAfter next, int index) {
+    public RequestListenerBeforeAfter(BeforeAfter next, int index, GeronimoStandardContext standardContext) {
         this.next = next;
         this.index = index;
+        this.standardContext = standardContext;
     }
 
     public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-
-            if (httpRequest instanceof org.apache.catalina.connector.Request){
-                
-                org.apache.catalina.connector.Request catalinaRequest = (org.apache.catalina.connector.Request) httpRequest;
-
-                if (catalinaRequest.getContext() instanceof GeronimoStandardContext) {
-
-                    GeronimoStandardContext GeronimoContext = (GeronimoStandardContext) catalinaRequest.getContext();
-                    GeronimoContext.fireRequestInitEventInBeforeAfter(httpRequest);
-                }
-
-            }
-
-            if (next != null) {
-                next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
-            }
+        standardContext.fireRequestInitEventInBeforeAfter(httpRequest);
+        if (next != null) {
+            next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
+        }
 
     }
     
 
-    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-       
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {       
             if (next != null) {
                 next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
             }

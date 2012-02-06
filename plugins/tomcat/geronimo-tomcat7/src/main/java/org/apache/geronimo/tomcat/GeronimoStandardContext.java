@@ -290,7 +290,7 @@ public class GeronimoStandardContext extends StandardContext {
 
         int index = 0;
         
-        BeforeAfter interceptor = new RequestListenerBeforeAfter(null, index++);
+        BeforeAfter interceptor = new RequestListenerBeforeAfter(null, index++, this);
         
         interceptor = new InstanceContextBeforeAfter(interceptor,
                 index++,
@@ -575,71 +575,8 @@ public class GeronimoStandardContext extends StandardContext {
     }
 
     @Override
-    public synchronized void setLoader(final Loader delegate) {
-        Loader loader = new Loader() {
-
-            public void backgroundProcess() {
-                delegate.backgroundProcess();
-            }
-
-            public ClassLoader getClassLoader() {
-                // Implementation Note: the actual CL to be used by this
-                // context is the Geronimo one and not the Tomcat one.
-                return parentClassLoader;
-            }
-
-            public Container getContainer() {
-                return delegate.getContainer();
-            }
-
-            public void setContainer(Container container) {
-                delegate.setContainer(container);
-            }
-
-            public boolean getDelegate() {
-                return delegate.getDelegate();
-            }
-
-            public void setDelegate(boolean delegateBoolean) {
-                delegate.setDelegate(delegateBoolean);
-            }
-
-            public String getInfo() {
-                return delegate.getInfo();
-            }
-
-            public boolean getReloadable() {
-                return false;
-            }
-
-            public void setReloadable(boolean reloadable) {
-                if (reloadable) {
-                    throw new UnsupportedOperationException("Reloadable context is not supported.");
-                }
-            }
-
-            public void addPropertyChangeListener(PropertyChangeListener listener) {
-                delegate.addPropertyChangeListener(listener);
-            }
-
-            public void addRepository(String repository) {
-                delegate.addRepository(repository);
-            }
-
-            public String[] findRepositories() {
-                return delegate.findRepositories();
-            }
-
-            public boolean modified() {
-                return delegate.modified();
-            }
-
-            public void removePropertyChangeListener(PropertyChangeListener listener) {
-                delegate.removePropertyChangeListener(listener);
-            }
-        };
-
-        super.setLoader(loader);
+    public synchronized void setLoader(Loader delegate) {
+        super.setLoader(new GeronimoWebAppLoader(this, delegate));
     }
 
     public ServletContext getInternalServletContext() {

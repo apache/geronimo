@@ -564,12 +564,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             container.addContext(this);
             // Is it necessary - doesn't Tomcat Embedded take care of it?
             // super.start();
-            //register the classloader <> dir context association so that tomcat's jndi based getResources works.
-            DirContext resources = context.getResources();
-            if (resources == null) {
-                throw new IllegalStateException("JNDI environment was not set up correctly due to previous error");
-            }
-            DirContextURLStreamHandler.bind(classLoader, resources);
             if (context instanceof StandardContext) {
                 statsProvider = new ModuleStats((StandardContext) context);
             }
@@ -584,7 +578,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public void doStop() throws Exception {
         statsProvider = null;
         container.removeContext(this);
-        DirContextURLStreamHandler.unbind(classLoader);
         log.debug("TomcatWebAppContext stopped");
     }
 
