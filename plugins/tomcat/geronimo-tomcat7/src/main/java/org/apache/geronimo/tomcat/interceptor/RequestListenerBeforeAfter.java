@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat.interceptor;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -34,12 +35,15 @@ public class RequestListenerBeforeAfter implements BeforeAfter{
 
     public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         if (httpRequest != null && httpResponse != null) {
-            standardContext.fireRequestInitEventInBeforeAfter(httpRequest);
+            DispatcherType dispatcherType = httpRequest.getDispatcherType();
+            if (dispatcherType == DispatcherType.REQUEST
+                    || (dispatcherType == DispatcherType.FORWARD && standardContext.getFireRequestListenersOnForwards())) {
+                standardContext.fireRequestInitEventInBeforeAfter(httpRequest);
+            }
         }
         if (next != null) {
             next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
         }
-
     }
     
 
