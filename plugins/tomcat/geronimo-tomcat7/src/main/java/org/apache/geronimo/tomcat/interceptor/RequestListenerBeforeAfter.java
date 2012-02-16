@@ -14,16 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.tomcat.interceptor;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 
-public class RequestListenerBeforeAfter implements BeforeAfter{
+public class RequestListenerBeforeAfter implements BeforeAfter {
+
     private final BeforeAfter next;
+
     private final int index;
+
     private final GeronimoStandardContext standardContext;
 
     public RequestListenerBeforeAfter(BeforeAfter next, int index, GeronimoStandardContext standardContext) {
@@ -32,20 +37,24 @@ public class RequestListenerBeforeAfter implements BeforeAfter{
         this.standardContext = standardContext;
     }
 
-    public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+    public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse,
+            int dispatch) {
         if (httpRequest != null && httpResponse != null) {
-            standardContext.fireRequestInitEventInBeforeAfter(httpRequest);
+            DispatcherType dispatcherType = httpRequest.getDispatcherType();
+            if (dispatcherType == DispatcherType.REQUEST
+                    || (dispatcherType == DispatcherType.FORWARD && standardContext.getFireRequestListenersOnForwards())) {
+                standardContext.fireRequestInitEventInBeforeAfter(httpRequest);
+            }
         }
         if (next != null) {
             next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
         }
     }
-    
 
-    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {       
-            if (next != null) {
-                next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
-            }
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse,
+            int dispatch) {
+        if (next != null) {
+            next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
+        }
     }
-
 }
