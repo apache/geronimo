@@ -413,7 +413,7 @@ public class TomcatManagerImpl implements WebManager {
     // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, Messages.getString("TomcatManagerImpl.80"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<Integer>("asyncTimeout", 10000, Messages.getString("TomcatManagerImpl.82"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Long>("asyncTimeout", 10000l, Messages.getString("TomcatManagerImpl.82"), Long.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, Messages.getString("TomcatManagerImpl.84"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxParameterCount", 10000, Messages.getString("TomcatManagerImpl.85"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, Messages.getString("TomcatManagerImpl.86"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
