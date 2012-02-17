@@ -173,10 +173,15 @@ public class ConnectorPortlet extends BasePortlet {
                 log.error("Unable to get connectorGBeanData by abstractName:"+connectorName.toURI(), e);
             }
 
+            // Store the port info of the connector currently modified
+            String toBeUpdatedConnectorName = (String) connectorGBeanData.getAttribute("name");
+            Integer toBeUpdatedConnectorPort = (Integer) connectorGBeanData.getAttribute("port");
+            
             NetworkConnector connector = PortletManager.getNetworkConnector(actionRequest, connectorName);
             if(connector != null) {
                 WebManager manager = PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI)));
                 ConnectorType connectorType = manager.getConnectorType(connectorName);
+                
 
                 // set the connector attributes from the form post
                 for (ConnectorAttribute attribute : manager.getConnectorAttributes(connectorType)) {
@@ -213,23 +218,30 @@ public class ConnectorPortlet extends BasePortlet {
 
                 // set the keystore properties if its a secure connector
                 setKeystoreProperties(actionRequest, connectorName);
+                
+                if (actionRequest.getServerPort() != toBeUpdatedConnectorPort.intValue()) {
+                    try {
+                        Kernel kernel = PortletManager.getKernel();
+                        BundleContext bundleContext = kernel.getBundleFor(connectorName).getBundleContext();
+                        kernel.stopGBean(connectorName);
+                        kernel.unloadGBean(connectorName);
+                        kernel.loadGBean(connectorGBeanData, bundleContext);
+                        kernel.startGBean(connectorName);
+                    } catch (Exception e) {
+                        log.error("Unable to reload updated connector:" + connectorName.toURI(), e);
+                        actionResponse.setRenderParameter("toBeUpdatedConnectorName", toBeUpdatedConnectorName);
+                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg25", toBeUpdatedConnectorName));
+                    }
 
-                try {
-                    Kernel kernel = PortletManager.getKernel();
-                    BundleContext bundleContext = kernel.getBundleFor(connectorName).getBundleContext();
-                    kernel.stopGBean(connectorName);
-                    kernel.unloadGBean(connectorName);
-                    kernel.loadGBean(connectorGBeanData, bundleContext);
-                    kernel.startGBean(connectorName);
-                } catch (Exception e) {
-                    log.error("Unable to reload updated connector:" + connectorName.toURI(), e);
-                }
-
-
-                try {
-                    manager.updateConnectorConfig(connectorName);
-                } catch (Exception e) {
-                    log.error("Unable to update connector in server.xml", e); //TODO: get into rendered page
+                    try {
+                        manager.updateConnectorConfig(connectorName);
+                    } catch (Exception e) {
+                        log.error("Unable to update connector in server.xml", e);
+                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg26"));
+                    }
+                } else {
+                    actionResponse.setRenderParameter("toBeUpdatedConnectorName", toBeUpdatedConnectorName);
+                    addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg09", toBeUpdatedConnectorName));
                 }
             }
             actionResponse.setRenderParameter(PARM_MODE, "list");
