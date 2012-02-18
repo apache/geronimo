@@ -715,7 +715,18 @@ public class DatabasePoolPortlet extends BasePortlet {
         data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
         data.idleTimeout = Integer.toString(pool.getIdleTimeoutMinutes());
         */
+        try {
+            Jsr77Naming naming = new Jsr77Naming();
+            AbstractName connectionManagerName = naming.createChildName(abstractFactoryName, data.getName(), NameFactory.JCA_CONNECTION_MANAGER);
+            PoolingAttributes pool = (PoolingAttributes) PortletManager.getManagedBean(actionRequest, connectionManagerName);
 
+            data.minSize = Integer.toString(pool.getPartitionMinSize());
+            data.maxSize = Integer.toString(pool.getPartitionMaxSize());
+            data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
+            data.idleTimeout = Integer.toString(pool.getIdleTimeoutMinutes());
+        } catch (Exception e) {
+            log.error("Cannot load pool data");
+        }
     }
 
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
