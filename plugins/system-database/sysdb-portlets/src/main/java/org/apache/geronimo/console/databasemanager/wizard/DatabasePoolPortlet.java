@@ -725,7 +725,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
             data.idleTimeout = Integer.toString(pool.getIdleTimeoutMinutes());
         } catch (Exception e) {
-            log.error("Cannot load pool data");
+            log.error("Cannot load pool data", e);
         }
     }
 
