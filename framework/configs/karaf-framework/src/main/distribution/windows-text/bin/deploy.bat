@@ -37,13 +37,20 @@
 @REM   GERONIMO_HOME   May point at your Geronimo top-level directory.
 @REM                   If not specified, this batch file will attempt to
 @REM                   discover it relative to the location of this file.
+@REM                   The HOME directory holds the binary install of Geronimo.
+@REM
+@REM   GERONIMO_SERVER (Optional) May point at your Geronimo Server Instance
+@REM                   top-level directory. If not specified, it will default to
+@REM                   $GERONIMO_HOME.
+@REM                   The SERVER directory holds the configuration and data for
+@REM                   a Geronimo instance.
 @REM
 @REM   GERONIMO_OPTS   (Optional) Java runtime options (in addition to
 @REM                   those set in JAVA_OPTS).
 @REM
 @REM   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
-@REM                   the JVM should use (java.io.tmpdir).  Defaults to
-@REM                   var\temp (resolved to server instance directory).
+@REM                   the JVM should use (java.io.tmpdir).  Defaults to var\tmp
+@REM                   (resolved to server instance directory GERONIMO_SERVER).
 @REM
 @REM   JAVA_HOME       Points to your Java Development Kit installation.
 @REM                   JAVA_HOME doesn't need to be set if JRE_HOME is set.
@@ -131,32 +138,8 @@ cmd /c exit /b 1
 goto end
 :okSetJavaEnv
 set BASEDIR=%GERONIMO_HOME%
-call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
+call "%GERONIMO_HOME%\bin\setjavaenv.bat"
 if not %errorlevel% == 0 goto end
-
-@REM Handle spaces in provided paths.  Also strips off quotes.
-if defined var GERONIMO_HOME(
-set GERONIMO_HOME=###%GERONIMO_HOME%###
-set GERONIMO_HOME=%GERONIMO_HOME:"###=%
-set GERONIMO_HOME=%GERONIMO_HOME:###"=%
-set GERONIMO_HOME=%GERONIMO_HOME:###=%
-@)
-if defined var JRE_HOME(
-set JRE_HOME=###%JRE_HOME%###
-set JRE_HOME=%JRE_HOME:"###=%
-set JRE_HOME=%JRE_HOME:###"=%
-set JRE_HOME=%JRE_HOME:###=%
-@)
-if defined var _RUNJAVA(
-set _RUNJAVA=###%_RUNJAVA%###
-set _RUNJAVA=%_RUNJAVA:"###=%
-set _RUNJAVA=%_RUNJAVA:###"=%
-set _RUNJAVA=%_RUNJAVA:###=%
-@)
-
-if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
-set GERONIMO_TMPDIR=var\temp
-:gotTmpdir
 
 @REM Setup the classpath
 pushd "%GERONIMO_HOME%\lib"
@@ -175,6 +158,7 @@ goto :EOF
 @REM ----- Execute The Requested Command ---------------------------------------
 @if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
 echo Using GERONIMO_HOME:   %GERONIMO_HOME%
+echo Using GERONIMO_SERVER: %GERONIMO_SERVER%
 echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
 if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
 if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
@@ -184,7 +168,7 @@ if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
 @REM Capture any passed in arguments
 set CMD_LINE_ARGS=%*
 
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" org.apache.geronimo.cli.deployer.DeployerCLI %CMD_LINE_ARGS%
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" org.apache.geronimo.cli.deployer.DeployerCLI %CMD_LINE_ARGS%
 goto end
 
 :end

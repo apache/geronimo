@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------
 
 # --------------------------------------------------------------------
-# Set environment variables relating to the execution of java commands.
+# Set environment variables relating to the execution of geronimo commands.
 #
 # This script file is called by the geronimo.sh file (which is invoked
 # by the startup.sh, shutdown.sh files).  This file is also invoked
@@ -34,6 +34,50 @@
 # (Based upon Apache Tomcat 5.5.12's setclasspath.sh)
 #
 # --------------------------------------------------------------------
+
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false
+os400=false
+darwin=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+Darwin*) darwin=true;;
+esac
+
+
+# Set GERONIMO_SERVER if not already set, otherwise resolve the full path
+if [ -z "$GERONIMO_SERVER" ] ; then
+  GERONIMO_SERVER="$GERONIMO_HOME"
+else
+  if [ ! -d "$GERONIMO_SERVER" ] && [ -d "$GERONIMO_HOME/$GERONIMO_SERVER" ] ;
+  then
+    GERONIMO_SERVER="$GERONIMO_HOME/$GERONIMO_SERVER"
+  elif [ ! -d "$GERONIMO_SERVER" ] ; then
+    echo "Cannot find GERONIMO_SERVER. I looked for it at these paths:"
+    echo "    $GERONIMO_SERVER"
+    echo "    $GERONIMO_HOME/$GERONIMO_SERVER"
+    exit 1
+  fi
+
+  # Resolve the full path to GERONIMO_SERVER
+  while [ -h "$GERONIMO_SERVER" ]; do
+    ls=`ls -ld "$GERONIMO_SERVER"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      GERONIMO_SERVER="$link"
+    else
+      GERONIMO_SERVER=`dirname "$GERONIMO_SERVER"`/"$link"
+    fi
+  done
+
+  GERONIMO_SERVER=`cd "$GERONIMO_SERVER"; pwd`
+fi
+
+if [ -z "$GERONIMO_TMPDIR" ] ; then
+  # Define the java.io.tmpdir to use for Geronimo
+  GERONIMO_TMPDIR="$GERONIMO_SERVER"/var/temp
+fi
 
 # Make sure prerequisite environment variables are set
 if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
@@ -92,23 +136,11 @@ if [ "$1" = "debug" ] ; then
     fi
   fi
 fi
+
 if [ -z "$BASEDIR" ]; then
   echo "The BASEDIR environment variable is not defined"
   echo "This environment variable is needed to run this program"
   exit 1
-fi
-if [ ! -x "$BASEDIR"/bin/setjavaenv.sh ]; then
-  if $os400; then
-    # -x will Only work on the os400 if the files are:
-    # 1. owned by the user
-    # 2. owned by the PRIMARY group of the user
-    # this will not work if the user belongs in secondary groups
-    eval
-  else
-    echo "The BASEDIR environment variable is not defined correctly"
-    echo "This environment variable is needed to run this program"
-    exit 1
-  fi
 fi
 
 # Set standard commands for invoking Java.

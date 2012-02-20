@@ -44,6 +44,13 @@
 #   GERONIMO_HOME   (Optional) May point at your Geronimo top-level directory.
 #                   If not specified, it will default to the parent directory
 #                   of the location of this script.
+#                   The HOME directory holds the binary install of Geronimo.
+#
+#   GERONIMO_SERVER (Optional) May point at your Geronimo Server Instance
+#                   top-level directory. If not specified, it will default to
+#                   $GERONIMO_HOME.
+#                   The SERVER directory holds the configuration and data for
+#                   a Geronimo instance.
 #
 #   GERONIMO_OPTS   (Optional) Java runtime options used when the "start",
 #                   "stop", or "run" command is executed.
@@ -51,14 +58,14 @@
 #   GERONIMO_OUT    (Optional) File that Geronimo's stdout and stderr streams
 #                   will be redirected to if Geronimo is started in the
 #                   background.
-#                   Defaults to $GERONIMO_HOME/var/log/geronimo.out
+#                   Defaults to $GERONIMO_SERVER/var/log/geronimo.out
 #
 #   GERONIMO_PID    (Optional) Path of the file which should contains the pid
 #                   of the Geronimo java process, when start (fork) is used
 #
 #   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
 #                   the JVM should use (java.io.tmpdir). Defaults to var/temp 
-#                   (resolved to server instance directory).
+#                   (resolved to server instance directory GERONIMO_SERVER).
 #
 #   JAVA_HOME       Points to your Java Development Kit installation.
 #                   JAVA_HOME doesn't need to be set if JRE_HOME is set
@@ -129,16 +136,6 @@
 #  1 - Error
 # -----------------------------------------------------------------------------
 
-# OS specific support.  $var _must_ be set to either true or false.
-cygwin=false
-os400=false
-darwin=false
-case "`uname`" in
-CYGWIN*) cygwin=true;;
-OS400*) os400=true;;
-Darwin*) darwin=true;;
-esac
-
 # resolve links - $0 may be a softlink
 PRG="$0"
 
@@ -158,8 +155,17 @@ PRGDIR=`dirname "$PRG"`
 # Only set GERONIMO_HOME if not already set
 [ -z "$GERONIMO_HOME" ] && GERONIMO_HOME=`cd "$PRGDIR/.." ; pwd`
 
-if [ -r "$GERONIMO_HOME"/bin/setenv.sh ]; then
+if [ -f "$GERONIMO_HOME"/bin/setenv.sh ]; then
   . "$GERONIMO_HOME"/bin/setenv.sh
+fi
+
+if [ -f "$GERONIMO_HOME"/bin/setjavaenv.sh ]; then
+    BASEDIR="$GERONIMO_HOME"
+    . "$GERONIMO_HOME"/bin/setjavaenv.sh
+else
+    echo "Cannot find $GERONIMO_HOME/bin/setjavaenv.sh"
+    echo "This file is needed to run this program"
+    exit 1
 fi
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
@@ -168,6 +174,7 @@ if $cygwin; then
   [ -n "$JRE_HOME" ] && JRE_HOME=`cygpath --unix "$JRE_HOME"`
   [ -n "$JDB_SRCPATH" ] && JDB_SRCPATH=`cygpath --unix "$JDB_SRCPATH"`
   [ -n "$GERONIMO_HOME" ] && GERONIMO_HOME=`cygpath --unix "$GERONIMO_HOME"`
+  [ -n "$GERONIMO_SERVER" ] && GERONIMO_SERVER=`cygpath --unix "$GERONIMO_SERVER"`
 fi
 
 # For OS400
@@ -182,42 +189,15 @@ if $os400; then
   export QIBM_MULTI_THREADED=Y
 fi
 
-# Get standard Java environment variables
-# (based upon Tomcat's setclasspath.sh but renamed since Geronimo's classpath
-# is set in the JAR manifest)
-if $os400; then
-  # -r will Only work on the os400 if the files are:
-  # 1. owned by the user
-  # 2. owned by the PRIMARY group of the user
-  # this will not work if the user belongs in secondary groups
-  BASEDIR="$GERONIMO_HOME"
-  . "$GERONIMO_HOME"/bin/setjavaenv.sh
-else
-  if [ -r "$GERONIMO_HOME"/bin/setjavaenv.sh ]; then
-    BASEDIR="$GERONIMO_HOME"
-    . "$GERONIMO_HOME"/bin/setjavaenv.sh
-  else
-    echo "Cannot find $GERONIMO_HOME/bin/setjavaenv.sh"
-    echo "This file is needed to run this program"
-    exit 1
-  fi
-fi
-
 # Use a default JAVA_OPTS if it's not set
 if [ -z "$JAVA_OPTS" ]; then
   JAVA_OPTS="-Xmx256m -XX:MaxPermSize=128m"
 fi
 
-if [ -z "$GERONIMO_TMPDIR" ] ; then
-  # Define the java.io.tmpdir to use for Geronimo
-  # A relative value will be resolved relative to each instance
-  GERONIMO_TMPDIR="$GERONIMO_HOME"/var/temp
-fi
-
 if [ -z "$GERONIMO_OUT" ] ; then
   # Define the output file we are to redirect both stdout and stderr to
   # when Geronimo is started in the background
-  GERONIMO_OUT="$GERONIMO_HOME"/var/log/geronimo.out
+  GERONIMO_OUT="$GERONIMO_SERVER"/var/log/geronimo.out
 fi
 
 if [ -z "$JDB_SRCPATH" ] ; then
@@ -247,6 +227,7 @@ if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
+  GERONIMO_SERVER=`cygpath --absolute --windows "$GERONIMO_SERVER"`
   GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   EXT_DIRS=`cygpath --path --windows "$EXT_DIRS"`
@@ -256,6 +237,7 @@ fi
 # ----- Execute The Requested Command -----------------------------------------
 if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
   echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
+  echo "Using GERONIMO_SERVER: $GERONIMO_SERVER"
   echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
   if [ "$1" = "debug" ] ; then
     echo "Using JAVA_HOME:       $JAVA_HOME"
@@ -309,9 +291,10 @@ if [ "$1" = "debug" ] ; then
       -sourcepath "$JDB_SRCPATH" \
       -Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=true \
       -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+      -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
       -Dkaraf.home="$GERONIMO_HOME" \
-      -Dkaraf.base="$GERONIMO_HOME" \
-      -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
+      -Dkaraf.base="$GERONIMO_SERVER" \
+      -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
       -Djava.endorsed.dirs="$ENDORSED_DIRS" \
       -Djava.ext.dirs="$EXT_DIRS" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -326,9 +309,10 @@ elif [ "$1" = "run" ]; then
         -javaagent:"$JAVA_AGENT_JAR" \
         -Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=false \
         -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+        -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
         -Dkaraf.home="$GERONIMO_HOME" \
-        -Dkaraf.base="$GERONIMO_HOME" \
-        -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
+        -Dkaraf.base="$GERONIMO_SERVER" \
+        -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
         -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -338,9 +322,10 @@ elif [ "$1" = "run" ]; then
       exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
         -Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=false \
         -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+        -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
         -Dkaraf.home="$GERONIMO_HOME" \
-        -Dkaraf.base="$GERONIMO_HOME" \
-        -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
+        -Dkaraf.base="$GERONIMO_SERVER" \
+        -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
         -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -362,9 +347,10 @@ elif [ "$1" = "start" ] ; then
           -javaagent:"$JAVA_AGENT_JAR" \
           -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+          -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
           -Dkaraf.home="$GERONIMO_HOME" \
-          -Dkaraf.base="$GERONIMO_HOME" \
-          -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+          -Dkaraf.base="$GERONIMO_SERVER" \
+          -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -374,9 +360,10 @@ elif [ "$1" = "start" ] ; then
         exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
           -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+          -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
           -Dkaraf.home="$GERONIMO_HOME" \
-          -Dkaraf.base="$GERONIMO_HOME" \
-          -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+          -Dkaraf.base="$GERONIMO_SERVER" \
+          -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -390,9 +377,10 @@ elif [ "$1" = "start" ] ; then
           -javaagent:"$JAVA_AGENT_JAR" \
           -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+          -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
           -Dkaraf.home="$GERONIMO_HOME" \
-          -Dkaraf.base="$GERONIMO_HOME" \
-          -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+          -Dkaraf.base="$GERONIMO_SERVER" \
+          -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -408,9 +396,10 @@ elif [ "$1" = "start" ] ; then
         $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
           -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
           -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+          -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
           -Dkaraf.home="$GERONIMO_HOME" \
-          -Dkaraf.base="$GERONIMO_HOME" \
-          -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+          -Dkaraf.base="$GERONIMO_SERVER" \
+          -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -439,9 +428,10 @@ elif [ "$1" = "stop" ] ; then
   "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
     -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+    -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
     -Dkaraf.home="$GERONIMO_HOME" \
-    -Dkaraf.base="$GERONIMO_HOME" \
-    -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
+    -Dkaraf.base="$GERONIMO_SERVER" \
+    -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \

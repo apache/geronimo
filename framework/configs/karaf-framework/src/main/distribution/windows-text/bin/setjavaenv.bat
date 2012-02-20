@@ -19,7 +19,7 @@
 @REM --------------------------------------------------------------------
 
 @REM --------------------------------------------------------------------
-@REM Set environment variables relating to the execution of java commands
+@REM Set environment variables relating to the execution of geronimo commands
 @REM
 @REM This batch file is called by the geronimo.bat file (which is
 @REM invoked by the startup.bat, shutdown.bat files).  This file is
@@ -40,18 +40,56 @@
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
-@REM Handle spaces in provided paths.  Also strips off quotes.
-if defined var JAVA_HOME(
-set JAVA_HOME=###%JAVA_HOME%###
-set JAVA_HOME=%JAVA_HOME:"###=%
-set JAVA_HOME=%JAVA_HOME:###"=%
-set JAVA_HOME=%JAVA_HOME:###=%
+@REM Set GERONIMO_SERVER to GERONIMO_HOME if not defined, else resolve full path
+if not "%GERONIMO_SERVER%" == "" goto resolveServer
+set GERONIMO_SERVER=%GERONIMO_HOME%
+goto gotServer
+
+:resolveServer
+@REM Strip quotes from GERONIMO_SERVER which is defined by user
+if defined var GERONIMO_SERVER(
+set GERONIMO_HOME=###%GERONIMO_SERVER%###
+set GERONIMO_HOME=%GERONIMO_SERVER:"###=%
+set GERONIMO_HOME=%GERONIMO_SERVER:###"=%
+set GERONIMO_HOME=%GERONIMO_SERVER:###=%
 @)
+set CURRENT_DIR=%cd%
+cd /d "%GERONIMO_HOME%"
+if exist "%GERONIMO_SERVER%" goto okResolveServer
+cd /d "%CURRENT_DIR%"
+goto errorServer
+
+:okResolveServer
+cd /d "%GERONIMO_SERVER%"
+set GERONIMO_SERVER=%cd%
+cd /d "%CURRENT_DIR%"
+
+:gotServer
+if exist "%GERONIMO_SERVER%\var" goto okServer
+
+:errorServer
+echo The GERONIMO_SERVER environment variable is not defined correctly
+echo This environment variable is needed to run this program
+cmd /c exit /b 1
+goto end
+:okServer
+
+if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
+set GERONIMO_TMPDIR=%GERONIMO_SERVER%\var\temp
+:gotTmpdir
+
+@REM Strip quotes from JRE_HOME and JAVA_HOME before using them
 if defined var JRE_HOME(
 set JRE_HOME=###%JRE_HOME%###
 set JRE_HOME=%JRE_HOME:"###=%
 set JRE_HOME=%JRE_HOME:###"=%
 set JRE_HOME=%JRE_HOME:###=%
+@)
+if defined var _RUNJAVA(
+set _RUNJAVA=###%_RUNJAVA%###
+set _RUNJAVA=%_RUNJAVA:"###=%
+set _RUNJAVA=%_RUNJAVA:###"=%
+set _RUNJAVA=%_RUNJAVA:###=%
 @)
 
 @REM check that either JAVA_HOME or JRE_HOME are set
