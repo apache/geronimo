@@ -456,6 +456,12 @@ public class FrameworkLauncher {
     }
 
     private static File findFile(File dir, String name) {
+        if (!dir.exists()) dir.mkdir();
+        if (!dir.isDirectory()) {
+            dir.delete();
+            dir.mkdir();
+        }
+        
         File theFile = new File(dir, name);
 
         if (theFile.exists() && !theFile.isDirectory()) {
