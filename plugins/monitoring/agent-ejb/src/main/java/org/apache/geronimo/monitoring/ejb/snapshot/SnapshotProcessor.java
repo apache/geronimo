@@ -137,12 +137,12 @@ public class SnapshotProcessor {
     }
     
     /**
-     * Checks to see if the GERONIMO_HOME/var/monitoring/ directory was made.
+     * Checks to see if the GERONIMO_SERVER/var/monitoring/ directory was made.
      * If not, the method creates it.
      */
     public static void ensureMonitorDir() {
         final String pathToDir = 
-            System.getProperty("org.apache.geronimo.home.dir") + "/var/monitoring/";
+            System.getProperty("org.apache.geronimo.server.dir") + "/var/monitoring/";
         File dir = new File(pathToDir);
         if(dir.exists() && dir.isDirectory()) {
             // all good
