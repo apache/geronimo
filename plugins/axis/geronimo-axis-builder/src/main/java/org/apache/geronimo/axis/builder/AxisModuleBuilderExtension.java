@@ -27,8 +27,10 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.jar.JarFile;
 
+import javax.jws.WebService;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.xml.ws.WebServiceProvider;
 
 import org.apache.geronimo.axis.server.EjbWebServiceGBean;
 import org.apache.geronimo.common.DeploymentException;
@@ -131,6 +133,11 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
 
+            //JAX-WS will be handled in JAXWSEJBModuleBuilderExtension
+            if (isJAXWSWebService(bean, bundle)) {
+                continue;
+            }
+
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {
                 j2eeType = NameFactory.STATELESS_SESSION_BEAN;
@@ -193,6 +200,11 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+
+            //JAX-WS will be handled in JAXWSEJBModuleBuilderExtension
+            if (isJAXWSWebService(bean, bundle)) {
+                continue;
+            }
 
             String j2eeType = null;
             if (bean.type == EnterpriseBeanInfo.STATELESS) {
@@ -290,6 +302,15 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         return wsBindingMap;
+    }
+
+    private boolean isJAXWSWebService(EnterpriseBeanInfo bean, Bundle bundle) throws DeploymentException {
+        try {
+            Class<?> clazz = bundle.loadClass(bean.ejbClass);
+            return (clazz.isAnnotationPresent(WebService.class) || clazz.isAnnotationPresent(WebServiceProvider.class));
+        } catch (ClassNotFoundException ex) {
+            throw new DeploymentException("Unable to load EJB Bean class : " + bean.ejbClass, ex);
+        }
     }
 
     private static class WebServiceBinding {
