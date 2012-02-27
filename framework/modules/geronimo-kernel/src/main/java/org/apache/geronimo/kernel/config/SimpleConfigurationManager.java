@@ -498,7 +498,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configuration;
     }
 
-    protected List<Configuration> buildAllServiceParents(Map<Artifact, Configuration> loadedConfigurations, DependencyNode dependencyNode) throws InvalidConfigException {
+    protected List<Configuration> buildAllServiceParents(Map<Artifact, Configuration> loadedConfigurations, DependencyNode dependencyNode) throws InvalidConfigException, MissingDependencyException {
         List<Configuration> allServiceParents = new ArrayList<Configuration>();
         for (Artifact parentId : dependencyNode.getServiceParents()) {
             addDepthFirstServiceParents(parentId, allServiceParents, new HashSet<Artifact>(), loadedConfigurations);
@@ -512,9 +512,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return dependencyNode;
     }
 
-    private void addDepthFirstServiceParents(Artifact id, List<Configuration> ancestors, Set<Artifact> ids, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
+    private void addDepthFirstServiceParents(Artifact id, List<Configuration> ancestors, Set<Artifact> ids, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException, MissingDependencyException {
         if (!ids.contains(id)) {
-            Configuration configuration = getConfiguration(id, loadedConfigurations);
+        	Configuration configuration = null;
+        	try {
+        		configuration = getConfiguration(id, loadedConfigurations);
+        	} catch (InvalidConfigException e) {
+        		throw new MissingDependencyException(id);
+        	}
             ancestors.add(configuration);
             ids.add(id);
             for (Artifact parentId : configuration.getDependencyNode().getServiceParents()) {
@@ -936,7 +941,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         LifecycleResults results = new LifecycleResults();
         for (Artifact configurationId : unloadList) {
             Configuration configuration = getConfiguration(configurationId);
-
+            
+            if(configuration == null) throw new NoSuchConfigException(configurationId);
+            
             // first make sure it is stopped
             if (started.contains(configurationId)) {
                 monitor.stopping(configurationId);
@@ -959,6 +966,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
             try {
                 Bundle bundle = bundles.remove(configurationId);
+                if(bundle == null) {
+                	// Attempt to get the bundle from framework directly
+					bundle = attemptGetBundleByLocation(configurationId, monitor);
+                }
+                
                 if (bundle != null) {
                     if (BundleUtils.canStop(bundle)) {
                         bundle.stop(Bundle.STOP_TRANSIENT);
@@ -975,7 +987,34 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         monitor.finished();
         return results;
     }
-
+    /**
+     * Attempt to get the bundle by searching the bundle's location in all bundles in framework 
+     * 
+     * @param artifact
+     * @param monitor
+     * @return 
+     * @throws NoSuchConfigException
+     * @throws IOException
+     * @throws InvalidConfigException
+     */
+    protected Bundle attemptGetBundleByLocation(Artifact artifact, LifecycleMonitor monitor) {
+    	String artifactLoc = "";
+    	try {
+    		artifactLoc = locateBundle(artifact, monitor);
+    	} catch (Exception e) {
+    		// Because just attempt to get, so ignore
+    		return null;
+    	}
+    	 
+    	Bundle[] bundles = this.bundleContext.getBundles();
+    	
+    	for(Bundle bundle : bundles) {
+    		if(artifactLoc.equals(bundle.getLocation())) return bundle;
+    	}
+    	
+    	return null;
+    }
+    
     protected void removeConfigurationFromModel(Artifact configurationId) throws NoSuchConfigException {
         if (configurationModel.containsConfiguration(configurationId)) {
             configurationModel.removeConfiguration(configurationId);
