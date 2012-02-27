@@ -82,15 +82,15 @@ public class ConfigIDExtractor {
         }
         if(module.isDirectory()) {
             File target;
-            if(new File(module, "WEB-INF/web.xml").canRead()) {
+            if(new File(module, "WEB-INF/web.xml").canRead() || new File(module, "WEB-INF/geronimo-web.xml").canRead()) {
                 target = new File(module, "WEB-INF/geronimo-web.xml");
-            } else if(new File(module, "META-INF/application.xml").canRead()) {
+            } else if(new File(module, "META-INF/application.xml").canRead() || new File(module, "META-INF/geronimo-application.xml").canRead()) {
                 target = new File(module, "META-INF/geronimo-application.xml");
-            } else if(new File(module, "META-INF/ejb-jar.xml").canRead()) {
-                target = new File(module, "META-INF/openejb-jar.xml");
-            } else if(new File(module, "META-INF/ra.xml").canRead()) {
+            } else if (new File(module, "META-INF/ejb-jar.xml").canRead() || new File(module, "META-INF/openejb-jar.xml").canRead()) {
+            	target = new File(module, "META-INF/openejb-jar.xml");
+            } else if(new File(module, "META-INF/ra.xml").canRead() || new File(module, "META-INF/geronimo-ra.xml").canRead()) {
                 target = new File(module, "META-INF/geronimo-ra.xml");
-            } else if(new File(module, "META-INF/application-client.xml").canRead()) {
+            } else if(new File(module, "META-INF/application-client.xml").canRead() || new File(module, "META-INF/geronimo-application-client.xml").canRead()) {
                 target = new File(module, "META-INF/geronimo-application-client.xml");
             }  else if(new File(module,"META-INF/APPLICATION.MF").canRead()) {
                 target = new File(module,"META-INF/APPLICATION.MF");
@@ -125,15 +125,15 @@ public class ConfigIDExtractor {
             //      though that would probably be a little heavyweight.
             try {
                 JarEntry entry;
-                if(input.getJarEntry("WEB-INF/web.xml") != null) {
+                if(input.getJarEntry("WEB-INF/web.xml") != null || new File(module, "WEB-INF/geronimo-web.xml") != null) {
                     entry = input.getJarEntry("WEB-INF/geronimo-web.xml");
-                } else if(input.getJarEntry("META-INF/application.xml") != null) {
+                } else if(input.getJarEntry("META-INF/application.xml") != null || new File(module, "META-INF/geronimo-application.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application.xml");
-                } else if(input.getJarEntry("META-INF/ejb-jar.xml") != null) {
-                    entry = input.getJarEntry("META-INF/openejb-jar.xml");
-                } else if(input.getJarEntry("META-INF/ra.xml") != null) {
+                } else if(input.getJarEntry("META-INF/ejb-jar.xml") != null || new File(module, "META-INF/openejb-jar.xml") != null) {
+                	entry = input.getJarEntry("META-INF/openejb-jar.xml");
+                } else if(input.getJarEntry("META-INF/ra.xml") != null || new File(module, "META-INF/geronimo-ra.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-ra.xml");
-                } else if(input.getJarEntry("META-INF/application-client.xml") != null) {
+                } else if(input.getJarEntry("META-INF/application-client.xml") != null || new File(module, "META-INF/geronimo-application-client.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application-client.xml");
                 }  else if(input.getJarEntry("META-INF/APPLICATION.MF") != null) {
                     entry = input.getJarEntry("META-INF/APPLICATION.MF");
