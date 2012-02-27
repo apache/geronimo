@@ -18,8 +18,10 @@ package org.apache.geronimo.deployment.plugin;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,9 +59,9 @@ public class ConfigIDExtractor {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigIDExtractor.class);
     
-    private static final String APPLICATION_SYMBOLICNAME="Application-SymbolicName:";
+    private static final String APPLICATION_SYMBOLICNAME="Application-SymbolicName";
     
-    private static final String APPLICATION_VERION="Application-Version:";
+    private static final String APPLICATION_VERION="Application-Version";
 
     /**
      * Attempt to calculate the Geronimo ModuleID for a J2EE application
@@ -104,7 +107,7 @@ public class ConfigIDExtractor {
                 if (target.getName().endsWith("xml")) {
                     name = extractModuleIdFromPlan(in);
                 } else if (target.getName().endsWith("MF")) {
-                    name = extractModuleIdFromAPPLICATION_MF(in);
+                    name = extractModuleIdFromAPPLICATION_MF(new FileInputStream(target));
                 }
                 
                 if(name != null) {
@@ -149,7 +152,7 @@ public class ConfigIDExtractor {
                     if (entry.getName().endsWith("xml")) {
                         name = extractModuleIdFromPlan(in);
                     } else if (entry.getName().endsWith("MF")) {
-                        name = extractModuleIdFromAPPLICATION_MF(in);
+                        name = extractModuleIdFromAPPLICATION_MF(input.getInputStream(entry));
                     }
                     
                     if(name != null) {
@@ -239,30 +242,14 @@ public class ConfigIDExtractor {
     }
 
     
-    private static String extractModuleIdFromAPPLICATION_MF(Reader APPLICATION_MF) throws IOException,DeploymentException {
+    private static String extractModuleIdFromAPPLICATION_MF(InputStream in) throws IOException,DeploymentException {
 
-        BufferedReader br = new BufferedReader(APPLICATION_MF);
-
-        String artifactID = null;
-        String artifactVersion = null;
+        Manifest appMf = new Manifest(in);
         
+        String artifactID = appMf.getMainAttributes().getValue(APPLICATION_SYMBOLICNAME);
+
+        String artifactVersion = appMf.getMainAttributes().getValue(APPLICATION_VERION);;
         
-        String line = br.readLine();
-
-        while (line != null) {
-
-            if (line.startsWith(APPLICATION_SYMBOLICNAME)) {
-                artifactID = line.substring(APPLICATION_SYMBOLICNAME.length(), line.length());
-            }
-
-            if (line.startsWith(APPLICATION_VERION)) {
-                artifactVersion = line.substring(APPLICATION_VERION.length(), line.length());
-            }
-
-            line = br.readLine();
-
-        }
-
         if (artifactID == null || artifactVersion == null) {
             throw new DeploymentException("Could not determine artifact or version with APPLICATION.MF of your EBA application");
         }
