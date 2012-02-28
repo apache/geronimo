@@ -922,6 +922,11 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <import-package>javax.servlet;version="2.6"</import-package>
+                <import-package>javax.servlet.annotation;version="2.6"</import-package>
+                <import-package>javax.servlet.descriptor;version="2.6"</import-package>
+                <import-package>javax.servlet.resources;version="2.6"</import-package>
+                <import-package>javax.servlet.http;version="2.6"</import-package>
             </environment>
         </xml-attribute>
     </gbean>
