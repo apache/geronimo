@@ -21,7 +21,9 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- ServerInfo service -->
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo">
+        <attribute name="useSystemProperties">true</attribute>
+    </gbean>
 
     <!--Repository-->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
