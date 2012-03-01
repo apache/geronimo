@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
-import javax.naming.directory.DirContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
@@ -66,10 +65,11 @@ import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.WebApplicationConstants;
+import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
-import org.apache.naming.resources.DirContextURLStreamHandler;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -88,6 +88,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private static final Logger log = LoggerFactory.getLogger(TomcatWebAppContext.class);
     public static final String GBEAN_REF_CLUSTERED_VALVE_RETRIEVER = "ClusteredValveRetriever";
     public static final String GBEAN_REF_MANAGER_RETRIEVER = "ManagerRetriever";
+    protected static final String JASPER_SERVLET_CLASS = "org.apache.jasper.servlet.JspServlet";
 
     protected final TomcatContainer container;
     private final ClassLoader classLoader;
@@ -560,6 +561,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
+         // Set the development init-param in JasperServlet equals to true if the under development mode
+            setDevelopmentModeIfPossible();
             // See the note of TomcatContainer::addContext
             container.addContext(this);
             // Is it necessary - doesn't Tomcat Embedded take care of it?
@@ -575,6 +578,22 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
     }
 
+    private void setDevelopmentModeIfPossible() {
+    	String applicationStageConfiguration = webAppInfo.contextParams.get(WebApplicationConstants.WEB_APPLICATION_STAGE);
+        String globalStageConfiguration = System.getProperty(WebApplicationConstants.WEB_APPLICATION_STAGE, WebApplicationConstants.WEB_APPLICATION_PRODUCTION_STAGE);
+        boolean developmentStage = applicationStageConfiguration == null ? globalStageConfiguration.equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE) : applicationStageConfiguration
+                .equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE);
+        
+        if(developmentStage) {
+        	List<ServletInfo> servlets = webAppInfo.servlets;
+        	for(ServletInfo servlet : servlets) {
+        		if(JASPER_SERVLET_CLASS.equals(servlet.servletClass)) {// find the Jasper servlet
+        			servlet.initParams.put("development", "true");
+        		}
+        	}
+        }
+    }
+    
     public void doStop() throws Exception {
         statsProvider = null;
         container.removeContext(this);
