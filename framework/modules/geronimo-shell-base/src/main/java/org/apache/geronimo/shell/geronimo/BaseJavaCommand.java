@@ -38,6 +38,9 @@ public abstract class BaseJavaCommand extends BaseCommandSupport {
     @Option(name = "-H", aliases = { "--home" }, description = "Use a specific Geronimo home directory")
     String geronimoHome;
 
+    @Option(name = "-S", aliases = { "--serverdir" }, description = "Use a specific full path directory for a Geronimo instance")
+    String geronimoBase;
+
     @Option(name = "-j", aliases = { "--jvm" }, description = "Use a specific Java Virtual Machine for server process")
     String javaVirtualMachine;
 

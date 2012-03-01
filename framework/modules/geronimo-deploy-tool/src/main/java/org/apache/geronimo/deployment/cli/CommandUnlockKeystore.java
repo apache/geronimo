@@ -46,7 +46,9 @@ public class CommandUnlockKeystore extends AbstractCommand {
 
     private static final String GERONIMO_HOME = "org.apache.geronimo.home.dir";
 
-    private static final String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME) + "/var/config/config-substitutions.properties";
+    private static final String GERONIMO_SERVER = "org.apache.geronimo.server.dir";
+
+    private static final String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_SERVER) + "/var/config/config-substitutions.properties";
 
     public void execute(ConsoleReader consoleReader, ServerConnection connection, CommandArgs commandArgs) throws DeploymentException {
         String args[] = commandArgs.getArgs();

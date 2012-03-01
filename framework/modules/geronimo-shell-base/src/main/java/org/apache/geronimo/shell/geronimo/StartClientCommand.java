@@ -53,14 +53,19 @@ public class StartClientCommand extends BaseJavaCommand {
             geronimoHome = this.bundleContext.getProperty("org.apache.geronimo.home.dir");
         }
 
+        if (geronimoBase == null) {
+            geronimoBase = this.bundleContext.getProperty("org.apache.geronimo.server.dir");
+        }
+
         log.debug("Geronimo home: " + geronimoHome);
 
         // Set the properties which we pass to the JVM from the startup script
         properties.put("org.apache.geronimo.home.dir", geronimoHome);
+        properties.put("org.apache.geronimo.server.dir", geronimoBase);
         properties.put("karaf.home", geronimoHome);
-        properties.put("karaf.base", geronimoHome);
+        properties.put("karaf.base", geronimoBase);
         // Use relative path
-        properties.put("java.io.tmpdir", "var/temp");// Use relative path
+        properties.put("java.io.tmpdir", geronimoBase + "/var/temp");// Don't use relative path
         properties.put("java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         properties.put("java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
         // set console properties
