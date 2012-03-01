@@ -55,8 +55,11 @@ public class DeployUtils extends ConfigIDExtractor {
     private static final String GERONIMO_HOME = 
         "org.apache.geronimo.home.dir";
 
+    private static final String GERONIMO_SERVER = 
+        "org.apache.geronimo.server.dir";
+
     private static final String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = 
-        System.getProperty(GERONIMO_HOME) + "/var/config/config-substitutions.properties";
+        System.getProperty(GERONIMO_SERVER) + "/var/config/config-substitutions.properties";
 
     /**
      * Split up an output line so it indents at beginning and end (to fit in a

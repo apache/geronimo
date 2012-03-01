@@ -83,7 +83,8 @@ public class EmbeddedDaemon {
     static String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
     static String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
     static String GERONIMO_HOME = "org.apache.geronimo.home.dir";
-    static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
+    static String GERONIMO_SERVER = "org.apache.geronimo.server.dir";
+    static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_SERVER)
             + "/var/config/config-substitutions.properties";
 
 //    public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
