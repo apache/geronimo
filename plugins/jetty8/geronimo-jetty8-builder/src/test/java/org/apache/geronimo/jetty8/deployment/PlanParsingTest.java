@@ -28,6 +28,7 @@ import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -40,6 +41,9 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.MockKernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -81,6 +85,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     private Environment defaultEnvironment = new Environment();
     private JettyModuleBuilder builder;
     private AtomicBoolean isDefault = new AtomicBoolean(false);
+    private Kernel kernel;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -143,11 +148,12 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 }
             };
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 jettyContainerObjectName,
                 new WebAppInfo(),
-                null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
@@ -155,7 +161,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 new NamingBuilderCollection(null),
                 null,
                 new MockResourceEnvironmentSetter(),
-                null,
+                kernel,
                 bundleContext);
         builder.doStart();
         securityBuilder.doStart();
@@ -164,6 +170,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     protected void tearDown() throws Exception {
         super.tearDown();
         builder.doStop();
+        kernel.shutdown();
     }
 
     public void testContents() throws Exception {

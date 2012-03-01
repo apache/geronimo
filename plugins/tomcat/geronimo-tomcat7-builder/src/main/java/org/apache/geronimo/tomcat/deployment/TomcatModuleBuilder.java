@@ -63,6 +63,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
@@ -84,9 +85,9 @@ import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.JspServletInfoProvider;
 import org.apache.geronimo.web25.deployment.StandardWebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
-import org.apache.geronimo.web25.deployment.WebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
@@ -162,12 +163,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     public static final String GBEAN_REF_CLUSTERING_BUILDERS = "ClusteringBuilders";
-    private final WebAppInfoFactory webAppInfoFactory;
+    private final StandardWebAppInfoFactory webAppInfoFactory;
+    private final JspServletInfoProviderListener jspServletInfoProviderListener = new JspServletInfoProviderListener();
 
     public TomcatModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
             @ParamAttribute(name = "tomcatContainerName") AbstractNameQuery tomcatContainerName,
             @ParamAttribute(name = "defaultWebApp") WebAppInfo defaultWebApp,
-            @ParamAttribute(name = "jspServlet") WebAppInfo jspServlet,
             @ParamReference(name="WebServiceBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<WebServiceBuilder> webServiceBuilder,
             @ParamReference(name="ServiceBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<NamespaceDrivenBuilder> serviceBuilders,
             @ParamReference(name="NamingBuilders", namingType = NameFactory.MODULE_BUILDER)NamingBuilder namingBuilders,
@@ -180,22 +181,17 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         this.defaultEnvironment = defaultEnvironment;
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
         this.tomcatContainerName = tomcatContainerName;
-        ServletInfo jspServletInfo;
-        if (jspServlet != null) {
-            jspServletInfo = jspServlet.servlets.get(0);
-        } else {
-            jspServletInfo = null;
-        }
-        this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, jspServletInfo);
-
+        this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, null);
     }
 
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+        kernel.getLifecycleMonitor().addLifecycleListener(jspServletInfoProviderListener, new AbstractNameQuery(JspServletInfoProvider.class.getName()));
     }
 
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+        kernel.getLifecycleMonitor().removeLifecycleListener(jspServletInfoProviderListener);
     }
 
     public void doFail() {
@@ -723,6 +719,25 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         return TOMCAT_NAMESPACE;
     }
 
+    private class JspServletInfoProviderListener extends LifecycleAdapter {
+
+        @Override
+        public void running(AbstractName abstractName) {
+            try {
+                JspServletInfoProvider jspServletInfoProvider = (JspServletInfoProvider) kernel.getGBean(abstractName);
+                ServletInfo jspServletInfo = webAppInfoFactory.copy(jspServletInfoProvider.getJspServletInfo());
+                jspServletInfo.servletMappings.clear();
+                webAppInfoFactory.setJspServletInfo(jspServletInfo);
+            } catch (Exception e) {
+            }
+        }
+
+        @Override
+        public void stopped(AbstractName abstractName) {
+            webAppInfoFactory.setJspServletInfo(null);
+        }
+    }
+    
     private static class TomcatAuthenticationWrapper implements AuthenticationWrapper {
         private final TomcatAuthenticationType authType;
 

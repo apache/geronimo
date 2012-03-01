@@ -67,7 +67,7 @@ import org.apache.openejb.jee.WebResourceCollection;
 import org.apache.openejb.jee.WelcomeFileList;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class WebAppInfoBuilder {
 
@@ -205,6 +205,10 @@ public class WebAppInfoBuilder {
                 servletInfo.servletClass = servlet.getServletClass();
             } else if (servlet.getJspFile() != null) {
                 servletInfo = webAppInfoFactory.newJspInfo(servlet.getJspFile());
+                if(servletInfo == null) {
+                    problems.add("\nNo JSP servlet available, " + servlet.getServletName() + " will not work");
+                    continue;
+                }
             } else {
                 problems.add("\nNo servlet class or jsp file for servlet " + servlet.getServletName());
                 continue;

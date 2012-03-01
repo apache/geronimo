@@ -35,7 +35,7 @@ import org.apache.geronimo.web.info.WebAppInfo;
  */
 public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
 
-    private final ServletInfo jspServletInfo;
+    private ServletInfo jspServletInfo;
 
     private final WebAppInfo defaultWebAppInfo;
 
@@ -103,4 +103,7 @@ public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
         return servletInfo;
     }
 
+    public void setJspServletInfo(ServletInfo jspServletInfo) {
+        this.jspServletInfo = jspServletInfo;
+    }
 }

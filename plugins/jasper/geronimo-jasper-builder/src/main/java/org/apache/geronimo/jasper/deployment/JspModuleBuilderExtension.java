@@ -65,6 +65,7 @@ import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.JspServletInfoProvider;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JspConfig;
@@ -92,7 +93,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev $Date
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
-public class JspModuleBuilderExtension implements ModuleBuilderExtension {
+public class JspModuleBuilderExtension implements ModuleBuilderExtension, JspServletInfoProvider {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
 
@@ -219,6 +220,11 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         }
     }
 
+    
+    @Override
+    public ServletInfo getJspServletInfo() {
+        return defaultJspServletInfo;
+    }
 
     /**
      * getTldFiles(): Find all the TLD files in the web module being deployed
