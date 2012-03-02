@@ -368,7 +368,6 @@ public class JettyModuleBuilderTest extends TestSupport {
                 new AbstractNameQuery(containerName),
                 //new AbstractNameQuery(containerName),
                 new WebAppInfo(),
-                null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,

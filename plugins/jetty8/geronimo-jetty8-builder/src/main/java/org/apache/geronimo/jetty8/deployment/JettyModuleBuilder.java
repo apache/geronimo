@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -66,6 +67,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -84,9 +86,9 @@ import org.apache.geronimo.web.info.LoginConfigInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.JspServletInfoProvider;
 import org.apache.geronimo.web25.deployment.StandardWebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
-import org.apache.geronimo.web25.deployment.WebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
@@ -138,19 +140,19 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     private final Environment defaultEnvironment;
     private final AbstractNameQuery jettyContainerObjectName;
-    private final WebAppInfoFactory webAppInfoFactory;
+    private final StandardWebAppInfoFactory webAppInfoFactory;
 
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     private final Integer defaultSessionTimeoutMinutes;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
+    private final JspServletInfoProviderListener jspServletInfoProviderListener = new JspServletInfoProviderListener();
 
     public JettyModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                               @ParamAttribute(name = "defaultSessionTimeoutSeconds") Integer defaultSessionTimeoutSeconds,
                               @ParamAttribute(name = "jettyContainerObjectName") AbstractNameQuery jettyContainerName,
                               @ParamAttribute(name = "defaultWebApp") WebAppInfo defaultWebApp,
-                              @ParamAttribute(name = "jspServlet") WebAppInfo jspServlet,
                               @ParamReference(name = "PojoWebServiceTemplate", namingType = NameFactory.SERVLET_WEB_SERVICE_TEMPLATE) Object pojoWebServiceTemplate,
                               @ParamReference(name = "WebServiceBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<WebServiceBuilder> webServiceBuilder,
                               @ParamReference(name = "ClusteringBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> clusteringBuilders,
@@ -163,14 +165,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions, bundleContext);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutMinutes = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
-        this.jettyContainerObjectName = jettyContainerName;
-        ServletInfo jspServletInfo;
-        if (jspServlet != null) {
-            jspServletInfo = jspServlet.servlets.get(0);
-        } else {
-            jspServletInfo = null;
-        }
-        this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, jspServletInfo);
+        this.jettyContainerObjectName = jettyContainerName;        
+        this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, null);
 
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);//, GerClusteringDocument.type.getDocumentElementName());
     }
@@ -178,12 +174,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
         SchemaConversionUtils.registerNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
+        kernel.getLifecycleMonitor().addLifecycleListener(jspServletInfoProviderListener, new AbstractNameQuery(JspServletInfoProvider.class.getName()));
     }
 
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+        kernel.getLifecycleMonitor().removeLifecycleListener(jspServletInfoProviderListener);
         //TODO not yet implemented
-//        SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
+        // SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doFail() {
@@ -648,6 +646,25 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     log.warn("partial security info but no realm to authenticate against");
                 }
             }
+        }
+    }
+
+    private class JspServletInfoProviderListener extends LifecycleAdapter {
+
+        @Override
+        public void running(AbstractName abstractName) {
+            try {
+                JspServletInfoProvider jspServletInfoProvider = (JspServletInfoProvider) kernel.getGBean(abstractName);
+                ServletInfo jspServletInfo = webAppInfoFactory.copy(jspServletInfoProvider.getJspServletInfo());
+                jspServletInfo.servletMappings.clear();
+                webAppInfoFactory.setJspServletInfo(jspServletInfo);
+            } catch (Exception e) {
+            }
+        }
+
+        @Override
+        public void stopped(AbstractName abstractName) {
+            webAppInfoFactory.setJspServletInfo(null);
         }
     }
 

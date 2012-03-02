@@ -34,6 +34,8 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -64,6 +66,7 @@ public class PlanParsingTest extends TestCase {
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();
     private TomcatModuleBuilder builder;
+    private Kernel kernel;
 
     protected void setUp() throws Exception {
         MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
@@ -124,17 +127,18 @@ public class PlanParsingTest extends TestCase {
                 }
             };
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot(bundleContext);
         builder = new TomcatModuleBuilder(defaultEnvironment,
                 tomcatContainerObjectName,
                 new WebAppInfo(),
-                null,
                 Collections.singleton(webServiceBuilder),
                 Arrays.asList(new GBeanBuilder(), new GeronimoSecurityBuilderImpl(null, null, null)),
                 new NamingBuilderCollection(null),
                 Collections.EMPTY_LIST,
                 null,
                 new MockResourceEnvironmentSetter(),
-                null,
+                kernel,
                 bundleContext);
         builder.doStart();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
@@ -143,6 +147,7 @@ public class PlanParsingTest extends TestCase {
 
     protected void tearDown() throws Exception {
         builder.doStop();
+        kernel.shutdown();
     }
 
     public void testConvertPlan() throws Exception {
