@@ -74,6 +74,8 @@ import org.slf4j.LoggerFactory;
 public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(WinkModuleBuilderExtension.class);
+    
+    private static final boolean JAX_RS_SUPPORT = Boolean.valueOf(System.getProperty("org.apache.geronimo.jaxrs.support", "true"));
 
     private final Environment defaultEnvironment;
 
@@ -106,12 +108,17 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!JAX_RS_SUPPORT) {
+            return;
+        }
         mergeEnvironment(module);
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
-
+        if (!JAX_RS_SUPPORT) {
+            return;
+        }
         mergeEnvironment(module);
     }
 
@@ -125,15 +132,15 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository)
             throws DeploymentException {
-        if (!(module instanceof WebModule)) {
+        if (!(module instanceof WebModule) || !JAX_RS_SUPPORT) {
             return;
         }
     }
 
     @SuppressWarnings("unchecked")
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-
-        if (!(module instanceof WebModule)) {
+        
+        if (!(module instanceof WebModule) || !JAX_RS_SUPPORT) {
             // not a web module, nothing to do
             return;
         }
@@ -279,7 +286,9 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
-
+        if (!JAX_RS_SUPPORT) {
+            return;
+        }
     }
 
     protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class<?>> annotatedJAXRSClasses, Bundle bundle) throws DeploymentException {
@@ -317,6 +326,6 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         return false;
-    }
+    }    
 
 }

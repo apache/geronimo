@@ -184,7 +184,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private static final Logger log = LoggerFactory.getLogger(EjbModuleBuilder.class);
     
     private static final String DEFAULT_BUNDLE_CLASSPATH = ".";
-
+    
+    private static final boolean EJB_SERVER_SUPPORT;
+    
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
@@ -194,6 +196,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/openejb-jar-2.3", "http://openejb.apache.org/xml/ns/openejb-jar-2.3");
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/pkgen", "http://openejb.apache.org/xml/ns/pkgen-2.1");
         NAMESPACE_UPDATES.put("http://www.openejb.org/xml/ns/pkgen-2.0", "http://openejb.apache.org/xml/ns/pkgen-2.1");
+        
+        String ejbServerSupported = System.getProperty("org.apache.geronimo.ejb.server.support");
+        if(ejbServerSupported == null) {
+            ejbServerSupported = System.getProperty("org.apache.geronimo.ejb.support");
+        }
+        EJB_SERVER_SUPPORT = ejbServerSupported == null ? true : Boolean.valueOf(ejbServerSupported);
     }
 
     private final Environment defaultEnvironment;
@@ -268,17 +276,23 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     }
 
     @Override
-    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {        
         return null;
     }
 
     @Override
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!EJB_SERVER_SUPPORT) {
+            return null;
+        }
         return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder, "META-INF/", false);
     }
 
     @Override
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!EJB_SERVER_SUPPORT) {
+            return null;
+        }
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, parentModule, naming, idBuilder, "META-INF/", false);
     }
 
@@ -300,6 +314,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                              AbstractName earName,
                              Naming naming,
                              ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!EJB_SERVER_SUPPORT) {
+            return;
+        }
         //check for web module
         if (module instanceof WebModule || module instanceof AppClientModule) {
             //check for WEB-INF/ejb-jar.xml

@@ -49,12 +49,20 @@ import org.slf4j.LoggerFactory;
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private static final Logger log = LoggerFactory.getLogger(JAXWSServiceRefBuilder.class);
 
-    private static final QName GER_SERVICE_REF_QNAME =
-        GerServiceRefDocument.type.getDocumentElementName();
+    private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type.getDocumentElementName();
 
-    private static final QNameSet GER_SERVICE_REF_QNAME_SET =
-        QNameSet.singleton(GER_SERVICE_REF_QNAME);
+    private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet.singleton(GER_SERVICE_REF_QNAME);
 
+    private static final boolean JAX_WS_CLIENT_SUPPORT;
+    
+    static {
+        String webServiceClientSupported = System.getProperty("org.apache.geronimo.jaxws.client.support");
+        if (webServiceClientSupported == null) {
+            webServiceClientSupported = System.getProperty("org.apache.geronimo.jaxws.support");
+        }
+        JAX_WS_CLIENT_SUPPORT = webServiceClientSupported == null ? true : Boolean.valueOf(webServiceClientSupported);
+    }
+    
     private final QNameSet serviceRefQNameSet;
 
     protected HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
@@ -74,6 +82,9 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             XmlObject plan,
             Module module,
             Map<EARContext.Key, Object> componentContext) throws DeploymentException {
+        if (!JAX_WS_CLIENT_SUPPORT) {
+            return;
+        }
         Collection<ServiceRef> serviceRefsUntyped = specDD.getServiceRef();
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map<String, GerServiceRefType> serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
@@ -99,6 +110,10 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
 
     @Override
     public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRef, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        if (!JAX_WS_CLIENT_SUPPORT) {
+            return;
+        }
+        
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         //TODO normalize or use normalized name from jee's map
         String name = serviceRef.getKey();

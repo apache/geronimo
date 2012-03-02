@@ -66,6 +66,16 @@ import org.slf4j.LoggerFactory;
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(JAXWSServiceBuilder.class);
+    
+    private static final boolean JAX_WS_SERVER_SUPPORT;
+    
+    static {
+        String webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxws.server.support");
+        if (webServiceServerSupported == null) {
+            webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxws.support");
+        }
+        JAX_WS_SERVER_SUPPORT = webServiceServerSupported == null ? true : Boolean.valueOf(webServiceServerSupported);
+    }
 
     private HandlerChainsInfoBuilder handlerChainsInfoBuilder = new HandlerChainsInfoBuilder();
 
@@ -86,6 +96,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     @Override
     public void findWebServices(Module module, boolean isEJB, Map<String, String> servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
+        if (!JAX_WS_SERVER_SUPPORT) {
+            return;
+        }
         Map<String, PortInfo> serviceLinkPortInfoMap = discoverWebServices(module, isEJB, servletLocations);
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         Deployable deployable = module.getDeployable();
@@ -238,6 +251,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                  String servletClassName,
                                  DeploymentContext context)
             throws DeploymentException {
+        if (!JAX_WS_SERVER_SUPPORT) {
+            return false;
+        }
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(getKey());
         if (portInfoMap == null) {
@@ -331,6 +347,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                 Map sharedContext,
                                 Bundle bundle)
             throws DeploymentException {
+        if (!JAX_WS_SERVER_SUPPORT) {
+            return false;
+        }
         Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(getKey());
         if (portInfoMap == null) {
             // not ours

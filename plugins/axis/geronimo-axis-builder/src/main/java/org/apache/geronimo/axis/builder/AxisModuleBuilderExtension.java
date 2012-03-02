@@ -69,6 +69,15 @@ import org.osgi.framework.Bundle;
  */
 public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
+    private static final boolean JAX_RPC_SERVER_SUPPORT;
+    static {
+        String webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.server.support");
+        if (webServiceServerSupported == null) {
+            webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.support");
+        }
+        JAX_RPC_SERVER_SUPPORT = webServiceServerSupported == null ? true : Boolean.valueOf(webServiceServerSupported);
+    }
+
     private WebServiceBuilder axisBuilder;
     private Environment defaultEnvironment;
     private AbstractNameQuery listener;
@@ -90,7 +99,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
     @Override
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
+        if (module.getType() != ConfigurationModuleType.EJB || !JAX_RPC_SERVER_SUPPORT) {
             return;
         }
 
@@ -123,7 +132,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
     @Override
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
+        if (module.getType() != ConfigurationModuleType.EJB || !JAX_RPC_SERVER_SUPPORT) {
             return;
         }
 
@@ -191,7 +200,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
     @Override
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection collection) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
+        if (module.getType() != ConfigurationModuleType.EJB || !JAX_RPC_SERVER_SUPPORT) {
             return;
         }
 

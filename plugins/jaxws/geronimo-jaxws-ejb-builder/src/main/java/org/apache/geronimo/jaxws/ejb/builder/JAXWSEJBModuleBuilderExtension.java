@@ -74,6 +74,15 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     protected GBeanData wsGBeanData;
     protected Environment defaultEnvironment;
 
+    private static final boolean JAX_WS_SERVER_SUPPORT;
+    static {
+        String webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxws.server.support");
+        if (webServiceServerSupported == null) {
+            webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxws.support");
+        }
+        JAX_WS_SERVER_SUPPORT = webServiceServerSupported == null ? true : Boolean.valueOf(webServiceServerSupported);
+    }
+    
     public JAXWSEJBModuleBuilderExtension() throws Exception {
     }
 
@@ -95,7 +104,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (this.defaultEnvironment != null) {
+        if (this.defaultEnvironment != null && JAX_WS_SERVER_SUPPORT) {
             EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
         }
     }
@@ -103,8 +112,8 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {        
+        if (module.getType() != ConfigurationModuleType.EJB || !JAX_WS_SERVER_SUPPORT) {
             return;
         }
 
@@ -184,7 +193,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
-        if (module.getType() != ConfigurationModuleType.EJB) {
+        if (module.getType() != ConfigurationModuleType.EJB || !JAX_WS_SERVER_SUPPORT) {
             return;
         }
 

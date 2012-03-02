@@ -54,7 +54,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
 
-    private static final boolean ignoreEmptyWebServiceProviderWSDL = Boolean.getBoolean("org.apache.geronimo.webservice.provider.wsdl.ignore");
+    private static final boolean ignoreEmptyWebServiceProviderWSDL = Boolean.getBoolean("org.apache.geronimo.webservice.provider.wsdl.ignore");        
 
     protected Collection<WsdlGenerator> wsdlGenerators;
 

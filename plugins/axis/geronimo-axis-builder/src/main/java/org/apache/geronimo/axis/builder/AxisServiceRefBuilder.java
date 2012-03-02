@@ -64,6 +64,15 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet.singleton(GER_SERVICE_REF_QNAME);
 
+    private static final boolean JAX_RPC_CLIENT_SUPPORT;
+    static {
+        String webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.client.support");
+        if (webServiceServerSupported == null) {
+            webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.support");
+        }
+        JAX_RPC_CLIENT_SUPPORT = webServiceServerSupported == null ? true : Boolean.valueOf(webServiceServerSupported);
+    }
+
     private final AxisBuilder axisBuilder;
 
     public AxisServiceRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
@@ -108,6 +117,9 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
     @Override
     public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRefType, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        if (!JAX_RPC_CLIENT_SUPPORT) {
+            return;
+        }
         //TODO name needs to be normalized or get normalized name from jee's map.
         String name = serviceRef.getKey();
         Bundle bundle = module.getEarContext().getDeploymentBundle();

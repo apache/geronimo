@@ -102,6 +102,15 @@ public class AxisBuilder implements WebServiceBuilder {
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
+    private static final boolean JAX_RPC_SERVER_SUPPORT;
+    static {
+        String webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.server.support");
+        if (webServiceServerSupported == null) {
+            webServiceServerSupported = System.getProperty("org.apache.geronimo.jaxrpc.support");
+        }
+        JAX_RPC_SERVER_SUPPORT = webServiceServerSupported == null ? true : Boolean.valueOf(webServiceServerSupported);
+    }
+
     private final Environment defaultEnvironment;
     private static final String KEY = AxisBuilder.class.getName();
 
@@ -111,6 +120,10 @@ public class AxisBuilder implements WebServiceBuilder {
 
     @Override
     public void findWebServices(Module module, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
+        if (!JAX_RPC_SERVER_SUPPORT) {
+            return;
+        }
+
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
 
         URL wsDDUrl = module.getDeployable().getResource(path);
@@ -130,6 +143,9 @@ public class AxisBuilder implements WebServiceBuilder {
 
     @Override
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String servletClassName, DeploymentContext context) throws DeploymentException {
+        if (!JAX_RPC_SERVER_SUPPORT) {
+            return false;
+        }
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(KEY);
 
@@ -202,6 +218,10 @@ public class AxisBuilder implements WebServiceBuilder {
 
     @Override
     public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, Bundle bundle) throws DeploymentException {
+
+        if (!JAX_RPC_SERVER_SUPPORT) {
+            return false;
+        }
 
         if (sharedContext.get(KEY) == null){
             return false;

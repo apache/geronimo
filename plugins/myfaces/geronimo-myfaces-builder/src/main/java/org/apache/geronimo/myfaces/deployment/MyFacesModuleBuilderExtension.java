@@ -105,13 +105,15 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(MyFacesModuleBuilderExtension.class);
 
-    private final Environment defaultEnvironment;
-
-    private final NamingBuilder namingBuilders;
-
     private static final String CONTEXT_LISTENER_NAME = GeronimoStartupServletContextListener.class.getName();
 
-    private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
+    private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();         
+    
+    private static final boolean JSF_SUPPORT = Boolean.valueOf(System.getProperty("org.apache.geronimo.jsf.support", "true"));
+
+    private final Environment defaultEnvironment;
+
+    private final NamingBuilder namingBuilders;    
 
     private FacesConfigDigester defaultFacesConfigUnmarshaller = new FacesConfigDigester();
 
@@ -141,11 +143,17 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!JSF_SUPPORT) {
+            return;
+        }
         mergeEnvironment(module);
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (!JSF_SUPPORT) {
+            return;
+        }
         mergeEnvironment(module);
     }
 
@@ -164,17 +172,23 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository)
             throws DeploymentException {
-        if (!(module instanceof WebModule)) {
+        if (!(module instanceof WebModule) || !JSF_SUPPORT) {
             return;
         }
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        if (!JSF_SUPPORT) {
+            return;
+        }
         module.getEarContext().getGeneralData().put(JSF_META_INF_CONFIGURATION_RESOURCES, findMetaInfConfigurationResources(earContext, module, bundle));
         module.getEarContext().getGeneralData().put(JSF_FACELET_CONFIG_RESOURCES, findFaceletConfigResources(earContext, module, bundle));
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
+        if (!JSF_SUPPORT) {
+            return;
+        }
         if (!(module instanceof WebModule)) {
             //not a web module, nothing to do
             return;

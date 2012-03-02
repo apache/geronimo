@@ -72,6 +72,16 @@ import org.slf4j.LoggerFactory;
 public class EjbRefBuilder extends AbstractNamingBuilder {
     private static final Logger log = LoggerFactory.getLogger(EjbRefBuilder.class);
 
+    private static final boolean EJB_CLIENT_SUPPORT;
+    
+    static {
+        String ejbClientSupported = System.getProperty("org.apache.geronimo.ejb.client.support");
+        if (ejbClientSupported == null) {
+            ejbClientSupported = System.getProperty("org.apache.geronimo.ejb.support");
+        }
+        EJB_CLIENT_SUPPORT = ejbClientSupported == null ? true : Boolean.valueOf(ejbClientSupported);
+    }
+    
     private final QNameSet ejbRefQNameSet;
     private final QNameSet ejbLocalRefQNameSet;
     private final URI uri;
@@ -97,7 +107,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         return QNameSet.EMPTY;
     }
 
-    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
         return !specDD.getEjbRef().isEmpty() || !specDD.getEjbLocalRef().isEmpty();
     }
 
@@ -106,7 +116,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 //        if (module.getType() == ConfigurationModuleType.EJB) {
 //            return;
 //        }
-
+        if (!EJB_CLIENT_SUPPORT) {
+            return;
+        }
         // map the refs declared in the vendor plan, so we can match them to the spec references
         //TODO how do we tell openejb about these?
         Map<String, GerEjbRefType> refMap = mapEjbRefs(plan);
