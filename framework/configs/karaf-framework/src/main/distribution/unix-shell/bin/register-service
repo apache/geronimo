@@ -158,7 +158,7 @@ echo "" >> "$GSERVICE_NAME"
 
 echo 'stop() {' >> "$GSERVICE_NAME"
 echo '  echo "Shutting down server on port ${RMI_PORT}"' >> "$GSERVICE_NAME"
-echo '  "$GERONIMO_HOME"/bin/geronimo stop --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT"' >> "$GSERVICE_NAME"
+echo '  "$GERONIMO_HOME"/bin/geronimo stop --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT" 2>&1 > /dev/null' >> "$GSERVICE_NAME"
 echo '}' >> "$GSERVICE_NAME"
 echo "" >> "$GSERVICE_NAME"
 
