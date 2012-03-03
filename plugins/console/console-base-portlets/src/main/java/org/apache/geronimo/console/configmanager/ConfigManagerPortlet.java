@@ -244,6 +244,10 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
                                     details.getContextPaths().add((String)entry.getValue().getAttribute("contextPath"));
                                     details.setDisplayName(((WebAppInfo)entry.getValue().getAttribute("webAppInfo")).displayName);
+                                    if (null != entry.getValue().getAttribute("virtualServer")
+                                    		&& !"".equals(entry.getValue().getAttribute("virtualServer"))) {
+                                    	details.setVirtualServer((String)entry.getValue().getAttribute("virtualServer"));
+                                    }
                                 }
                             }
                         }
@@ -498,6 +502,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         //This flag is used to indicate whether it is the client side if the module is a client application
         private boolean clientAppServerSide = false;
         private String displayName;
+        private String virtualServer;
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
@@ -567,5 +572,14 @@ public class ConfigManagerPortlet extends BasePortlet {
         public boolean isClientAppServerSide() {
             return this.clientAppServerSide;
         }
+
+        public String getVirtualServer() {
+           return virtualServer;
+       }
+
+       public void setVirtualServer(String virtualServer) {
+           this.virtualServer = virtualServer;
+       }
+     
     }
 }

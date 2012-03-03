@@ -246,9 +246,16 @@ function toggleShowDependenciesMode() {
         <c:if test="${showWebInfo}">
             <td width="150">
             <c:if test="${moduleDetails.state.running}">
-            	<c:forEach var="contextPath" items="${moduleDetails.contextPaths}">
-            		<a href="${contextPath}">${contextPath}</a><br/>
-            	</c:forEach>
+                <c:forEach var="contextPath" items="${moduleDetails.contextPaths}">
+                    <c:choose>
+                        <c:when test="${null==moduleDetails.virtualServer||''==moduleDetails.virtualServer}">
+                            <a href="${contextPath}">${contextPath}</a><br/>
+                        </c:when>
+                        <c:when test="${null!=moduleDetails.virtualServer&&''!=moduleDetails.virtualServer}">
+                            <a href="${contextPath}" title="URL refer to http://${moduleDetails.virtualServer}:<port-number>${contextPath}">${contextPath}</a><br/>
+                        </c:when>
+                    </c:choose>
+                </c:forEach>
             </c:if>
             </td>
         </c:if>
