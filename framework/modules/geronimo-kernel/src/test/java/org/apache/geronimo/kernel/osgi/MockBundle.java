@@ -215,4 +215,16 @@ public class MockBundle implements Bundle {
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
+
+    public <A> A adapt(Class<A> arg0) {
+        return null;
+    }
+
+    public File getDataFile(String arg0) {
+        return null;
+    }
+
+    public int compareTo(Bundle o) {
+        return 0;
+    }
 }

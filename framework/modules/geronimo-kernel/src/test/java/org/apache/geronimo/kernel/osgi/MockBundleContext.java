@@ -22,6 +22,7 @@ package org.apache.geronimo.kernel.osgi;
 
 import java.io.InputStream;
 import java.io.File;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.HashMap;
@@ -155,11 +156,11 @@ public class MockBundleContext implements BundleContext {
     public void removeFrameworkListener(FrameworkListener frameworkListener) {
     }
 
-    public ServiceRegistration registerService(String[] strings, Object o, Dictionary dictionary) {
+    public ServiceRegistration registerService(String[] strings, Object o, Dictionary<String, ?> dictionary) {
         return null;
     }
 
-    public ServiceRegistration registerService(String s, Object o, Dictionary dictionary) {
+    public ServiceRegistration registerService(String s, Object o, Dictionary<String, ?> dictionary) {
         ServiceReference sr = new MockServiceReference(o);
         serviceReferences.put(s, sr);
         return new MockServiceRegistration(s, sr);
@@ -177,11 +178,11 @@ public class MockBundleContext implements BundleContext {
         return serviceReferences.get(s);
     }
 
-    public Object getService(ServiceReference serviceReference) {
-        return ((MockServiceReference)serviceReference).service;
+    public <S>S getService(ServiceReference<S> serviceReference) {
+        return (S) ((MockServiceReference)serviceReference).service;
     }
 
-    public boolean ungetService(ServiceReference serviceReference) {
+    public boolean ungetService(ServiceReference<?> serviceReference) {
         return false;
     }
 
@@ -283,6 +284,23 @@ public class MockBundleContext implements BundleContext {
         public void unregister() {
             serviceReferences.remove(s);
         }
+    }
+
+    @Override
+    public Bundle getBundle(String arg0) {
+        return null;
+    }
+
+    public <S> ServiceReference<S> getServiceReference(Class<S> arg0) {
+        return null;
+    }
+
+    public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> arg0, String arg1) throws InvalidSyntaxException {
+        return null;
+    }
+
+    public <S> ServiceRegistration<S> registerService(Class<S> arg0, S arg1, Dictionary<String, ?> arg2) {
+        return null;
     }
 
 }
