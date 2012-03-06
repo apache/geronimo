@@ -25,5 +25,7 @@
     <heading:heading />
     <br/>
     <date:date />
+    <br/>
+    <date:dateTime />
 </body>
 </html>

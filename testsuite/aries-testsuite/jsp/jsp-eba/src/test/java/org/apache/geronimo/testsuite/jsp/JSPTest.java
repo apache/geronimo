@@ -50,6 +50,9 @@ public class JSPTest extends TestSupport {
         
         assertTrue("WAB date tag", 
                 reply.contains("Today is:"));
+
+        assertTrue("WAB dateTime tag", 
+                reply.contains("Date is:"));
     }
   
     private String doGET(URL url, int repeat, long delay) {

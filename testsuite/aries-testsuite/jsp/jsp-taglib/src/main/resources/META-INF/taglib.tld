@@ -22,9 +22,16 @@
     <jspversion>2.1</jspversion>
     <shortname>dateTagLib</shortname>
     <uri>http://geronimo.apache.org/jsf/date</uri>
+
+    <tag-file>
+        <name>dateTime</name>
+        <path>/META-INF/tags/dateTime.tag</path>
+    </tag-file>
+
     <tag>
        <name>date</name>
        <tagclass>org.apache.geronimo.test.jsp.taglib.DateTag</tagclass>
        <bodycontent>empty</bodycontent>
     </tag>
+
 </taglib>
