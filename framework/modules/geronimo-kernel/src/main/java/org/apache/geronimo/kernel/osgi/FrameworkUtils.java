@@ -19,8 +19,14 @@
 
 package org.apache.geronimo.kernel.osgi;
 
+import java.io.IOException;
+import java.net.URL;
+
+import org.eclipse.osgi.service.urlconversion.URLConverter;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -31,6 +37,7 @@ public class FrameworkUtils {
     
     private static final boolean useURLClassLoader = initUseURLClassLoader();
     private static final boolean isEquinox = initIsEquinox();
+    private static final Object urlConverter = initUrlConverter();
     
     private static boolean initUseURLClassLoader() {
         String property = System.getProperty(USE_URL_CLASSLOADER, "false");
@@ -48,11 +55,34 @@ public class FrameworkUtils {
         return false;
     }
     
+    private static Object initUrlConverter() {
+        if (isEquinox) {
+            Bundle bundle = FrameworkUtil.getBundle(FrameworkUtils.class);
+            BundleContext context = bundle.getBundleContext();           
+            ServiceReference reference = context.getServiceReference(URLConverter.class.getName());
+            if (reference != null) {
+                return context.getService(reference);
+            }
+        }
+        return null;
+    }
+    
     public static boolean isEquinox() {
         return isEquinox;
     }
     
     public static boolean useURLClassLoader() {
         return useURLClassLoader;
+    }
+    
+    public static URL convertURL(URL bundleURL) {
+        if (urlConverter != null && bundleURL != null) {
+            try {
+                return ((URLConverter) urlConverter).resolve(bundleURL);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+        return bundleURL;        
     }
 }

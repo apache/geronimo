@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.jasper.TldProvider;
 import org.apache.geronimo.jasper.TldRegistry;
+import org.apache.geronimo.kernel.osgi.FrameworkUtils;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.OsgiMetaDataProvider;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
@@ -150,7 +151,20 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
         
         public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
             LOGGER.debug("Found {} TLD in bundle {}", url, bundle);
-            tlds.add(new TldProvider.TldEntry(bundle, url));
+            URL jarURL = null;
+            /* 
+             * Try to convert to jar: url if possible. Makes life easier for Japser. 
+             * See GERONIMO-6295. 
+             */
+            URL convertedURL = FrameworkUtils.convertURL(url);
+            if ("jar".equals(convertedURL.getProtocol())) {
+                String urlString = convertedURL.toExternalForm();
+                int pos = urlString.indexOf("!/");
+                if (pos != -1) {
+                    jarURL = new URL(urlString.substring(4 /* jar: */, pos));
+                }
+            }
+            tlds.add(new TldProvider.TldEntry(bundle, url, jarURL));            
             return true;
         }
 
