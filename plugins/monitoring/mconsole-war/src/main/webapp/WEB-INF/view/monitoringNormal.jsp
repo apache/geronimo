@@ -180,6 +180,42 @@ if (collecting == 0) {  // not collecting statistics
 else if (collecting == -1) {  // not collecting statistics
     %>
         <td class="${backgroundClass}" width="15%" align="center"><font color="red"><fmt:message key="monitor.server.stopping"/></font></td>
+<script type = "text/javascript">
+<!--
+sleep(1000);
+myrefresh();
+
+function myrefresh() {
+   var ua = navigator.userAgent.toLowerCase();
+
+   if (ua.indexOf("msie") > 0) {//IE
+        window.navigate(location);
+   }
+   else if (ua.indexOf("firefox")>0){//FireFox
+        window.location.reload();
+   }
+   else if (ua.indexOf("chrome")>0) {//Chrome
+   	    window.location.reload();
+   }
+   else if (ua.indexOf("opera")>=0) {//Opera
+   	    window.location.reload();
+   }
+   else if (ua.indexOf("safari")>0) {//Safari
+   	    location.reload();
+   }else { //Other Browses
+		location.reload();
+   }
+
+}
+
+function sleep(millis) {
+   var startdate = new Date();
+   var curDate = null;
+   do { curDate = new Date(); }
+   while(curDate-startdate < millis);
+}
+//-->
+</script>	
     <%if (request.isUserInRole("admin")) {   
         if(node.isEnabled()) {   // enable the links
         
