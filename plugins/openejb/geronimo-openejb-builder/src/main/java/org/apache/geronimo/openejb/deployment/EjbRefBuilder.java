@@ -298,7 +298,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         for (EjbRef spec_ejbRef : jndiConsumer.getEjbRef()) {
 
-            String refName = getStringValue(spec_ejbRef.getEjbRefName());
+            String refName = spec_ejbRef.getEjbRefName();
 
             // skip corba refs
             GerEjbRefType ejbRefType = refMap.get(refName);
@@ -309,31 +309,6 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 if (ejbRefType.getNsCorbaloc() != null) {
                    continue;
                 }
-
-                // ejb-ref-name
-                spec_ejbRef.setEjbRefName(refName);
-
-                // ejb-ref-type
-                String refType = getStringValue(spec_ejbRef.getEjbRefType()==null?null:spec_ejbRef.getEjbRefType().name());
-                if ("SESSION".equalsIgnoreCase(refType)) {
-                    spec_ejbRef.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
-                } else if ("ENTITY".equalsIgnoreCase(refType)) {
-                    spec_ejbRef.setEjbRefType(org.apache.openejb.jee.EjbRefType.ENTITY);
-                } else {
-                    spec_ejbRef.setRefType(EjbRef.Type.UNKNOWN);
-                }
-
-                // home
-                spec_ejbRef.setHome(getStringValue(spec_ejbRef.getHome()));
-
-                // remote
-                spec_ejbRef.setRemote(getStringValue(spec_ejbRef.getRemote()));
-
-                // ejb-link
-                spec_ejbRef.setEjbLink(getStringValue(spec_ejbRef.getEjbLink()));
-
-                // mapped-name
-                spec_ejbRef.setMappedName(getStringValue(spec_ejbRef.getMappedName()));
 
                 // handle external refs
 
@@ -354,23 +329,6 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     spec_ejbRef.setEjbLink(getStringValue(ejbRefType.getEjbLink()));
                 }
 
-
-
-                // openejb handling of injection-targets
-                if (spec_ejbRef.getInjectionTarget() != null) {
-
-                    List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
-                    for (InjectionTarget injectionTargetType : spec_ejbRef.getInjectionTarget()) {
-                        InjectionTarget newInjectionTarget = new InjectionTarget();
-                        newInjectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
-                                .getInjectionTargetClass()));
-                        newInjectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
-                                .getInjectionTargetName()));
-                        injectionTargetsToAdd.add(newInjectionTarget);
-                    }
-                    spec_ejbRef.getInjectionTarget().addAll(injectionTargetsToAdd);
-                }
-
                 // TODO: geronimo's handling of injection-target
                 // addInjections(refName, spec_ejbRef.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
 
@@ -380,36 +338,13 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         for (EjbLocalRef localRefFromSpecDD : jndiConsumer.getEjbLocalRef()) {
 
-            String refName = getStringValue(localRefFromSpecDD.getEjbRefName());
+            String refName = localRefFromSpecDD.getEjbRefName();
 
             // skip corba refs
             GerEjbLocalRefType ejbLocalRefType = localRefMap.get(refName);
 
             // merge info in alt-DD to spec DD.
             if (ejbLocalRefType != null) {
-
-                // ejb-ref-name
-                localRefFromSpecDD.setEjbRefName(refName);
-
-                // ejb-ref-type
-                String refType = getStringValue(localRefFromSpecDD.getType());
-                if ("SESSION".equalsIgnoreCase(refType)) {
-                    localRefFromSpecDD.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
-                } else if ("ENTITY".equalsIgnoreCase(refType)) {
-                    localRefFromSpecDD.setEjbRefType(org.apache.openejb.jee.EjbRefType.ENTITY);
-                }
-
-                // home
-                localRefFromSpecDD.setLocalHome(getStringValue(localRefFromSpecDD.getLocalHome()));
-
-                // remote
-                localRefFromSpecDD.setLocal(getStringValue(localRefFromSpecDD.getLocal()));
-
-                // ejb-link
-                localRefFromSpecDD.setEjbLink(getStringValue(localRefFromSpecDD.getEjbLink()));
-
-                // mapped-name
-                localRefFromSpecDD.setMappedName(getStringValue(localRefFromSpecDD.getMappedName()));
 
                 // handle external refs
                 if (ejbLocalRefType.getPattern() != null) {
@@ -425,21 +360,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     localRefFromSpecDD.setMappedName(deploymentId.trim());
                 }
 
-                // openejb handling of injection-targets
-                if (localRefFromSpecDD.getInjectionTarget() != null) {
-                    List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
-
-                    for (InjectionTarget injectionTargetType : localRefFromSpecDD.getInjectionTarget()) {
-                        InjectionTarget injectionTarget = new InjectionTarget();
-                        injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
-                                .getInjectionTargetClass()));
-                        injectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
-                                .getInjectionTargetName()));
-                        injectionTargetsToAdd.add(injectionTarget);
-                    }
-
-                    localRefFromSpecDD.getInjectionTarget().addAll(injectionTargetsToAdd);
+                if (ejbLocalRefType.getEjbLink() != null) {
+                    localRefFromSpecDD.setEjbLink(getStringValue(ejbLocalRefType.getEjbLink()));
                 }
+
                 // TODO: geronimo's handling of injection-target
                 // addInjections(refName, localRefFromSpecDD.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
             }
