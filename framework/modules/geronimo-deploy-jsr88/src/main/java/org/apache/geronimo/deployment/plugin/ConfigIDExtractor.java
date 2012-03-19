@@ -128,15 +128,15 @@ public class ConfigIDExtractor {
             //      though that would probably be a little heavyweight.
             try {
                 JarEntry entry;
-                if(input.getJarEntry("WEB-INF/web.xml") != null || new File(module, "WEB-INF/geronimo-web.xml") != null) {
+                if(input.getJarEntry("WEB-INF/web.xml") != null || input.getJarEntry("WEB-INF/geronimo-web.xml") != null) {
                     entry = input.getJarEntry("WEB-INF/geronimo-web.xml");
-                } else if(input.getJarEntry("META-INF/application.xml") != null || new File(module, "META-INF/geronimo-application.xml") != null) {
+                } else if(input.getJarEntry("META-INF/application.xml") != null || input.getJarEntry("META-INF/geronimo-application.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application.xml");
-                } else if(input.getJarEntry("META-INF/ejb-jar.xml") != null || new File(module, "META-INF/openejb-jar.xml") != null) {
+                } else if(input.getJarEntry("META-INF/ejb-jar.xml") != null || input.getJarEntry("META-INF/openejb-jar.xml") != null) {
                 	entry = input.getJarEntry("META-INF/openejb-jar.xml");
-                } else if(input.getJarEntry("META-INF/ra.xml") != null || new File(module, "META-INF/geronimo-ra.xml") != null) {
+                } else if(input.getJarEntry("META-INF/ra.xml") != null || input.getJarEntry("META-INF/geronimo-ra.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-ra.xml");
-                } else if(input.getJarEntry("META-INF/application-client.xml") != null || new File(module, "META-INF/geronimo-application-client.xml") != null) {
+                } else if(input.getJarEntry("META-INF/application-client.xml") != null || input.getJarEntry("META-INF/geronimo-application-client.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application-client.xml");
                 }  else if(input.getJarEntry("META-INF/APPLICATION.MF") != null) {
                     entry = input.getJarEntry("META-INF/APPLICATION.MF");
