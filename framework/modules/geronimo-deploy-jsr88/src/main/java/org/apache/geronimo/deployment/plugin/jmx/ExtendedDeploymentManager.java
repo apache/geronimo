@@ -314,14 +314,19 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
         return (Boolean) kernel.invoke(applicationGBeanName, "hotSwapApplicationContent", arguments, argumentTypes);
     }
     
+    /**
+     * Returns application gbean name for the specified configuration id of the OSGi application.
+     * Returns null if no such gbean exists.
+     */
     public AbstractName getApplicationGBeanName(Artifact configurationId) {
         Set<AbstractName> applicationGBeanNames = kernel.listGBeans(new AbstractNameQuery(configurationId, Collections.EMPTY_MAP, "org.apache.geronimo.aries.ApplicationGBean"));
-        if (applicationGBeanNames.size()!=1){
+        if (applicationGBeanNames == null || applicationGBeanNames.isEmpty()) {
+            return null;
+        } else if (applicationGBeanNames.size() > 1) {
             throw new IllegalStateException("An EBA should have one and only one ApplicationGean object");
         }
         return applicationGBeanNames.iterator().next();
     }
-    
     
     /**
      * Get the BundleRecorderGBean
