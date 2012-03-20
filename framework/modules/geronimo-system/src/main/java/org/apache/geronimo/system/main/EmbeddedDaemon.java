@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
@@ -155,6 +156,21 @@ public class EmbeddedDaemon implements Main {
         }
     }
 
+    private Set<Artifact> getLoadOnlyConfigList() {
+        String list = System.getProperty("geronimo.loadOnlyConfigList");
+        Set<Artifact> artifacts = new HashSet<Artifact>();
+        if (list != null) {
+            for (String name : list.split("\\s*,\\s*")) {
+                try {
+                    artifacts.add(Artifact.create(name));
+                } catch (Exception e) {
+                    System.err.println("Error parsing configuration name [" + name + "]: " + e.getMessage());
+                }
+            }
+        }
+        return artifacts;
+    }
+
     protected void initializeMonitor(DaemonCLParser parser) {
         if (parser.isVerboseInfo() || parser.isVerboseDebug() || parser.isVerboseTrace() || parser.isNoProgress()) {
             monitor = new SilentStartupMonitor();
@@ -167,7 +183,7 @@ public class EmbeddedDaemon implements Main {
         }
         lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
     }
-
+    
     protected int doStartup() {
         try {            
             int exitCode = initializeKernel();
@@ -196,6 +212,8 @@ public class EmbeddedDaemon implements Main {
 
             monitor.foundModules(configs.toArray(new Artifact[configs.size()]));
 
+            Set<Artifact> loadOnlyConfigs = getLoadOnlyConfigList();
+            
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -211,7 +229,9 @@ public class EmbeddedDaemon implements Main {
                             unloadedConfigs.remove(configID);
                             monitor.moduleLoaded(configID);
                             monitor.moduleStarting(configID);
-                            configurationManager.startConfiguration(configID, lifecycleMonitor);
+                            if (!loadOnlyConfigs.contains(configID)) {
+                                configurationManager.startConfiguration(configID, lifecycleMonitor);
+                            }
                             monitor.moduleStarted(configID);
                         }
                     } while (unloadedConfigsCount > unloadedConfigs.size());
@@ -276,7 +296,7 @@ public class EmbeddedDaemon implements Main {
                 try {
                     b.start(Bundle.START_TRANSIENT);
                 } catch (BundleException e) {
-                    log.warn("Bundle: " + bundle.getBundleId() + "can not start" + e.getMessage());
+                    log.warn("Bundle " + bundle.getBundleId() + " failed to start: " + e.getMessage());
                 }
             }
         }
