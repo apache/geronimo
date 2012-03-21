@@ -127,35 +127,18 @@ cmd /c exit /b 1
 goto end
 :okSetJavaEnv
 set BASEDIR=%GERONIMO_HOME%
-call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
+call "%GERONIMO_HOME%\bin\setjavaenv.bat"
 if not %errorlevel% == 0 goto end
 
-if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
-@REM A relative value will be resolved relative to each instance 
-set GERONIMO_TMPDIR=var\temp
-:gotTmpdir
+set EXECUTABLE=%GERONIMO_HOME%\bin\geronimosrv.exe
 
-@REM Handle spaces in provided paths.  Also strips off quotes.
-if defined var GERONIMO_HOME(
-set GERONIMO_HOME=###%GERONIMO_HOME%###
-set GERONIMO_HOME=%GERONIMO_HOME:"###=%
-set GERONIMO_HOME=%GERONIMO_HOME:###"=%
-set GERONIMO_HOME=%GERONIMO_HOME:###=%
-@)
-if defined var JRE_HOME(
-set JRE_HOME=###%JRE_HOME%###
-set JRE_HOME=%JRE_HOME:"###=%
-set JRE_HOME=%JRE_HOME:###"=%
-set JRE_HOME=%JRE_HOME:###=%
-@)
+@REM Strip quotes
 if defined var _RUNJAVA(
 set _RUNJAVA=###%_RUNJAVA%###
 set _RUNJAVA=%_RUNJAVA:"###=%
 set _RUNJAVA=%_RUNJAVA:###"=%
 set _RUNJAVA=%_RUNJAVA:###=%
 @)
-
-set EXECUTABLE=%GERONIMO_HOME%\bin\geronimosrv.exe
 set JAVA_EXE=%_RUNJAVA%.exe
 
 if "%1" == "" goto showUsage
@@ -215,8 +198,13 @@ goto setArgs
 set SHUTDOWN_ARGS=--user#system#--password#manager
 :doneSetArgs
 
+@REM Using default JAVA_OPTS if it's not set
+if not "%JAVA_OPTS%" == "" goto skipDefaultJavaOpts
+set JAVA_OPTS=-XX:MaxPermSize=256m
+:skipDefaultJavaOpts
+
 @REM Setup the Java programming language agent
-set JAVA_AGENT_JAR="%GERONIMO_HOME%\lib\agent\transformer.jar"
+set JAVA_AGENT_JAR=%GERONIMO_HOME%\lib\agent\transformer.jar
 set JAVA_AGENT_OPTS=
 if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:^"%JAVA_AGENT_JAR%^"
 
@@ -232,7 +220,7 @@ set PR_STDERROR=%PR_LOGPATH%\geronimosrv.err
 @REM set jvm arguments to avoid killing the service when logging off, when using Sun JDK.
 set JVMARGS=-Xrs
 
-"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage %JAVA_EXE% --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JVMARGS%#%JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Dkaraf.startLocalConsole=false#-Dkaraf.startRemoteShell=true#-Dkaraf.home="%GERONIMO_HOME%"#-Dkaraf.base="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage %JAVA_EXE% --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Dkaraf.startLocalConsole=false#-Dkaraf.startRemoteShell=false#-Dkaraf.home="%GERONIMO_HOME%"#-Dkaraf.base="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
+"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage "%JAVA_EXE%" --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JVMARGS%#"%JAVA_OPTS%"#%JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Dkaraf.startLocalConsole=false#-Dkaraf.startRemoteShell=true#-Dkaraf.home="%GERONIMO_HOME%"#-Dkaraf.base="%GERONIMO_SERVER%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage "%JAVA_EXE%" --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%"#-Dkaraf.startLocalConsole=false#-Dkaraf.startRemoteShell=false#-Dkaraf.home="%GERONIMO_HOME%"#-Dkaraf.base="%GERONIMO_SERVER%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
 if not errorlevel 1 goto installed
 echo Failed to install "%SERVICE_NAME%" service. Refer to the log in var/log/geronimosrv.log
 goto end
