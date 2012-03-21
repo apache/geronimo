@@ -195,6 +195,11 @@ goto setArgs
 set SHUTDOWN_ARGS=--user#system#--password#manager
 :doneSetArgs
 
+@REM Using default JAVA_OPTS if it's not set
+if not "%JAVA_OPTS%" == "" goto skipDefaultJavaOpts
+set JAVA_OPTS=-XX:MaxPermSize=256m
+:skipDefaultJavaOpts
+
 @REM Setup the Java programming language agent
 set JAVA_AGENT_JAR=%GERONIMO_HOME%\bin\jpa.jar
 set JAVA_AGENT_OPTS=
@@ -212,7 +217,7 @@ set PR_STDERROR=%PR_LOGPATH%\geronimosrv.err
 @REM set jvm arguments to avoid killing the service when logging off, when using Sun JDK.
 set JVMARGS=-Xrs
 
-"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage %JAVA_EXE% --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JVMARGS%#%JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage %JAVA_EXE% --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
+"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage %JAVA_EXE% --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JVMARGS%#"%JAVA_OPTS%"#%JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage %JAVA_EXE% --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
 if not errorlevel 1 goto installed
 echo Failed to install "%SERVICE_NAME%" service. Refer to the log in var/log/geronimosrv.log
 goto end
