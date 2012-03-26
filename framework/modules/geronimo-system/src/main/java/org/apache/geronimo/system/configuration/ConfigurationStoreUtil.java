@@ -43,8 +43,7 @@ public class ConfigurationStoreUtil {
         // check if the sum already exists
         File sumFile = new File(file.getParentFile(), file.getName() + ".sha1");
         if (sumFile.exists()) {
-            throw new IOException("It is a configuration archive now. Sum file already exists. " +
-            		"Please use the install-plugin command to install it.");
+            throw new IOException("Sum file already exists");
         }
 
         // calculate the checksum

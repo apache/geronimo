@@ -253,6 +253,8 @@ public class Deployer implements GBeanLifecycle {
 
             // It's our responsibility to close this context, once we're done with it...
             context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
+
+            isNotCar(context.getBaseDir());
             // Copy the external plan to the META-INF folder with the uniform name plan.xml if there is nothing there already
             if (planFile != null && !context.getTargetFile(PLAN_LOCATION).exists()) {
                 context.addFile(PLAN_LOCATION, planFile);
@@ -291,6 +293,20 @@ public class Deployer implements GBeanLifecycle {
             if (tempFiles != null) {
                 cleanUpTemporaryDirectories(tempFiles);
             }
+        }
+    }
+
+    private void isNotCar(File module) throws DeploymentException {
+        File meta = new File(module, "META-INF");
+        if (meta.exists()) {
+            File checkSum = new File(meta, "config.ser");
+            if (checkSum.exists()) {
+                throw new DeploymentException("Have found the config.ser in the deploy package." +
+                        " It should be a car. Please use the install-plugin command to install it.");
+            }
+        }
+        else {
+            return;
         }
     }
 
