@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -169,10 +170,10 @@ public class EmbeddedDaemon implements Main {
             monitor.systemStarted(kernel);
 
             AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
+            Set<AbstractName> configLists = kernel.listGBeans(query);
 
             if (configs.isEmpty()) {
-                // --override wasn't used (nothing explicit), see what was running before
-                Set<AbstractName> configLists = kernel.listGBeans(query);
+                // --override wasn't used (nothing explicit), see what was running before                
                 for (AbstractName configListName : configLists) {
                     try {
                         configs.addAll((List<Artifact>) kernel.invoke(configListName, "restore"));
@@ -199,14 +200,32 @@ public class EmbeddedDaemon implements Main {
                         for (Artifact configID : sorted) {
                             monitor.moduleLoading(configID);
                             configurationManager.loadConfiguration(configID, lifecycleMonitor);
+                            int configModuleType = configurationManager.getConfiguration(configID).getModuleType().getValue();
                             monitor.moduleLoaded(configID);
-                            monitor.moduleStarting(configID);
-                            configurationManager.startConfiguration(configID, lifecycleMonitor);
-                            monitor.moduleStarted(configID);
+                            try {
+                                monitor.moduleStarting(configID);
+                                configurationManager.startConfiguration(configID, lifecycleMonitor);
+                                monitor.moduleStarted(configID);
+                            } catch (Exception e) {
+                                if ( configModuleType != ConfigurationModuleType.SERVICE.getValue() ) {
+                                    log.warn("Failed to start module " + configID + "; Cause by " + e.getCause());
+                                    configurationManager.unloadConfiguration(configID);
+                                    continue;
+                                }
+                            }
                         }
                     } while (unloadedConfigsCount > unloadedConfigs.size());
                     if (!unloadedConfigs.isEmpty()) {
-                        throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+                        // GERONIMO-5802 Not simply fail server when unloadedConfigs is not empty, thus, server could
+                        // start in most cases as long as the system modules are started OK.
+                        // throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+                        for (Artifact configID:unloadedConfigs) {
+                            for (AbstractName configListName : configLists) {
+                                kernel.invoke(configListName, "stopConfiguration", new Object[]{configID}, new String[]{Artifact.class.getName()});
+                            }
+                            
+                        }
+                        log.warn("Could not start configs: " + unloadedConfigs);
                     }
                     // the server has finished loading the persistent configuration so inform the gbean
                     AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
@@ -228,7 +247,7 @@ public class EmbeddedDaemon implements Main {
             }
 
             // Tell every persistent configuration list that the kernel is now fully started
-            Set<AbstractName> configLists = kernel.listGBeans(query);
+            configLists = kernel.listGBeans(query);
             for (AbstractName configListName : configLists) {
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
