@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
@@ -280,17 +281,34 @@ public class EmbeddedDaemon {
                             for (Artifact configID : sorted) {
                                 monitor.moduleLoading(configID);
                                 configurationManager.loadConfiguration(configID, lifecycleMonitor);
+                                int configModuleType = configurationManager.getConfiguration(configID).getModuleType().getValue();
                                 unloadedConfigs.remove(configID);
                                 monitor.moduleLoaded(configID);
-                                monitor.moduleStarting(configID);
-                                if (!loadOnlyConfigs.contains(configID)) {
-                                    configurationManager.startConfiguration(configID, lifecycleMonitor);
+                                try {
+                                    monitor.moduleStarting(configID);
+                                    if (!loadOnlyConfigs.contains(configID)) {
+                                        configurationManager.startConfiguration(configID, lifecycleMonitor);
+                                    }
+                                    monitor.moduleStarted(configID);
+                                } catch (Exception e) {
+                                    if ( configModuleType != ConfigurationModuleType.SERVICE.getValue() ) {
+                                        log.warn("Failed to start module " + configID + "; Cause by " + e.getCause());
+                                        configurationManager.unloadConfiguration(configID);
+                                        continue;
+                                    }
                                 }
-                                monitor.moduleStarted(configID);
                             }
                         } while (unloadedConfigsCount > unloadedConfigs.size());
                         if (!unloadedConfigs.isEmpty()) {
-                            throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+                            // GERONIMO-5802 Not simply fail server when unloadedConfigs is not empty, thus, server could
+                            // start in most cases as long as the system modules are started OK.
+                            // throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
+                            for (Artifact configID:unloadedConfigs) {
+                                for (PersistentConfigurationList persistentConfigurationList : configurationLists) {
+                                    persistentConfigurationList.stopConfiguration(configID);
+                                }                            
+                            }
+                            log.warn("Could not start configs: " + unloadedConfigs);
                         }
                         // the server has finished loading the persistent configuration so inform the gbean
                         AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
