@@ -642,7 +642,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List<Dependency> dependencies = new ArrayList<Dependency>(environment.getDependencies());
         for (ListIterator<Dependency> iterator = dependencies.listIterator(); iterator.hasNext();) {
             Dependency dependency = iterator.next();
-            Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+            Artifact resolvedArtifact = null;
+            try {
+                resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+            } catch (MissingDependencyException e) {
+                log.error("Cannot resolve dependency " + dependency.getArtifact() + " for configuration " + configurationData.getId());
+                throw e;
+            }
 //            if (isConfiguration(resolvedArtifact)) {
             parentIds.add(resolvedArtifact);
 
