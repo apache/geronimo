@@ -89,7 +89,8 @@ public class OSGiMetaDataBuilder {
     protected void processClassloadingRules(Environment environment) {
         //Process Hidden Class
         for (String hiddenClassPrefix : environment.getClassLoadingRules().getHiddenRule().getClassPrefixes()) {
-            environment.addImportPackage("!" + hiddenClassPrefix);
+            String inversedImportPackage = hiddenClassPrefix.endsWith("*") ? hiddenClassPrefix : hiddenClassPrefix + "*";
+            environment.addImportPackage("!" + inversedImportPackage);
         }
         //Non-Overridable-Classes
         /*for (String hiddenClassPrefix : environment.getClassLoadingRules().getHiddenRule().getClassPrefixes()) {
@@ -110,8 +111,15 @@ public class OSGiMetaDataBuilder {
             }
             if (importPackageName.startsWith("!")) {
                 importPackageName = importPackageName.substring(1);
-                if (importPackageName.endsWith("*")) {
-                    hiddenImportPackageNamePrefixes.add(importPackageName.substring(0, importPackageName.length() - 1));
+                boolean wildcardImportPakcageName = importPackageName.endsWith("*");
+                if (wildcardImportPakcageName) {
+                    importPackageName = importPackageName.substring(0, importPackageName.length() - 1);
+                }
+                if (importPackageName.endsWith(".")) {
+                    importPackageName = importPackageName.substring(0, importPackageName.length() - 1);
+                }
+                if (wildcardImportPakcageName) {
+                    hiddenImportPackageNamePrefixes.add(importPackageName);
                 } else {
                     hiddenImportPackageNames.add(importPackageName);
                 }
