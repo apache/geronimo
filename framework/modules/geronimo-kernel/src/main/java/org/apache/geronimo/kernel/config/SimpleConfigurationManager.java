@@ -499,7 +499,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List<Dependency> dependencies = new ArrayList<Dependency>(environment.getDependencies());
         for (ListIterator<Dependency> iterator = dependencies.listIterator(); iterator.hasNext();) {
             Dependency dependency = iterator.next();
-            Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+            Artifact resolvedArtifact = null;
+            try {
+                resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+            } catch (MissingDependencyException e) {
+                log.error("Cannot resolve dependency " + dependency.getArtifact() + " for configuration " + configurationData.getId());
+                throw e;
+            }
             if (isConfiguration(resolvedArtifact)) {
                 parentIds.add(resolvedArtifact);
 
@@ -660,7 +666,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             // try to start the configuation
             try {
                 Configuration configuration = getConfiguration(configurationId);
-		applyOverrides(configuration);
+        applyOverrides(configuration);
                 monitor.starting(configurationId);
                 start(configuration);
                 monitor.succeeded(configurationId);
@@ -1354,11 +1360,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
      * @throws InvalidConfigException
      */
     private void applyOverrides(Configuration configuration) throws InvalidConfigException{
-    	ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
+        ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
         Collection<GBeanData> gbeans = configuration.getConfigurationData().getGBeans(configurationClassLoader);
         if (configuration.getManageableAttributeStore() != null) {
-        	configuration.getManageableAttributeStore().applyOverrides(configuration.getId(), gbeans, 
-        			configurationClassLoader);
+            configuration.getManageableAttributeStore().applyOverrides(configuration.getId(), gbeans, 
+                    configurationClassLoader);
         }
     }
 
