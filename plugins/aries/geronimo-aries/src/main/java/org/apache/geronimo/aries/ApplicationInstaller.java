@@ -49,7 +49,6 @@ import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +65,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
     private AbstractName abstractName;
     private ServiceRegistration registration;
     private ConfigurationManager configurationManager;
+    private WebApplicationTracker webApplicationTracker;
     private Collection<? extends Repository> repositories;
     private Collection<ConfigurationStore> configurationStores;
     private Environment defaultEnvironment;
@@ -84,16 +84,19 @@ public class ApplicationInstaller implements GBeanLifecycle {
         this.configurationStores = configurationStores;
         this.configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         this.defaultEnvironment = defaultEnvironment;
+        this.webApplicationTracker = new WebApplicationTracker(bundleContext);
     }
 
     public void doStart() throws Exception {
         registration = bundleContext.registerService(ApplicationInstaller.class.getName(), this, null);
+        webApplicationTracker.start();
     }
 
     public void doStop() {
         if (registration != null) {
             registration.unregister();
         }
+        webApplicationTracker.stop();
     }
 
     public void doFail() {
@@ -102,6 +105,10 @@ public class ApplicationInstaller implements GBeanLifecycle {
 
     protected ConfigurationManager getConfigurationManager() {
         return configurationManager;
+    }
+    
+    protected WebApplicationTracker getWebApplicationTracker() {
+        return webApplicationTracker;
     }
 
     public DeploymentContext startInstall(AriesApplication app, ConfigurationStore targetConfigurationStore)

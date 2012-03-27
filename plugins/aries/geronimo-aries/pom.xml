@@ -40,6 +40,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-wab</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
             <version>${project.version}</version>
