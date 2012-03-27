@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
+import org.apache.geronimo.crypto.ConfiguredEncryption;
 
 /**
  * A static class that uses registered Encryption instances to encypt and decrypt objects, typically strings.
@@ -43,14 +44,26 @@ public class EncryptionManager {
 
     private static final Map<String, Encryption> ENCRYPTORS = Collections.synchronizedMap(new HashMap<String, Encryption>());
     private final static String SIMPLE_ENCRYPTION_PREFIX = "{Simple}";
+    private static String activeEncryptionPrefix = SIMPLE_ENCRYPTION_PREFIX;
+	private static ConfiguredEncryption ce = null;
 
     static {
         ENCRYPTORS.put(SIMPLE_ENCRYPTION_PREFIX, SimpleEncryption.INSTANCE);
         //login properties files used to have this
         ENCRYPTORS.put("{Standard}", SimpleEncryption.INSTANCE);
-    }
+		
+		String keyFile = System
+				.getProperty("org.apache.geronimo.security.encryption.keyfile");
 
-    private static String activeEncryptionPrefix = SIMPLE_ENCRYPTION_PREFIX;
+		if (keyFile != null && keyFile != "") {
+			try {
+				ce = new ConfiguredEncryption(keyFile);
+				ce.doStart();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+    }
 
     /**
      * Encryption instances should call this to register themselves.
