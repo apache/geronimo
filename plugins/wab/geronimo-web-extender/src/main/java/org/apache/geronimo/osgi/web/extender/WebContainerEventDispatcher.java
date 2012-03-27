@@ -21,15 +21,20 @@ package org.apache.geronimo.osgi.web.extender;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.geronimo.osgi.web.WebApplicationListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +52,11 @@ public class WebContainerEventDispatcher {
     private ServiceTracker tracker;
     // the extender bundle we're working on behalf of
     private Bundle extenderBundle;
+    // service tracker for WebApplicationListener
+    private ServiceTracker listenerTracker;
+    private final Set<WebApplicationListener> listeners = new CopyOnWriteArraySet<WebApplicationListener>();
 
-    public WebContainerEventDispatcher(BundleContext bundleContext) {
+    public WebContainerEventDispatcher(final BundleContext bundleContext) {
         this.extenderBundle = bundleContext.getBundle();
 
         if (isEventAdminPresent()) {
@@ -56,6 +64,23 @@ public class WebContainerEventDispatcher {
             tracker = new ServiceTracker(bundleContext, EventAdmin.class.getName(), null);
             tracker.open();
         }
+        
+        listenerTracker = new ServiceTracker(bundleContext, WebApplicationListener.class.getName(), new ServiceTrackerCustomizer() {
+            public Object addingService(ServiceReference reference) {
+                WebApplicationListener listener = (WebApplicationListener) bundleContext.getService(reference);
+                listeners.add(listener);
+                return listener;
+            }
+
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
+
+            public void removedService(ServiceReference reference, Object service) {
+                listeners.remove(service);
+                bundleContext.ungetService(reference);
+            }
+        });
+        listenerTracker.open();
     }
     
     private boolean isEventAdminPresent() {
@@ -77,7 +102,16 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void deploying(Bundle bundle, String contextPath) {
-        dispatch(WebContainerConstants.TOPIC_DEPLOYING, bundle, contextPath);
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.deploying(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
+        }
+        dispatch(WebContainerConstants.TOPIC_DEPLOYING, properties);
     }
 
     /**
@@ -88,7 +122,16 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void deployed(Bundle bundle, String contextPath) {
-        dispatch(WebContainerConstants.TOPIC_DEPLOYED, bundle, contextPath);
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.deployed(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
+        }
+        dispatch(WebContainerConstants.TOPIC_DEPLOYED, properties);
     }
 
     /**
@@ -99,7 +142,16 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void undeploying(Bundle bundle, String contextPath) {
-        dispatch(WebContainerConstants.TOPIC_UNDEPLOYING, bundle, contextPath);
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.undeploying(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
+        }
+        dispatch(WebContainerConstants.TOPIC_UNDEPLOYING, properties);
     }
 
     /**
@@ -110,7 +162,16 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void undeployed(Bundle bundle, String contextPath) {
-        dispatch(WebContainerConstants.TOPIC_UNDEPLOYED, bundle, contextPath);
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.undeployed(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
+        }
+        dispatch(WebContainerConstants.TOPIC_UNDEPLOYED, properties);
     }
 
     /**
@@ -121,15 +182,19 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void failed(Bundle bundle, String contextPath, Throwable cause) {
-        EventAdmin eventAdmin = getEventAdmin();
-        if (eventAdmin == null) {
-            return;
-        }
-        Dictionary<String, Object> props = createDefaultProperties(bundle, contextPath);
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
         if (cause != null) {
-            props.put(EventConstants.EXCEPTION, cause);
+            properties.put(EventConstants.EXCEPTION, cause);
         }
-        eventAdmin.postEvent(new Event(WebContainerConstants.TOPIC_FAILED, props));
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.failed(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
+        }
+        dispatch(WebContainerConstants.TOPIC_FAILED, properties);
     }
     
     /**
@@ -140,16 +205,20 @@ public class WebContainerEventDispatcher {
      *               The context path information from the bundle.
      */
     public void collision(Bundle bundle, String contextPath, Collection<Long> bundleId) {
-        EventAdmin eventAdmin = getEventAdmin();
-        if (eventAdmin == null) {
-            return;
+        Dictionary<String, Object> properties = createDefaultProperties(bundle, contextPath);
+        properties.put(WebContainerConstants.COLLISION, contextPath);
+        properties.put(WebContainerConstants.COLLISION_BUNDLES, bundleId);
+        for (WebApplicationListener listener : listeners) {
+            try {
+                listener.failed(bundle, contextPath, properties);
+            } catch (Exception e) {
+                LOGGER.warn("Error notifying listener: " + listener, e);
+                break;
+            }
         }
-        Dictionary<String, Object> props = createDefaultProperties(bundle, contextPath);
-        props.put(WebContainerConstants.COLLISION, contextPath);
-        props.put(WebContainerConstants.COLLISION_BUNDLES, bundleId);
-        eventAdmin.postEvent(new Event(WebContainerConstants.TOPIC_FAILED, props));
+        dispatch(WebContainerConstants.TOPIC_FAILED, properties);
     }
-    
+        
     /**
      * Dispatch an event to the appropriate listeners.
      *
@@ -158,12 +227,11 @@ public class WebContainerEventDispatcher {
      * @param contextPath
      *               The contextPath information from the bundle.
      */
-    private void dispatch(String topic, Bundle bundle, String contextPath) {
+    private void dispatch(String topic, Dictionary<String, Object> props) {
         EventAdmin eventAdmin = getEventAdmin();
         if (eventAdmin == null) {
             return;
         }
-        Dictionary<String, Object> props = createDefaultProperties(bundle, contextPath);
         eventAdmin.postEvent(new Event(topic, props));
     }
 
@@ -194,6 +262,7 @@ public class WebContainerEventDispatcher {
         if (tracker != null) {
             tracker.close();
         }
+        listenerTracker.close();
     }
 
     private Version getBundleVersion(Bundle bundle) {

@@ -43,6 +43,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -152,8 +153,9 @@ public class ApplicationGBean implements GBeanLifecycle {
         if (targetBundle == null) {
             throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
-        
+        waitForStart();
         updateHelper.updateBundle(targetBundle, file);
+        waitForStart();
     }
     
     /*
@@ -168,7 +170,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         if (targetBundle == null) {
             throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
-
+        waitForStart();
         return updateHelper.updateBundleClasses(targetBundle, changesFile, updateArchive);
     }
    
@@ -390,6 +392,37 @@ public class ApplicationGBean implements GBeanLifecycle {
             }
             throw be;
         }
+    }
+    
+    private static long getApplicationStartTimeout() {
+        String property = System.getProperty("org.apache.geronimo.aries.applicationStartTimeout", String.valueOf(5 * 60 * 1000));
+        return Long.parseLong(property);
+    }
+    
+    private void waitForStart() {
+        waitForStart(getApplicationStartTimeout());
+    }
+    
+    private void waitForStart(long timeout) {
+        Set<Bundle> webBundles = new HashSet<Bundle>();
+        for (Bundle b : applicationBundles) {
+            if (b.getState() == Bundle.ACTIVE && WebApplicationUtils.isWebApplicationBundle(b)) {
+                webBundles.add(b);               
+            }
+        }
+        if (!webBundles.isEmpty()) {
+            LOG.debug("Waiting {}ms for asynchronous processing for {} bundles to finish", timeout, webBundles);
+            try {
+                boolean completed = installer.getWebApplicationTracker().waitForBundles(webBundles, timeout);
+                if (completed) {
+                    LOG.debug("Asynchronous processing completed.");                    
+                } else {
+                    LOG.debug("Time out while waiting for asynchronous processing to finish.");
+                }
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }   
     }
     
     public void doStop() {
