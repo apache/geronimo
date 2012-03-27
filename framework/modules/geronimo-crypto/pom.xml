@@ -36,11 +36,6 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-		<dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-system</artifactId>
-			<version>${geronimoVersion}</version>
-        </dependency>
     </dependencies>
     
 </project>
