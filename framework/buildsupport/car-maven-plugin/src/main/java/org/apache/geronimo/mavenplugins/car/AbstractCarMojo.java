@@ -675,7 +675,7 @@ public abstract class AbstractCarMojo
         }
     }
 
-    protected Framework getFramework() throws BundleException {
+    protected Framework getFramework(String extraPackages) throws BundleException {
         setLoggingLevel();
 
         Map<String, String> properties = new HashMap<String, String>();
@@ -688,13 +688,18 @@ public abstract class AbstractCarMojo
         // This list and the version numbers needs to be synchronized with the list
         // in the karaf framework config.properties file.
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES,
-                "org.osgi.framework;version=1.5.0," +
-                        "org.osgi.framework.launch;version=1.0.0," +
-                        "org.osgi.framework.hooks.service;version=1.0.0," +
-                        "org.osgi.service.packageadmin;version=1.2.0," +
-                        "org.osgi.service.startlevel;version=1.1.0," +
-                        "org.osgi.service.url;version=1.0.0," +
-                        "org.osgi.util.tracker;version=1.4.0," +
+                        "org.osgi.framework; version=1.6.0," +
+                        "org.osgi.framework.launch; version=1.0.0," +
+                        "org.osgi.framework.startlevel; version=1.0.0," +
+                        "org.osgi.framework.wiring; version=1.0.0," +
+                        "org.osgi.framework.hooks.service; version=1.1.0," +
+                        "org.osgi.framework.hooks.bundle; version=1.0.0," +
+                        "org.osgi.framework.hooks.resolver; version=1.0.0," +
+                        "org.osgi.framework.hooks.weaving; version=1.0.0," +
+                        "org.osgi.service.packageadmin; version=1.2.0," +
+                        "org.osgi.service.startlevel; version=1.1.0," +
+                        "org.osgi.service.url; version=1.0.0," +
+                        "org.osgi.util.tracker; version=1.5.0," +
                         "javax.accessibility," +
                         "javax.annotation.processing," +
                         "javax.activity," +
@@ -885,13 +890,14 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
                         "org.apache.geronimo.transformer," +
-                        "org.apache.geronimo.hook," +
                         "org.apache.geronimo.mavenplugins.car," +
                         "org.apache.karaf.jaas.boot;version=\"2.2.1\"," +
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util," +
-                        " org.apache.geronimo.hook"
+                        "org.apache.geronimo.hook" + 
+                        extraPackages
+
         );
         /*
 

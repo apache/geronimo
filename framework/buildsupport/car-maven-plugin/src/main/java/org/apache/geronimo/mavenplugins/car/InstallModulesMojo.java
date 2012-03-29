@@ -151,7 +151,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         // boot one ourselves
         try {
-            bundleContext = getFramework().getBundleContext();
+            bundleContext = getFramework("").getBundleContext();
         } catch (BundleException e) {
             throw new MojoExecutionException("Could not create osqi framework", e);
         }

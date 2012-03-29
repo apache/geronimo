@@ -263,7 +263,7 @@ public class PackageMojo extends AbstractCarMojo {
         boot.setCarFile(getArtifactInRepositoryDir());
         boot.setLocalRepo(repository);
         boot.setPlan(planFile);
-        Framework framework = getFramework();
+        Framework framework = getFramework(",org.apache.geronimo.deployment,org.apache.geronimo.deployment.service");
         BundleContext bundleContext = framework.getBundleContext();
         boot.setBundleContext(bundleContext);
 
@@ -362,7 +362,7 @@ public class PackageMojo extends AbstractCarMojo {
 //        }
 
         // boot one ourselves
-        bundleContext = getFramework().getBundleContext();
+        bundleContext = getFramework("").getBundleContext();
 
         kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
         kernel.boot();
