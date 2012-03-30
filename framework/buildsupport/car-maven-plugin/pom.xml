@@ -283,8 +283,7 @@
                 <property>
                     <name>framework</name>
                     <value>felix</value>
-                </property>
-                <activeByDefault>true</activeByDefault>
+                </property>                
             </activation>
 
             <dependencies>
@@ -300,6 +299,7 @@
             <id>equinox</id>
 
             <activation>
+            <activeByDefault>true</activeByDefault>
                 <property>
                     <name>framework</name>
                     <value>equinox</value>
