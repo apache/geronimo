@@ -19,10 +19,8 @@
 package org.apache.geronimo.main;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -30,12 +28,10 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ServiceLoader;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -79,8 +75,6 @@ public class FrameworkLauncher {
     private static final String DEFAULT_REPO = "karaf.default.repository";
 
     private static final String KARAF_FRAMEWORK = "karaf.framework";
-
-    private static final Logger LOG = Logger.getLogger(FrameworkLauncher.class.getName());
 
     private boolean uniqueInstance = false;
     private String log4jFile;
@@ -291,7 +285,7 @@ public class FrameworkLauncher {
         Properties props = Utils.loadPropertiesFile(file, false);
 
         // Perform variable substitution on specified properties.
-        for (Enumeration e = props.propertyNames(); e.hasMoreElements();) {
+        for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             String value = System.getProperty(name, props.getProperty(name));
             System.setProperty(name, Utils.substVars(value, name, null, null));
@@ -306,13 +300,13 @@ public class FrameworkLauncher {
         if (additionalConfigFile != null){
             File additionalConfig = new File(new File(baseDir, "etc"), additionalConfigFile);
             Properties additionalProps = Utils.loadPropertiesFile(additionalConfig, false);
-            for (Entry entry : additionalProps.entrySet()) {
+            for (Entry<Object, Object> entry : additionalProps.entrySet()) {
                 configProps.setProperty((String)entry.getKey(), (String)entry.getValue());
             }
         }
 
         // Perform variable substitution for system properties.
-        for (Enumeration e = configProps.propertyNames(); e.hasMoreElements();) {
+        for (Enumeration<?> e = configProps.propertyNames(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             configProps.setProperty(name, Utils.substVars(configProps.getProperty(name), name, null, configProps));
         }
@@ -321,7 +315,7 @@ public class FrameworkLauncher {
     }
 
     protected static void copySystemProperties(Properties configProps) {
-        for (Enumeration e = System.getProperties().propertyNames(); e.hasMoreElements();) {
+        for (Enumeration<?> e = System.getProperties().propertyNames(); e.hasMoreElements();) {
             String key = (String) e.nextElement();
             if (key.startsWith("felix.") ||
                     key.startsWith("karaf.") ||
@@ -351,7 +345,7 @@ public class FrameworkLauncher {
         URLClassLoader classLoader = (URLClassLoader) FrameworkLauncher.class.getClassLoader();
         Method mth = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
         mth.setAccessible(true);
-        mth.invoke(classLoader, bundleFile.toURL());
+        mth.invoke(classLoader, bundleFile.toURI().toURL());
     }
 
     private void startBundles(BundleContext context, List<BundleInfo> startList) throws Exception {
@@ -365,17 +359,10 @@ public class FrameworkLauncher {
         sl.setInitialBundleStartLevel(ibsl);
 
         for (BundleInfo info : startList) {
-            InputStream in = new FileInputStream(info.location);
-            Bundle bundle = null;
-            try {
-                bundle = context.installBundle(info.mvnLocation, in);
-            } finally {
-                try { in.close(); } catch (Exception e) {}
-            }
+            Bundle bundle = context.installBundle(info.bundleLocation);           
             if (info.startLevel > 0) {
                 sl.setBundleStartLevel(bundle, info.startLevel);
             }
-
             info.bundle = bundle;
         }
 
@@ -414,8 +401,8 @@ public class FrameworkLauncher {
     protected List<BundleInfo> loadStartupProperties(Properties startupProps, List<File> bundleDirs) {
         List<BundleInfo> startList = new ArrayList<BundleInfo>();
 
-        for (Iterator iterator = startupProps.keySet().iterator(); iterator.hasNext();) {
-            String location = (String) iterator.next();
+        for (Entry<Object, Object> entry : startupProps.entrySet()) {
+            String location = (String) entry.getKey();
 
             File file = findFile(bundleDirs, location);
 
@@ -426,23 +413,30 @@ public class FrameworkLauncher {
 
             int level;
             try {
-                level = Integer.parseInt(startupProps.getProperty(location).trim());
+                level = Integer.parseInt(((String) entry.getValue()).trim());
             } catch (NumberFormatException e1) {
                 System.err.print("Ignoring " + location + " (run level must be an integer)");
                 continue;
             }
 
-            String mvnLocation = toMvnUrl(location);
-
             BundleInfo info = new BundleInfo();
             info.location = file;
-            info.mvnLocation = mvnLocation;
+            try {
+                info.bundleLocation = toReferenceFileLocation(file);
+            } catch (IOException e) {
+                System.err.println("Ignoring Artifact " + location + " (" + e.getMessage() + ")");
+                continue;
+            }
             info.startLevel = level;
 
             startList.add(info);
         }
 
         return startList;
+    }
+
+    private String toReferenceFileLocation(File file) throws IOException {
+        return "reference:file://" + file.getCanonicalPath();
     }
 
     private static File findFile(List<File> bundleDirs, String name) {
@@ -477,48 +471,9 @@ public class FrameworkLauncher {
         return null;
     }
 
-    private static String toMvnUrl(String location) {
-        String[] p = location.split("/");
-        if (p.length >= 4 && p[p.length-1].startsWith(p[p.length-3] + "-" + p[p.length-2])) {
-            String groupId = null;
-            String artifactId = p[p.length-3];
-            String version = p[p.length-2];
-            String classifier;
-            String type;
-            String artifactIdVersion = artifactId + "-" + version;
-            StringBuilder sb = new StringBuilder();
-            if (p[p.length-1].charAt(artifactIdVersion.length()) == '-') {
-                classifier = p[p.length-1].substring(artifactIdVersion.length() + 1, p[p.length-1].lastIndexOf('.'));
-            } else {
-                classifier = null;
-            }
-            type = p[p.length-1].substring(p[p.length-1].lastIndexOf('.') + 1);
-            sb.append("mvn:");
-            for (int j = 0; j < p.length - 3; j++) {
-                if (j > 0) {
-                    sb.append('.');
-                }
-                sb.append(p[j]);
-            }
-            sb.append('/').append(artifactId).append('/').append(version);
-            if (!"jar".equals(type) || classifier != null) {
-                sb.append('/');
-                if (!"jar".equals(type)) {
-                    sb.append(type);
-                }
-                if (classifier != null) {
-                    sb.append('/').append(classifier);
-                }
-            }
-            return sb.toString();
-        } else {
-            return location;
-        }
-    }
-
     static class BundleInfo {
         File location;
-        String mvnLocation;
+        String bundleLocation;
         int startLevel;
         Bundle bundle;
     }

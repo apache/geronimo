@@ -17,18 +17,25 @@
 
 package org.apache.geronimo.kernel.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BundleUtil {
-    
+
     // the header that identifies a bundle as being a WAB
     public final static String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
-    
+
     public final static String EBA_GROUP_ID = "application";
+
+    public final static String REFERENCE_FILE_PREFIX = "reference:file://";
 
     public static String getVersion(org.osgi.framework.Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
@@ -38,9 +45,35 @@ public class BundleUtil {
         }
         return str;
     }
-    
+
     public static Artifact createArtifact(String group, String symbolicName, Version version) {
         return new Artifact(group, symbolicName, getVersion(version), "eba");
     }
+
+    public static File toFile(Bundle bundle) {
+        return toFile(bundle.getLocation());
+    }
+
+    public static File toFile(URL url) {
+        return toFile(url.toExternalForm());
+    }
+
+    /**
+     * Translate the reference:file:// style URL  to the underlying file instance
+     * @param url
+     * @return
+     */
+    public static File toFile(String url) {
+        if (url.startsWith(REFERENCE_FILE_PREFIX)) {
+            File file = new File(url.substring(REFERENCE_FILE_PREFIX.length()));
+            if (file.exists()) {
+                return file;
+            }
+        }
+        return null;
+    }
     
+    public static String toReferenceFileLocation(File file) throws IOException {
+        return REFERENCE_FILE_PREFIX + file.getCanonicalPath();
+    }
 }

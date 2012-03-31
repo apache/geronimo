@@ -41,14 +41,14 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -269,9 +269,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
     
     private static String getBundleLocation(ConfigurationResolver configurationResolver, Artifact configurationId) {
-        if (System.getProperty("geronimo.build.car") == null) {
-            return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
-        }
         if (configurationResolver == null) {
             throw new NullPointerException("ConfigurationResolver is null");
         }

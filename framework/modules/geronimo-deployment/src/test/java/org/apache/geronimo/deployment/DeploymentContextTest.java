@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.common.DeploymentException;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;

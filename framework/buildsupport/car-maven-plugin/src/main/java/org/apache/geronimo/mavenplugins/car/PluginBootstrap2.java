@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven2Repository;
@@ -119,8 +120,7 @@ public class PluginBootstrap2 {
 
         try {
             writeConfiguration(configurationData);
-        }
-        finally {
+        } finally {
             context.close();
         }
     }
@@ -134,16 +134,8 @@ public class PluginBootstrap2 {
                 out = new JarOutputStream(new FileOutputStream(carFile));
                 ExecutableConfigurationUtil.writeConfiguration(configurationData, out);
                 out.flush();
-            }
-            finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    }
-                    catch (IOException ignored) {
-                        // ignored
-                    }
-                }
+            } finally {
+                IOUtils.close(out);
             }
         }
     }

@@ -17,9 +17,10 @@
 
 package org.apache.geronimo.deployment.plugin;
 
-import javax.enterprise.deploy.spi.Target;
-import javax.management.ObjectName;
 import java.io.Serializable;
+
+import javax.enterprise.deploy.spi.Target;
+
 import org.apache.geronimo.gbean.AbstractName;
 
 /**

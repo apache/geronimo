@@ -367,7 +367,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 if (log.isDebugEnabled()) {
                     log.debug("Packing bundle from " + source + " to destination " + destination);
                 }
-                JarUtils.jarDirectory(source, destination);
+                FileUtils.recursiveCopy(source, destination);
             }
         } else {
             if (log.isDebugEnabled()) {

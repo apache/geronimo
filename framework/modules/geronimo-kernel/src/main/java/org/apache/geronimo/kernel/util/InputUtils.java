@@ -17,7 +17,7 @@
 package org.apache.geronimo.kernel.util;
 
 // import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +46,7 @@ public class InputUtils {
         }
     }
 
-    public final static void validateSafeInput(ArrayList<String> inputs) {
+    public final static void validateSafeInput(List<String> inputs) {
         for (String input : inputs) {
             validateSafeInput(input);
         }

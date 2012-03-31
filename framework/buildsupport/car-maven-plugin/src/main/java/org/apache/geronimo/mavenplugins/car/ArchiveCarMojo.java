@@ -20,14 +20,13 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
@@ -241,9 +240,9 @@ public class ArchiveCarMojo
         try {
             // Incldue the generated artifact contents
             File artifactDirectory = this.getArtifactInRepositoryDir();
-
+            
             if (artifactDirectory.exists()) {
-                archiver.addArchivedFileSet(artifactDirectory);
+                archiver.getArchiver().addDirectory(artifactDirectory);
             }
 
             // Include the optional classes.resources
@@ -276,17 +275,16 @@ public class ArchiveCarMojo
 
             //For no plan car, do nothing
             if (artifactDirectory.exists()) {
-                
-                JarFile includedJarFile = new JarFile(artifactDirectory) ;
-                
-                if (includedJarFile.getEntry("META-INF/MANIFEST.MF") != null) {
+
+                File mfFile = new File(artifactDirectory, "META-INF/MANIFEST.MF");
+                if (mfFile.exists()) {
                     FilesetManifestConfig mergeFilesetManifestConfig = new FilesetManifestConfig();
                     mergeFilesetManifestConfig.setValue("merge");
                     archiver.getArchiver().setFilesetmanifest(mergeFilesetManifestConfig);
                 } else {
                     //File configFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "imports.txt");
-                    ZipEntry importTxtEntry = includedJarFile.getEntry("META-INF/imports.txt");
-                    if (importTxtEntry != null) {
+                    File importsTxtFile = new File(artifactDirectory, "META-INF/imports.txt");
+                    if (importsTxtFile.exists()) {
                         StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
                         if (boot) {
                             archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
@@ -308,7 +306,7 @@ public class ArchiveCarMojo
                         archive.addManifestEntry("Bundle-License", ((License) project.getLicenses().get(0)).getUrl());
                         archive.addManifestEntry(Constants.BUNDLE_DOCURL, project.getUrl());
                         archive.addManifestEntry(Constants.BUNDLE_SYMBOLICNAME, project.getGroupId() + "." + project.getArtifactId());
-                        Reader in = new InputStreamReader(includedJarFile.getInputStream(importTxtEntry));
+                        Reader in = new InputStreamReader(new FileInputStream(importsTxtFile));
                         char[] buf = new char[1024];
                         try {
                             int i;

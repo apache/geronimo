@@ -40,6 +40,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -323,35 +324,121 @@ public final class JarUtils {
         }
     }
 
-    public static void unzipToDirectory(ZipFile zipFile, File destDir) throws IOException {
-        Enumeration entries = zipFile.entries();
+    public static void unzipToDirectory(ZipInputStream zipIn, File destDir, String prefix, boolean stripPrefix) throws IOException {
+        ZipEntry entry = null;
+        while ((entry = zipIn.getNextEntry()) != null) {
+            if (!entry.getName().startsWith(prefix)) {
+                continue;
+            }
+            String subBasePath = null;
+            if (stripPrefix) {
+                subBasePath = prefix.equals(entry.getName()) ? "" : entry.getName().substring(prefix.length());
+            } else {
+                subBasePath = entry.getName();
+            }
+            unzipToDirectory(zipIn, entry, destDir, subBasePath);
+        }
+    }
+
+    public static void unzipToDirectory(ZipInputStream zipIn, File destDir) throws IOException {
+        ZipEntry entry = null;
+        while ((entry = zipIn.getNextEntry()) != null) {
+            unzipToDirectory(zipIn, entry, destDir);
+        }
+    }
+
+    public static void unzipToDirectory(ZipFile zipFile, File destDir, String prefix, boolean stripPrefix) throws IOException {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
         try {
             while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                if (entry.isDirectory()) {
-                    File dir = new File(destDir, entry.getName());
-                    createDirectory(dir);
-                } else {
-                    File file = new File(destDir, entry.getName());
-                    createDirectory(file.getParentFile());
-                    OutputStream out = null;
-                    InputStream in = null;
-                    try {
-                        out = new BufferedOutputStream(new FileOutputStream(file));
-                        in = zipFile.getInputStream(entry);
-                        IOUtils.copy(in, out);
-                    } finally {
-                        IOUtils.close(in);
-                        IOUtils.close(out);
-                    }
+                ZipEntry entry = entries.nextElement();
+                if (!entry.getName().startsWith(prefix)) {
+                    continue;
                 }
+                String subBasePath = null;
+                if (stripPrefix) {
+                    subBasePath = prefix.equals(entry.getName()) ? "" : entry.getName().substring(prefix.length());
+                } else {
+                    subBasePath = entry.getName();
+                }
+                unzipToDirectory(zipFile, entry, destDir, subBasePath);
             }
         } finally {
             zipFile.close();
         }
     }
 
+    public static void unzipToDirectory(ZipFile zipFile, File destDir, String prefix) throws IOException {
+        unzipToDirectory(zipFile, destDir, prefix, false);
+    }
+
+    public static void unzipToDirectory(ZipFile zipFile, File destDir) throws IOException {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        try {
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                unzipToDirectory(zipFile, entry, destDir);
+            }
+        } finally {
+            zipFile.close();
+        }
+    }
+
+    private static void unzipToDirectory(ZipInputStream zipIn, ZipEntry entry, File destDir) throws IOException {
+        unzipToDirectory(zipIn, entry, destDir, entry.getName());
+    }
+
+    private static void unzipToDirectory(ZipInputStream zipIn, ZipEntry entry, File destDir, String subBasePath) throws IOException {
+        if (entry.isDirectory()) {
+            File dir = new File(destDir, subBasePath);
+            createDirectory(dir);
+        } else {
+            File file = new File(destDir, subBasePath);
+            createDirectory(file.getParentFile());
+            OutputStream out = null;
+            try {
+                out = new BufferedOutputStream(new FileOutputStream(file));
+                IOUtils.copy(zipIn, out);
+            } finally {
+                IOUtils.close(out);
+            }
+        }
+    }
+
+    private static void unzipToDirectory(ZipFile zipFile, ZipEntry entry, File destDir) throws IOException {
+        unzipToDirectory(zipFile, entry, destDir, entry.getName());
+    }
+
+    private static void unzipToDirectory(ZipFile zipFile, ZipEntry entry, File destDir, String subBasePath) throws IOException {
+        if (entry.isDirectory()) {
+            File dir = new File(destDir, subBasePath);
+            createDirectory(dir);
+        } else {
+            File file = new File(destDir, subBasePath);
+            createDirectory(file.getParentFile());
+            OutputStream out = null;
+            InputStream in = null;
+            try {
+                out = new BufferedOutputStream(new FileOutputStream(file));
+                in = zipFile.getInputStream(entry);
+                IOUtils.copy(in, out);
+            } finally {
+                IOUtils.close(in);
+                IOUtils.close(out);
+            }
+        }
+    }
+
     public static void close(JarFile thing) {
+        if (thing != null) {
+            try {
+                thing.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public static void close(ZipFile thing) {
         if (thing != null) {
             try {
                 thing.close();

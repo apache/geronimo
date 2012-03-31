@@ -24,18 +24,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
 
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.ImportType;
@@ -53,8 +54,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
@@ -64,10 +65,10 @@ import org.apache.maven.shared.filtering.MavenResourcesFiltering;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -233,10 +234,13 @@ public abstract class AbstractCarMojo
             }
             props.setProperty(name, value);
         }
-        BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
-        props.store(output, null);
-        output.flush();
-        output.close();
+        BufferedOutputStream output = null;
+        try {
+            output = new BufferedOutputStream(new FileOutputStream(outputFile));
+            props.store(output, null);
+        } finally {
+            IOUtils.close(output);
+        }
     }
 
     protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {

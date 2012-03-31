@@ -24,7 +24,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
+ * @version $Rev$ $Date$
  */
 public class Maven2Repository extends AbstractRepository implements WritableListableRepository {
 
@@ -44,19 +44,19 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         return path;
     }
 
-    public SortedSet list() {
+    public SortedSet<Artifact> list() {
         return listInternal(null, null, null);
     }
 
-    public SortedSet list(Artifact query) {
+    public SortedSet<Artifact> list(Artifact query) {
         if(query.getGroupId() != null) { // todo: see if more logic can be shared with the other case
             File path = new File(rootFile, query.getGroupId().replace('.', File.separatorChar));
             path = new File(path, query.getArtifactId());
             if(!path.canRead() || !path.isDirectory()) {
-                return new TreeSet();
+                return new TreeSet<Artifact>();
             }
 
-            SortedSet artifacts = new TreeSet();
+            SortedSet<Artifact> artifacts = new TreeSet<Artifact>();
 
             File[] versionDirs = path.listFiles();
             for (int i = 0; i < versionDirs.length; i++) {
@@ -91,8 +91,8 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         }
     }
 
-    private SortedSet listInternal(String artifactMatch, String typeMatch, String versionMatch) {
-        SortedSet artifacts = new TreeSet();
+    private SortedSet<Artifact> listInternal(String artifactMatch, String typeMatch, String versionMatch) {
+        SortedSet<Artifact> artifacts = new TreeSet<Artifact>();
         File[] groupIds = rootFile.listFiles();
         for (int i = 0; i < groupIds.length; i++) {
             File groupId = groupIds[i];
@@ -109,9 +109,9 @@ public class Maven2Repository extends AbstractRepository implements WritableList
         return artifacts;
     }
 
-    private List getArtifacts(String groupId, File versionDir, String artifactMatch, String typeMatch, String versionMatch) {
+    private List<Artifact> getArtifacts(String groupId, File versionDir, String artifactMatch, String typeMatch, String versionMatch) {
         // org/apache/xbean/xbean-classpath/2.2-SNAPSHOT/xbean-classpath-2.2-SNAPSHOT.jar
-        List artifacts = new ArrayList();
+        List<Artifact> artifacts = new ArrayList<Artifact>();
         String artifactId = versionDir.getParentFile().getName();
 
         File[] files = versionDir.listFiles();

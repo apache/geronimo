@@ -57,7 +57,7 @@ public class ConfiguredEncryption extends AbstractEncryption implements GBeanLif
     private final SecretKeySpec spec;
 
     public ConfiguredEncryption(String path, ServerInfo serverInfo) throws IOException, ClassNotFoundException {
-        File location = serverInfo.resolve(path);
+        File location = serverInfo.resolveServer(path);
         if (location.exists()) {
             FileInputStream in = new FileInputStream(location);
             try {

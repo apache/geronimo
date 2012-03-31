@@ -17,6 +17,7 @@
 package org.apache.geronimo.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -108,11 +109,14 @@ public class Bootstrapper extends FrameworkLauncher {
             parts[2] = file.getParentFile().getName();
             parts[3] = file.getName().substring(file.getName().lastIndexOf('.') + 1);
             
-            String mvnLocation = getMvnLocation(parts);
-            
             BundleInfo info = new BundleInfo();
             info.location = file;
-            info.mvnLocation = mvnLocation;
+            try {
+                info.bundleLocation = toReferenceFileLocation(file);
+            } catch (IOException e) {
+                System.err.println("Ignoring Artifact " + location + " (" + e.getMessage() + ")");
+                continue;
+            }
             info.startLevel = 60;
             
             startList.add(info);            
@@ -121,8 +125,8 @@ public class Bootstrapper extends FrameworkLauncher {
         return startList;
     }
     
-    private String getMvnLocation(String[] parts) {
-        return "mvn:" + parts[0] + "/" + parts[1] + "/" + parts[2] + "/" + parts[3]; 
+    private String toReferenceFileLocation(File file) throws IOException {
+        return "reference:file://" + file.getCanonicalPath();
     }
     
     private static File getBundleLocation(List<File> bundleDirs, String[] parts) {

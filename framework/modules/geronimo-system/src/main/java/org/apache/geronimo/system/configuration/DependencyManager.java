@@ -49,6 +49,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -324,7 +325,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                 log.warn("No PackageAdmin service is found, fail to get export packages of " + bundle.getLocation());
                 return Collections.<ExportPackage> emptySet();
             }
-            String exportPackageHeader = (String)bundle.getHeaders().get(Constants.EXPORT_PACKAGE);
+            String exportPackageHeader = bundle.getHeaders().get(Constants.EXPORT_PACKAGE);
             Map<String, HeaderElement> nameVersionExportPackageMap = new HashMap<String, HeaderElement>();
             if (exportPackageHeader != null) {
                 List<HeaderElement> headerElements = HeaderParser.parseHeader(exportPackageHeader);
@@ -383,7 +384,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                 }
             }
         } catch (Throwable e) {
-            log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
+            log.warn("Could not read Geronimo metadata for bundle: " + bundle, e);
         } finally {
             IOUtils.close(in);
         }
@@ -530,14 +531,10 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 
-    private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (System.getProperty("geronimo.build.car") == null) {
-            return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion()
-                    + ("jar".equals(configurationId.getType()) ? "" : "/" + configurationId.getType());
-        }
+    private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {        
         for (Repository repo : repositories) {
             if (repo.contains(configurationId)) {
-                return "reference:file://" + repo.getLocation(configurationId).getAbsolutePath();
+                return BundleUtil.toReferenceFileLocation(repo.getLocation(configurationId));
             }
         }
         throw new NoSuchConfigException(configurationId);

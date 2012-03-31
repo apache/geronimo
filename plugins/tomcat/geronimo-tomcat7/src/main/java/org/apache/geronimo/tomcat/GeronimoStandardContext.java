@@ -14,15 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.tomcat;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import javax.naming.Context;
@@ -74,8 +74,10 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -113,7 +115,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @version $Rev$ $Date$
  */
@@ -126,6 +127,7 @@ public class GeronimoStandardContext extends StandardContext {
     private static final Logger logger = LoggerFactory.getLogger(GeronimoStandardContext.class);
 
     private Subject defaultSubject = null;
+
     private RunAsSource runAsSource = RunAsSource.NULL;
 
     private Map<String, WebServiceContainer> webServiceMap = null;
@@ -133,18 +135,24 @@ public class GeronimoStandardContext extends StandardContext {
     private boolean pipelineInitialized;
 
     private BeforeAfter beforeAfter = null;
+
     private int contextCount = 0;
 
     private boolean authenticatorInstalled;
+
     private ConfigurationFactory configurationFactory;
+
     private String policyContextId;
+
     private WebSecurityConstraintStore webSecurityConstraintStore;
+
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
     private Bundle bundle;
+
     private ServiceRegistration serviceRegistration;
 
-    private List webModuleListeners;
+    private List<WebModuleListener> webModuleListeners;
 
     private ThreadLocal<Stack<BeforeAfterContext>> beforeAfterContexts = new ThreadLocal<Stack<BeforeAfterContext>>() {
 
@@ -152,26 +160,7 @@ public class GeronimoStandardContext extends StandardContext {
         protected Stack<BeforeAfterContext> initialValue() {
             return new Stack<BeforeAfterContext>();
         }
-
     };
-
-  //TODO Hack Support for getRealPath, use an internal map to prevent Geronimo application extracting the application contents
-    private static final Set<String> FILTERED_UNEXTRACTED_ARTIFACT_IDS = new HashSet<String>();
-    static {
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/remote-deploy-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/plugin-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/osgi-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/openejb-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/welcome-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins.monitoring/mconsole-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/activemq-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/debugviews-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/sysdb-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.plugins/plancreator-console-tomcat//car");
-        FILTERED_UNEXTRACTED_ARTIFACT_IDS.add("org.apache.geronimo.configs/uddi-tomcat//car");
-    }
-    //
 
     public GeronimoStandardContext() {
         setXmlNamespaceAware(true);
@@ -186,14 +175,11 @@ public class GeronimoStandardContext extends StandardContext {
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         bundle = ctx.getBundle();
-
         setResources(createDirContext(ctx));
-
         // Create ReadOnlyContext
         Context enc = ctx.getJndiContext();
         setInstanceManager(ctx.getInstanceManager());
         ServletContext servletContext = getServletContext();
-
         //try to make sure this mbean properties match those of the TomcatWebAppContext
         if (ctx instanceof TomcatWebAppContext) {
             TomcatWebAppContext tomcatWebAppContext = (TomcatWebAppContext) ctx;
@@ -201,9 +187,7 @@ public class GeronimoStandardContext extends StandardContext {
             setServer(tomcatWebAppContext.getServer());
             setJ2EEApplication(tomcatWebAppContext.getJ2EEApplication());
             setJ2EEServer(tomcatWebAppContext.getJ2EEServer());
-
             servletContext.setAttribute(WebApplicationConstants.WEB_APP_NAME, tomcatWebAppContext.getWARName());
-
             //install jasper injection support if required
             if (tomcatWebAppContext.getRuntimeCustomizer() != null) {
                 Map<String, Object> attributes = new HashMap<String, Object>();
@@ -211,7 +195,7 @@ public class GeronimoStandardContext extends StandardContext {
                 customizerContext.put(Map.class, attributes);
                 customizerContext.put(javax.naming.Context.class, enc);
                 tomcatWebAppContext.getRuntimeCustomizer().customize(customizerContext);
-                for (Map.Entry<String, Object> entry: attributes.entrySet()) {
+                for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                     servletContext.setAttribute(entry.getKey(), entry.getValue());
                 }
             }
@@ -222,9 +206,7 @@ public class GeronimoStandardContext extends StandardContext {
             float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.SCHEMA_VERSION);
             boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.META_COMPLETE);
             webSecurityConstraintStore = new WebSecurityConstraintStore(tomcatWebAppContext.getWebAppInfo(), bundle, schemaVersion >= 2.5f && !metaComplete, getInternalServletContext());
-
             servletContext.setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
-
             //Set some attributes passed from the deployment process
             List<String> orderedLists = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.ORDERED_LIBS);
             if (orderedLists != null) {
@@ -262,7 +244,6 @@ public class GeronimoStandardContext extends StandardContext {
                     }
                 }
             }
-
             //Get WebModuleListener List
             List<String> webModuleListenerClassNames = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebApplicationConstants.WEB_MODULE_LISTENERS);
             if (webModuleListenerClassNames != null && webModuleListenerClassNames.size() > 0) {
@@ -271,7 +252,7 @@ public class GeronimoStandardContext extends StandardContext {
                     try {
                         Class<?> cls = bundle.loadClass(webModuleListenerClassName);
                         Object webModuleListener = cls.newInstance();
-                        webModuleListeners.add(webModuleListener);
+                        webModuleListeners.add((WebModuleListener) webModuleListener);
                     } catch (ClassNotFoundException e) {
                         logger.warn("Unable to load the listener class" + webModuleListenerClassName, e);
                     } catch (InstantiationException e) {
@@ -282,70 +263,47 @@ public class GeronimoStandardContext extends StandardContext {
                 }
             }
         }
-
         int index = 0;
-        
         BeforeAfter interceptor = new RequestListenerBeforeAfter(null, index++, this);
-        
-        interceptor = new InstanceContextBeforeAfter(interceptor,
-                index++,
-                index++, ctx.getUnshareableResources(),
-                ctx.getApplicationManagedSecurityResources(),
-                ctx.getTrackedConnectionAssociator());
-
+        interceptor = new InstanceContextBeforeAfter(interceptor, index++, index++, ctx.getUnshareableResources(), ctx.getApplicationManagedSecurityResources(), ctx.getTrackedConnectionAssociator());
         // Set ComponentContext BeforeAfter
         if (enc != null) {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
-
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
-
             // save the role designates for mapping servlets to their run-as roles
             runAsSource = securityHolder.getRunAsSource();
-
             if (securityHolder.getPolicyContextID() != null) {
-
                 policyContextId = securityHolder.getPolicyContextID();
                 PolicyContext.setContextID(policyContextId);
                 /**
                  * Register our default subject with the ContextManager
                  */
                 defaultSubject = securityHolder.getDefaultSubject();
-
                 if (defaultSubject == null) {
                     defaultSubject = ContextManager.EMPTY;
                 }
-
                 interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
-
             }
         }
-
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
-
         interceptor = new WebApplicationIdentityBeforeAfter(interceptor, index++, ctx.getAbstractName().getNameProperty(NameFactory.J2EE_NAME));
-
         addValve(new ProtectedTargetValve());
-
         Valve clusteredValve = ctx.getClusteredValve();
         if (null != clusteredValve) {
             addValve(clusteredValve);
         }
-
         //Set the BeforeAfters as a valve
         GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);
         addValve(geronimoBAValve);
         beforeAfter = interceptor;
         contextCount = index;
-
         //Not clear if user defined valves should be involved in init processing.  Probably not since
         //request and response are null.
-
         addValve(new SystemMethodValve());
-
         // Add User Defined Valves
         List<Valve> valveChain = ctx.getValveChain();
         if (valveChain != null) {
@@ -353,7 +311,6 @@ public class GeronimoStandardContext extends StandardContext {
                 addValve(valve);
             }
         }
-
         // Add User Defined Listeners
         List<LifecycleListener> listenerChain = ctx.getLifecycleListenerChain();
         if (listenerChain != null) {
@@ -361,30 +318,23 @@ public class GeronimoStandardContext extends StandardContext {
                 addLifecycleListener(listener);
             }
         }
-
         CatalinaCluster cluster = ctx.getCluster();
         if (cluster != null)
             this.setCluster(cluster);
-
         Manager manager = ctx.getManager();
         if (manager != null)
             this.setManager(manager);
-
         pipelineInitialized = true;
-
         ClassLoader oldClassLoader = bindThread();
         try {
             webServiceMap = ctx.getWebServices();
         } finally {
             unbindThread(oldClassLoader);
         }
-
         Map<String, String> contextAttributes = ctx.getContextAttributes();
-
         if (!ctx.getContextAttributes().containsKey("allowLinking")) {
             contextAttributes.put("allowLinking", String.valueOf(allowLinking));
         }
-
         //Set context attributes via reflection
         for (Map.Entry<String, String> entry : contextAttributes.entrySet()) {
             if (!IntrospectionUtils.setProperty(this, entry.getKey(), entry.getValue())) {
@@ -393,10 +343,8 @@ public class GeronimoStandardContext extends StandardContext {
                 }
             }
         }
-
         //Set the Dispatch listener
         this.addInstanceListener(DispatchListener.class.getName());
-
         //Set the run-as listener. listeners must be added before start() is called
         if (runAsSource != null) {
             this.addInstanceListener(RunAsInstanceListener.class.getName());
@@ -404,11 +352,13 @@ public class GeronimoStandardContext extends StandardContext {
     }
 
     private final Object instanceListenersLock = new Object();
+
     private final Object wrapperLifecyclesLock = new Object();
+
     private final Object wrapperListenersLock = new Object();
+
     @Override
     public Wrapper createWrapper() {
-
         Wrapper wrapper = null;
         if (getWrapperClass() != null) {
             try {
@@ -420,12 +370,10 @@ public class GeronimoStandardContext extends StandardContext {
         } else {
             wrapper = new StandardWrapper();
         }
-
         synchronized (instanceListenersLock) {
-            for (String instanceListener: findInstanceListeners()) {
+            for (String instanceListener : findInstanceListeners()) {
                 try {
-                    InstanceListener listener =
-                      (InstanceListener) getInstanceManager().newInstance(instanceListener);
+                    InstanceListener listener = (InstanceListener) getInstanceManager().newInstance(instanceListener);
                     wrapper.addInstanceListener(listener);
                 } catch (Throwable t) {
                     getLogger().error("createWrapper", t);
@@ -433,12 +381,10 @@ public class GeronimoStandardContext extends StandardContext {
                 }
             }
         }
-
         synchronized (wrapperLifecyclesLock) {
-            for (String wrapperLifecycle: findWrapperLifecycles()) {
+            for (String wrapperLifecycle : findWrapperLifecycles()) {
                 try {
-                    LifecycleListener listener =
-                      (LifecycleListener) getInstanceManager().newInstance(wrapperLifecycle);
+                    LifecycleListener listener = (LifecycleListener) getInstanceManager().newInstance(wrapperLifecycle);
                     wrapper.addLifecycleListener(listener);
                 } catch (Throwable t) {
                     getLogger().error("createWrapper", t);
@@ -446,12 +392,10 @@ public class GeronimoStandardContext extends StandardContext {
                 }
             }
         }
-
         synchronized (wrapperListenersLock) {
-            for (String wrapperListener: findWrapperListeners()) {
+            for (String wrapperListener : findWrapperListeners()) {
                 try {
-                    ContainerListener listener =
-                      (ContainerListener) getInstanceManager().newInstance(wrapperListener);
+                    ContainerListener listener = (ContainerListener) getInstanceManager().newInstance(wrapperListener);
                     wrapper.addContainerListener(listener);
                 } catch (Throwable t) {
                     getLogger().error("createWrapper", t);
@@ -459,26 +403,23 @@ public class GeronimoStandardContext extends StandardContext {
                 }
             }
         }
-
         return (wrapper);
-
     }
+
     /* This method is called by a background thread to destroy sessions (among other things)
      * so we need to apply appropriate context to the thread to expose JNDI, etc.
      */
     @Override
     public void backgroundProcess() {
         BeforeAfterContext beforeAfterContext = null;
-
-        if (beforeAfter != null){
+        if (beforeAfter != null) {
             beforeAfterContext = new BeforeAfterContext(contextCount);
             beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
         }
-
         try {
             super.backgroundProcess();
         } finally {
-            if (beforeAfter != null){
+            if (beforeAfter != null) {
                 beforeAfter.after(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
             }
         }
@@ -488,26 +429,23 @@ public class GeronimoStandardContext extends StandardContext {
         if (serviceRegistration != null) {
             serviceRegistration.unregister();
         }
-
         BeforeAfterContext beforeAfterContext = null;
-
-        if (beforeAfter != null){
+        if (beforeAfter != null) {
             beforeAfterContext = new BeforeAfterContext(contextCount);
             beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
         }
-
         try {
             stop();
             destroy();
         } finally {
-            if (beforeAfter != null){
+            if (beforeAfter != null) {
                 beforeAfter.after(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
             }
         }
     }
 
     @Override
-    protected void initInternal()  throws LifecycleException {
+    protected void initInternal() throws LifecycleException {
         String docBase = getDocBase();
         super.initInternal();
         setDocBase(docBase);
@@ -519,7 +457,6 @@ public class GeronimoStandardContext extends StandardContext {
             try {
                 Valve valve = getPipeline().getFirst();
                 valve.invoke(null, null);
-
                 // if a servlet uses run-as then make sure role designates have been provided
                 if (hasRunAsServlet()) {
                     if (runAsSource == null) {
@@ -529,7 +466,6 @@ public class GeronimoStandardContext extends StandardContext {
                     // optimization
                     this.removeInstanceListener(RunAsInstanceListener.class.getName());
                 }
-
             } catch (IOException e) {
                 if (e.getCause() instanceof LifecycleException) {
                     throw (LifecycleException) e.getCause();
@@ -559,7 +495,6 @@ public class GeronimoStandardContext extends StandardContext {
                     specSecurityBuilder.clear();
                 }
             }
-
             // for OSGi Web Applications support register ServletContext in service registry
             if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
                 serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
@@ -578,23 +513,38 @@ public class GeronimoStandardContext extends StandardContext {
         return context;
     }
 
-    private boolean isSystemArtifact(Bundle bundle) {
-        String bundleLocation = bundle.getLocation();
-        if (bundleLocation.startsWith("mvn:")) {
-            String[] artifactFragments = bundleLocation.substring(4).split("[/]");
-            if (artifactFragments.length == 4) {
-                String noVersionArtifact = artifactFragments[0] + "/" + artifactFragments[1] + "//" + artifactFragments[3];
-                if (FILTERED_UNEXTRACTED_ARTIFACT_IDS.contains(noVersionArtifact)) {
-                    return true;
+    protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
+        String location = bundle.getLocation();
+        if (location.startsWith("reference:file://")) {
+            location = location.substring("reference:file://".length());
+            File applicationRoot = tomcatContext.getModulePath() == null ? new File(location) : new File(location + File.separator + tomcatContext.getModulePath());
+            if (applicationRoot.exists() && applicationRoot.isDirectory()) {
+                return createFileDirContext(tomcatContext, applicationRoot);
+            }
+        }
+        return createBundleDirContext(tomcatContext);
+    }
+
+    private DirContext createFileDirContext(TomcatContext tomcatContext, File applicationRoot) throws DeploymentException {
+        FileDirContext fileDirContext = new FileDirContext();
+        setDocBase(applicationRoot.getAbsolutePath());
+        File libraryDirectory = new File(applicationRoot, "WEB-INF/lib");
+        if (libraryDirectory.exists()) {
+            for (File libraryFile : libraryDirectory.listFiles()) {
+                if (libraryFile.getName().toLowerCase().endsWith(".jar") && libraryFile.isFile()) {
+                    try {
+                        fileDirContext.addResourcesJar(new URL("jar:" + libraryFile.toURI().toURL().toExternalForm() + "!/ "));
+                    } catch (MalformedURLException e) {
+                        logger.warn("Unable to add jar file for resource searching", e);
+                    }
                 }
             }
         }
-        return false;
+        return fileDirContext;
     }
 
-    protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
+    private DirContext createBundleDirContext(TomcatContext tomcatContext) throws DeploymentException {
         List<DirContext> altDirContexts = new ArrayList<DirContext>();
-
         Engine engine = (Engine) getParent().getParent();
         String serviceName = engine.getService().getName();
         String engineName = engine.getName();
@@ -602,21 +552,16 @@ public class GeronimoStandardContext extends StandardContext {
         String tomcatHome = System.getProperty("catalina.home");
         File tempRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
                 + (getName().equals("/") ? "_" : getName()));
-
         WebAppInfo webAppInfo = tomcatContext.getWebAppInfo();
         String applicationStageConfiguration = webAppInfo.contextParams.get(WebApplicationConstants.WEB_APPLICATION_STAGE);
         String globalStageConfiguration = System.getProperty(WebApplicationConstants.WEB_APPLICATION_STAGE, WebApplicationConstants.WEB_APPLICATION_PRODUCTION_STAGE);
-        boolean developmentStage = applicationStageConfiguration == null ? globalStageConfiguration.equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE) : applicationStageConfiguration
-                .equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE);
-
-        boolean systemArtifact = isSystemArtifact(bundle);
-
+        boolean developmentStage = applicationStageConfiguration == null ? globalStageConfiguration.equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE)
+                : applicationStageConfiguration.equalsIgnoreCase(WebApplicationConstants.WEB_APPLICATION_DEVELOPMENT_STAGE);
         //By default, getRealPath is enabled, and user could configure in the web.xml to disable it.
         String globalGetRealPathConfiguration = System.getProperty(WebApplicationConstants.WEB_APPLICATION_GET_REAL_PATH_SUPPORT);
         String applicationGetRealPathConfiguration = webAppInfo.contextParams.get(WebApplicationConstants.WEB_APPLICATION_GET_REAL_PATH_SUPPORT);
         boolean getRealPathSupportRequired = applicationGetRealPathConfiguration == null ? !"false".equalsIgnoreCase(globalGetRealPathConfiguration) : !"false"
                 .equalsIgnoreCase(applicationGetRealPathConfiguration);
-
         deleteTempDirectoryOnUndeployed(tomcatContext, tempRootDirectory);
         /**
          * Compute & check module checksum in order to determine if the expanded module
@@ -640,7 +585,6 @@ public class GeronimoStandardContext extends StandardContext {
             getLogger().warn("Unable to compute module checksum", e);
             refreshmentRequired = true;
         }
-
         if (refreshmentRequired && checksum != null) {
             tempRootDirectory.mkdirs();
             try {
@@ -649,7 +593,6 @@ public class GeronimoStandardContext extends StandardContext {
                 getLogger().error("Unable to write module checksum file", e);
             }
         }
-
         //For embed resources in jar files, they are always required to extract no matter getRealPath and development stage support are required
         File jarResourceRootDirectory = new File(tempRootDirectory, "jar_resources");
         if (refreshmentRequired || !jarResourceRootDirectory.exists()) {
@@ -665,25 +608,7 @@ public class GeronimoStandardContext extends StandardContext {
                         ZipInputStream in = null;
                         try {
                             in = new ZipInputStream(jarUrl.openStream());
-                            ZipEntry zipEntry;
-                            while ((zipEntry = in.getNextEntry()) != null) {
-                                String name = zipEntry.getName();
-                                if (name.indexOf("META-INF/resources") == 0) {
-                                    if (zipEntry.isDirectory()) {
-                                        new File(jarResourceDirectory, name).mkdirs();
-                                    } else {
-                                        File resourceFile = new File(jarResourceDirectory, name);
-                                        resourceFile.getParentFile().mkdirs();
-                                        OutputStream out = null;
-                                        try {
-                                            out = new FileOutputStream(resourceFile);
-                                            IOUtils.copy(in, out);
-                                        } finally {
-                                            IOUtils.close(out);
-                                        }
-                                    }
-                                }
-                            }
+                            JarUtils.unzipToDirectory(in, jarResourceDirectory, "META-INF/resources", false);
                         } finally {
                             IOUtils.close(in);
                         }
@@ -694,7 +619,6 @@ public class GeronimoStandardContext extends StandardContext {
                 throw new DeploymentException("Fail to create static resoruce cache for jar files in WEB-INF folder", e);
             }
         }
-
         for (File resourceDirectory : jarResourceRootDirectory.listFiles()) {
             if (resourceDirectory.isDirectory() && resourceDirectory.getName().endsWith(".jar") && resourceDirectory.listFiles().length > 0) {
                 FileDirContext fileDirContext = new FileDirContext();
@@ -703,57 +627,44 @@ public class GeronimoStandardContext extends StandardContext {
                 altDirContexts.add(fileDirContext);
             }
         }
-
         //If it is system artifact, or no getRealPath and development stage support is required, just use BundleDirContext
-        if (systemArtifact || !(getRealPathSupportRequired || developmentStage)) {
+        if (!(getRealPathSupportRequired || developmentStage)) {
             return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts, null);
         }
-
-        File realPathTempDirecotory = new File(tempRootDirectory, "real_path");
-        if (refreshmentRequired || ! realPathTempDirecotory.exists()) {
-            FileUtils.recursiveDelete(realPathTempDirecotory);
-            realPathTempDirecotory.mkdirs();
-            ZipInputStream zipIn = null;
+        File realPathTempDirectory = new File(tempRootDirectory, "real_path");
+        if (refreshmentRequired || !realPathTempDirectory.exists()) {
+            FileUtils.recursiveDelete(realPathTempDirectory);
+            realPathTempDirectory.mkdirs();
+            String modulePath = tomcatContext.getModulePath() == null ? "" : tomcatContext.getModulePath();
             try {
-                zipIn = new ZipInputStream(new URL(bundle.getLocation()).openStream());
-                ZipEntry entry = null;
-                String modulePath = tomcatContext.getModulePath() == null ? "" : tomcatContext.getModulePath();
-                while ((entry = zipIn.getNextEntry()) != null) {
-                    if(!entry.getName().startsWith(modulePath)){
-                        continue;
-                    }
-                    String subPath = entry.getName().equals(modulePath) ? "" : entry.getName().substring(modulePath.length());
-                    if (entry.isDirectory()) {
-                        File dir = new File(realPathTempDirecotory, subPath);
-                        dir.mkdirs();
+                File bundleFile = BundleUtil.toFile(bundle);
+                if (bundleFile != null) {
+                    if (bundleFile.isFile()) {
+                        JarUtils.unzipToDirectory(new ZipFile(bundleFile), realPathTempDirectory, modulePath, true);
                     } else {
-                        File file = new File(realPathTempDirecotory, subPath);
-                        file.getParentFile().mkdirs();
-                        OutputStream out = null;
-                        try {
-                            out = new BufferedOutputStream(new FileOutputStream(file));
-                            IOUtils.copy(zipIn, out);
-                            out.flush();
-                        } finally {
-                            IOUtils.close(out);
-                        }
+                        FileUtils.copyFile(new File(bundleFile, modulePath), realPathTempDirectory);
+                    }
+                } else {
+                    ZipInputStream zipIn = null;
+                    try {
+                        zipIn = new ZipInputStream(new URL(bundle.getLocation()).openStream());
+                        JarUtils.unzipToDirectory(zipIn, realPathTempDirectory, modulePath, true);
+                    } finally {
+                        IOUtils.close(zipIn);
                     }
                 }
             } catch (IOException e) {
                 checksumFile.delete();
                 getLogger().warn("fail to extract the bundle, getRealPath might not work", e);
-            } finally {
-                IOUtils.close(zipIn);
             }
         }
-
         if (developmentStage) {
             GeronimoFileDirContext fileDirContext = new GeronimoFileDirContext(altDirContexts);
             fileDirContext.setAllowLinking(allowLinking);
-            setDocBase(realPathTempDirecotory.getAbsolutePath());
+            setDocBase(realPathTempDirectory.getAbsolutePath());
             return fileDirContext;
         } else {
-            return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts, realPathTempDirecotory);
+            return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts, realPathTempDirectory);
         }
     }
 
@@ -785,7 +696,7 @@ public class GeronimoStandardContext extends StandardContext {
 
     private class SystemMethodValve extends ValveBase {
 
-        public SystemMethodValve(){
+        public SystemMethodValve() {
             super(true);
         }
 
@@ -819,7 +730,6 @@ public class GeronimoStandardContext extends StandardContext {
             } else {
                 getNext().invoke(request, response);
             }
-
         }
     }
 
@@ -858,7 +768,7 @@ public class GeronimoStandardContext extends StandardContext {
     protected boolean hasRunAsServlet() {
         for (Container servlet : findChildren()) {
             if (servlet instanceof Wrapper) {
-                if (((Wrapper)servlet).getRunAs() != null) {
+                if (((Wrapper) servlet).getRunAs() != null) {
                     return true;
                 }
             }
@@ -911,7 +821,6 @@ public class GeronimoStandardContext extends StandardContext {
         if (wrapper.getServlet() == null || webSecurityConstraintStore.isContainerCreatedDynamicServlet(wrapper.getServlet())) {
             webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(registration, wrapper.getServletClass());
         }
-
         //Special  handle for web service
         ClassLoader cl = this.getParentClassLoader();
         Class<?> baseServletClass;
@@ -924,17 +833,14 @@ public class GeronimoStandardContext extends StandardContext {
                 //Nope - its probably a webservice, so lets see...
                 if (webServiceMap != null) {
                     WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
-
                     if (webServiceContainer != null) {
                         //Yep its a web service
                         //So swap it out with a POJOWebServiceServlet
                         wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
-
                         //Set the WebServiceContainer stuff
                         String webServicecontainerID = wrapper.getName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
                         getServletContext().setAttribute(webServicecontainerID, webServiceContainer);
                         wrapper.addInitParameter(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
-
                         //Set the SEI Class in the attribute
                         String pojoClassID = wrapper.getName() + POJOWebServiceServlet.POJO_CLASS + servletClass.hashCode();
                         getServletContext().setAttribute(pojoClassID, servletClass);
@@ -945,7 +851,6 @@ public class GeronimoStandardContext extends StandardContext {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-
         return registration;
     }
 
@@ -967,10 +872,9 @@ public class GeronimoStandardContext extends StandardContext {
 
     @Override
     protected ClassLoader bindThread() {
-        ClassLoader oldClassLoader =  super.bindThread();
+        ClassLoader oldClassLoader = super.bindThread();
         BeforeAfterContext beforeAfterContext = null;
-
-        if (beforeAfter != null){
+        if (beforeAfter != null) {
             beforeAfterContext = new BeforeAfterContext(contextCount);
             beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
             //beforeAfterContext is pushed the stack only if every BeforeAfter element works fine
@@ -989,21 +893,31 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
     }
-    
+
     @Override
     public boolean fireRequestInitEvent(ServletRequest request) {
         return true;
-    } 
-    
+    }
+
     public boolean fireRequestInitEventInBeforeAfter(ServletRequest request) {
         return super.fireRequestInitEvent(request);
-    } 
+    }
 
     private static byte[] getChecksum(URL url) throws Exception {
         InputStream in = null;
         try {
             URLConnection connection = url.openConnection();
-            in = connection.getInputStream();
+            File file = BundleUtil.toFile(url);
+            if (file != null) {
+                if (file.isFile()) {
+                    in = new FileInputStream(file);
+                } else {
+                    //Should never run to here, as if it is a directory, no need to create a bundle context
+                    throw new IOException("Unable to calculate checksum for the directory");
+                }
+            } else {
+                in = connection.getInputStream();
+            }
             /*
              * Use URL's lastModified as the checksum if available, otherwise
              * calculate checksum based on the contents.
@@ -1022,14 +936,11 @@ public class GeronimoStandardContext extends StandardContext {
     private static byte[] calculateChecksum(InputStream stream, String algorithm) throws NoSuchAlgorithmException, IOException {
         MessageDigest digester = MessageDigest.getInstance(algorithm);
         digester.reset();
-
         byte buf[] = new byte[4096];
         int len = 0;
-
         while ((len = stream.read(buf, 0, buf.length)) != -1) {
             digester.update(buf, 0, len);
         }
-
         return digester.digest();
     }
 
@@ -1053,14 +964,14 @@ public class GeronimoStandardContext extends StandardContext {
 
     private static byte[] toByteArray(long value) {
         byte[] buffer = new byte[8];
-        buffer[0] = (byte)(value >>> 56);
-        buffer[1] = (byte)(value >>> 48);
-        buffer[2] = (byte)(value >>> 40);
-        buffer[3] = (byte)(value >>> 32);
-        buffer[4] = (byte)(value >>> 24);
-        buffer[5] = (byte)(value >>> 16);
-        buffer[6] = (byte)(value >>>  8);
-        buffer[7] = (byte)(value >>>  0);
+        buffer[0] = (byte) (value >>> 56);
+        buffer[1] = (byte) (value >>> 48);
+        buffer[2] = (byte) (value >>> 40);
+        buffer[3] = (byte) (value >>> 32);
+        buffer[4] = (byte) (value >>> 24);
+        buffer[5] = (byte) (value >>> 16);
+        buffer[6] = (byte) (value >>> 8);
+        buffer[7] = (byte) (value >>> 0);
         return buffer;
     }
 }

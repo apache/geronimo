@@ -16,15 +16,7 @@
  */
 package org.apache.geronimo.crypto;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
 import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.Cipher;
-import javax.crypto.SealedObject;
-import org.apache.geronimo.crypto.encoders.Base64;
 
 /**
  * This class protects some value BY ENCRYPTING WITH A KNOWN KEY.  That is

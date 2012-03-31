@@ -20,27 +20,26 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.InputUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @version $Rev: 506425 $ $Date: 2007-02-12 22:49:46 +1100 (Mon, 12 Feb 2007) $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractRepository implements WriteableRepository {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     private final static ArtifactTypeHandler DEFAULT_TYPE_HANDLER = new CopyArtifactTypeHandler();
-    private final static Pattern ILLEGAL_CHARS = Pattern.compile("[\\.]{2}|[()<>,;:\\\\/\"\']");
     protected final File rootFile;
     private final Map<String, ArtifactTypeHandler> typeHandlers = new HashMap<String, ArtifactTypeHandler>();
 
@@ -54,7 +53,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         this.rootFile = rootFile;
         log.debug("Repository root is {}", rootFile.getAbsolutePath());
 
-//        typeHandlers.put("car", new UnpackArtifactTypeHandler());
+        typeHandlers.put("car", new UnpackArtifactTypeHandler());
     }
 
     public boolean contains(Artifact artifact) {
@@ -70,7 +69,7 @@ public abstract class AbstractRepository implements WriteableRepository {
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
 
         // ensure there are no illegal chars in destination elements
-        InputUtils.validateSafeInput(new ArrayList(Arrays.asList(destination.getGroupId(), destination.getArtifactId(), destination.getVersion().toString(), destination.getType())));
+        InputUtils.validateSafeInput(Arrays.asList(destination.getGroupId(), destination.getArtifactId(), destination.getVersion().toString(), destination.getType()));
 
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
@@ -82,26 +81,20 @@ public abstract class AbstractRepository implements WriteableRepository {
         ZipFile zip = null;
         try {
             zip = new ZipFile(source);
-            for (Enumeration entries=zip.entries(); entries.hasMoreElements();) {
-            	ZipEntry entry = (ZipEntry)entries.nextElement();
+            for (Enumeration<? extends ZipEntry> entries=zip.entries(); entries.hasMoreElements();) {
+            	ZipEntry entry = entries.nextElement();
             	size += entry.getSize();
             }
         } catch (ZipException ze) {
             size = (int)source.length();
         } finally {
-            if (zip != null) {
-                zip.close();
-            }
+            JarUtils.close(zip);
         }
         FileInputStream is = new FileInputStream(source);
         try {
             copyToRepository(is, size, destination, monitor);
         } finally {
-            try {
-                is.close();
-            } catch (IOException ignored) {
-                // ignored
-            }
+            IOUtils.close(is);
         }
     }
 

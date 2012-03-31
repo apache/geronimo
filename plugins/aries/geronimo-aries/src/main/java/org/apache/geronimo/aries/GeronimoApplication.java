@@ -19,6 +19,7 @@ package org.apache.geronimo.aries;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
@@ -32,8 +33,10 @@ import org.apache.aries.application.DeploymentMetadataFactory;
 import org.apache.aries.application.management.AriesApplication;
 import org.apache.aries.application.management.BundleInfo;
 import org.apache.aries.application.utils.AppConstants;
+import org.apache.aries.application.utils.filesystem.IOUtils;
 import org.apache.aries.application.utils.management.SimpleBundleInfo;
 import org.apache.aries.application.utils.manifest.BundleManifest;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.osgi.framework.Bundle;
 
 /**
@@ -49,25 +52,37 @@ public class GeronimoApplication implements AriesApplication {
                                ApplicationMetadataFactory applicationFactory, 
                                DeploymentMetadataFactory deploymentFactory) 
         throws IOException {
+        
         URL applicationMF = bundle.getEntry(AppConstants.APPLICATION_MF);
-        applicationMetadata = applicationFactory.parseApplicationMetadata(applicationMF.openStream());
-        
-        bundleInfo = new HashSet<BundleInfo>();
-        Enumeration<URL> e = bundle.findEntries("/", "*", true);
-        while (e.hasMoreElements()) {
-            URL url = e.nextElement();
-            if (url.getPath().endsWith("/")) {
-                continue;
-            }
-            BundleManifest bm = BundleManifest.fromBundle(url.openStream());
-            if (bm != null && bm.isValid()) {
-                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, url.toExternalForm()));
-            }
+        InputStream applicationMFStream = null;
+        try {
+            applicationMFStream = applicationMF.openStream();
+            applicationMetadata = applicationFactory.parseApplicationMetadata(applicationMFStream);
+        } finally {
+            IOUtils.close(applicationMFStream);
         }
-        
+
+        bundleInfo = new HashSet<BundleInfo>();
+
+        boolean bundleInfoCollected = false;
+        File bundleFile = BundleUtil.toFile(bundle);
+        if (bundleFile != null && bundleFile.isDirectory()) {
+            collectFileSystemBasedBundleInfos(bundleFile, applicationFactory);
+            bundleInfoCollected = true;
+        }
+        if (!bundleInfoCollected) {
+            collectBundleEntryBasedBundleInfos(bundle, applicationFactory);
+        }
+
         URL deploymentMF = bundle.getEntry(AppConstants.DEPLOYMENT_MF);
         if (deploymentMF != null) {
-            deploymentMetadata = deploymentFactory.createDeploymentMetadata(deploymentMF.openStream());
+            InputStream deploymentMFStream = null;
+            try {
+                deploymentMFStream = deploymentMF.openStream();
+                deploymentMetadata = deploymentFactory.createDeploymentMetadata(deploymentMFStream);
+            } finally {
+                IOUtils.close(deploymentMFStream);
+            }
         }
     }
 
@@ -95,4 +110,29 @@ public class GeronimoApplication implements AriesApplication {
         throw new UnsupportedOperationException();        
     }
    
+    private void collectFileSystemBasedBundleInfos(File baseDir, ApplicationMetadataFactory applicationFactory) throws IOException {
+        for (File file : baseDir.listFiles()) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            BundleManifest bm = BundleManifest.fromBundle(file);
+            if (bm != null && bm.isValid()) {
+                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, "reference:file://" + file.getCanonicalPath()));
+            }
+        }
+    }
+
+    private void collectBundleEntryBasedBundleInfos(Bundle bundle, ApplicationMetadataFactory applicationFactory) throws IOException {
+        Enumeration<URL> e = bundle.findEntries("/", "*", true);
+        while (e.hasMoreElements()) {
+            URL url = e.nextElement();
+            if (url.getPath().endsWith("/")) {
+                continue;
+            }
+            BundleManifest bm = BundleManifest.fromBundle(url.openStream());
+            if (bm != null && bm.isValid()) {
+                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, url.toExternalForm()));
+            }
+        }
+    }
 }

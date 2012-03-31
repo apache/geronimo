@@ -22,16 +22,12 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.util.Dictionary;
 
-import org.apache.geronimo.mavenplugins.car.PluginBootstrap2;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -39,7 +35,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -47,10 +42,9 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
@@ -267,8 +261,8 @@ public class PackageMojo extends AbstractCarMojo {
         BundleContext bundleContext = framework.getBundleContext();
         boot.setBundleContext(bundleContext);
 
-        // Keep the same behavior with RepositoryConfigurationStore
-        boot.setExpanded(false);
+        // Generate expanded so we can use Maven to generate the archive
+        boot.setExpanded(true);
 
         boot.bootstrap();
 
