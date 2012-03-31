@@ -72,7 +72,7 @@
         <openejbVersion>4.0.0-beta-1</openejbVersion>
         <openjpaVersion>2.1.1</openjpaVersion>
         <openwebbeansVersion>1.1.1</openwebbeansVersion>
-        <derbyVersion>10.6.1.0_1</derbyVersion>
+        <derbyVersion>10.8.2.2_1-SNAPSHOT</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.6.1_1</axis2Version>
         <axiomVersion>1.2.12_1</axiomVersion>
