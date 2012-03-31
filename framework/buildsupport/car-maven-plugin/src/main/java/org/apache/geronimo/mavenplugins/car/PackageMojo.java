@@ -271,6 +271,10 @@ public class PackageMojo extends AbstractCarMojo {
         boot.setExpanded(false);
 
         boot.bootstrap();
+
+        framework.stop();
+        getLog().debug("Waiting for shutdown (up to 5 minutes)...");
+        framework.waitForStop(60 * 5 * 1000);
     }
 
     //
@@ -341,7 +345,10 @@ public class PackageMojo extends AbstractCarMojo {
         //use a fresh kernel for each module
         kernel.shutdown();
         kernel = null;
-        bundleContext.getBundle().stop();
+        Framework framework = (Framework) bundleContext.getBundle();
+        framework.stop();
+        getLog().debug("Waiting for shutdown (up to 5 minutes)...");
+        framework.waitForStop(60 * 5 * 1000);
         bundleContext = null;
     }
 

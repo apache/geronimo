@@ -299,11 +299,11 @@
             <id>equinox</id>
 
             <activation>
-            <activeByDefault>true</activeByDefault>
                 <property>
                     <name>framework</name>
                     <value>equinox</value>
                 </property>
+                <activeByDefault>true</activeByDefault>
             </activation>
 
             <dependencies>
