@@ -40,21 +40,21 @@
     
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-war-j2ee_1.3</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
         
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-ejb-j2ee_1.3</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
         
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-rar-j2ee_1.3</artifactId>
             <version>${project.version}</version>
             <type>rar</type>
@@ -72,20 +72,20 @@
                     <version>1.3</version>
                     <modules>
                         <webModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-war-j2ee_1.3</artifactId>
                             <contextRoot>/test-1_3</contextRoot>
                             <bundleFileName>web.war</bundleFileName>
                         </webModule>
                         
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-ejb-j2ee_1.3</artifactId>
                             <bundleFileName>ejb.jar</bundleFileName>
                         </ejbModule>
                         
                         <rarModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-rar-j2ee_1.3</artifactId>
                             <bundleFileName>rar.rar</bundleFileName>
                         </rarModule>

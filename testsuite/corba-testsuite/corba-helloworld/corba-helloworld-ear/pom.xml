@@ -78,18 +78,18 @@
                     <version>5</version>
                     <modules>
                         <webModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>corba-helloworld-war</artifactId>
                             <contextRoot>/corba-helloworld</contextRoot>
                             <bundleFileName>corba-helloworld-war-${project.version}.war</bundleFileName>
                         </webModule>
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>corba-helloworld-ejb</artifactId>
                             <bundleFileName>corba-helloworld-ejb-${project.version}.jar</bundleFileName>
                         </ejbModule>
                         <jarModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>corba-helloworld-client</artifactId>
                             <bundleFileName>corba-helloworld-client-${project.version}.jar</bundleFileName>
                         </jarModule>

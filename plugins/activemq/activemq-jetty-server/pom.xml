@@ -96,7 +96,7 @@
                 <!--</assemblies>-->
 
                 <!--<defaultAssemblyId>activemq</defaultAssemblyId>-->
-               <assemblyArchive>${project.build.directory}/${pom.artifactId}-${pom.version}-bin.zip</assemblyArchive>
+               <assemblyArchive>${project.build.directory}/${project.artifactId}-${project.version}-bin.zip</assemblyArchive>
                 <optionSets>
                     <optionSet>
                         <id>morememory</id>
@@ -179,7 +179,7 @@
     <dependency>
         <groupId>org.apache.geronimo.framework.plugingroups</groupId>
         <artifactId>framework</artifactId>
-        <version>${pom.version}</version>
+        <version>${project.version}</version>
         <type>car</type>
     </dependency>
     <dependency>

@@ -108,7 +108,7 @@
                             <goal>deploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${pom.artifactId}-${pom.version}.war</moduleArchive>
+                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
                         </configuration>
                     </execution>
 

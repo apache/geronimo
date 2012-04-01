@@ -35,13 +35,13 @@
     
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-clustering-wadi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-jetty8</artifactId>
             <version>${project.version}</version>
         </dependency>

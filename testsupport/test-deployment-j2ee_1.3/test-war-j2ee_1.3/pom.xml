@@ -40,7 +40,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-ejb-j2ee_1.3</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

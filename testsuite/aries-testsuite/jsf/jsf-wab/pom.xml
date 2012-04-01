@@ -63,7 +63,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/jsf</Web-ContextPath>
-                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Private-Package>org.apache.geronimo.test.jsf.web</Private-Package>
                         <Export-Package>!org.apache.geronimo.test.jsf.web</Export-Package>
                         <Import-Package>
