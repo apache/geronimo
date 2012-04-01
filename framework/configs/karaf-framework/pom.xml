@@ -38,7 +38,7 @@
         <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
         <easymock.version>2.4</easymock.version>        
         <felix.compendium.version>1.2.0</felix.compendium.version>        
-        <felix.fileinstall.version>3.1.10</felix.fileinstall.version>        
+        <felix.fileinstall.version>3.2.0</felix.fileinstall.version>        
         <felix.osgi.version>1.4.0</felix.osgi.version>
         <felix.plugin.version>2.1.0</felix.plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
