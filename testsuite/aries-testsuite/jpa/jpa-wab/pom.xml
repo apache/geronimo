@@ -57,7 +57,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/jpa</Web-ContextPath>
-                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Private-Package>org.apache.geronimo.test.jpa.web</Private-Package>
                         <Export-Package>!org.apache.geronimo.test.jpa.web</Export-Package>
                     </instructions>

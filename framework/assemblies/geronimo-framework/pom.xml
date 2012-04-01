@@ -67,7 +67,7 @@
                         <!--</assemblies>-->
 
                         <!--<defaultAssemblyId>activemq</defaultAssemblyId>-->
-                       <assemblyArchive>${project.build.directory}/${pom.artifactId}-${pom.version}-bin.zip</assemblyArchive>
+                       <assemblyArchive>${project.build.directory}/${project.artifactId}-${project.version}-bin.zip</assemblyArchive>
                         <optionSets>
                             <optionSet>
                                 <id>morememory</id>

@@ -36,19 +36,19 @@
     <dependencies>
         <!-- g-webservices-builder comes transitively from this -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-openejb-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-webservices-builder</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -35,14 +35,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- g-kernel, g-common, g-j2ee g-j2ee-schema coming from this -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${project.version}</version>
         </dependency>

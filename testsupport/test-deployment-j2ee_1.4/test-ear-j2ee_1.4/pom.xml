@@ -40,21 +40,21 @@
     
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-war-j2ee_1.4</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
         
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-ejb-j2ee_1.4</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
         
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>test-rar-j2ee_1.4</artifactId>
             <version>${project.version}</version>
             <type>rar</type>
@@ -72,20 +72,20 @@
                     <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     <modules>
                         <webModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-war-j2ee_1.4</artifactId>
                             <contextRoot>/test-1_4</contextRoot>
                             <bundleFileName>web.war</bundleFileName>
                         </webModule>
                         
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-ejb-j2ee_1.4</artifactId>
                             <bundleFileName>ejb.jar</bundleFileName>
                         </ejbModule>
                         
                         <rarModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>test-rar-j2ee_1.4</artifactId>
                             <bundleFileName>rar.rar</bundleFileName>
                         </rarModule>

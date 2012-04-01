@@ -77,13 +77,13 @@
                     <version>5</version>
                     <modules>
                         <webModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>corba-mytime-war</artifactId>
                             <contextRoot>/corba-mytime</contextRoot>
                             <bundleFileName>corba-mytime-war-${project.version}.war</bundleFileName>
                         </webModule>
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>corba-mytime-ejb</artifactId>
                             <bundleFileName>corba-mytime-ejb-${project.version}.jar</bundleFileName>
                         </ejbModule>

@@ -35,7 +35,7 @@
     
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-clustering-wadi</artifactId>
             <version>${project.version}</version>
         </dependency>

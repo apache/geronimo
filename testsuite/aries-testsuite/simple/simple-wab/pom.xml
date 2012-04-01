@@ -57,7 +57,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/simple</Web-ContextPath>
-                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Private-Package>org.apache.geronimo.test.eba</Private-Package>
                         <Export-Package>!org.apache.geronimo.test.eba</Export-Package>
                         <Import-Package>

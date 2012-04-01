@@ -42,21 +42,21 @@
         </dependency>
         <!-- xmlbeans, stax-api comes transitively via g-service-builder from this -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-tomcat7-builder</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>geronimo-web-2.5-builder</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
