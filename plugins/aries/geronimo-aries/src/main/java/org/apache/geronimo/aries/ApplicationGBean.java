@@ -20,8 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.aries.application.ApplicationMetadataFactory;
@@ -29,12 +32,13 @@ import org.apache.aries.application.DeploymentContent;
 import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.DeploymentMetadataFactory;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.AriesApplicationResolver;
 import org.apache.aries.application.management.BundleInfo;
 import org.apache.aries.application.management.ManagementException;
 import org.apache.aries.application.management.ResolverException;
-import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
+import org.apache.geronimo.aries.BundleGraph.BundleNode;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -51,6 +55,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +75,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     private GeronimoApplication application;
     private ApplicationState applicationState;
     private Set<Bundle> applicationBundles;
+    private BundleGraph bundleGraph;
     
     public ApplicationGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                             @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
@@ -226,7 +232,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         ServiceReference resolverRef = bundleContext.getServiceReference(AriesApplicationResolver.class.getName());
         ServiceReference packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
                               
-        applicationBundles = new HashSet<Bundle>();
+        applicationBundles = new LinkedHashSet<Bundle>();
         try {
             resolver = getService(resolverRef, AriesApplicationResolver.class);
             
@@ -269,9 +275,10 @@ public class ApplicationGBean implements GBeanLifecycle {
                     }
                         
                     contentBundle = bundleContext.installBundle(bundleInfo.getLocation());
+                    
                     applicationBundles.add(contentBundle);
-
                 }
+                
             }
         } catch (BundleException be) {
             for (Bundle bundle : applicationBundles) {
@@ -293,6 +300,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         applicationState = ApplicationState.INSTALLED;
     }
     
+    @SuppressWarnings("deprecation")
     private Bundle findBundleInFramework(PackageAdmin admin, String symbolicName, Version version) {
         String exactVersion = "[" + version + "," + version + "]";
         Bundle[] bundles = admin.getBundles(symbolicName, exactVersion);
@@ -367,10 +375,22 @@ public class ApplicationGBean implements GBeanLifecycle {
         }        
     }    
     
-    private void startApplicationBundles() throws BundleException {
+    @SuppressWarnings("deprecation")
+    private void startApplicationBundles() throws Exception {
+        
+        PackageAdmin packageAdmin = null;
+        ServiceReference packageAdminRef = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         List<Bundle> bundlesWeStarted = new ArrayList<Bundle>();
+        
         try {
-            for (Bundle b : applicationBundles) {
+            
+            packageAdmin = getService(packageAdminRef, PackageAdmin.class);
+            Set<Bundle> sortedBundles = new LinkedHashSet<Bundle>();
+            
+            calculateBundleDependencies(packageAdmin);
+            sortedBundles.addAll(bundleGraph.getOrderedBundles());
+            
+            for (Bundle b : sortedBundles) {
                 if (BundleUtils.canStart(b)) {
                     LOG.debug("Starting {} application bundle.", b);
                     b.start(Bundle.START_TRANSIENT);
@@ -391,9 +411,75 @@ public class ApplicationGBean implements GBeanLifecycle {
                 }
             }
             throw be;
+        } finally {
+            
+            if (packageAdmin != null) {
+                bundle.getBundleContext().ungetService(packageAdminRef);
+            }
         }
     }
     
+    
+    @SuppressWarnings("deprecation")
+    private void calculateBundleDependencies(PackageAdmin packageAdmin) throws BundleException {
+        if(! packageAdmin.resolveBundles(applicationBundles.toArray(new Bundle[applicationBundles.size()]))) {
+            throw new BundleException("The bundles in " + application.getApplicationMetadata().getApplicationSymbolicName() + 
+                    ":" + application.getApplicationMetadata().getApplicationVersion() + " could not be resolved");
+        }
+        
+        Map<String, BundleNode> nodesMap = new HashMap<String, BundleNode>();
+        
+        for(Bundle currentBundle : applicationBundles) {
+            
+            BundleNode currentNode = getBundleNode(currentBundle, nodesMap);
+            
+            Bundle[] requiringBundles = getRequiringBundles(currentBundle, packageAdmin);
+            for(Bundle rBundle : requiringBundles) {
+                BundleNode rBundleNode = getBundleNode(rBundle, nodesMap);
+                rBundleNode.getRequiredBundles().add(currentNode); 
+            }
+        }
+        
+        bundleGraph = new BundleGraph(nodesMap.values());
+    }
+    
+    /**
+     * Get the requiring bundles which require the target bundle
+     * 
+     * @param targetBundle the target bundle
+     * @param packageAdmin
+     * @return
+     */
+    @SuppressWarnings("deprecation")
+    private Bundle[] getRequiringBundles(Bundle targetBundle, PackageAdmin packageAdmin) {
+        ExportedPackage[] ePackages = packageAdmin.getExportedPackages(targetBundle);
+        
+        Set<Bundle> requiringBundles = new HashSet<Bundle>();
+        
+        for(ExportedPackage ePackage : ePackages) {
+            Bundle[] importingBundles = ePackage.getImportingBundles();
+            if(importingBundles == null) continue;
+            
+            for(Bundle iBundle : importingBundles) {
+                if(! targetBundle.equals(iBundle) && applicationBundles.contains(iBundle)) {
+                    requiringBundles.add(iBundle);
+                }
+            }
+        }
+        
+        return requiringBundles.toArray(new Bundle[requiringBundles.size()]);
+    }
+    
+    private BundleNode getBundleNode(Bundle bundle, Map<String, BundleNode> nodesMap) {
+        BundleNode node = nodesMap.get(bundle.getSymbolicName() + bundle.getVersion());
+        if(node == null) {
+            node = new BundleNode(bundle);
+        }
+        nodesMap.put(bundle.getSymbolicName() + bundle.getVersion(), node);
+        return node;
+    }
+    
+	
     private static long getApplicationStartTimeout() {
         String property = System.getProperty("org.apache.geronimo.aries.applicationStartTimeout", String.valueOf(5 * 60 * 1000));
         return Long.parseLong(property);
