@@ -108,16 +108,7 @@
     </dependencyManagement>
 
 
-    <modules>
-        <module>geronimo-jetty8</module>
-        <module>geronimo-jetty8-builder</module>
-        <module>jetty8</module>
-        <module>jetty8-deployer</module>
-        <module>geronimo-jetty8-clustering-builder-wadi</module>
-        <module>geronimo-jetty8-clustering-wadi</module>
-        <module>jetty8-clustering-builder-wadi</module>
-        <module>jetty8-clustering-wadi</module>
-    </modules>
+    
 
     <profiles>
         <profile>
@@ -132,6 +123,41 @@
                 <!--
                 <module>jetty-server</module>
                 -->
+            </modules>
+        </profile>
+        <profile>
+            <id>all</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>geronimo-jetty8</module>
+                <module>geronimo-jetty8-builder</module>
+                <module>jetty8</module>
+                <module>jetty8-deployer</module>
+                <module>geronimo-jetty8-clustering-builder-wadi</module>
+                <module>geronimo-jetty8-clustering-wadi</module>
+                <module>jetty8-clustering-builder-wadi</module>
+                <module>jetty8-clustering-wadi</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>noclustering</id>
+
+            <activation>
+                <property>
+                    <name>buildclustering</name>
+                    <value>false</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>geronimo-jetty8</module>
+                <module>geronimo-jetty8-builder</module>
+                <module>jetty8</module>
+                <module>jetty8-deployer</module>                
             </modules>
         </profile>
     </profiles>

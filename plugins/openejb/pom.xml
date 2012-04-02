@@ -32,20 +32,7 @@
         OpenEJB plugin
     </description>
 
-    <modules>
-        <module>geronimo-openejb</module>
-        <module>geronimo-openejb-builder</module>
-        <module>geronimo-openejb-clustering-wadi</module>
-        <module>geronimo-openejb-clustering-builder-wadi</module>
-        <module>openejb</module>
-        <module>openejb-client</module>
-        <module>openejb-deployer</module>
-        <module>openejb-portlets</module>
-        <module>openejb-console-jetty</module>
-        <module>openejb-console-tomcat</module>
-        <module>openejb-clustering-wadi</module>
-        <module>openejb-clustering-builder-wadi</module>
-    </modules>
+    
 
     <profiles>
         <profile>
@@ -60,6 +47,49 @@
                 <!--
                 <module>geronimo-openejb-server</module>
                 -->
+            </modules>
+        </profile>
+        <profile>
+            <id>all</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>geronimo-openejb</module>
+                <module>geronimo-openejb-builder</module>
+                <module>geronimo-openejb-clustering-wadi</module>
+                <module>geronimo-openejb-clustering-builder-wadi</module>
+                <module>openejb</module>
+                <module>openejb-client</module>
+                <module>openejb-deployer</module>
+                <module>openejb-portlets</module>
+                <module>openejb-console-jetty</module>
+                <module>openejb-console-tomcat</module>
+                <module>openejb-clustering-wadi</module>
+                <module>openejb-clustering-builder-wadi</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>noclustering</id>
+
+            <activation>
+                <property>
+                    <name>buildclustering</name>
+                    <value>false</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>geronimo-openejb</module>
+                <module>geronimo-openejb-builder</module>
+                <module>openejb</module>
+                <module>openejb-client</module>
+                <module>openejb-deployer</module>
+                <module>openejb-portlets</module>
+                <module>openejb-console-jetty</module>
+                <module>openejb-console-tomcat</module>                
             </modules>
         </profile>
     </profiles>

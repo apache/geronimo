@@ -35,18 +35,47 @@
     <description>
         Tomcat plugin
     </description>
+    <profiles>
+        <profile>
+            <id>all</id>
 
-    <modules>
-        <module>geronimo-tomcat7</module>
-        <module>geronimo-tomcat7-builder</module>
-        <module>tomcat7</module>
-        <module>tomcat7-no-ha</module>
-        <module>tomcat7-deployer</module>
-        <module>geronimo-tomcat7-clustering-wadi</module>
-        <module>geronimo-tomcat7-clustering-builder-wadi</module>
-        <module>tomcat7-clustering-wadi</module>
-        <module>tomcat7-clustering-builder-wadi</module>
-    </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>geronimo-tomcat7</module>
+                <module>geronimo-tomcat7-builder</module>
+                <module>tomcat7</module>
+                <module>tomcat7-no-ha</module>
+                <module>tomcat7-deployer</module>
+                <module>geronimo-tomcat7-clustering-wadi</module>
+                <module>geronimo-tomcat7-clustering-builder-wadi</module>
+                <module>tomcat7-clustering-wadi</module>
+                <module>tomcat7-clustering-builder-wadi</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>noclustering</id>
+
+            <activation>
+                <property>
+                    <name>buildclustering</name>
+                    <value>false</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>geronimo-tomcat7</module>
+                <module>geronimo-tomcat7-builder</module>
+                <module>tomcat7</module>
+                <module>tomcat7-no-ha</module>
+                <module>tomcat7-deployer</module>                
+            </modules>
+        </profile>
+    </profiles>
+
+    
 
     <dependencyManagement>
         <dependencies>
