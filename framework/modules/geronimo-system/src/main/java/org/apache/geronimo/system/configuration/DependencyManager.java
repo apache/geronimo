@@ -213,14 +213,15 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
             }
             return new Artifact(artifactFragments[0], artifactFragments[1], artifactFragments.length > 2 ? artifactFragments[2] : "",
                     artifactFragments.length > 3 && artifactFragments[3].length() > 0 ? artifactFragments[3] : "jar");
-        } else if(installationLocation.startsWith("reference:file://")) {
+        } else if(installationLocation.startsWith(BundleUtil.REFERENCE_SCHEME)) {
+            log.info("reference:file checking");
             //TODO a better way for this ???
-            installationLocation = installationLocation.substring("reference:file://".length());
+            String bundleFilePath = BundleUtil.toFile(installationLocation).getAbsolutePath();            
             for (Repository repo : repositories) {
                 if (repo instanceof AbstractRepository) {
                     File rootFile = ((AbstractRepository) repo).getRootFile();
-                    if (installationLocation.startsWith(rootFile.getAbsolutePath())) {
-                        String artifactString = installationLocation.substring(rootFile.getAbsolutePath().length());
+                    if (bundleFilePath.startsWith(rootFile.getAbsolutePath())) {
+                        String artifactString = bundleFilePath.substring(rootFile.getAbsolutePath().length());
                         if (artifactString.startsWith(File.separator)) {
                             artifactString = artifactString.substring(File.separator.length());
                         }
@@ -299,6 +300,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         } else {
             artifact = pluginArtifactType.getModuleId().toArtifact();
         }
+        log.info(bundle.getLocation() + " ---> " + artifact);
         if (artifact != null) {
             artifactBundleMap.put(artifact, bundle);
             bundleIdArtifactMap.put(bundle.getBundleId(), artifact);

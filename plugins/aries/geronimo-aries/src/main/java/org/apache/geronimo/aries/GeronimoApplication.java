@@ -117,7 +117,7 @@ public class GeronimoApplication implements AriesApplication {
             }
             BundleManifest bm = BundleManifest.fromBundle(file);
             if (bm != null && bm.isValid()) {
-                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, "reference:file://" + file.getCanonicalPath()));
+                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, BundleUtil.toReferenceFileLocation(file)));
             }
         }
     }

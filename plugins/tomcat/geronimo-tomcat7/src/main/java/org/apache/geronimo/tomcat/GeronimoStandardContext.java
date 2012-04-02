@@ -514,10 +514,9 @@ public class GeronimoStandardContext extends StandardContext {
     }
 
     protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
-        String location = bundle.getLocation();
-        if (location.startsWith("reference:file://")) {
-            location = location.substring("reference:file://".length());
-            File applicationRoot = tomcatContext.getModulePath() == null ? new File(location) : new File(location + File.separator + tomcatContext.getModulePath());
+        File bundleFileRoot = BundleUtil.toFile(bundle);
+        if (bundleFileRoot != null) {
+            File applicationRoot = tomcatContext.getModulePath() == null ? bundleFileRoot : new File(bundleFileRoot, tomcatContext.getModulePath());
             if (applicationRoot.exists() && applicationRoot.isDirectory()) {
                 return createFileDirContext(tomcatContext, applicationRoot);
             }

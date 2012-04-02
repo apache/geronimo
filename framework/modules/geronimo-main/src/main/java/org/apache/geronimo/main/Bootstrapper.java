@@ -126,7 +126,7 @@ public class Bootstrapper extends FrameworkLauncher {
     }
     
     private String toReferenceFileLocation(File file) throws IOException {
-        return "reference:file://" + file.getCanonicalPath();
+        return "reference:" + file.toURI().toString();
     }
     
     private static File getBundleLocation(List<File> bundleDirs, String[] parts) {

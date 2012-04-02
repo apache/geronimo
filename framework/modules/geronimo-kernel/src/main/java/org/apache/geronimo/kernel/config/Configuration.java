@@ -18,6 +18,7 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +45,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -274,8 +276,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         try {
             File file = configurationResolver.resolve(configurationId);
-            return "reference:file://" + file.getAbsolutePath();
+            return BundleUtil.toReferenceFileLocation(file);
         } catch (MissingDependencyException e) {
+            return null;
+        } catch (IOException e) {
             return null;
         }
     }
@@ -283,7 +287,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static Bundle getBundleByLocation(BundleContext bundleContext, String location) {
         for (Bundle bundle: bundleContext.getBundles()) {
             if (location.equals(bundle.getLocation())) {
-               return bundle;
+                return bundle;               
             }
         }
         return null;

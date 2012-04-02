@@ -436,7 +436,7 @@ public class FrameworkLauncher {
     }
 
     private String toReferenceFileLocation(File file) throws IOException {
-        return "reference:file://" + file.getCanonicalPath();
+        return "reference:" + file.toURI().toString();
     }
 
     private static File findFile(List<File> bundleDirs, String name) {

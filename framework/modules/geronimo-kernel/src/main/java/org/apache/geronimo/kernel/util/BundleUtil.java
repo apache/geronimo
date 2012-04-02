@@ -35,7 +35,11 @@ public class BundleUtil {
 
     public final static String EBA_GROUP_ID = "application";
 
-    public final static String REFERENCE_FILE_PREFIX = "reference:file://";
+    public final static String REFERENCE_SCHEME = "reference:";
+    
+    public final static String FILE_SCHEMA = "file:";
+    
+    public final static String REFERENCE_FILE_SCHEMA = "reference:file:";
 
     public static String getVersion(org.osgi.framework.Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
@@ -64,8 +68,8 @@ public class BundleUtil {
      * @return
      */
     public static File toFile(String url) {
-        if (url.startsWith(REFERENCE_FILE_PREFIX)) {
-            File file = new File(url.substring(REFERENCE_FILE_PREFIX.length()));
+        if (url.startsWith(REFERENCE_FILE_SCHEMA)) {
+            File file = new File(url.substring(REFERENCE_FILE_SCHEMA.length()));
             if (file.exists()) {
                 return file;
             }
@@ -74,6 +78,9 @@ public class BundleUtil {
     }
     
     public static String toReferenceFileLocation(File file) throws IOException {
-        return REFERENCE_FILE_PREFIX + file.getCanonicalPath();
+        if (!file.exists()) {
+            throw new IOException("file not exist " + file.getAbsolutePath());
+        }
+        return REFERENCE_SCHEME + file.toURI();
     }
 }
