@@ -77,7 +77,7 @@ public class DeployerImpl implements Deployer {
     private static final String REMOTE_DEPLOY_ADDRESS = "remoteDeployAddress";
 
     private String remoteDeployAddress;
-    
+
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = ConfigurationBuilder.class, policy = ReferencePolicy.DYNAMIC)
     private final Collection<ConfigurationBuilder> configurationBuilders = new ArrayList<ConfigurationBuilder>();
 
@@ -133,27 +133,27 @@ public class DeployerImpl implements Deployer {
     public void bindConfigurationStore(ConfigurationStore store) {
         configurationStores.add(store);
     }
-    
+
     public void unbindConfigurationStore(ConfigurationStore store) {
         configurationStores.remove(store);
     }
-    
+
     public void bindConfigurationBuilder(ConfigurationBuilder builder) {
         configurationBuilders.add(builder);
     }
-    
+
     public void unbindConfigurationBuilder(ConfigurationBuilder builder) {
         configurationBuilders.remove(builder);
     }
-    
+
     public void bindDeploymentWatcher(DeploymentWatcher watcher) {
         deploymentWatchers.add(watcher);
     }
-    
+
     public void unbindDeploymentWatcher(DeploymentWatcher watcher) {
         deploymentWatchers.remove(watcher);
     }
-    
+
     public void setArtifactResolver(ArtifactResolver artifactResolver) {
         this.artifactResolver = artifactResolver;
     }
@@ -290,16 +290,18 @@ public class DeployerImpl implements Deployer {
         }
         validatePlanFile(planFile);
 
-        JarFile module = getModule(inPlace, moduleFile);
-
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
 
         DeploymentContext context = null;
+        JarFile module = null;
         try {
+            module = getModule(inPlace, moduleFile);
+            validateModuleFile(module);
+
             Object plan = null;
             ConfigurationBuilder builder = null;
-            for (Iterator i = configurationBuilders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+            for (Iterator<ConfigurationBuilder> i = configurationBuilders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = i.next();
                 plan = candidate.getDeploymentPlan(planFile, module, idBuilder);
                 if (plan != null) {
                     builder = candidate;
@@ -366,6 +368,12 @@ public class DeployerImpl implements Deployer {
             throw new Error(e);
         } finally {
             JarUtils.close(module);
+        }
+    }
+
+    private void validateModuleFile(JarFile module) throws DeploymentException {
+        if (module != null && module.getEntry("META-INF/config.ser") != null) {
+            throw new DeploymentException("The target applicaiton is an Geronimo plugin as config.ser was found in the META-INF directory, please use the install-plugin command.");
         }
     }
 
@@ -559,14 +567,14 @@ public class DeployerImpl implements Deployer {
         }
     }
 
-    private void notifyWatchers(List list) {
+    private void notifyWatchers(List<String> list) {
         Artifact[] arts = new Artifact[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            String s = (String) list.get(i);
+            String s = list.get(i);
             arts[i] = Artifact.create(s);
         }
-        for (Iterator it = deploymentWatchers.iterator(); it.hasNext();) {
-            DeploymentWatcher watcher = (DeploymentWatcher) it.next();
+        for (Iterator<DeploymentWatcher> it = deploymentWatchers.iterator(); it.hasNext();) {
+            DeploymentWatcher watcher = it.next();
             for (int i = 0; i < arts.length; i++) {
                 Artifact art = arts[i];
                 watcher.deployed(art);
@@ -574,9 +582,9 @@ public class DeployerImpl implements Deployer {
         }
     }
 
-    private void cleanupConfigurations(List configurations) {
-        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-            ConfigurationData configurationData = (ConfigurationData) iterator.next();
+    private void cleanupConfigurations(List<ConfigurationData> configurations) {
+        for (Iterator<ConfigurationData> iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = iterator.next();
             File configurationDir = configurationData.getConfigurationDir();
             if (!FileUtils.recursiveDelete(configurationDir)) {
                 reaper.delete(configurationDir.getAbsolutePath(), "delete");
@@ -664,7 +672,7 @@ public class DeployerImpl implements Deployer {
             if (pendingDeletionIndex.size() == 0)
                 return;
             // Otherwise, attempt to delete all of the directories
-            Enumeration list = pendingDeletionIndex.propertyNames();
+            Enumeration<?> list = pendingDeletionIndex.propertyNames();
             while (list.hasMoreElements()) {
                 String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);

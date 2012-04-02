@@ -24,7 +24,6 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 
-import javax.management.ObjectName;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,12 +58,12 @@ public class BasicDependencyManager implements DependencyManager {
     /**
      * A map from child names to a list of parents.
      */
-    private final Map childToParentMap = new HashMap();
+    private final Map<AbstractName, Set<AbstractName>> childToParentMap = new HashMap<AbstractName, Set<AbstractName>>();
 
     /**
      * A map from parent back to a list of its children.
      */
-    private final Map parentToChildMap = new HashMap();
+    private final Map<AbstractName, Set<AbstractName>> parentToChildMap = new HashMap<AbstractName, Set<AbstractName>>();
 
     public BasicDependencyManager(LifecycleMonitor lifecycleMonitor) {
         assert lifecycleMonitor != null;
@@ -85,16 +84,16 @@ public class BasicDependencyManager implements DependencyManager {
      * @param parent the component the child is depending on
      */
     public synchronized void addDependency(AbstractName child, AbstractName parent) {
-        Set parents = (Set) childToParentMap.get(child);
+        Set<AbstractName> parents = childToParentMap.get(child);
         if (parents == null) {
-            parents = new HashSet();
+            parents = new HashSet<AbstractName>();
             childToParentMap.put(child, parents);
         }
         parents.add(parent);
 
-        Set children = (Set) parentToChildMap.get(parent);
+        Set<AbstractName> children = parentToChildMap.get(parent);
         if (children == null) {
-            children = new HashSet();
+            children = new HashSet<AbstractName>();
             parentToChildMap.put(parent, children);
         }
         children.add(child);
@@ -107,12 +106,12 @@ public class BasicDependencyManager implements DependencyManager {
      * @param parent the component that the child wil no longer depend on
      */
     public synchronized void removeDependency(AbstractName child, AbstractName parent) {
-        Set parents = (Set) childToParentMap.get(child);
+        Set<AbstractName> parents = childToParentMap.get(child);
         if (parents != null) {
             parents.remove(parent);
         }
 
-        Set children = (Set) parentToChildMap.get(parent);
+        Set<AbstractName> children = parentToChildMap.get(parent);
         if (children != null) {
             children.remove(child);
         }
@@ -124,13 +123,13 @@ public class BasicDependencyManager implements DependencyManager {
      * @param child the component that will no longer depend on anything
      */
     public synchronized void removeAllDependencies(AbstractName child) {
-        Set parents = (Set) childToParentMap.remove(child);
+        Set<AbstractName> parents = childToParentMap.remove(child);
         if (parents == null) {
             return;
         }
-        for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
-            ObjectName parent = (ObjectName) iterator.next();
-            Set children = (Set) parentToChildMap.get(parent);
+        for (Iterator<AbstractName> iterator = parents.iterator(); iterator.hasNext();) {
+            AbstractName parent = iterator.next();
+            Set<AbstractName> children = parentToChildMap.get(parent);
             if (children != null) {
                 children.remove(child);
             }
@@ -144,20 +143,20 @@ public class BasicDependencyManager implements DependencyManager {
      * @param child the dependent component
      * @param parents the set of components the child is depending on
      */
-    public synchronized void addDependencies(AbstractName child, Set parents) {
-        Set existingParents = (Set) childToParentMap.get(child);
+    public synchronized void addDependencies(AbstractName child, Set<AbstractName> parents) {
+        Set<AbstractName> existingParents = childToParentMap.get(child);
         if (existingParents == null) {
-            existingParents = new HashSet(parents);
+            existingParents = new HashSet<AbstractName>(parents);
             childToParentMap.put(child, existingParents);
         } else {
             existingParents.addAll(parents);
         }
 
-        for (Iterator i = parents.iterator(); i.hasNext();) {
-            Object startParent = i.next();
-            Set children = (Set) parentToChildMap.get(startParent);
+        for (Iterator<AbstractName> i = parents.iterator(); i.hasNext();) {
+            AbstractName startParent = i.next();
+            Set<AbstractName> children = parentToChildMap.get(startParent);
             if (children == null) {
-                children = new HashSet();
+                children = new HashSet<AbstractName>();
                 parentToChildMap.put(startParent, children);
             }
             children.add(child);
@@ -170,12 +169,12 @@ public class BasicDependencyManager implements DependencyManager {
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
      */
-    public synchronized Set getParents(AbstractName child) {
-        Set parents = (Set) childToParentMap.get(child);
+    public synchronized Set<AbstractName> getParents(AbstractName child) {
+        Set<AbstractName> parents = childToParentMap.get(child);
         if (parents == null) {
-            return Collections.EMPTY_SET;
+            return Collections.<AbstractName>emptySet();
         }
-        return new HashSet(parents);
+        return new HashSet<AbstractName>(parents);
     }
 
     /**
@@ -184,12 +183,12 @@ public class BasicDependencyManager implements DependencyManager {
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
      */
-    public synchronized Set getChildren(AbstractName parent) {
-        Set children = (Set) parentToChildMap.get(parent);
+    public synchronized Set<AbstractName> getChildren(AbstractName parent) {
+        Set<AbstractName> children = parentToChildMap.get(parent);
         if (children == null) {
-            return Collections.EMPTY_SET;
+            return Collections.<AbstractName>emptySet();
         }
-        return new HashSet(children);
+        return new HashSet<AbstractName>(children);
     }
 
 

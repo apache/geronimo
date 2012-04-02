@@ -66,7 +66,7 @@ public interface DependencyManager {
      * @param child the dependent component
      * @param parents the set of components the child is depending on
      */
-    public void addDependencies(AbstractName child, Set parents);
+    public void addDependencies(AbstractName child, Set<AbstractName> parents);
 
     /**
      * Gets the set of parents that the child is depending on
@@ -74,7 +74,7 @@ public interface DependencyManager {
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
      */
-    public Set getParents(AbstractName child);
+    public Set<AbstractName> getParents(AbstractName child);
 
     /**
      * Gets all of the MBeans that have a dependency on the specified startParent.
@@ -82,6 +82,6 @@ public interface DependencyManager {
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
      */
-    public Set getChildren(AbstractName parent);
+    public Set<AbstractName> getChildren(AbstractName parent);
 
 }
