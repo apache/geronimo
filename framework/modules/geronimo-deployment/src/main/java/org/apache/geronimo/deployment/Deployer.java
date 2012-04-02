@@ -53,13 +53,13 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,14 +76,14 @@ public class Deployer implements GBeanLifecycle {
     private final boolean CLEAN_UP_ON_START = System.getProperty(CLEAN_UP_ON_START_KEY) == null ? true : Boolean.getBoolean(CLEAN_UP_ON_START_KEY);
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
-    private final Collection builders;
-    private final Collection stores;
-    private final Collection watchers;
+    private final Collection<ConfigurationBuilder> builders;
+    private final Collection<ConfigurationStore> stores;
+    private final Collection<DeploymentWatcher> watchers;
     private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
     private static final URI PLAN_LOCATION = URI.create("META-INF/plan.xml");
 
-    public Deployer(String remoteDeployAddress, Collection builders, Collection stores, Collection watchers, Kernel kernel) throws GBeanNotFoundException {
+    public Deployer(String remoteDeployAddress, Collection<ConfigurationBuilder> builders, Collection<ConfigurationStore> stores, Collection<DeploymentWatcher> watchers, Kernel kernel) throws GBeanNotFoundException {
         this(remoteDeployAddress, builders, stores, watchers, getArtifactResolver(kernel), kernel);
     }
 
@@ -92,7 +92,7 @@ public class Deployer implements GBeanLifecycle {
         return configurationManager.getArtifactResolver();
     }
 
-    public Deployer(String remoteDeployAddress, Collection builders, Collection stores, Collection watchers, ArtifactResolver artifactResolver, Kernel kernel) {
+    public Deployer(String remoteDeployAddress, Collection<ConfigurationBuilder> builders, Collection<ConfigurationStore> stores, Collection<DeploymentWatcher> watchers, ArtifactResolver artifactResolver, Kernel kernel) {
         this.remoteDeployAddress = remoteDeployAddress;
         this.builders = builders;
         this.stores = stores;
@@ -105,11 +105,11 @@ public class Deployer implements GBeanLifecycle {
 
     }
 
-    public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
+    public List<String> deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
         return deploy(inPlace, moduleFile, planFile, null);
     }
 
-    public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
+    public List<String> deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
@@ -162,16 +162,14 @@ public class Deployer implements GBeanLifecycle {
      */
     public String getRemoteDeployUploadURL() {
         // Get the token GBean from the remote deployment configuration
-        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.remote.RemoteDeployToken"));
+        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.remote.RemoteDeployToken"));
         if (set.size() == 0) {
             return null;
         }
-        AbstractName token = (AbstractName) set.iterator().next();
+        AbstractName token = set.iterator().next();
         // Identify the parent configuration for that GBean
-        set = kernel.getDependencyManager().getParents(token);
         ObjectName config = null;
-        for (Iterator it = set.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
+        for (AbstractName name : kernel.getDependencyManager().getParents(token)) {
             if (Configuration.isConfigurationObjectName(name.getObjectName())) {
                 config = name.getObjectName();
                 break;
@@ -205,7 +203,7 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
-    public List deploy(boolean inPlace,
+    public List<String> deploy(boolean inPlace,
             File moduleFile,
             File planFile,
             File targetFile,
@@ -220,19 +218,22 @@ public class Deployer implements GBeanLifecycle {
         } else if (stores.isEmpty()) {
             throw new DeploymentException("No ConfigurationStores!");
         }
-        validatePlanFile(planFile);
-
-        JarFile module = getModule(inPlace, moduleFile);
+        validatePlanFile(planFile);        
 
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
 
         DeploymentContext context = null;
+        JarFile module = null;
         try {
+            module = getModule(inPlace, moduleFile);
+            
+            validateModuleFile(module);
+            
             FileUtils.beginRecordTempFiles();
             Object plan = null;
             ConfigurationBuilder builder = null;
-            for (Iterator i = builders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+            for (Iterator<ConfigurationBuilder> i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = i.next();
                 plan = candidate.getDeploymentPlan(planFile, module, idBuilder);
                 if (plan != null) {
                     builder = candidate;
@@ -254,7 +255,6 @@ public class Deployer implements GBeanLifecycle {
             // It's our responsibility to close this context, once we're done with it...
             context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
 
-            isNotCar(context.getBaseDir());
             // Copy the external plan to the META-INF folder with the uniform name plan.xml if there is nothing there already
             if (planFile != null && !context.getTargetFile(PLAN_LOCATION).exists()) {
                 context.addFile(PLAN_LOCATION, planFile);
@@ -296,17 +296,9 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
-    private void isNotCar(File module) throws DeploymentException {
-        File meta = new File(module, "META-INF");
-        if (meta.exists()) {
-            File checkSum = new File(meta, "config.ser");
-            if (checkSum.exists()) {
-                throw new DeploymentException("Have found the config.ser in the deploy package." +
-                        " It should be a car. Please use the install-plugin command to install it.");
-            }
-        }
-        else {
-            return;
+    private void validateModuleFile(JarFile module) throws DeploymentException {
+        if (module != null && module.getEntry("META-INF/config.ser") != null) {
+            throw new DeploymentException("The target applicaiton is an Geronimo plugin as config.ser was found in the META-INF directory, please use the install-plugin command.");
         }
     }
 
@@ -316,7 +308,7 @@ public class Deployer implements GBeanLifecycle {
             AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
             return (ConfigurationStore) kernel.getGBean(targetStoreName);
         } else {
-            return (ConfigurationStore) stores.iterator().next();
+            return stores.iterator().next();
         }
     }
 
@@ -451,7 +443,6 @@ public class Deployer implements GBeanLifecycle {
     }
 
     private JarFile getModule(boolean inPlace, File moduleFile) throws DeploymentException {
-        JarFile module = null;
         if (moduleFile != null) {
             if (inPlace && !moduleFile.isDirectory()) {
                 throw new DeploymentException("In place deployment is not allowed for packed module");
@@ -460,12 +451,12 @@ public class Deployer implements GBeanLifecycle {
                 throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
             }
             try {
-                module = JarUtils.createJarFile(moduleFile);
+                return JarUtils.createJarFile(moduleFile);
             } catch (IOException e) {
                 throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
             }
         }
-        return module;
+        return null;
     }
 
     private void validatePlanFile(File planFile) throws DeploymentException {
@@ -485,14 +476,14 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
-    private void notifyWatchers(List list) {
+    private void notifyWatchers(List<String> list) {
         Artifact[] arts = new Artifact[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            String s = (String) list.get(i);
+            String s = list.get(i);
             arts[i] = Artifact.create(s);
         }
-        for (Iterator it = watchers.iterator(); it.hasNext();) {
-            DeploymentWatcher watcher = (DeploymentWatcher) it.next();
+        for (Iterator<DeploymentWatcher> it = watchers.iterator(); it.hasNext();) {
+            DeploymentWatcher watcher = it.next();
             for (int i = 0; i < arts.length; i++) {
                 Artifact art = arts[i];
                 watcher.deployed(art);
@@ -625,7 +616,7 @@ public class Deployer implements GBeanLifecycle {
             if (pendingDeletionIndex.size() == 0)
                 return;
             // Otherwise, attempt to delete all of the directories
-            Enumeration list = pendingDeletionIndex.propertyNames();
+            Enumeration<?> list = pendingDeletionIndex.propertyNames();
             while (list.hasMoreElements()) {
                 String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
