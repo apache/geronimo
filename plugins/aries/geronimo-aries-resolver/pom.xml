@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
+<!-- $Rev: 23025 $ $Date: 2011-12-20 13:26:50 -0500 (Tue, 20 Dec 2011) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -28,58 +28,48 @@
         <version>3.0-beta-2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>aries-deployer</artifactId>
-    <name>Geronimo Plugins, Aries :: Deployer</name>
-    <packaging>car</packaging>
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>geronimo-aries-resolver</artifactId>
+    <packaging>bundle</packaging>
+    <name>Geronimo Plugins, Aries :: OBR Resolver</name>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-aries-builder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>aries</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-aries-shell</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.api</artifactId>
+            <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.management</artifactId>
+            <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.aries.application</groupId>
+            <artifactId>org.apache.aries.application.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.bundlerepository</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
-                    <category>Aries</category>
+                    <instructions>
+                        <Export-Package>
+                          org.apache.geronimo.aries.resolver
+                        </Export-Package>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>
+

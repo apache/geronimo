@@ -40,17 +40,18 @@
             <artifactId>geronimo-aries</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-aries-resolver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.ext.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
         </dependency>
                 
-        <dependency>
-            <groupId>org.apache.aries.application</groupId>
-            <artifactId>org.apache.aries.application.resolver.obr</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.api</artifactId>

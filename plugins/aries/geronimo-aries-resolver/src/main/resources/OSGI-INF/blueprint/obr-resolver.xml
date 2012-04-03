@@ -23,17 +23,19 @@
     <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]">
         <ext:default-properties>
             <ext:property name="ariesApplicationResolver.returnOptionalResources" value="false" />
+            <ext:property name="ariesApplicationResolver.resolveFragments" value="false" />
         </ext:default-properties>
     </ext:property-placeholder>
-
-    <bean id="obr-resolver" class="org.apache.aries.application.resolver.obr.OBRAriesResolver" scope="singleton"
+    
+    <bean id="obr-resolver" class="org.apache.geronimo.aries.resolver.obr.OBRAriesResolver" scope="singleton"
           activation="eager">
         <argument>
             <reference interface="org.apache.felix.bundlerepository.RepositoryAdmin"/>
         </argument>
         <property name="returnOptionalResources" value="$[ariesApplicationResolver.returnOptionalResources]"/>
+        <property name="resolveFragments" value="$[ariesApplicationResolver.resolveFragments]"/>
     </bean>
 
-    <service interface="org.apache.aries.application.management.AriesApplicationResolver" ref="obr-resolver" ranking="5" />
+    <service interface="org.apache.aries.application.management.AriesApplicationResolver" ref="obr-resolver"/>
 
 </blueprint>

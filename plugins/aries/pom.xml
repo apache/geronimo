@@ -42,6 +42,7 @@
         <module>geronimo-aries-builder</module>
         <module>aries-deployer</module>
         <module>geronimo-aries-shell</module>
+        <module>geronimo-aries-resolver</module>
     </modules>
 
     <dependencyManagement>
@@ -64,11 +65,6 @@
             <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.management</artifactId>
-                <version>0.2.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.aries.application</groupId>
-                <artifactId>org.apache.aries.application.resolver.obr</artifactId>
                 <version>0.2.2</version>
             </dependency>
         </dependencies>
