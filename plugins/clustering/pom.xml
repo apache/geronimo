@@ -33,20 +33,7 @@
         clustering plugin
     </description>
 
-    <modules>
-        <module>geronimo-clustering</module>
-        <module>geronimo-clustering-wadi</module>
-        <module>geronimo-farm</module>
-        <module>geronimo-deploy-farm</module>
-        <module>geronimo-plugin-farm</module>
-        <module>clustering</module>
-        <module>wadi-clustering</module>
-        <module>farming</module>
-        <module>plugin-farm</module>
-        <module>plugin-farm-member</module>
-        <module>geronimo-plugin-farm-node</module>
-        <module>plugin-farm-datasource</module>
-    </modules>
+    
 
     <profiles>
         <profile>
@@ -60,6 +47,38 @@
             <modules>
                <!-- <module>clustering-it</module> -->
             </modules>
+        </profile>
+        <profile>
+            <id>all</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>geronimo-clustering</module>
+                <module>geronimo-clustering-wadi</module>
+                <module>geronimo-farm</module>
+                <module>geronimo-deploy-farm</module>
+                <module>geronimo-plugin-farm</module>
+                <module>clustering</module>
+                <module>wadi-clustering</module>
+                <module>farming</module>
+                <module>plugin-farm</module>
+                <module>plugin-farm-member</module>
+                <module>geronimo-plugin-farm-node</module>
+                <module>plugin-farm-datasource</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>noclustering</id>
+
+            <activation>
+                <property>
+                    <name>buildclustering</name>
+                    <value>false</value>
+                </property>
+            </activation>            
         </profile>
     </profiles>
 
