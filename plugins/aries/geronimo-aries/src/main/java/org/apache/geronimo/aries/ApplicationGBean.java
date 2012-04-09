@@ -453,6 +453,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     @SuppressWarnings("deprecation")
     private Bundle[] getRequiringBundles(Bundle targetBundle, PackageAdmin packageAdmin) {
         ExportedPackage[] ePackages = packageAdmin.getExportedPackages(targetBundle);
+        if(ePackages == null || ePackages.length == 0) return new Bundle[]{};
         
         Set<Bundle> requiringBundles = new HashSet<Bundle>();
         
