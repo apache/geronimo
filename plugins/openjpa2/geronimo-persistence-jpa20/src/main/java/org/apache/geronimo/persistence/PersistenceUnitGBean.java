@@ -40,7 +40,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
-import org.apache.geronimo.bval.ValidatorFactoryGBean; 
+
+import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
@@ -51,11 +52,11 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
-import org.apache.xbean.osgi.bundle.util.BundleResourceClassLoader;
 import org.apache.xbean.osgi.bundle.util.BundleResourceHelper;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -97,15 +98,15 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws URISyntaxException, IOException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null ? NO_STRINGS : new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
-        
+
         URL rootURL = getPersistenceUnitRoot(bundle, persistenceUnitRoot);
         URI rootUri = rootURL.toURI();
-        
+
         List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
             jarFileUrls = new ArrayList<URL>();
-            // Per the EJB3.0 Persistence Specification section 6.2.1.6, 
-            // the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found             
+            // Per the EJB3.0 Persistence Specification section 6.2.1.6,
+            // the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found
             for (String urlString : jarFileUrlsUntyped) {
                 URL url = new URL ("jar:"+ rootUri.resolve(urlString)+"!/");
                 if (url != null) {
@@ -115,23 +116,23 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 }
             }
         }
-        
+
         classLoader = new BundleClassLoader(bundle, BundleResourceHelper.getSearchWiredBundles(false), BundleResourceHelper.getConvertResourceUrls(true));
-        
+
         if (managedClassNames == null) {
             managedClassNames = NO_STRINGS;
         }
         if (properties == null) {
             properties = new Properties();
         }
-        // add the module validator factory instance 
+        // add the module validator factory instance
         properties.put("javax.persistence.validation.factory", validatorFactory.getFactory());
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null ? PersistenceUnitTransactionType.JTA : PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
         if (persistenceProviderClassName == null) {
             persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";
         }
-        
+
         persistenceUnitInfo = new PersistenceUnitInfoImpl(persistenceUnitName,
                 persistenceProviderClassName,
                 persistenceUnitTransactionType,
@@ -164,19 +165,19 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         this.transactionManager = transactionManager;
         this.entityManagerRegistry = new SingleElementCollection<ExtendedEntityManagerRegistry>(entityManagerRegistry);
     }
-    
+
     private static URL getPersistenceUnitRoot(Bundle bundle, String persistenceUnitRoot) throws MalformedURLException {
         if (persistenceUnitRoot == null || persistenceUnitRoot.equals(".")) {
-            return bundle.getEntry("/");
+            return BundleUtil.getEntry(bundle, "/");
         } else {
             // according to EJB3.0 Persistence Specification section 6.2
             // 1. the root of a persistence unit could be the WEB-INF/classes directory of a WAR file
             // 2. the root of a persistence unit could be EJB-JAR, APPCLIENT-JAR
             // 3. the persistence unit can be a jar in the following 3 places: WEB-INF/lib directory of a war; root of a EAR; lib directory of a EAR
-            return bundle.getEntry(persistenceUnitRoot);
-        }       
+            return BundleUtil.getEntry(bundle, persistenceUnitRoot);
+        }
     }
-    
+
     public EntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
     }

@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -36,9 +37,9 @@ public class BundleUtil {
     public final static String EBA_GROUP_ID = "application";
 
     public final static String REFERENCE_SCHEME = "reference:";
-    
+
     public final static String FILE_SCHEMA = "file:";
-    
+
     public final static String REFERENCE_FILE_SCHEMA = "reference:file:";
 
     public static String getVersion(org.osgi.framework.Version version) {
@@ -76,11 +77,24 @@ public class BundleUtil {
         }
         return null;
     }
-    
+
     public static String toReferenceFileLocation(File file) throws IOException {
         if (!file.exists()) {
             throw new IOException("file not exist " + file.getAbsolutePath());
         }
         return REFERENCE_SCHEME + file.toURI();
+    }
+
+    public static URL getEntry(Bundle bundle, String name) throws MalformedURLException {
+        File bundleFile = toFile(bundle);
+        if (bundleFile != null && bundleFile.isDirectory()) {
+            File entryFile = new File(bundleFile, name);
+            if (entryFile.exists()) {
+                return entryFile.toURI().toURL();
+            } else {
+                return null;
+            }
+        }
+        return bundle.getEntry(name);
     }
 }
