@@ -214,9 +214,8 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
             return new Artifact(artifactFragments[0], artifactFragments[1], artifactFragments.length > 2 ? artifactFragments[2] : "",
                     artifactFragments.length > 3 && artifactFragments[3].length() > 0 ? artifactFragments[3] : "jar");
         } else if(installationLocation.startsWith(BundleUtil.REFERENCE_SCHEME)) {
-            log.info("reference:file checking");
             //TODO a better way for this ???
-            String bundleFilePath = BundleUtil.toFile(installationLocation).getAbsolutePath();            
+            String bundleFilePath = BundleUtil.toFile(installationLocation).getAbsolutePath();
             for (Repository repo : repositories) {
                 if (repo instanceof AbstractRepository) {
                     File rootFile = ((AbstractRepository) repo).getRootFile();
@@ -300,7 +299,6 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         } else {
             artifact = pluginArtifactType.getModuleId().toArtifact();
         }
-        log.info(bundle.getLocation() + " ---> " + artifact);
         if (artifact != null) {
             artifactBundleMap.put(artifact, bundle);
             bundleIdArtifactMap.put(bundle.getBundleId(), artifact);
@@ -533,7 +531,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 
-    private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {        
+    private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         for (Repository repo : repositories) {
             if (repo.contains(configurationId)) {
                 return BundleUtil.toReferenceFileLocation(repo.getLocation(configurationId));
