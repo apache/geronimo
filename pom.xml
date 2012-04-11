@@ -77,7 +77,7 @@
         <axis2Version>1.6.1_1</axis2Version>
         <axiomVersion>1.2.12_1</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
-        <xbeanVersion>3.8</xbeanVersion>
+        <xbeanVersion>3.10</xbeanVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1.1</txmanagerVersion>
         <tranqlVersion>1.7</tranqlVersion>
@@ -2418,6 +2418,20 @@ only found in cxf
                     </snapshots>
                     <releases>
                         <enabled>false</enabled>
+                    </releases>
+                </repository>
+                <repository>
+                    <id>voting_repo</id>
+                    <name>xbean 3.10 voting repository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-032</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>ignore</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
                     </releases>
                 </repository>
             </repositories>
