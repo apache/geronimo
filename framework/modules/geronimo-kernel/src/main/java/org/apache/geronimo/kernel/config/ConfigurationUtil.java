@@ -544,7 +544,7 @@ public final class ConfigurationUtil {
                     if (gbeanData == t) {
                         continue;
                     }
-                    if (isDependent(gbeanData, t)) {
+                    if (isDependent(t, gbeanData)) {
                         afterNames.add(gbeanData.getAbstractName().toString());
                     }
                 }
