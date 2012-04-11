@@ -16,18 +16,18 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Iterator;
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -173,9 +173,9 @@ public class GBeanInstanceState
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
         // stop all of my dependent objects
-        Set dependents = dependencyManager.getChildren(abstractName);
-        for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-            AbstractName child = (AbstractName) iterator.next();
+        Set<AbstractName> dependents = dependencyManager.getChildren(abstractName);
+        for (Iterator<AbstractName> iterator = dependents.iterator(); iterator.hasNext();) {
+            AbstractName child = iterator.next();
             try {
                 log.trace("Checking if child is running: child={}", child);
                 if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {

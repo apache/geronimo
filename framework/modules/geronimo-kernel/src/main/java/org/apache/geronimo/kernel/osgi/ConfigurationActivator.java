@@ -21,28 +21,38 @@
 package org.apache.geronimo.kernel.osgi;
 
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.util.CircularReferencesException;
+import org.apache.geronimo.kernel.util.IllegalNodeConfigException;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConfigurationActivator implements BundleActivator {
 
-    private Artifact id;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationActivator.class);
 
+    private Artifact id;
 
     public void start(BundleContext bundleContext) throws Exception {
         ServiceReference kernelReference = null;
@@ -84,6 +94,15 @@ public class ConfigurationActivator implements BundleActivator {
                 return;
             }
             Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
+            //Stop the child configurations and child GBeans, the stopRecursive method is the same with KernelConfigurationManager
+            //In this method, we will pre-sort the child GBeans before stopping them, with that, those GBeans could be stopped in order
+            //Or it is possible to get the error message [GBeanDependency] Illegal state: current target for a single valued reference stopped
+            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+            Configuration configuration = manager.getConfiguration(id);
+            if(configuration != null) {
+                stopRecursive(kernel, configuration);
+            }
+
             AbstractName name = Configuration.getConfigurationAbstractName(id);
             //TODO investigate how this is called and whether just stopping/unloading the configuration gbean will
             //leave the configuration model in a consistent state.  We might need a shutdown flag set elsewhere to avoid
@@ -111,6 +130,49 @@ public class ConfigurationActivator implements BundleActivator {
                     bundleContext.ungetService(kernelReference);
                 } catch (Exception e) {
                 }
+        }
+    }
+
+    private void stopRecursive(Kernel kernel , Configuration configuration) {
+        // stop all of the child configurations first
+        for (Iterator<Configuration> iterator = configuration.getChildren().iterator(); iterator.hasNext();) {
+            Configuration childConfiguration = iterator.next();
+            stopRecursive(kernel, childConfiguration);
+        }
+        Collection<GBeanData> gbeans;
+        try {
+            List<GBeanData> sortedGBeans = ConfigurationUtil.sortGBeanDataByDependency(configuration.getGBeans().values());
+            Collections.reverse(sortedGBeans);
+            gbeans = sortedGBeans;
+        } catch (IllegalNodeConfigException e) {
+            gbeans = configuration.getGBeans().values();
+        } catch (CircularReferencesException e) {
+            gbeans = configuration.getGBeans().values();
+        }
+        // stop the gbeans
+        for (Iterator<GBeanData> iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = iterator.next();
+            AbstractName gbeanName = gbeanData.getAbstractName();
+            try {
+                kernel.stopGBean(gbeanName);
+            } catch (GBeanNotFoundException ignored) {
+            } catch (IllegalStateException ignored) {
+            } catch (InternalKernelException kernelException) {
+                logger.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+            }
+        }
+
+        // unload the gbeans
+        for (Iterator<GBeanData> iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = iterator.next();
+            AbstractName gbeanName = gbeanData.getAbstractName();
+            try {
+                kernel.unloadGBean(gbeanName);
+            } catch (GBeanNotFoundException ignored) {
+            } catch (IllegalStateException ignored) {
+            } catch (InternalKernelException kernelException) {
+                logger.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+            }
         }
     }
 }

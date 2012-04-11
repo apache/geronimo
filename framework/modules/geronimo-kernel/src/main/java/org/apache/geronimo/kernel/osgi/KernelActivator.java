@@ -20,29 +20,19 @@
 
 package org.apache.geronimo.kernel.osgi;
 
-import java.util.Dictionary;
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.net.URL;
 import java.io.InputStream;
-import java.io.IOException;
+import java.net.URL;
+import java.util.Dictionary;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
