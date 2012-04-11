@@ -78,6 +78,12 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Aries</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content/>
+                            <config-xml-content server="offline" />
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
