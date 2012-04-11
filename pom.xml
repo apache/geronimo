@@ -2583,6 +2583,20 @@ only found in cxf
                         <enabled>true</enabled>
                     </releases>
                 </repository>
+                <repository>
+                    <id>voting_repo</id>
+                    <name>xbean 3.10 voting repository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-032</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>ignore</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
             </repositories>
         </profile>
 
