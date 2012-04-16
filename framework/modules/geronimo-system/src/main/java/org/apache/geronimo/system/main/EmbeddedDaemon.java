@@ -293,7 +293,11 @@ public class EmbeddedDaemon {
                                 } catch (Exception e) {
                                     if ( configModuleType != ConfigurationModuleType.SERVICE.getValue() ) {
                                         log.warn("Failed to start module " + configID + "; Cause by " + e.getCause());
-                                        configurationManager.unloadConfiguration(configID);
+                                        log.warn("Please try to correct the problem by referring to the logged exception. " +
+                                    		"If you want to bypass it in future restart, you can set load=\"false\" on " +
+                                    		"that module.");
+                                        // Only log warning and let user decide what action to take
+                                        //configurationManager.unloadConfiguration(configID);
                                         continue;
                                     }
                                 }
