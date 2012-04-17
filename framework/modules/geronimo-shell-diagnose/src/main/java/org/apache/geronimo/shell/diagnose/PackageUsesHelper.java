@@ -59,6 +59,9 @@ public class PackageUsesHelper {
                 edges.put(importPackage, edge);
             }
         }
+        for (ExportPackageDescription exportPackage : bundle.getExportPackages()) {
+            processExportPackage(graph, exportPackage, null);
+        }
 
         for (Map.Entry<String, Map<PackageNode, ImportPackageSpecification>> entry : graph.getPackageMap().entrySet()) {
             Map<PackageNode, ImportPackageSpecification> versions = entry.getValue();
@@ -77,9 +80,16 @@ public class PackageUsesHelper {
                 
                 // just display one path to each conflicting package version found
                 for (Map.Entry<PackageNode, ImportPackageSpecification> version : versions.entrySet()) {
-                    PackageEdge edge = edges.get(version.getValue());
-                    PackagePath path = edge.findPathToPackage(version.getKey());
-                    System.out.println(path.toString(level + 1));                    
+                    PackageNode node = version.getKey();
+                    ImportPackageSpecification importPackage = version.getValue();
+                    if (importPackage == null) {
+                        System.out.println(Utils.formatErrorMessage(level + 1, Utils.bundleToString(node.getPackageExporter()) + " exports " + Utils.exportPackageToString(node.getExportPackage())));                            
+                        System.out.println();
+                    } else {
+                        PackageEdge edge = edges.get(importPackage);
+                        PackagePath path = edge.findPathToPackage(node);
+                        System.out.println(path.toString(level + 1));
+                    }
                 }
             }
         }
