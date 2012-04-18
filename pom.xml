@@ -158,7 +158,7 @@
         <aries.jndi.version>0.3</aries.jndi.version>
         <aries.proxy.version>0.3</aries.proxy.version>
 
-        <xbean.bundleutils.version>3.10-SNAPSHOT</xbean.bundleutils.version>
+        <!--<xbean.bundleutils.version>3.10-SNAPSHOT</xbean.bundleutils.version>-->
     </properties>
 
     <dependencyManagement>
@@ -499,7 +499,7 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-bundleutils</artifactId>
-                <version>${xbean.bundleutils.version}</version>
+                <version>${xbeanVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
