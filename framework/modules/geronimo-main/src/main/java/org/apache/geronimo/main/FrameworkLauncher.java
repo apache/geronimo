@@ -208,8 +208,7 @@ public class FrameworkLauncher {
         if (bitMode == null) {
             bitMode = System.getProperty("com.ibm.vm.bitmode");
         }
-        // System.setProperty("library.jansi.path", new File(geronimoBase, "var/native/jansi/" + osName + bitMode).getAbsolutePath());
-        System.out.println(System.getProperties());
+        System.setProperty("library.jansi.path", new File(geronimoBase, "var/native/jansi/" + osName + bitMode).getAbsolutePath());
     }
 
     private void destroyFramework(boolean await) throws BundleException, InterruptedException {

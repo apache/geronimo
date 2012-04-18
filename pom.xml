@@ -156,9 +156,7 @@
         <aries.jmx.version>0.3</aries.jmx.version>
         <aries.util.version>0.3</aries.util.version>
         <aries.jndi.version>0.3</aries.jndi.version>
-        <aries.proxy.version>0.3</aries.proxy.version>
-
-        <!--<xbean.bundleutils.version>3.10-SNAPSHOT</xbean.bundleutils.version>-->
+        <aries.proxy.version>0.3</aries.proxy.version>        
     </properties>
 
     <dependencyManagement>
