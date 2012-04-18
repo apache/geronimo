@@ -152,7 +152,8 @@ public class PackageUsesHelper {
                 if (useImportPackage == null) {
                     ExportPackageDescription useExportPackage = findExportPackage(usePackageName, bundle.getExportPackages());
                     if (useExportPackage == null) {
-                        throw new RuntimeException("No import or export package for an 'uses' package " + usePackageName + " in " + Utils.bundleToString(bundle));
+                        // Ignore bad package in "uses" directive
+                        // throw new RuntimeException("No import or export package for an 'uses' package " + usePackageName + " in " + Utils.bundleToString(bundle));
                     } else {
                         PackageEdge edge = new PackageEdge(processExportPackage(graph, useExportPackage, startImportPackage));
                         node.addEdge(edge);
