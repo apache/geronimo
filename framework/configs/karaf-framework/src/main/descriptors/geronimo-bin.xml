@@ -64,6 +64,11 @@
         <fileSet>
             <directory>target/native/META-INF/native</directory>
             <outputDirectory>contents/var/native/jansi</outputDirectory>
+            <!-- Once KARAF-1377 got fixed, comment out the following exclude list
+            and remove src/main/distribution/binary/var/native/jansi/linux32/libjansi.so as well -->
+            <excludes>
+                <exclude>**/linux32/**</exclude>
+            </excludes>
         </fileSet>
         <!-- Copy over the examples -->
         <!--<fileSet>-->
