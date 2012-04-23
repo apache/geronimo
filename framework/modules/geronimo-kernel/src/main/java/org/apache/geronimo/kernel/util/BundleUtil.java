@@ -97,4 +97,20 @@ public class BundleUtil {
         }
         return bundle.getEntry(name);
     }
+
+    public static URL getNestedEntry(Bundle bundle, String jarEntryName, String subEntryName) throws MalformedURLException {
+        File bundleFile = toFile(bundle);
+        if (bundleFile != null && bundleFile.isDirectory()) {
+            File entryFile = new File(bundleFile, jarEntryName);
+            if (entryFile.exists()) {
+                if (entryFile.isFile()) {
+                    return new URL("jar:" + entryFile.toURI().toURL() + "!/" + subEntryName);
+                } else {
+                    return new File(entryFile, subEntryName).toURI().toURL();
+                }
+            }
+            return null;
+        }
+        return new URL("jar:" + bundle.getEntry(jarEntryName).toString() + "!/" + subEntryName);
+    }
 }

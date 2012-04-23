@@ -57,6 +57,8 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.BundleUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.openejb.jee.JAXBContextFactory;
@@ -128,7 +130,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         Map<String, Persistence.PersistenceUnit> overrides = new HashMap<String, Persistence.PersistenceUnit>();
         try {
             for (XmlObject raw : raws) {
-             
+
                 Persistence persistence = fromXmlObject(raw);
                 for (Persistence.PersistenceUnit unit : persistence.getPersistenceUnit()) {
                     overrides.put(unit.getName().trim(), unit);
@@ -141,27 +143,27 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
             final Collection<String> manifestcpCopy = new LinkedHashSet<String> ();
             boolean resolveWARcp = false;
-            
-            // resolve the classpath for non-standalone war file since module.getClassPath 
+
+            // resolve the classpath for non-standalone war file since module.getClassPath
             // returns the classpath relative to the war file
             if (!module.isStandAlone() && module.getType() == ConfigurationModuleType.WAR) {
                 resolveWARcp = true;
-            } 
-            
+            }
+
             final Collection<String> manifestcp = module.getClassPath();
             for (String classpath : manifestcp) {
                 if (resolveWARcp) {
-                    manifestcpCopy.add(module.resolve(classpath).toString());                    
+                    manifestcpCopy.add(module.resolve(classpath).toString());
                 } else {
                     manifestcpCopy.add(classpath);
                 }
             }
-            
+
             // add "" into manifestcpCopy to make META-INF/persistence.xml in standalone ejb be processed
             if (module.isStandAlone() && module.getType() == ConfigurationModuleType.EJB) {
                 manifestcpCopy.add("");
             }
-            
+
             BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml", new ResourceDiscoveryFilter() {
 
                 @Override
@@ -176,14 +178,14 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
                 @Override
                 public boolean directoryDiscoveryRequired(String s) {
-                    
+
                     boolean found = false;
                     if (manifestcpCopy.contains(s)){
                         found=true;
                     } else if(s.endsWith("/") && manifestcpCopy.contains(s.substring(0,s.length()-1))){
                         found=true;
                     }
-                    
+
                     return found;
                 }
             });
@@ -196,8 +198,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 }
 
                 public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream inputStream) throws Exception {
-                    URL jarURL = bundle.getEntry(jarName);
-                    URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
+                    URL url = BundleUtil.getNestedEntry(bundle, jarName, entry.getName());
                     persistenceURLs.put(url, jarName);
                     return true;
                 }
@@ -215,7 +216,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 } catch (JAXBException e) {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                 } finally {
-                    in.close();
+                    IOUtils.close(in);
                 }
                 buildPersistenceUnits(persistence, overrides, module, persistenceLocation);
             }
@@ -265,7 +266,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         gbeanData.setAttribute("persistenceUnitName", persistenceUnitName);
         gbeanData.setAttribute("persistenceUnitRoot", persistenceModulePath);
-        
+
         //try to start PU GBean firstly to init the transformer before the entity classes get loaded.
         gbeanData.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
 
@@ -374,28 +375,28 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     private Persistence fromXmlObject(XmlObject xmlObject) throws JAXBException {
-        
-        /* 
-         * To avoid illegal exception in JAXB. Convert 
-         * 
-         * <xml-fragment> ... </xml-fragment> 
+
+        /*
+         * To avoid illegal exception in JAXB. Convert
+         *
+         * <xml-fragment> ... </xml-fragment>
          * to
          * <persistence xmlns="http://java.sun.com/xml/ns/persistence"> ... </persistence>
-         * 
-         * before unmarshalling it 
+         *
+         * before unmarshalling it
          */
         XmlObject newXmlObject=XmlObject.Factory.newInstance();
         XmlCursor newXmlCursor=newXmlObject.newCursor();
         newXmlCursor.toNextToken();
         newXmlCursor.beginElement(PERSISTENCE_QNAME);
-        
+
         XmlCursor oldXmlCursor=xmlObject.newCursor();
         oldXmlCursor.copyXmlContents(newXmlCursor);
-        
+
         oldXmlCursor.dispose();
         newXmlCursor.dispose();
-        
-        
+
+
         XMLStreamReader reader = newXmlObject.newXMLStreamReader();
         JAXBContext context = JAXBContextFactory.newInstance(Persistence.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();

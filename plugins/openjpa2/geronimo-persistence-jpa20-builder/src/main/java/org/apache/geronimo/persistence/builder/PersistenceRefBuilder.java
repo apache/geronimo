@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -96,7 +97,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         return plan != null && plan.selectChildren(PersistenceRefBuilder.GER_PERSISTENCE_UNIT_REF_QNAME_SET).length > 0;
     }
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module<?, ?> module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         Configuration localConfiguration = module.getEarContext().getConfiguration();
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
 
@@ -207,19 +208,19 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 AbstractName childName = module.getEarContext().getNaming().createChildName(module.getModuleName(), "", NameFactory.PERSISTENCE_UNIT);
                 Map<String, String> name = new HashMap<String, String>(childName.getName());
                 name.remove(NameFactory.J2EE_NAME);
-                
+
                 persistenceUnitNameQuery = new AbstractNameQuery(null, name, PERSISTENCE_UNIT_INTERFACE_TYPES);
                 Set<AbstractNameQuery> patterns = Collections.singleton(persistenceUnitNameQuery);
                 gbeans = localConfiguration.findGBeanDatas(module.getEarContext().getConfiguration(), patterns);
-                
+
                 if (!gbeans.isEmpty()) {
                     persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);
                     break;
                 }
-                                
+
                 module = module.getParentModule();
             } while(module!=null);
-            
+
             if (gbeans.isEmpty()) {
                 if (defaultPersistenceUnitAbstractNameQuery == null) {
                     throw new DeploymentException("No default PersistenceUnit specified, and none located");
