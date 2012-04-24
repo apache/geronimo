@@ -98,26 +98,7 @@ public class JaspicAuthenticator implements Authenticator {
                 if (ids.size() > 0) {
                     userIdentity = ids.iterator().next();
                 } else {
-                    CallerPrincipalCallback principalCallback = callbackHandler.getThreadCallerPrincipalCallback();
-                    if (principalCallback == null) throw new NullPointerException("No CallerPrincipalCallback");
-                    Principal principal = principalCallback.getPrincipal();
-                    if (principal == null) {
-                        String principalName = principalCallback.getName();
-                        Set<Principal> principals = principalCallback.getSubject().getPrincipals();
-                        for (Principal p : principals) {
-                            if (p.getName().equals(principalName)) {
-                                principal = p;
-                                break;
-                            }
-                        }
-                        if (principal == null) {
-                            //TODO not clear what to do here.
-                            return new AuthResult(TomcatAuthStatus.SUCCESS, null, false);
-                        }
-                    }
-                    GroupPrincipalCallback groupPrincipalCallback = callbackHandler.getThreadGroupPrincipalCallback();
-                    String[] groups = groupPrincipalCallback == null ? null : groupPrincipalCallback.getGroups();
-                    userIdentity = identityService.newUserIdentity(clientSubject, principal, groups == null ? Collections.<String>emptyList() : Arrays.asList(groups));
+                    userIdentity = identityService.newUserIdentity(clientSubject);
                 }
                 return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, containerCaching);
             }

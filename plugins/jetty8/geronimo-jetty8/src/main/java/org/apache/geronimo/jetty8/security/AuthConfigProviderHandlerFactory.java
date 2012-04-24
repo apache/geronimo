@@ -91,7 +91,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
         authConfigProperties.put(POLICY_CONTEXT_ID_KEY, policyContextID);
         Authenticator authenticator = new JaspiAuthenticator(serverAuthConfig, authConfigProperties, servletCallbackHandler, serviceSubject, allowLazyAuthentication, identityService);

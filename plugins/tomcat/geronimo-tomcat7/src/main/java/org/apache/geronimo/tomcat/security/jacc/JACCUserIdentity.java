@@ -34,14 +34,12 @@ import javax.security.auth.Subject;
 public class JACCUserIdentity implements UserIdentity {
     private final Subject subject;
     private final Principal userPrincipal;
-    private final List<String> groups;
     private final AccessControlContext acc;
 
-    public JACCUserIdentity(Subject subject, Principal userPrincipal, List<String> groups, AccessControlContext acc) {
+    public JACCUserIdentity(Subject subject, Principal userPrincipal, AccessControlContext acc) {
         if (subject == null) throw new NullPointerException("No Subject in user identity");
         this.subject = subject;
         this.userPrincipal = userPrincipal;
-        this.groups = groups;
         this.acc = acc;
     }
 
@@ -51,10 +49,6 @@ public class JACCUserIdentity implements UserIdentity {
 
     public Subject getSubject() {
         return subject;
-    }
-
-    public List<String> getGroups() {
-        return groups;
     }
 
     public AccessControlContext getAccessControlContext() {

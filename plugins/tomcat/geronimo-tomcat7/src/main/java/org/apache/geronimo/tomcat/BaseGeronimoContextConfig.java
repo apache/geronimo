@@ -140,7 +140,7 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
             defaultSubject = ContextManager.EMPTY;
         }
         IdentityService identityService = new GeronimoIdentityService(defaultSubject);
-        UserIdentity unauthenticatedIdentity = identityService.newUserIdentity(defaultSubject, null, null);
+        UserIdentity unauthenticatedIdentity = identityService.newUserIdentity(defaultSubject);
         LoginService loginService = new GeronimoLoginService(configurationFactory, identityService);
         Authenticator authenticator;
         AuthConfigFactory authConfigFactory = AuthConfigFactory.getFactory();
@@ -183,7 +183,7 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
             authenticator = new NoneAuthenticator(unauthenticatedIdentity);
         }
 
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject,  null, null);
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject,  null);
         Authorizer authorizer = createAuthorizer(defaultAcc);
 
         SecurityValve securityValve = new JACCSecurityValve(authenticator, authorizer, identityService, policyContextId);

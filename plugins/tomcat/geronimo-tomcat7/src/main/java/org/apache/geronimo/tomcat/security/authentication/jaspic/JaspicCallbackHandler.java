@@ -21,6 +21,8 @@
 package org.apache.geronimo.tomcat.security.authentication.jaspic;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Set;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
@@ -34,6 +36,10 @@ import javax.security.auth.message.callback.SecretKeyCallback;
 import javax.security.auth.message.callback.TrustStoreCallback;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
 import org.apache.geronimo.tomcat.security.LoginService;
 import org.apache.geronimo.tomcat.security.UserIdentity;
 
@@ -43,9 +49,6 @@ import org.apache.geronimo.tomcat.security.UserIdentity;
 public class JaspicCallbackHandler implements CallbackHandler {
     private final LoginService loginService;
 
-    private final ThreadLocal<CallerPrincipalCallback> callerPrincipals = new ThreadLocal<CallerPrincipalCallback>();
-    private final ThreadLocal<GroupPrincipalCallback> groupPrincipals = new ThreadLocal<GroupPrincipalCallback>();
-
     public JaspicCallbackHandler(LoginService loginService) {
         this.loginService = loginService;
     }
@@ -54,9 +57,26 @@ public class JaspicCallbackHandler implements CallbackHandler {
         for (Callback callback : callbacks) {
             // jaspi to server communication
             if (callback instanceof CallerPrincipalCallback) {
-                callerPrincipals.set((CallerPrincipalCallback) callback);
+                CallerPrincipalCallback callerPrincipalCallback = (CallerPrincipalCallback) callback;
+                if (callerPrincipalCallback.getPrincipal() != null) {
+                    Principal callerPrincipal = callerPrincipalCallback.getPrincipal();
+                    if (callerPrincipal instanceof GeronimoCallerPrincipal) {
+                        callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                    } else {
+                        callerPrincipalCallback.getSubject().getPrincipals().add(new WrappingCallerPrincipal(callerPrincipal));
+                    }
+                } else if (callerPrincipalCallback.getName() != null) {
+                    Principal callerPrincipal = new GeronimoUserPrincipal(callerPrincipalCallback.getName());
+                    callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                }
             } else if (callback instanceof GroupPrincipalCallback) {
-                groupPrincipals.set((GroupPrincipalCallback) callback);
+                GroupPrincipalCallback groupPrincipalCallback = ( GroupPrincipalCallback ) callback;
+                if (groupPrincipalCallback.getGroups() != null) {
+                    Set<Principal> principalSet = groupPrincipalCallback.getSubject().getPrincipals();
+                    for (String groupName : groupPrincipalCallback.getGroups()) {
+                        principalSet.add(new GeronimoGroupPrincipal(groupName));
+                    }
+                }
             } else if (callback instanceof PasswordValidationCallback) {
                 PasswordValidationCallback passwordValidationCallback = (PasswordValidationCallback) callback;
                 Subject subject = passwordValidationCallback.getSubject();
@@ -65,8 +85,8 @@ public class JaspicCallbackHandler implements CallbackHandler {
 
                 if (user != null) {
                     passwordValidationCallback.setResult(true);
-                    passwordValidationCallback.getSubject().getPrincipals().addAll(user.getSubject().getPrincipals());
-                    passwordValidationCallback.getSubject().getPrivateCredentials().add(user);
+                    subject.getPrincipals().addAll(user.getSubject().getPrincipals());
+                    subject.getPrivateCredentials().add(user);
                 }
             }
             // server to jaspi communication
@@ -81,15 +101,4 @@ public class JaspicCallbackHandler implements CallbackHandler {
         }
     }
 
-    public CallerPrincipalCallback getThreadCallerPrincipalCallback() {
-        CallerPrincipalCallback callerPrincipalCallback = callerPrincipals.get();
-        callerPrincipals.remove();
-        return callerPrincipalCallback;
-    }
-
-    public GroupPrincipalCallback getThreadGroupPrincipalCallback() {
-        GroupPrincipalCallback groupPrincipalCallback = groupPrincipals.get();
-        groupPrincipals.remove();
-        return groupPrincipalCallback;
-    }
 }

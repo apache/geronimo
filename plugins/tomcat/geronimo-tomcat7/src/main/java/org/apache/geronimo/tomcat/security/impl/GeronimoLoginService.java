@@ -20,7 +20,6 @@
 
 package org.apache.geronimo.tomcat.security.impl;
 
-import java.security.Principal;
 import java.security.cert.X509Certificate;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -61,8 +60,7 @@ public class GeronimoLoginService implements LoginService {
         try {
             LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
             Subject establishedSubject = loginContext.getSubject();
-            Principal userPrincipal = ContextManager.getCurrentPrincipal(establishedSubject);
-            return identityService.newUserIdentity(establishedSubject, userPrincipal, null);
+            return identityService.newUserIdentity(establishedSubject);
         } catch (LoginException e) {
             return null;
         }

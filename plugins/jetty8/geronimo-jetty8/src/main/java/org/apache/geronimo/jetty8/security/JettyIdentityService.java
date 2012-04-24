@@ -31,6 +31,8 @@ import org.apache.geronimo.jetty8.handler.GeronimoUserIdentity;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.RunAsToken;
 import org.eclipse.jetty.server.UserIdentity;
@@ -79,7 +81,16 @@ public class JettyIdentityService implements IdentityService {
 
     public UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, String[] roles) {
         if (subject != null) {
-            AccessControlContext acc = ContextManager.registerSubjectShort(subject, userPrincipal, roles == null? null: Arrays.asList(roles));
+            Principal callerPrincipal = null;
+            for (GeronimoCallerPrincipal principal: subject.getPrincipals(GeronimoCallerPrincipal.class)) {
+                if (principal instanceof WrappingCallerPrincipal) {
+                    callerPrincipal = ((WrappingCallerPrincipal)principal).getWrapped();
+                } else {
+                    callerPrincipal = principal;
+                }
+            }
+
+            AccessControlContext acc = ContextManager.registerSubjectShort(subject, callerPrincipal);
             return new GeronimoUserIdentity(subject, userPrincipal, acc);
         }
         return new GeronimoUserIdentity(null, null, defaultAcc);

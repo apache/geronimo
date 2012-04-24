@@ -20,6 +20,7 @@
 
 package org.apache.geronimo.connector.wrapper.work;
 
+import java.security.Principal;
 import java.util.Stack;
 
 import javax.resource.spi.work.WorkCompletedException;
@@ -35,6 +36,8 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.connector.work.WorkContextHandler;
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +89,15 @@ public class SecurityContextHandler implements WorkContextHandler<SecurityContex
             clientSubject = new Subject();
             ConnectorCallbackHandler callbackHandler = new ConnectorCallbackHandler(realm);
             securityContext.setupSecurityContext(callbackHandler, clientSubject, serviceSubject);
-            ContextManager.registerSubjectShort(clientSubject, callbackHandler.getCallerPrincipal(), callbackHandler.getGroups());
+            Principal callerPrincipal = null;
+            for (GeronimoCallerPrincipal principal: clientSubject.getPrincipals(GeronimoCallerPrincipal.class)) {
+                if (principal instanceof WrappingCallerPrincipal) {
+                    callerPrincipal = ((WrappingCallerPrincipal)principal).getWrapped();
+                } else {
+                    callerPrincipal = principal;
+                }
+            }
+            ContextManager.registerSubjectShort(clientSubject, callerPrincipal);
         }
         callers.get().push(ContextManager.getCallers());
         ContextManager.setCallers(clientSubject, clientSubject);

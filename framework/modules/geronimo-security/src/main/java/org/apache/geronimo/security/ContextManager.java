@@ -296,14 +296,14 @@ public class ContextManager {
             throw new ProviderException("Invalid key: " + key.toString());
         }
         List<String> groups = Collections.emptyList();
-        Context context = new Context(subjectId, acc, subject, principal, groups);
+        Context context = new Context(subjectId, acc, subject, principal);
         subjectIds.put(context.getId(), subject);
         subjectContexts.put(subject, context);
 
         return context.getId();
     }
 
-    public static synchronized AccessControlContext registerSubjectShort(Subject subject, Principal callerPrincipal, List<String> groups) {
+    public static synchronized AccessControlContext registerSubjectShort(Subject subject, Principal callerPrincipal) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
@@ -334,7 +334,7 @@ public class ContextManager {
         if(!subject.isReadOnly()){
             subject.getPrincipals().add(principal);
         }
-        Context context = new Context(subjectId, acc, subject, callerPrincipal, groups);
+        Context context = new Context(subjectId, acc, subject, callerPrincipal);
         subjectIds.put(context.getId(), subject);
         subjectContexts.put(subject, context);
 

@@ -80,7 +80,7 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
         if (checkRolePermissions) {
             return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);

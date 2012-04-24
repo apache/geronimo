@@ -20,12 +20,13 @@
 
 package org.apache.geronimo.tomcat.security.impl;
 
-import java.security.Principal;
 import java.security.AccessControlContext;
-import java.util.List;
+import java.security.Principal;
 
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
 import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.tomcat.security.UserIdentity;
 import org.apache.geronimo.tomcat.security.jacc.JACCUserIdentity;
@@ -53,8 +54,16 @@ public class GeronimoIdentityService implements IdentityService {
         ContextManager.popCallers((Callers) previous);
     }
 
-    public UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, List<String> groups) {
-        AccessControlContext acc = ContextManager.registerSubjectShort(subject, userPrincipal, groups);
-        return new JACCUserIdentity(subject, userPrincipal, groups, acc);
+    public UserIdentity newUserIdentity(Subject subject) {
+        Principal callerPrincipal = null;
+        for (GeronimoCallerPrincipal principal: subject.getPrincipals(GeronimoCallerPrincipal.class)) {
+            if (principal instanceof WrappingCallerPrincipal) {
+                callerPrincipal = ((WrappingCallerPrincipal)principal).getWrapped();
+            } else {
+                callerPrincipal = principal;
+            }
+        }
+        AccessControlContext acc = ContextManager.registerSubjectShort(subject, callerPrincipal);
+        return new JACCUserIdentity(subject, callerPrincipal, acc);
     }
 }

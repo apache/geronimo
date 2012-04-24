@@ -34,14 +34,12 @@ public class Context {
     private final AccessControlContext context;
     private final Subject subject;
     private final Principal principal;
-    private final List<String> groups;
 
-    public Context(SubjectId id, AccessControlContext context, Subject subject, Principal principal, List<String> groups) {
+    public Context(SubjectId id, AccessControlContext context, Subject subject, Principal principal) {
         this.id = id;
         this.context = context;
         this.subject = subject;
         this.principal = principal;
-        this.groups = groups;
     }
 
     public SubjectId getId() {
@@ -60,7 +58,4 @@ public class Context {
         return principal;
     }
 
-    public List<String> getGroups() {
-        return groups;
-    }
 }

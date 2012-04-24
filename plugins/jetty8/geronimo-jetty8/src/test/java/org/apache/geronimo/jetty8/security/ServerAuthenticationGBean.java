@@ -56,7 +56,7 @@ public class ServerAuthenticationGBean implements SecurityHandlerFactory {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
         return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
     }

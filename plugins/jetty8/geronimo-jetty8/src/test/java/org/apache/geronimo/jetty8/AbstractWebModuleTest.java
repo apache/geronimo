@@ -128,7 +128,7 @@ public class AbstractWebModuleTest extends TestSupport {
             LoginService loginService = newLoginService();
 //            final ServletCallbackHandler callbackHandler = new ServletCallbackHandler(loginService);
             final Subject subject = new Subject();
-            final AccessControlContext acc = ContextManager.registerSubjectShort(subject, null, null);
+            final AccessControlContext acc = ContextManager.registerSubjectShort(subject, null);
             securityHandlerFactory = new ServerAuthenticationGBean(new Authenticator() {
                 public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) throws ServerAuthException {
                     return new UserAuthentication("test", new GeronimoUserIdentity(subject, new GeronimoUserPrincipal("foo"), acc));

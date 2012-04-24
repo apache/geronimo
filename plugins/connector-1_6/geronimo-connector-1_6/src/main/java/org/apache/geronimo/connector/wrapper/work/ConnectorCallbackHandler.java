@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Set;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
@@ -42,6 +43,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
 
 /**
  * Spec 16.4.1:  must support CallerPrincipalCallback, GroupPrincipalCallback, PasswordValidationCallback.
@@ -53,9 +58,6 @@ public class ConnectorCallbackHandler implements CallbackHandler {
 
     private final String realm;
 
-    private Principal callerPrincipal;
-    private String[] groupsArray;
-
     public ConnectorCallbackHandler(String realm) {
         if (realm == null) throw new NullPointerException("No realm provided");
         this.realm = realm;
@@ -65,17 +67,29 @@ public class ConnectorCallbackHandler implements CallbackHandler {
     {
         for (Callback callback: callbacks)
         {
-            //jaspi to server communication
-            if (callback instanceof CallerPrincipalCallback)
-            {
-                callerPrincipal = ((CallerPrincipalCallback) callback).getPrincipal();
-            }
-            else if (callback instanceof GroupPrincipalCallback)
-            {
-                groupsArray = ((GroupPrincipalCallback)callback).getGroups();
-            }
-            else if (callback instanceof PasswordValidationCallback)
-            {
+            // jaspi to server communication
+            if (callback instanceof CallerPrincipalCallback) {
+                CallerPrincipalCallback callerPrincipalCallback = (CallerPrincipalCallback) callback;
+                if (callerPrincipalCallback.getPrincipal() != null) {
+                    Principal callerPrincipal = callerPrincipalCallback.getPrincipal();
+                    if (callerPrincipal instanceof GeronimoCallerPrincipal) {
+                        callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                    } else {
+                        callerPrincipalCallback.getSubject().getPrincipals().add(new WrappingCallerPrincipal(callerPrincipal));
+                    }
+                } else if (callerPrincipalCallback.getName() != null) {
+                    Principal callerPrincipal = new GeronimoUserPrincipal(callerPrincipalCallback.getName());
+                    callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                }
+            } else if (callback instanceof GroupPrincipalCallback) {
+                GroupPrincipalCallback groupPrincipalCallback = ( GroupPrincipalCallback ) callback;
+                if (groupPrincipalCallback.getGroups() != null) {
+                    Set<Principal> principalSet = groupPrincipalCallback.getSubject().getPrincipals();
+                    for (String groupName : groupPrincipalCallback.getGroups()) {
+                        principalSet.add(new GeronimoGroupPrincipal(groupName));
+                    }
+                }
+            } else if (callback instanceof PasswordValidationCallback) {
                 PasswordValidationCallback passwordValidationCallback = (PasswordValidationCallback) callback;
                 Subject subject = passwordValidationCallback.getSubject();
                 final String userName = passwordValidationCallback.getUsername();
@@ -117,14 +131,6 @@ public class ConnectorCallbackHandler implements CallbackHandler {
                 throw new UnsupportedCallbackException(callback);
             }
         }
-    }
-
-    public Principal getCallerPrincipal() {
-        return callerPrincipal;
-    }
-
-    public List<String> getGroups() {
-        return groupsArray == null? null: Arrays.asList(groupsArray);
     }
 
 }

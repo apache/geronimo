@@ -18,21 +18,44 @@
  */
 
 
-package org.apache.geronimo.tomcat.security;
+package org.apache.geronimo.security.realm.providers;
 
-import javax.security.auth.Subject;
+
 import java.security.Principal;
-import java.util.List;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface IdentityService {
+public class WrappingCallerPrincipal implements GeronimoCallerPrincipal {
 
-    Object associate(UserIdentity userIdentity);
+    private final Principal wrapped;
 
-    void dissociate(Object previous);
+    public WrappingCallerPrincipal(Principal wrapped) {
+        this.wrapped = wrapped;
+    }
 
-    UserIdentity newUserIdentity(Subject subject);
+    public Principal getWrapped() {
+        return wrapped;
+    }
 
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof WrappingCallerPrincipal) {
+            return wrapped.equals(((WrappingCallerPrincipal)o).wrapped);
+        }
+        return wrapped.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return wrapped.hashCode();
+    }
 }
