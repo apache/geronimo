@@ -19,15 +19,11 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
-import java.util.Collections;
-import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.ServletSecurityElement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -136,11 +132,11 @@ public class JaccSecurityHandler extends SecurityHandler {
 
     @Override
     protected boolean checkWebResourcePermissions(String pathInContext, Request request, Response response, Object constraintInfo, UserIdentity userIdentity) throws IOException {
-        if (!(userIdentity instanceof GeronimoUserIdentity)){
+        if (!(userIdentity instanceof GeronimoJettyUserIdentity)){
             //we already checked against default_acc and got false
             return false;
         }
-        AccessControlContext acc = ((GeronimoUserIdentity)userIdentity).getAccessControlContext();
+        AccessControlContext acc = ((GeronimoJettyUserIdentity)userIdentity).getAccessControlContext();
         return checkWebResourcePermission(request, acc);
     }
 

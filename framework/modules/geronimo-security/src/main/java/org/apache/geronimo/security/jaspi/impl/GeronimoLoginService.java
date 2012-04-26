@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.tomcat.security.impl;
+package org.apache.geronimo.security.jaspi.impl;
 
 import java.security.cert.X509Certificate;
 
@@ -27,10 +27,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.tomcat.security.LoginService;
-import org.apache.geronimo.tomcat.security.UserIdentity;
-import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jaspi.IdentityService;
+import org.apache.geronimo.security.jaspi.LoginService;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.security.ContextManager;
@@ -55,7 +55,7 @@ public class GeronimoLoginService implements LoginService {
     public UserIdentity login(X509Certificate[] certs) {
         return login(new CertificateChainCallbackHandler(certs));
     }
-    
+
     public UserIdentity login(CallbackHandler callbackHandler) {
         try {
             LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());

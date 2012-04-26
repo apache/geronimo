@@ -25,6 +25,7 @@ import java.util.Map;
 import java.security.AccessControlContext;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.message.AuthException;
 import javax.security.auth.message.config.AuthConfigFactory;
 import javax.security.auth.message.config.AuthConfigProvider;
@@ -35,10 +36,13 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty8.handler.JaccSecurityHandler;
+import org.apache.geronimo.jetty8.security.auth.GeronimoJaspiAuthenticator;
 import org.apache.geronimo.jetty8.security.auth.JAASLoginService;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jaspi.impl.GeronimoLoginService;
+import org.apache.geronimo.security.jaspi.impl.JaspicCallbackHandler;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.IdentityService;
@@ -60,10 +64,9 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
     private final Map authConfigProperties = new HashMap<Object, Object>();
     private final Subject serviceSubject = null;
     private final boolean allowLazyAuthentication;
-//    private final Authenticator authenticator;
-    private final LoginService loginService;
-    private final ServerAuthConfig serverAuthConfig;
-    private final ServletCallbackHandler servletCallbackHandler;
+    private final ConfigurationFactory configurationFactory;
+    private final String messageLayer;
+    private final String appContext;
 
 
     public AuthConfigProviderHandlerFactory(@ParamAttribute(name = "messageLayer")String messageLayer,
@@ -73,6 +76,19 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
     ) throws AuthException {
         String appContext1 = appContext;
         this.allowLazyAuthentication = allowLazyAuthentication;
+        this.configurationFactory = configurationFactory;
+        this.messageLayer = messageLayer;
+        this.appContext = appContext;
+    }
+
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) throws AuthException {
+        if (defaultSubject == null) {
+            defaultSubject = ContextManager.EMPTY;
+        }
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
+        JettyIdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
+        GeronimoLoginService loginService = new GeronimoLoginService(configurationFactory, identityService);
+        authConfigProperties.put(POLICY_CONTEXT_ID_KEY, policyContextID);
         AuthConfigFactory authConfigFactory = AuthConfigFactory.getFactory();
         RegistrationListener listener = new RegistrationListener() {
 
@@ -80,23 +96,12 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
             }
         };
         AuthConfigProvider authConfigProvider = authConfigFactory.getConfigProvider(messageLayer, appContext, listener);
-        this.loginService = new JAASLoginService(configurationFactory, null);
-        servletCallbackHandler = new ServletCallbackHandler(loginService);
-        serverAuthConfig = authConfigProvider.getServerAuthConfig(messageLayer, appContext, servletCallbackHandler);
+        CallbackHandler callbackHandler = new JaspicCallbackHandler(loginService);
+        ServerAuthConfig serverAuthConfig = authConfigProvider.getServerAuthConfig(messageLayer, appContext, callbackHandler);
         //TODO appContext is supposed to be server-name<space>context-root
-
-    }
-
-    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
-        if (defaultSubject == null) {
-            defaultSubject = ContextManager.EMPTY;
-        }
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
-        IdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
-        authConfigProperties.put(POLICY_CONTEXT_ID_KEY, policyContextID);
-        Authenticator authenticator = new JaspiAuthenticator(serverAuthConfig, authConfigProperties, servletCallbackHandler, serviceSubject, allowLazyAuthentication, identityService);
+        Authenticator authenticator = new GeronimoJaspiAuthenticator(serverAuthConfig, authConfigProperties, callbackHandler, serviceSubject, allowLazyAuthentication, identityService);
         //login service functionality is already inside the servletCallbackHandler
-        return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        return new JaccSecurityHandler(policyContextID, authenticator, new JAASLoginService(null, loginService), identityService, defaultAcc);
     }
 
 }

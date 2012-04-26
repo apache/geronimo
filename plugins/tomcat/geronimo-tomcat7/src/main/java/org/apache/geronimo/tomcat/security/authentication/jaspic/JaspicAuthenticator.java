@@ -21,34 +21,31 @@
 package org.apache.geronimo.tomcat.security.authentication.jaspic;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.message.AuthException;
 import javax.security.auth.message.AuthStatus;
 import javax.security.auth.message.MessageInfo;
-import javax.security.auth.message.callback.CallerPrincipalCallback;
-import javax.security.auth.message.callback.GroupPrincipalCallback;
 import javax.security.auth.message.callback.PasswordValidationCallback;
 import javax.security.auth.message.config.ServerAuthConfig;
 import javax.security.auth.message.config.ServerAuthContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaspi.IdentityService;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.tomcat.security.AuthResult;
 import org.apache.geronimo.tomcat.security.Authenticator;
-import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.tomcat.security.ServerAuthException;
 import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
 import static org.apache.geronimo.tomcat.security.SecurityValve.CACHED_IDENTITY_KEY;
 
@@ -62,11 +59,11 @@ public class JaspicAuthenticator implements Authenticator {
     private final ServerAuthConfig serverAuthConfig;
     private final Map authProperties;
     private final Subject serviceSubject;
-    private final JaspicCallbackHandler callbackHandler;
+    private final CallbackHandler callbackHandler;
     private final IdentityService identityService;
     private final boolean containerCaching;
 
-    public JaspicAuthenticator(ServerAuthConfig serverAuthConfig, Map authProperties, Subject serviceSubject, JaspicCallbackHandler callbackHandler, IdentityService identityService) {
+    public JaspicAuthenticator(ServerAuthConfig serverAuthConfig, Map authProperties, Subject serviceSubject, CallbackHandler callbackHandler, IdentityService identityService) {
         this.serverAuthConfig = serverAuthConfig;
         this.authProperties = authProperties;
         this.serviceSubject = serviceSubject;

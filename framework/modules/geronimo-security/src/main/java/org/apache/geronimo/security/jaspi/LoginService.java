@@ -18,44 +18,23 @@
  */
 
 
-package org.apache.geronimo.security.realm.providers;
+package org.apache.geronimo.security.jaspi;
 
+import java.security.cert.X509Certificate;
 
-import java.security.Principal;
+import javax.security.auth.callback.CallbackHandler;
 
 /**
  * @version $Rev$ $Date$
  */
-public class WrappingCallerPrincipal implements GeronimoCallerPrincipal {
+public interface LoginService {
 
-    private final Principal wrapped;
+    UserIdentity login(String userName, String password);
 
-    public WrappingCallerPrincipal(Principal wrapped) {
-        this.wrapped = wrapped;
-    }
+    UserIdentity login(X509Certificate[] certs);
 
-    public Principal getWrapped() {
-        return wrapped;
-    }
+    UserIdentity login(CallbackHandler callbackHandler);
 
-    @Override
-    public String getName() {
-        return null;
-    }
+    void logout(UserIdentity userIdentity);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o instanceof WrappingCallerPrincipal) {
-            return wrapped.equals(((WrappingCallerPrincipal)o).wrapped);
-        }
-        return wrapped.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return wrapped.hashCode();
-    }
 }

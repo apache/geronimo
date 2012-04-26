@@ -23,8 +23,8 @@ package org.apache.geronimo.tomcat.security.jacc;
 import java.security.AccessControlContext;
 
 import org.apache.catalina.connector.Request;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.tomcat.security.AuthResult;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
 /**
  * @version $Rev$ $Date$

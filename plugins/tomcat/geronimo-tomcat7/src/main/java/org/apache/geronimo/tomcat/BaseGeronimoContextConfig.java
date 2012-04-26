@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.message.AuthException;
 import javax.security.auth.message.config.AuthConfigFactory;
 import javax.security.auth.message.config.AuthConfigProvider;
@@ -39,12 +40,15 @@ import org.apache.catalina.deploy.WebXml;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jaspi.IdentityService;
+import org.apache.geronimo.security.jaspi.LoginService;
+import org.apache.geronimo.security.jaspi.UserIdentity;
+import org.apache.geronimo.security.jaspi.impl.GeronimoIdentityService;
+import org.apache.geronimo.security.jaspi.impl.GeronimoLoginService;
+import org.apache.geronimo.security.jaspi.impl.JaspicCallbackHandler;
 import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.Authorizer;
-import org.apache.geronimo.tomcat.security.IdentityService;
-import org.apache.geronimo.tomcat.security.LoginService;
 import org.apache.geronimo.tomcat.security.SecurityValve;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 import org.apache.geronimo.tomcat.security.authentication.BasicAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.ClientCertAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.DigestAuthenticator;
@@ -53,9 +57,6 @@ import org.apache.geronimo.tomcat.security.authentication.GenericHeaderAuthentic
 import org.apache.geronimo.tomcat.security.authentication.NoneAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.SpnegoAuthenticator;
 import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicCallbackHandler;
-import org.apache.geronimo.tomcat.security.impl.GeronimoIdentityService;
-import org.apache.geronimo.tomcat.security.impl.GeronimoLoginService;
 import org.apache.geronimo.tomcat.security.jacc.JACCAuthorizer;
 import org.apache.geronimo.tomcat.security.jacc.JACCRealm;
 import org.apache.geronimo.tomcat.security.jacc.JACCSecurityValve;
@@ -153,7 +154,7 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
         String appContext = "server " + geronimoContext.getPath();
         AuthConfigProvider authConfigProvider = authConfigFactory.getConfigProvider(MESSAGE_LAYER, appContext, listener);
         ServerAuthConfig serverAuthConfig = null;
-        JaspicCallbackHandler callbackHandler = null;
+        CallbackHandler callbackHandler = null;
         if (authConfigProvider != null) {
             callbackHandler = new JaspicCallbackHandler(loginService);
             try {

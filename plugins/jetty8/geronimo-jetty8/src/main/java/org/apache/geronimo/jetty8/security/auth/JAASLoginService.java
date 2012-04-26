@@ -20,17 +20,13 @@
 
 package org.apache.geronimo.jetty8.security.auth;
 
-import java.security.Principal;
-
-import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 
-import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.jetty8.handler.GeronimoJettyUserIdentity;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jaspi.IdentityService;
+import org.apache.geronimo.security.jaspi.impl.GeronimoLoginService;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
-import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.server.UserIdentity;
 
@@ -39,17 +35,17 @@ import org.eclipse.jetty.server.UserIdentity;
  */
 public class JAASLoginService implements LoginService {
     private final String realmName;
-    private final ConfigurationFactory configurationFactory;
-    private IdentityService identityService;
+
+    private final GeronimoLoginService geronimoLoginService;
 
     /**
      * Construct a JAASLoginService
-     * @param configurationFactory may be null if auth system does not require local jaas login (such as openid)
      * @param realmName may be null e.g. for jaspi.
+     * @param geronimoLoginService
      */
-    public JAASLoginService(ConfigurationFactory configurationFactory, String realmName) {
-        this.configurationFactory = configurationFactory;
+    public JAASLoginService(String realmName, GeronimoLoginService geronimoLoginService) {
         this.realmName = realmName;
+        this.geronimoLoginService = geronimoLoginService;
     }
 
     public void logout(UserIdentity userIdentity) {
@@ -63,28 +59,18 @@ public class JAASLoginService implements LoginService {
     public UserIdentity login(String username, Object credentials) {
         char[] password = credentials instanceof  String? ((String)credentials).toCharArray(): (char[]) credentials;
         CallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
-        try {
-            LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
-            Subject establishedSubject = loginContext.getSubject();
-            Principal userPrincipal = ContextManager.getCurrentPrincipal(establishedSubject);
-            return identityService.newUserIdentity(establishedSubject, userPrincipal, null);
-        } catch (LoginException e) {
-            return null;
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//            return null;
-        }
+        org.apache.geronimo.security.jaspi.UserIdentity userIdentity = geronimoLoginService.login(callbackHandler);
+        return new GeronimoJettyUserIdentity(userIdentity);
     }
 
     public boolean validate(UserIdentity user) {
         return true;
     }
 
-    public IdentityService getIdentityService() {
-        return identityService;
+    public org.eclipse.jetty.security.IdentityService getIdentityService() {
+        return null;
     }
 
-    public void setIdentityService(IdentityService identityService) {
-        this.identityService = identityService;
+    public void setIdentityService(org.eclipse.jetty.security.IdentityService identityService) {
     }
 }

@@ -18,40 +18,46 @@
  */
 
 
-package org.apache.geronimo.tomcat.security.jacc;
+package org.apache.geronimo.security.jaspi.impl;
 
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
-import java.security.AccessControlContext;
 import java.security.Principal;
-import java.util.List;
 
-import javax.security.auth.Subject;
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JACCUserIdentity implements UserIdentity {
-    private final Subject subject;
-    private final Principal userPrincipal;
-    private final AccessControlContext acc;
+class WrappingCallerPrincipal implements GeronimoCallerPrincipal {
 
-    public JACCUserIdentity(Subject subject, Principal userPrincipal, AccessControlContext acc) {
-        if (subject == null) throw new NullPointerException("No Subject in user identity");
-        this.subject = subject;
-        this.userPrincipal = userPrincipal;
-        this.acc = acc;
+    private final Principal wrapped;
+
+    public WrappingCallerPrincipal(Principal wrapped) {
+        this.wrapped = wrapped;
     }
 
-    public Principal getUserPrincipal() {
-        return userPrincipal;
+    public Principal getWrapped() {
+        return wrapped;
     }
 
-    public Subject getSubject() {
-        return subject;
+    @Override
+    public String getName() {
+        return null;
     }
 
-    public AccessControlContext getAccessControlContext() {
-        return acc;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof WrappingCallerPrincipal) {
+            return wrapped.equals(((WrappingCallerPrincipal)o).wrapped);
+        }
+        return wrapped.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return wrapped.hashCode();
     }
 }

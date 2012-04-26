@@ -21,6 +21,7 @@
 package org.apache.geronimo.tomcat.security;
 
 import org.apache.catalina.connector.Request;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 
 /**
  * @version $Rev$ $Date$

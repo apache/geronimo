@@ -18,34 +18,43 @@
  */
 
 
-package org.apache.geronimo.tomcat.security;
+package org.apache.geronimo.security.jaspi.impl;
+
+
+import java.security.AccessControlContext;
+import java.security.Principal;
+
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.jaspi.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
  */
-public class AuthResult {
+public class JACCUserIdentity implements UserIdentity {
+    private final Subject subject;
+    private final Principal userPrincipal;
+    private final AccessControlContext acc;
 
-    private final TomcatAuthStatus authStatus;
-    private final UserIdentity userIdentity;
-    private final boolean containerCaching;
-
-    public AuthResult(TomcatAuthStatus authStatus, UserIdentity userIdentity, boolean containerCaching) {
-        this.authStatus = authStatus;
-        this.containerCaching = containerCaching;
-        this.userIdentity = userIdentity;
+    public JACCUserIdentity(Subject subject, Principal userPrincipal, AccessControlContext acc) {
+        if (subject == null) throw new NullPointerException("No Subject in user identity");
+        this.subject = subject;
+        this.userPrincipal = userPrincipal;
+        this.acc = acc;
     }
 
-    public TomcatAuthStatus getAuthStatus() {
-        return authStatus;
+    @Override
+    public Principal getUserPrincipal() {
+        return userPrincipal;
     }
 
-    public UserIdentity getUserIdentity() {
-        return userIdentity;
+    @Override
+    public Subject getSubject() {
+        return subject;
     }
 
-    public boolean isContainerCaching() {
-        return containerCaching;
+    @Override
+    public AccessControlContext getAccessControlContext() {
+        return acc;
     }
 }

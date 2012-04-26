@@ -18,11 +18,9 @@
  */
 
 
-package org.apache.geronimo.tomcat.security;
+package org.apache.geronimo.security.jaspi;
 
 import javax.security.auth.Subject;
-import java.security.Principal;
-import java.util.List;
 
 /**
  * @version $Rev$ $Date$

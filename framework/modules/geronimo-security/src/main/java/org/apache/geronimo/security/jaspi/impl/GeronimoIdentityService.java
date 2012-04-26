@@ -18,18 +18,16 @@
  */
 
 
-package org.apache.geronimo.tomcat.security.impl;
+package org.apache.geronimo.security.jaspi.impl;
 
 import java.security.AccessControlContext;
 import java.security.Principal;
 
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.jaspi.IdentityService;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
-import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
-import org.apache.geronimo.tomcat.security.IdentityService;
-import org.apache.geronimo.tomcat.security.UserIdentity;
-import org.apache.geronimo.tomcat.security.jacc.JACCUserIdentity;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
 

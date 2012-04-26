@@ -26,10 +26,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.security.jacc.PolicyContext;
 
+import org.apache.geronimo.security.jaspi.IdentityService;
 import org.apache.geronimo.tomcat.security.SecurityValve;
 import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.Authorizer;
-import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;

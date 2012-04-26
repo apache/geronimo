@@ -45,7 +45,7 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.jetty8.connector.HTTPSocketConnector;
-import org.apache.geronimo.jetty8.handler.GeronimoUserIdentity;
+import org.apache.geronimo.jetty8.handler.GeronimoJettyUserIdentity;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
 import org.apache.geronimo.jetty8.security.ServerAuthenticationGBean;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -61,6 +61,7 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
+import org.apache.geronimo.security.jaspi.impl.JACCUserIdentity;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -131,7 +132,7 @@ public class AbstractWebModuleTest extends TestSupport {
             final AccessControlContext acc = ContextManager.registerSubjectShort(subject, null);
             securityHandlerFactory = new ServerAuthenticationGBean(new Authenticator() {
                 public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) throws ServerAuthException {
-                    return new UserAuthentication("test", new GeronimoUserIdentity(subject, new GeronimoUserPrincipal("foo"), acc));
+                    return new UserAuthentication("test", new GeronimoJettyUserIdentity(new JACCUserIdentity(subject, new GeronimoUserPrincipal("foo"), acc)));
                 }// most likely validatedUser is not needed here.
 
                 public boolean secureResponse(ServletRequest request, ServletResponse response, boolean mandatory, Authentication.User validatedUser) throws ServerAuthException {

@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.tomcat.security.authentication.jaspic;
+package org.apache.geronimo.security.jaspi.impl;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -36,12 +36,11 @@ import javax.security.auth.message.callback.SecretKeyCallback;
 import javax.security.auth.message.callback.TrustStoreCallback;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.jaspi.LoginService;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
-import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
-import org.apache.geronimo.tomcat.security.LoginService;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
@@ -60,14 +59,12 @@ public class JaspicCallbackHandler implements CallbackHandler {
                 CallerPrincipalCallback callerPrincipalCallback = (CallerPrincipalCallback) callback;
                 if (callerPrincipalCallback.getPrincipal() != null) {
                     Principal callerPrincipal = callerPrincipalCallback.getPrincipal();
-                    if (callerPrincipal instanceof GeronimoCallerPrincipal) {
-                        callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
-                    } else {
-                        callerPrincipalCallback.getSubject().getPrincipals().add(new WrappingCallerPrincipal(callerPrincipal));
-                    }
+                    callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                    callerPrincipalCallback.getSubject().getPrincipals().add(new WrappingCallerPrincipal(callerPrincipal));
                 } else if (callerPrincipalCallback.getName() != null) {
                     Principal callerPrincipal = new GeronimoUserPrincipal(callerPrincipalCallback.getName());
                     callerPrincipalCallback.getSubject().getPrincipals().add(callerPrincipal);
+                    callerPrincipalCallback.getSubject().getPrincipals().add(new WrappingCallerPrincipal(callerPrincipal));
                 }
             } else if (callback instanceof GroupPrincipalCallback) {
                 GroupPrincipalCallback groupPrincipalCallback = ( GroupPrincipalCallback ) callback;

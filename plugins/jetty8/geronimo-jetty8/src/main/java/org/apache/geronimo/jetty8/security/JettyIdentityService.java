@@ -22,37 +22,35 @@ package org.apache.geronimo.jetty8.security;
 
 import java.security.AccessControlContext;
 import java.security.Principal;
-import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.jetty8.handler.GeronimoJettyUserIdentity;
 import org.apache.geronimo.jetty8.handler.GeronimoRunAsToken;
-import org.apache.geronimo.jetty8.handler.GeronimoUserIdentity;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.jaspi.impl.GeronimoIdentityService;
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
-import org.apache.geronimo.security.realm.providers.WrappingCallerPrincipal;
-import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.RunAsToken;
-import org.eclipse.jetty.server.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JettyIdentityService implements IdentityService {
+public class JettyIdentityService extends GeronimoIdentityService implements org.eclipse.jetty.security.IdentityService {
 
     private final AccessControlContext defaultAcc;
     private final Subject defaultSubject;
     private final RunAsSource runAsSource;
 
     public JettyIdentityService(AccessControlContext defaultAcc, Subject defaultSubject, RunAsSource runAsSource) {
+        super(defaultSubject);
         this.defaultAcc = defaultAcc;
         this.defaultSubject = defaultSubject;
         this.runAsSource = runAsSource;
     }
 
-    public Object associate(UserIdentity user) {
+    public Object associate(org.eclipse.jetty.server.UserIdentity user) {
         Callers oldCallers = ContextManager.getCallers();
         if (user == null) {
             //exit
@@ -69,7 +67,7 @@ public class JettyIdentityService implements IdentityService {
 
     }
 
-    public Object setRunAs(UserIdentity userIdentity, RunAsToken token) {
+    public Object setRunAs(org.eclipse.jetty.server.UserIdentity userIdentity, RunAsToken token) {
         GeronimoRunAsToken geronimoRunAsToken = (GeronimoRunAsToken) token;
         Subject runAsSubject = geronimoRunAsToken == null? null: geronimoRunAsToken.getRunAsSubject();
         return ContextManager.pushNextCaller(runAsSubject);
@@ -79,21 +77,8 @@ public class JettyIdentityService implements IdentityService {
         ContextManager.popCallers((Callers) previousToken);
     }
 
-    public UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, String[] roles) {
-        if (subject != null) {
-            Principal callerPrincipal = null;
-            for (GeronimoCallerPrincipal principal: subject.getPrincipals(GeronimoCallerPrincipal.class)) {
-                if (principal instanceof WrappingCallerPrincipal) {
-                    callerPrincipal = ((WrappingCallerPrincipal)principal).getWrapped();
-                } else {
-                    callerPrincipal = principal;
-                }
-            }
-
-            AccessControlContext acc = ContextManager.registerSubjectShort(subject, callerPrincipal);
-            return new GeronimoUserIdentity(subject, userPrincipal, acc);
-        }
-        return new GeronimoUserIdentity(null, null, defaultAcc);
+    public org.eclipse.jetty.server.UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, String[] roles) {
+        return new GeronimoJettyUserIdentity(newUserIdentity(subject));
     }
 
     public RunAsToken newRunAsToken(String runAsName) {
@@ -101,7 +86,7 @@ public class JettyIdentityService implements IdentityService {
         return new GeronimoRunAsToken(runAsSubject);
     }
 
-    public UserIdentity getSystemUserIdentity() {
-        return new GeronimoUserIdentity(null, null, defaultAcc);
+    public org.eclipse.jetty.server.UserIdentity getSystemUserIdentity() {
+        return new GeronimoJettyUserIdentity(newUserIdentity(defaultSubject));
     }
 }

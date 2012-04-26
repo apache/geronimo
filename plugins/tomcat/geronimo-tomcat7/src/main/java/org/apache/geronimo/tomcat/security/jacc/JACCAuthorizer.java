@@ -27,9 +27,10 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.catalina.connector.Request;
+import org.apache.geronimo.security.jaspi.UserIdentity;
+import org.apache.geronimo.security.jaspi.impl.JACCUserIdentity;
 import org.apache.geronimo.tomcat.security.AuthResult;
 import org.apache.geronimo.tomcat.security.Authorizer;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
@@ -69,7 +70,7 @@ public class JACCAuthorizer implements Authorizer {
             return false;
         }
 
-        AccessControlContext acc = ((JACCUserIdentity)userIdentity).getAccessControlContext();
+        AccessControlContext acc = userIdentity.getAccessControlContext();
         try {
             acc.checkPermission(new WebResourcePermission(request));
             return true;

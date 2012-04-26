@@ -21,6 +21,7 @@
 package org.apache.geronimo.jetty8.security;
 
 import javax.security.auth.Subject;
+import javax.security.auth.message.AuthException;
 
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -30,6 +31,6 @@ import org.eclipse.jetty.security.SecurityHandler;
  */
 public interface SecurityHandlerFactory {
 
-    SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions);
+    SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) throws AuthException;
 
 }

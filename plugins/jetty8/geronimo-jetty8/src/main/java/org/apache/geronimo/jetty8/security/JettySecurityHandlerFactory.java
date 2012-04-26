@@ -21,22 +21,21 @@
 package org.apache.geronimo.jetty8.security;
 
 import java.security.AccessControlContext;
-import java.security.Permissions;
 
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.jetty8.handler.JaccSecurityHandler;
 import org.apache.geronimo.jetty8.handler.EJBWebServiceSecurityHandler;
+import org.apache.geronimo.jetty8.handler.JaccSecurityHandler;
 import org.apache.geronimo.jetty8.security.auth.JAASLoginService;
 import org.apache.geronimo.jetty8.security.auth.NoneAuthenticator;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.jaspi.impl.GeronimoLoginService;
 import org.eclipse.jetty.security.Authenticator;
-import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
@@ -75,13 +74,13 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
     }
 
     public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
-        final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
         Authenticator authenticator = buildAuthenticator();
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null);
-        IdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
+        JettyIdentityService identityService = new JettyIdentityService(defaultAcc, defaultSubject, runAsSource);
+        final LoginService loginService = new JAASLoginService(realmName, new GeronimoLoginService(configurationFactory, identityService));
         if (checkRolePermissions) {
             return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
         } else {

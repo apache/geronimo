@@ -82,14 +82,14 @@
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
 
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-runtime</artifactId>
-        </dependency>
+        <!--<dependency>-->
+           <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+           <!--<artifactId>sxc-jaxb</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+           <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+           <!--<artifactId>sxc-runtime</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -108,6 +108,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.apache.geronimo.security.*,
+                            org.apache.geronimo.security.jaspi.impl</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

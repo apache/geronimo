@@ -24,49 +24,31 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
 
-import javax.security.jacc.WebRoleRefPermission;
 import javax.security.auth.Subject;
+import javax.security.jacc.WebRoleRefPermission;
 
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.server.UserIdentity;
-import org.eclipse.jetty.security.RunAsToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GeronimoUserIdentity implements UserIdentity {
-    private final Logger log = LoggerFactory.getLogger(GeronimoUserIdentity.class);
+public class GeronimoJettyUserIdentity implements org.eclipse.jetty.server.UserIdentity {
 
-    private final Subject subject;
-    private final Principal userPrincipal;
-    private final AccessControlContext acc;
-    private RunAsToken runAsToken;
-    private ServletHolder servletHolder;
+    private final UserIdentity userIdentity;
 
-    public GeronimoUserIdentity(Subject subject, Principal userPrincipal, AccessControlContext acc) {
-//        if ((subject == null) != (userPrincipal == null)) throw new IllegalArgumentException("both or neither of subject (" + subject + ") and userPrincipal (" + userPrincipal + ") must be null");
-        if (acc == null) throw new NullPointerException("AccessControlContext acc required");
-        this.subject = subject;
-        this.userPrincipal = userPrincipal;
-        this.acc = acc;
+    public GeronimoJettyUserIdentity(UserIdentity userIdentity) {
+        this.userIdentity = userIdentity;
     }
 
+    @Override
     public Subject getSubject() {
-        return subject;
+        return userIdentity.getSubject();
     }
 
+    @Override
     public Principal getUserPrincipal() {
-        //not clear whether this should reflect any run-as identity.  Currently it does not.
-        return userPrincipal;
-    }
-
-    public String[] getRoles() {
-        RuntimeException e = new RuntimeException("Not implemented");
-        log.info("getRoles called on identity " + this, e);
-        throw e;
+        return userIdentity.getUserPrincipal();
     }
 
     public boolean isUserInRole(String role, Scope scope) {
@@ -85,17 +67,12 @@ public class GeronimoUserIdentity implements UserIdentity {
         }
     }
 
-    //jaspi called from FormAuthenticator.valueUnbound (when session is unbound)
-    //TODO usable???
-    public void logout(Principal user) {
+    @Override
+    public String toString() {
+        return "GeronimoJettyUserIdentity[Subject: " + getSubject() + ", Principal: " + getUserPrincipal() + "]";
     }
 
     public AccessControlContext getAccessControlContext() {
-        return acc;
-    }
-
-    @Override
-    public String toString() {
-        return "GeronimoUserIdentity[Subject: " + subject + ", Principal: " + userPrincipal + ", acc: " + acc + "]";
+        return userIdentity.getAccessControlContext();
     }
 }

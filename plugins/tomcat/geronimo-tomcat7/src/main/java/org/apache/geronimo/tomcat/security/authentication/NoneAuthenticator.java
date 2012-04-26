@@ -25,11 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.geronimo.security.jaspi.UserIdentity;
 import org.apache.geronimo.tomcat.security.AuthResult;
 import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.ServerAuthException;
 import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
