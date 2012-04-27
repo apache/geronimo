@@ -209,6 +209,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         return name;
     }
 
+    @Persistent(manageable=false)
     public void setAllowTrace(boolean allow) {
         connector.setAllowTrace(allow);
     }
@@ -221,6 +222,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         connector.setEmptySessionPath(emptySessionPath);
     }
 
+    @Persistent(manageable=false)
     public void setEnableLookups(boolean enabled) {
         connector.setEnableLookups(enabled);
     }
@@ -230,6 +232,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         return value == 0 ? 2097152 : value;
     }
 
+    @Persistent(manageable=false)
     public void setMaxPostSize(int bytes) {
         connector.setMaxPostSize(bytes);
     }
@@ -239,6 +242,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     	return value == 0 ? 10000 : value;
     }
     
+    @Persistent(manageable=false)
     public void setMaxParameterCount(int count){
     	connector.setMaxParameterCount(count);
     }

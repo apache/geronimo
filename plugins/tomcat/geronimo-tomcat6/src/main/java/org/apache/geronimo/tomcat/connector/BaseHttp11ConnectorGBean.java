@@ -234,7 +234,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         return value == null ? Thread.NORM_PRIORITY : Integer.parseInt(value.toString());
     }
     
-
+    @Persistent(manageable=false)
     public void setAcceptCount(int acceptCount) {
         connector.setAttribute("acceptCount", new Integer(acceptCount));
     }
