@@ -130,6 +130,7 @@
     <xs:attribute type="xs:boolean" name="allowTrace"/>
     <xs:attribute type="xs:boolean" name="emptySessionPath"/>
     <xs:attribute type="xs:boolean" name="enableLookups"/>
+    <xs:attribute type="xs:int" name="maxParameterCount"/>
     <xs:attribute type="xs:int" name="maxPostSize"/>
     <xs:attribute type="xs:int" name="maxSavePostSize"/>
     <xs:attribute type="xs:int" name="port"/>

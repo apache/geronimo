@@ -94,6 +94,8 @@ public class ConnectorType {
     @XmlAttribute
     protected Boolean enableLookups;
     @XmlAttribute
+    protected Integer maxParameterCount;
+    @XmlAttribute
     protected Integer maxPostSize;
     @XmlAttribute
     protected Integer maxSavePostSize;
@@ -125,6 +127,7 @@ public class ConnectorType {
     private Map<QName, String> otherAttributes = new HashMap<QName, String>();
     private static final String EMPTY_SESSION_PATH = "emptySessionPath";
     private static final String ENABLE_LOOKUPS = "enableLookups";
+    private static final String MAX_PARAMETER_COUNT = "maxParameterCount";
     private static final String MAX_POST_SIZE = "maxPostSize";
     private static final String MAX_SAVE_POST_SIZE = "maxSavePostSize";
     private static final String PORT = "port";
@@ -247,6 +250,26 @@ public class ConnectorType {
      */
     public void setEnableLookups(Boolean value) {
         this.enableLookups = value;
+    }
+    
+    /**
+     * Gets the value of the maxParameterCount property.
+     *
+     * @return possible object is
+     *         {@link Integer }
+     */
+    public Integer getMaxParameterCount() {
+        return maxParameterCount;
+    }
+
+    /**
+     * Sets the value of the maxParameterCount property.
+     *
+     * @param value allowed object is
+     *              {@link Integer }
+     */
+    public void setMaxParameterCount(Integer value) {
+        this.maxParameterCount = value;
     }
 
     /**
@@ -556,6 +579,9 @@ public class ConnectorType {
         }
         if (isEnableLookups() != null) {
             properties.put(ENABLE_LOOKUPS, isEnableLookups());
+        }
+        if (getMaxParameterCount() != null) {
+            properties.put(MAX_PARAMETER_COUNT, getMaxParameterCount());
         }
         if (getMaxPostSize() != null) {
             properties.put(MAX_POST_SIZE, getMaxPostSize());
