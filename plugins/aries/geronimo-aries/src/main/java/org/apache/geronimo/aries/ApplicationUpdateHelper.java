@@ -45,6 +45,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.transformer.TransformerAgent;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
@@ -134,7 +135,7 @@ public class ApplicationUpdateHelper {
 
             // update application archive
             try {
-                updateArchive(targetBundle, bundleFile);
+                updateEBA(targetBundle, bundleFile);
             } catch (Exception e) {
                 LOG.warn("Error updating application archive with the new contents. " +
                          "Changes made might be gone next time the application or server is restarted.", e.getMessage());
@@ -177,7 +178,7 @@ public class ApplicationUpdateHelper {
             File updatedBundleFile = null;
             try {
                 updatedBundleFile = createUpdatedJarFile(targetBundle, changesFile);
-                updateArchive(targetBundle, updatedBundleFile);
+                updateEBA(targetBundle, updatedBundleFile);
             } catch (Exception e) {
                 LOG.warn("Error updating application archive with the new contents. " +
                          "Changes made might be gone next time the application or server is restarted.", e.getMessage());
@@ -363,24 +364,48 @@ public class ApplicationUpdateHelper {
         
         String bundleNameInApp = getBundleNameInArchive(targetBundle);
         
-        ZipFile zipFile = null;
+        if (ebaArchive.isDirectory()) {
+            return createUpdateJarFileDirectory(changesFile, ebaArchive, bundleNameInApp);
+        } else {
+            return createUpdateJarFileArchive(changesFile, ebaArchive, bundleNameInApp);
+        }
+    }
+
+    private File createUpdateJarFileDirectory(File changesFile, File ebaArchive, String bundleNameInApp) throws IOException {
+        File sourceFile = new File(ebaArchive, bundleNameInApp);
+        if (!sourceFile.exists()) {
+            throw new IOException("Unable to locate " + bundleNameInApp + " in " + ebaArchive);
+        }
         File updatedFile = null;
+        try {
+            updatedFile = File.createTempFile(bundleNameInApp, ".jar");
+            JarInputStream jarIn = new JarInputStream(new FileInputStream(sourceFile));
+            updateJarFile(jarIn, changesFile, updatedFile);
+        } catch (IOException e) {
+            deleteFile(updatedFile);
+            throw e;
+        }
+        return updatedFile;
+    }
+
+    private File createUpdateJarFileArchive(File changesFile, File ebaArchive, String bundleNameInApp) throws IOException {
+        File updatedFile = null;
+        ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(ebaArchive);
             ZipEntry entry = zipFile.getEntry(bundleNameInApp);
             if (entry == null) {
                 throw new IOException("Unable to locate " + bundleNameInApp + " in " + ebaArchive);
-            }           
+            }
             updatedFile = File.createTempFile(bundleNameInApp, ".jar");
             JarInputStream jarIn = new JarInputStream(zipFile.getInputStream(entry));
-            updateJarFile(jarIn, changesFile, updatedFile);            
+            updateJarFile(jarIn, changesFile, updatedFile);
         } catch (IOException e) {
             deleteFile(updatedFile);
             throw e;
         } finally {
             close(zipFile);
         }
-        
         return updatedFile;
     }
     
@@ -436,14 +461,28 @@ public class ApplicationUpdateHelper {
         }
     }
     
-    private void updateArchive(Bundle bundle, File bundleFile) throws IOException {
+    private void updateEBA(Bundle bundle, File bundleFile) throws IOException {
         File ebaArchive = applicationGBean.getApplicationArchive();
-
-        File newEbaArchive = new File(ebaArchive.getAbsoluteFile() + ".new");
 
         String bundleNameInApp = getBundleNameInArchive(bundle);
 
         LOG.debug("Updating {} application archive with new contents for {}", ebaArchive, bundleNameInApp);
+
+        if (ebaArchive.isDirectory()) {
+            updateApplicationDirectory(ebaArchive, bundleFile, bundleNameInApp);
+        } else {
+            updateApplicationArchive(ebaArchive, bundleFile, bundleNameInApp);
+        }
+    }
+
+    private void updateApplicationDirectory(File ebaArchive, File bundleFile, String bundleNameInApp) throws IOException {
+        File destinationFile = new File(ebaArchive, bundleNameInApp);
+        LOG.debug("Updating contents of {} with {}", bundleNameInApp, bundleFile.getAbsolutePath());
+        FileUtils.copyFile(bundleFile, destinationFile);
+    }
+    
+    private void updateApplicationArchive(File ebaArchive, File bundleFile, String bundleNameInApp) throws IOException {
+        File newEbaArchive = new File(ebaArchive.getAbsoluteFile() + ".new");
 
         ZipFile oldZipFile = null;
         ZipOutputStream newZipFile = null;
@@ -500,14 +539,15 @@ public class ApplicationUpdateHelper {
     }
     
     private static String getBundleNameInArchive(Bundle bundle) {
-        URI bundleLocation = URI.create(bundle.getLocation());
-        String bundleNameInApp = bundleLocation.getPath();
-        if (bundleNameInApp.startsWith("/")) {
-            bundleNameInApp = bundleNameInApp.substring(1);
+        // TODO: handle foo/bar.jar?
+        
+        String location = bundle.getLocation();
+        int pos = location.lastIndexOf('/');
+        if (pos == -1) {
+            throw new RuntimeException("Unable to determine bundle name in application: " + location);
         }
-        return bundleNameInApp;
+        return location.substring(pos + 1);
     }
-    
 
     private static void close(ZipFile thing) {
         if (thing != null) {

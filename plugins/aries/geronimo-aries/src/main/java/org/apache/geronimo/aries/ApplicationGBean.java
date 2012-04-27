@@ -161,7 +161,6 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
         waitForStart();
         updateHelper.updateBundle(targetBundle, file);
-        waitForStart();
     }
     
     /*
