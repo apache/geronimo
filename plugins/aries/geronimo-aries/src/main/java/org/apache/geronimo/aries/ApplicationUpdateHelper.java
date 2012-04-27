@@ -538,15 +538,19 @@ public class ApplicationUpdateHelper {
         }
     }
     
-    private static String getBundleNameInArchive(Bundle bundle) {
-        // TODO: handle foo/bar.jar?
-        
+    private String getBundleNameInArchive(Bundle bundle) {
+        String baseLocation = applicationGBean.getBundle().getLocation();
         String location = bundle.getLocation();
-        int pos = location.lastIndexOf('/');
-        if (pos == -1) {
-            throw new RuntimeException("Unable to determine bundle name in application: " + location);
+        if (location.startsWith(baseLocation)) {
+            return location.substring(baseLocation.length());
+        } else {
+            URI bundleLocation = URI.create(location);
+            String bundleNameInApp = bundleLocation.getPath();
+            if (bundleNameInApp.startsWith("/")) {
+                bundleNameInApp = bundleNameInApp.substring(1);
+            }
+            return bundleNameInApp;
         }
-        return location.substring(pos + 1);
     }
 
     private static void close(ZipFile thing) {
