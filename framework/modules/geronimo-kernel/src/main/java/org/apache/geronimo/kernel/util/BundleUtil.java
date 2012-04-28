@@ -17,13 +17,7 @@
 
 package org.apache.geronimo.kernel.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
 /**
@@ -35,12 +29,6 @@ public class BundleUtil {
     public final static String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
 
     public final static String EBA_GROUP_ID = "application";
-
-    public final static String REFERENCE_SCHEME = "reference:";
-
-    public final static String FILE_SCHEMA = "file:";
-
-    public final static String REFERENCE_FILE_SCHEMA = "reference:file:";
 
     public static String getVersion(org.osgi.framework.Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
@@ -54,63 +42,5 @@ public class BundleUtil {
     public static Artifact createArtifact(String group, String symbolicName, Version version) {
         return new Artifact(group, symbolicName, getVersion(version), "eba");
     }
-
-    public static File toFile(Bundle bundle) {
-        return toFile(bundle.getLocation());
-    }
-
-    public static File toFile(URL url) {
-        return toFile(url.toExternalForm());
-    }
-
-    /**
-     * Translate the reference:file:// style URL  to the underlying file instance
-     * @param url
-     * @return
-     */
-    public static File toFile(String url) {
-        if (url.startsWith(REFERENCE_FILE_SCHEMA)) {
-            File file = new File(url.substring(REFERENCE_FILE_SCHEMA.length()));
-            if (file.exists()) {
-                return file;
-            }
-        }
-        return null;
-    }
-
-    public static String toReferenceFileLocation(File file) throws IOException {
-        if (!file.exists()) {
-            throw new IOException("file not exist " + file.getAbsolutePath());
-        }
-        return REFERENCE_SCHEME + file.toURI();
-    }
-
-    public static URL getEntry(Bundle bundle, String name) throws MalformedURLException {
-        File bundleFile = toFile(bundle);
-        if (bundleFile != null && bundleFile.isDirectory()) {
-            File entryFile = new File(bundleFile, name);
-            if (entryFile.exists()) {
-                return entryFile.toURI().toURL();
-            } else {
-                return null;
-            }
-        }
-        return bundle.getEntry(name);
-    }
-
-    public static URL getNestedEntry(Bundle bundle, String jarEntryName, String subEntryName) throws MalformedURLException {
-        File bundleFile = toFile(bundle);
-        if (bundleFile != null && bundleFile.isDirectory()) {
-            File entryFile = new File(bundleFile, jarEntryName);
-            if (entryFile.exists()) {
-                if (entryFile.isFile()) {
-                    return new URL("jar:" + entryFile.toURI().toURL() + "!/" + subEntryName);
-                } else {
-                    return new File(entryFile, subEntryName).toURI().toURL();
-                }
-            }
-            return null;
-        }
-        return new URL("jar:" + bundle.getEntry(jarEntryName).toString() + "!/" + subEntryName);
-    }
+    
 }

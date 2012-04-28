@@ -74,7 +74,6 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -108,6 +107,7 @@ import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.IntrospectionUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -514,7 +514,7 @@ public class GeronimoStandardContext extends StandardContext {
     }
 
     protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
-        File bundleFileRoot = BundleUtil.toFile(bundle);
+        File bundleFileRoot = BundleUtils.toFile(bundle);
         if (bundleFileRoot != null) {
             File applicationRoot = tomcatContext.getModulePath() == null ? bundleFileRoot : new File(bundleFileRoot, tomcatContext.getModulePath());
             if (applicationRoot.exists() && applicationRoot.isDirectory()) {
@@ -636,7 +636,7 @@ public class GeronimoStandardContext extends StandardContext {
             realPathTempDirectory.mkdirs();
             String modulePath = tomcatContext.getModulePath() == null ? "" : tomcatContext.getModulePath();
             try {
-                File bundleFile = BundleUtil.toFile(bundle);
+                File bundleFile = BundleUtils.toFile(bundle);
                 if (bundleFile != null) {
                     if (bundleFile.isFile()) {
                         JarUtils.unzipToDirectory(new ZipFile(bundleFile), realPathTempDirectory, modulePath, true);
@@ -906,7 +906,7 @@ public class GeronimoStandardContext extends StandardContext {
         InputStream in = null;
         try {
             URLConnection connection = url.openConnection();
-            File file = BundleUtil.toFile(url);
+            File file = BundleUtils.toFile(url);
             if (file != null) {
                 if (file.isFile()) {
                     in = new FileInputStream(file);

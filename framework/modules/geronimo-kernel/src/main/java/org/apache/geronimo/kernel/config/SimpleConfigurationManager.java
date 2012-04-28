@@ -42,7 +42,6 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -625,7 +624,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         monitor.reading(configurationId);
         for (Repository repo : repositories) {
             if (repo.contains(configurationId)) {
-                return BundleUtil.toReferenceFileLocation(repo.getLocation(configurationId));
+                return BundleUtils.toReferenceFileLocation(repo.getLocation(configurationId));
             }
         }
         NoSuchConfigException exception = new NoSuchConfigException(configurationId);

@@ -379,7 +379,13 @@ public class GeronimoWebAppContext extends WebAppContext {
 
     private Resource lookupResource(String uriInContext) {
         Bundle bundle = integrationContext.getBundle();
-        URL url = BundleUtils.getEntry(bundle, uriInContext);
+        URL url;
+        try {
+            url = BundleUtils.getEntry(bundle, uriInContext);
+        } catch (MalformedURLException e) {
+            logger.warn("MalformedURLException when getting entry:" + uriInContext + " from bundle " + bundle.getSymbolicName(), e);
+            url = null;
+        }
         if (url == null) {
             url = bundle.getResource("META-INF/resources" + uriInContext);
             if (url == null) {

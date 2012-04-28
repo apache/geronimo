@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -233,7 +234,13 @@ public class BundleDirContext extends BaseDirContext {
     @Override
     protected Attributes doGetAttributes(String name, String[] attrIds) throws NamingException {
         name = getName(name);
-        URL url = BundleUtils.getEntry(bundle, name);
+        URL url;
+        try {
+            url = BundleUtils.getEntry(bundle, name);
+        } catch (MalformedURLException e) {
+            logger.warn("MalformedURLException when getting entry:" + name + " from bundle " + bundle.getSymbolicName(), e);
+            url = null;
+        }
         if (url == null) {
             return null;
         }
@@ -264,7 +271,13 @@ public class BundleDirContext extends BaseDirContext {
     @Override
     protected Object doLookup(String name) {
         name = getName(name);
-        URL url = BundleUtils.getEntry(bundle, name);
+        URL url;
+        try {
+            url = BundleUtils.getEntry(bundle, name);
+        } catch (MalformedURLException e) {
+            logger.warn("MalformedURLException when getting entry:" + name + " from bundle " + bundle.getSymbolicName(), e);
+            url = null;
+        }
         if (url == null) {
             return null;
         }

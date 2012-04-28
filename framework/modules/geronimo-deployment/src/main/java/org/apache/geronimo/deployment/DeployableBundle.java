@@ -16,15 +16,20 @@
  */
 package org.apache.geronimo.deployment;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:386276 $ $Date$
  */
 public class DeployableBundle implements Deployable {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DeployableBundle.class);
     
     private Bundle bundle;
     
@@ -33,7 +38,12 @@ public class DeployableBundle implements Deployable {
     }
     
     public URL getResource(String name) {
-        return BundleUtils.getEntry(bundle, name);
+        try {
+            return BundleUtils.getEntry(bundle, name);
+        } catch (MalformedURLException e) {
+            logger.warn("MalformedURLException when getting entry:" + name + " from bundle " + bundle.getSymbolicName(), e);
+            return null;
+        }
     }
     
     public void close() {        

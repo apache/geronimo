@@ -36,7 +36,7 @@ import org.apache.aries.application.utils.AppConstants;
 import org.apache.aries.application.utils.filesystem.IOUtils;
 import org.apache.aries.application.utils.management.SimpleBundleInfo;
 import org.apache.aries.application.utils.manifest.BundleManifest;
-import org.apache.geronimo.kernel.util.BundleUtil;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -65,7 +65,7 @@ public class GeronimoApplication implements AriesApplication {
         bundleInfo = new HashSet<BundleInfo>();
 
         boolean bundleInfoCollected = false;
-        File bundleFile = BundleUtil.toFile(bundle);
+        File bundleFile = BundleUtils.toFile(bundle);
         if (bundleFile != null && bundleFile.isDirectory()) {
             collectFileSystemBasedBundleInfos(bundleFile, applicationFactory);
             bundleInfoCollected = true;
@@ -117,7 +117,7 @@ public class GeronimoApplication implements AriesApplication {
             }
             BundleManifest bm = BundleManifest.fromBundle(file);
             if (bm != null && bm.isValid()) {
-                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, BundleUtil.toReferenceFileLocation(file)));
+                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, BundleUtils.toReferenceFileLocation(file)));
             }
         }
     }

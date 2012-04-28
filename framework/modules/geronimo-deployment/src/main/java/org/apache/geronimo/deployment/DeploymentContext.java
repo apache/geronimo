@@ -68,7 +68,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -199,7 +198,7 @@ public class DeploymentContext {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
             createTempManifest();
             createPluginMetadata();
-            String location = BundleUtil.toReferenceFileLocation(getConfigurationDir());
+            String location = BundleUtils.toReferenceFileLocation(getConfigurationDir());
             tempBundle = bundleContext.installBundle(location);
             if (BundleUtils.canStart(tempBundle)) {
                 tempBundle.start(Bundle.START_TRANSIENT);

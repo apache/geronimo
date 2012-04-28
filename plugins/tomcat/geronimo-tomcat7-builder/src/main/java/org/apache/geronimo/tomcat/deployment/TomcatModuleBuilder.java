@@ -22,6 +22,7 @@ import static java.lang.Boolean.TRUE;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -211,7 +212,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         String specDD = null;
         WebApp webApp = null;
 
-        URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
+        URL specDDUrl;
+        try {
+            specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
+        } catch (MalformedURLException e) {
+            log.warn("MalformedURLException when getting entry:" + "WEB-INF/web.xml" + " from bundle " + bundle.getSymbolicName(), e);
+            specDDUrl = null;
+        }
         if (specDDUrl == null) {
             webApp = new WebApp();
         } else {

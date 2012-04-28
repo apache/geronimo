@@ -57,7 +57,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -65,6 +64,7 @@ import org.apache.openejb.jee.JAXBContextFactory;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Persistence;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.QNameSet;
@@ -198,7 +198,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 }
 
                 public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream inputStream) throws Exception {
-                    URL url = BundleUtil.getNestedEntry(bundle, jarName, entry.getName());
+                    URL url = BundleUtils.getNestedEntry(bundle, jarName, entry.getName());
                     persistenceURLs.put(url, jarName);
                     return true;
                 }

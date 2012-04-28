@@ -52,12 +52,12 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xbean.osgi.bundle.util.BundleResourceHelper;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,13 +168,13 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
 
     private static URL getPersistenceUnitRoot(Bundle bundle, String persistenceUnitRoot) throws MalformedURLException {
         if (persistenceUnitRoot == null || persistenceUnitRoot.equals(".")) {
-            return BundleUtil.getEntry(bundle, "/");
+            return BundleUtils.getEntry(bundle, "/");
         } else {
             // according to EJB3.0 Persistence Specification section 6.2
             // 1. the root of a persistence unit could be the WEB-INF/classes directory of a WAR file
             // 2. the root of a persistence unit could be EJB-JAR, APPCLIENT-JAR
             // 3. the persistence unit can be a jar in the following 3 places: WEB-INF/lib directory of a war; root of a EAR; lib directory of a EAR
-            return BundleUtil.getEntry(bundle, persistenceUnitRoot);
+            return BundleUtils.getEntry(bundle, persistenceUnitRoot);
         }
     }
 
@@ -324,7 +324,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
 
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
-            this.tempClassLoader = new TemporaryClassLoader(new BundleClassLoader(bundle,true,false));
+            this.tempClassLoader = new TemporaryClassLoader(new BundleClassLoader(bundle,true,true));
             this.bundle = bundle;
         }
 
