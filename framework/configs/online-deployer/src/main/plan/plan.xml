@@ -109,16 +109,8 @@
         <reference name="Repositories"></reference>
     </gbean>
 
-    <!-- Logging service -->
-    <!--
-    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configFileName">var/log/deployer-log4j.properties</attribute>
-        <attribute name="refreshPeriodSeconds">60</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.OSGILogServiceWrapper">       
     </gbean>
-    -->
 
     <gbean name="DeployerBridge" class="org.apache.geronimo.system.main.MainBridge"/>
 

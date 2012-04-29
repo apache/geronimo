@@ -90,6 +90,12 @@
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>openwebbeans</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
                     </dependencies>
                     <instance>
                         <plugin-artifact>
