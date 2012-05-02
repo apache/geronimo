@@ -113,7 +113,14 @@ public class PlutoURLRebuildFilter implements Filter {
             // For IE could not handler the url of the length more than 2048 
             // Currently we only handler the location is begin with '/', which means that it should be an absolute path
             // For the location does not contain the http://server:port/, we use 1900 instead of 2048
+            
+        	location = location.replaceAll("%7C", "|");
+        	
             if (location.charAt(0) == '/' && location.length() > 1900) {
+        		
+        		if (location.endsWith("?"))
+        			location = location.substring(0, location.length()-1);
+        		
                 PrintWriter writer = getWriter();
                 writer
                         .write("<html><head></head><body onload='document.hform.submit()'><form name='hform' method='POST' action='");
