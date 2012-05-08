@@ -29,11 +29,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
@@ -57,9 +55,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.wiring.FrameworkWiring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +66,17 @@ public class ApplicationUpdateHelper {
         
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationUpdateHelper.class);
     
+    private static final long bundleRefreshTimeout = getBundleRefreshTimeout();
+    
     private final ApplicationGBean applicationGBean;
     
     public ApplicationUpdateHelper(ApplicationGBean applicationGBean) {
         this.applicationGBean = applicationGBean;
+    }
+    
+    private static long getBundleRefreshTimeout() {
+        String property = System.getProperty("org.apache.geronimo.aries.bundleRefreshTimeout", String.valueOf(5 * 60 * 1000));
+        return Long.parseLong(property);
     }
     
     public void updateBundle(Bundle targetBundle, File bundleFile) throws Exception {
@@ -85,8 +88,6 @@ public class ApplicationUpdateHelper {
                 
         BundleContext context = applicationGBean.getBundle().getBundleContext();
 
-        ServiceReference reference = null;
-        RefreshListener refreshListener = null;
         try {
             // stop the bundle
             targetBundle.stop();
@@ -100,18 +101,18 @@ public class ApplicationUpdateHelper {
                 close(fi);
             }
 
-            reference = context.getServiceReference(PackageAdmin.class.getName());
-            PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
+            FrameworkWiring wiring = context.getBundle(0).adapt(FrameworkWiring.class);
             
-            Bundle[] bundles = new Bundle [] { targetBundle };
+            Collection<Bundle> bundles = Arrays.asList(targetBundle);
+            
             // resolve the bundle
-            if (!packageAdmin.resolveBundles(bundles)) {
+            if (!wiring.resolveBundles(bundles)) {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Updated ").append(bundleName).append(" bundle cannot be resolved.");
                 
                 // check for resolver errors
                 ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(context);
-                String resolverErrors = errorAnalyzer.getErrorsAsString(Arrays.asList(bundles));
+                String resolverErrors = errorAnalyzer.getErrorsAsString(bundles);
                 if (resolverErrors != null) {
                     builder.append(" ").append(resolverErrors);
                 }
@@ -119,19 +120,19 @@ public class ApplicationUpdateHelper {
                 throw new BundleException(builder.toString());
             }
             
-            Set<Bundle> dependents = new HashSet<Bundle>();
-            collectDependentBundles(packageAdmin, dependents, targetBundle);
+            // log dependents
+            Collection<Bundle> dependents = wiring.getDependencyClosure(bundles);
+            dependents.removeAll(bundles);
             if (!dependents.isEmpty()) {
                 String bundleListString = bundleCollectionToString(dependents);
                 LOG.info("Update of {} bundle will cause the following bundles to be refreshed: {}", bundleName, bundleListString);
             }
             
             // install listener for package refresh
-            refreshListener = new RefreshListener();
-            context.addFrameworkListener(refreshListener);
+            RefreshListener refreshListener = new RefreshListener();
 
             // refresh the bundle - this happens asynchronously
-            packageAdmin.refreshPackages(bundles);
+            wiring.refreshBundles(bundles, refreshListener);
 
             // update application archive
             try {
@@ -142,7 +143,7 @@ public class ApplicationUpdateHelper {
             }
 
             // wait for package refresh to finish
-            refreshListener.waitForRefresh(10 * 1000);
+            refreshListener.waitForRefresh(bundleRefreshTimeout);
 
             // start the bundle
             if (BundleUtils.canStart(targetBundle)) {
@@ -154,13 +155,6 @@ public class ApplicationUpdateHelper {
         } catch (Exception e) {
             LOG.error("Error updating " + bundleName + " bundle in " + applicationName + " application", e);
             throw new Exception("Error updating application: " + e.getMessage());
-        } finally {
-            if (refreshListener != null) {
-                context.removeFrameworkListener(refreshListener);
-            }
-            if (reference != null) {
-                context.ungetService(reference);
-            }
         }
     }
     
@@ -306,28 +300,11 @@ public class ApplicationUpdateHelper {
             }
         }
 
-        public void waitForRefresh(int timeout) {
+        public void waitForRefresh(long timeout) {
             try {
                 latch.await(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // ignore
-            }
-        }
-    }
-
-    private void collectDependentBundles(PackageAdmin packageAdmin, Set<Bundle> dependents, Bundle bundle) {
-        ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
-        if (exportedPackages != null) {
-            for (ExportedPackage exportedPackage : exportedPackages) {
-                Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                if (importingBundles != null) {
-                    for (Bundle importingBundle : importingBundles) {
-                        if (!dependents.contains(importingBundle)) {
-                            dependents.add(importingBundle);
-                            collectDependentBundles(packageAdmin, dependents, importingBundle);
-                        }
-                    }
-                }
             }
         }
     }
