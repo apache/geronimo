@@ -217,8 +217,6 @@ done
 
 # Setup the Java agent
 JAVA_AGENT_JAR="$GERONIMO_HOME/lib/agent/transformer.jar"
-# Extension dirs
-EXT_DIRS="$GERONIMO_HOME/lib/ext:$JRE_HOME/lib/ext"
 # Endorsed dirs
 ENDORSED_DIRS="$GERONIMO_HOME/lib/endorsed:$JRE_HOME/lib/endorsed"
 
@@ -230,7 +228,6 @@ if $cygwin; then
   GERONIMO_SERVER=`cygpath --absolute --windows "$GERONIMO_SERVER"`
   GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-  EXT_DIRS=`cygpath --path --windows "$EXT_DIRS"`
   ENDORSED_DIRS=`cygpath --path --windows "$ENDORSED_DIRS"`
 fi
 
@@ -296,7 +293,6 @@ if [ "$1" = "debug" ] ; then
       -Dkaraf.base="$GERONIMO_SERVER" \
       -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
       -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-      -Djava.ext.dirs="$EXT_DIRS" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$CLASSPATH" \
        org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -314,7 +310,6 @@ elif [ "$1" = "run" ]; then
         -Dkaraf.base="$GERONIMO_SERVER" \
         -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-        -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
         -classpath "$CLASSPATH" \
         org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -327,7 +322,6 @@ elif [ "$1" = "run" ]; then
         -Dkaraf.base="$GERONIMO_SERVER" \
         -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-        -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
         -classpath "$CLASSPATH" \
         org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -352,7 +346,6 @@ elif [ "$1" = "start" ] ; then
           -Dkaraf.base="$GERONIMO_SERVER" \
           -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-          -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -365,7 +358,6 @@ elif [ "$1" = "start" ] ; then
           -Dkaraf.base="$GERONIMO_SERVER" \
           -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-          -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -382,7 +374,6 @@ elif [ "$1" = "start" ] ; then
           -Dkaraf.base="$GERONIMO_SERVER" \
           -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-          -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@" \
@@ -401,7 +392,6 @@ elif [ "$1" = "start" ] ; then
           -Dkaraf.base="$GERONIMO_SERVER" \
           -Djava.util.logging.config.file=$GERONIMO_SERVER/etc/java.util.logging.properties \
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-          -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@" \
@@ -433,7 +423,6 @@ elif [ "$1" = "stop" ] ; then
     -Dkaraf.base="$GERONIMO_SERVER" \
     -Djava.util.logging.config.file="$GERONIMO_SERVER"/etc/java.util.logging.properties \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-    -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -classpath "$CLASSPATH" \
     org.apache.geronimo.cli.shutdown.ShutdownCLI "$@"

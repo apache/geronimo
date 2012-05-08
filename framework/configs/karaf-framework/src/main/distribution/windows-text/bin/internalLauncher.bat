@@ -26,6 +26,6 @@ if ""%1""=="""" goto doneSetArgs
 set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
 
 :doneSetArgs
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS% >> "%GERONIMO_SERVER%\var\log\geronimo.out" 2>&1
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS% >> "%GERONIMO_SERVER%\var\log\geronimo.out" 2>&1
 if not %errorlevel% == 0 pause
 exit %errorlevel%
