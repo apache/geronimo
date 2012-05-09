@@ -22,6 +22,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -383,14 +384,14 @@ public class ApplicationGBean implements GBeanLifecycle {
             throw new BundleException("One or more bundles in " + getApplicationName() + " application could not be resolved.");
         }
         
-        List<Bundle> bundlesWeStarted = new ArrayList<Bundle>();
+        LinkedList<Bundle> bundlesWeStarted = new LinkedList<Bundle>();
         try {
-            Set<Bundle> sortedBundles = getSortedBundles();
-            for (Bundle b : sortedBundles) {
+            applicationBundles = getSortedBundles();
+            for (Bundle b : applicationBundles) {
                 if (BundleUtils.canStart(b)) {
                     LOG.debug("Starting {} application bundle.", b);
-                    b.start(Bundle.START_TRANSIENT);
-                    bundlesWeStarted.add(b);
+                    b.start(Bundle.START_TRANSIENT);                 
+                    bundlesWeStarted.addFirst(b); 
                 }
             }
         } catch (BundleException be) {
@@ -414,7 +415,7 @@ public class ApplicationGBean implements GBeanLifecycle {
      * Sorts bundles in bundle dependency order (i.e. Import-Package, Require-Bundle order).
      */
     private LinkedHashSet<Bundle> getSortedBundles() {
-        LinkedHashSet<Bundle> orderedBundles = new LinkedHashSet<Bundle>();
+        LinkedHashSet<Bundle> orderedBundles = new LinkedHashSet<Bundle>(applicationBundles.size());
         for (Bundle bundle : applicationBundles) {
             sortDependentBundles(bundle, orderedBundles);
         }
@@ -480,8 +481,15 @@ public class ApplicationGBean implements GBeanLifecycle {
     public void doStop() {
         LOG.debug("Stopping {} application.", getApplicationName());
         
+        // stop bundles in reverse order
+        LinkedList<Bundle> sortedList = new LinkedList<Bundle>();
         for (Bundle bundle : applicationBundles) {
+            sortedList.addFirst(bundle);
+        }
+        
+        for (Bundle bundle : sortedList) {
             try {
+                LOG.debug("Stopping and uninstalling {} application bundle.", bundle);
                 bundle.uninstall();
             } catch (Exception e) {
                 LOG.error("Fail to uninstall", e);
