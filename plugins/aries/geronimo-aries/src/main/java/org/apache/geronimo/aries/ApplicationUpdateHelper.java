@@ -128,12 +128,6 @@ public class ApplicationUpdateHelper {
                 LOG.info("Update of {} bundle will cause the following bundles to be refreshed: {}", bundleName, bundleListString);
             }
             
-            // install listener for package refresh
-            RefreshListener refreshListener = new RefreshListener();
-
-            // refresh the bundle - this happens asynchronously
-            wiring.refreshBundles(bundles, refreshListener);
-
             // update application archive
             try {
                 updateEBA(targetBundle, bundleFile);
@@ -141,8 +135,10 @@ public class ApplicationUpdateHelper {
                 LOG.warn("Error updating application archive with the new contents. " +
                          "Changes made might be gone next time the application or server is restarted.", e.getMessage());
             }
-
-            // wait for package refresh to finish
+            
+            // refresh the bundle and its dependents
+            RefreshListener refreshListener = new RefreshListener();
+            wiring.refreshBundles(bundles, refreshListener);
             refreshListener.waitForRefresh(bundleRefreshTimeout);
 
             // start the bundle
