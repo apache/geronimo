@@ -2318,7 +2318,7 @@ only found in cxf
                 <enabled>false</enabled>
             </releases>
         </pluginRepository>
-        <!-- Staging repo to validate voting artifacts -->
+        <!-- Staging repo to validate voting artifacts 
         <pluginRepository>
                     <id>voting_repo</id>
                     <name>xbean 3.11 voting repository</name>
@@ -2374,11 +2374,11 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </pluginRepository>
+                </pluginRepository>-->
     </pluginRepositories>
     
     <repositories>
-    <!-- Staging repo to validate voting artifacts -->
+    <!-- Staging repo to validate voting artifacts 
         <repository>
                     <id>voting_repo</id>
                     <name>xbean 3.11 voting repository</name>
@@ -2434,7 +2434,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </repository>
+                </repository>-->
     </repositories>      
 
     <profiles>
