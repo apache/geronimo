@@ -12,6 +12,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>bval-jsr303</artifactId>
         <type>jar</type>
