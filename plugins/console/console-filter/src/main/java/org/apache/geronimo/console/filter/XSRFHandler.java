@@ -21,8 +21,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +54,7 @@ public class XSRFHandler
     private static final String NOXSS_HASH_OF_PAGE_TO_REDIRECT = "noxssPage";
 
     private Map<String, String> sessionMap = new ConcurrentHashMap<String, String>();
+    private Set<String> ignoredPaths = new HashSet<String>();
     private String xsrfJS;
 
     private Random random = new Random();
@@ -63,6 +67,18 @@ public class XSRFHandler
         log.debug("loaded xsrf file");
     }
 
+    /**
+     * A comma separated list of resource paths that will be ignored during XSRF check.
+     * 
+     * @param resourceList
+     */
+    public void setIgnorePaths(String pathList) {
+        String values[] = pathList.split(",");
+        for (String value : values) {
+            ignoredPaths.add(value.trim());
+        }
+    }
+    
     //----- Session handler routines -----
 
     /**
@@ -85,21 +101,21 @@ public class XSRFHandler
             return false;
         }
 
+        if (isIgnoredPath(hreq)) {
+            log.debug("Skipped XSRF checking for requestURI=" + hreq.getRequestURI());
+            return false;
+        }
+        
         if ((hreq.getQueryString() != null && hreq.getQueryString().length() > 0)
                 || (hreq.getParameterNames().hasMoreElements())) {
             
-            
             if (hreq.getParameterMap().keySet().size() == 1 && hreq.getParameter(NOXSS_SHOW_TREE) != null) {
-
                 return false;
-
             }
             
             if (hreq.getParameterMap().keySet().size() == 2 && hreq.getParameter(NOXSS_SHOW_TREE) != null
                     && hreq.getParameter(NOXSS_HASH_OF_PAGE_TO_REDIRECT)!=null) {
-
                 return false;
-
             }
             
             String sesId = (String)hses.getAttribute(XSRF_UNIQUEID);
@@ -204,6 +220,17 @@ public class XSRFHandler
             sessionMap.remove(sesId);        
         }
     }
+    
+    private boolean isIgnoredPath(HttpServletRequest hreq) {
+        if (!ignoredPaths.isEmpty() && "GET".equals(hreq.getMethod())) {
+            String path = hreq.getServletPath();
+            if (hreq.getPathInfo() != null) {
+                path = path + hreq.getPathInfo();
+            }
+            return ignoredPaths.contains(path);
+        }
+        return false;
+    }
 
     //----- Response handler routines -----
     /**
@@ -234,31 +261,30 @@ public class XSRFHandler
      * @return String containing the JavaScript content, else null
      */
     private String getFile(String filename) {
-        StringBuilder sb = new StringBuilder();
         InputStream is = getClass().getResourceAsStream(filename);
         if (is != null) {
+            StringBuilder sb = new StringBuilder();
+            InputStreamReader reader = null;
             try {
+                reader = new InputStreamReader(is, "UTF-8");
+                char[] buffer = new char[1024];
                 int i = 0;
-                while ((i = is.read()) > 0) {
-                    sb.append((char) i);
+                while ((i = reader.read(buffer)) > 0) {
+                    sb.append(buffer, 0, i);
                 }
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 log.error("Could not read resource=" + filename, ioe);
-            }
-            finally {
-                try {
-                    is.close();
+            } finally {
+                if (reader != null) {
+                    try { reader.close(); } catch (IOException ignored) {}
                 }
-                catch (IOException ioe) {
-                }
+                try { is.close(); } catch (IOException ignored) {}
             }
-        }
-        else {
+            return sb.toString();
+        } else {
             log.error("Could not load required resource=" + filename);
             return null;
         }
-        return sb.toString();
     }
 
 }
