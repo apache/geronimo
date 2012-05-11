@@ -208,6 +208,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multipoint.heart_rate", Long.toString(heartRate));
         properties.setProperty("multipoint.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
         if ((discoveryHost != null) && discoveryHost.length() > 0) {
+            properties.setProperty("multipoint.discoveryHost", discoveryHost);
             properties.setProperty("ejbd.discoveryHost", discoveryHost);
             properties.setProperty("ejbd.discovery", "ejb:ejbd://{discoveryHost}:{port}");
         } else {
