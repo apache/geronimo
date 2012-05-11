@@ -415,34 +415,46 @@ public class ApplicationGBean implements GBeanLifecycle {
      * Sorts bundles in bundle dependency order (i.e. Import-Package, Require-Bundle order).
      */
     private LinkedHashSet<Bundle> getSortedBundles() {
+        LinkedList<Bundle> stack = new LinkedList<Bundle>();
         LinkedHashSet<Bundle> orderedBundles = new LinkedHashSet<Bundle>(applicationBundles.size());
         for (Bundle bundle : applicationBundles) {
-            sortDependentBundles(bundle, orderedBundles);
+            sortDependentBundles(bundle, orderedBundles, stack);
         }
         return orderedBundles;
     }
     
-    private void sortDependentBundles(Bundle bundle, LinkedHashSet<Bundle> sortedBundles) {
+    private void sortDependentBundles(Bundle bundle, LinkedHashSet<Bundle> sortedBundles, LinkedList<Bundle> stack) {
         if (sortedBundles.contains(bundle)) {
             return;
         }
+        
+        if (stack.contains(bundle)) {
+            // dependency loop detected
+            LOG.warn("Bundle dependency loop detected: {}", stack.subList(stack.indexOf(bundle), stack.size()));
+            return;
+        }
+        stack.add(bundle);
         
         BundleWiring wiring = bundle.adapt(BundleWiring.class);
         List<BundleWire> wires;
         wires = wiring.getRequiredWires(BundleRevision.PACKAGE_NAMESPACE);
         for (BundleWire wire : wires) {
             Bundle wiredBundle = wire.getProviderWiring().getBundle();
-            if (applicationBundles.contains(wiredBundle)) {
-                sortDependentBundles(wiredBundle, sortedBundles);
+            // examine wires to other application bundles only
+            if (wiredBundle != bundle && applicationBundles.contains(wiredBundle)) {
+                sortDependentBundles(wiredBundle, sortedBundles, stack);
             }
         }
         wires = wiring.getRequiredWires(BundleRevision.BUNDLE_NAMESPACE);
         for (BundleWire wire : wires) {
             Bundle wiredBundle = wire.getProviderWiring().getBundle();
-            if (applicationBundles.contains(wiredBundle)) {
-                sortDependentBundles(wiredBundle, sortedBundles);
+            // examine wires to other application bundles only
+            if (wiredBundle != bundle && applicationBundles.contains(wiredBundle)) {
+                sortDependentBundles(wiredBundle, sortedBundles, stack);
             }
         }
+        
+        stack.removeLast();
         
         sortedBundles.add(bundle);
     }
