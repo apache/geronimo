@@ -242,15 +242,22 @@ public class ApplicationUpdateHelper {
         for (int i = 0; i < classPathElements.size(); i++) {
             String classPathName = classPathElements.get(i).getName();
             if (classPathName.equals(".") || classPathName.equals("/")) {
-                classPathName = "";
-            } else if (classPathName.endsWith("/")) {
-                classPathName = classPathName.substring(0, classPathName.length() - 1);
+                classPath[i] = "";
+            } else {
+                int start = 0;
+                if (classPathName.startsWith("/")) {
+                    start++;
+                }
+                int end = classPathName.length();
+                if (classPathName.endsWith("/")) {
+                    end--;
+                }
+                /*
+                 * Could check & ignore jar class path entries but treat them as directory
+                 * entries for now. 
+                 */
+                classPath[i] = classPathName.substring(start, end);                
             }
-            /*
-             * Could check & ignore jar class path entries but treat them as directory
-             * entries for now. 
-             */
-            classPath[i] = classPathName;
         }
         return classPath;
     }
