@@ -2375,6 +2375,20 @@ only found in cxf
                         <enabled>true</enabled>
                     </releases>
                 </pluginRepository>-->
+                <pluginRepository>
+                    <id>voting_repo5</id>
+                    <name>Geronimo bval-jsr303 0.4_1 voting repository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-086/</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>ignore</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </pluginRepository>
     </pluginRepositories>
     
     <repositories>
@@ -2435,6 +2449,20 @@ only found in cxf
                         <enabled>true</enabled>
                     </releases>
                 </repository>-->
+                <repository>
+                    <id>voting_repo5</id>
+                    <name>Geronimo bval-jsr303 0.4_1 voting repository</name>
+                    <url>http://repository.apache.org/content/repositories/orgapachegeronimo-086/</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>ignore</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
     </repositories>      
 
     <profiles>
