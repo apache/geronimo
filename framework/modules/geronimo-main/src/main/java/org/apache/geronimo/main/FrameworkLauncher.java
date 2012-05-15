@@ -153,7 +153,8 @@ public class FrameworkLauncher {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                FrameworkLauncher.this.destroy(false);
+                // wait up to 3 minutes for complete shutdown
+                FrameworkLauncher.this.shutdown(3 * 60 * 1000);
             }
         });
 
@@ -181,17 +182,34 @@ public class FrameworkLauncher {
 
     public void destroy(boolean await) {
         try {
-            destroyFramework(await);
+            if (await) {
+                waitForFramework(0);
+            }
+            stopFramework(0);            
         } catch (Exception e) {
             System.err.println("Error stopping framework: " + e);
         }
 
+        cleanup();
+    }
+
+    public void shutdown(long timeout) {
+        try {
+            stopFramework(timeout);
+        } catch (Exception e) {
+            System.err.println("Error stopping framework: " + e);
+        }
+
+        cleanup();
+    }
+
+    private void cleanup() {
         if (uniqueInstance && cacheDirectory != null) {
             Utils.clearSunJarFileFactoryCache(cacheDirectory.getAbsolutePath());
             Utils.recursiveDelete(cacheDirectory);
         }
     }
-
+    
     private void configJansiPath() {
         String osName = "";
         String name = System.getProperty("os.name").toLowerCase().trim();
@@ -210,26 +228,29 @@ public class FrameworkLauncher {
         }
         System.setProperty("library.jansi.path", new File(geronimoBase, "var/native/jansi/" + osName + bitMode).getAbsolutePath());
     }
-
-    private void destroyFramework(boolean await) throws BundleException, InterruptedException {
+   
+    private void waitForFramework(long timeout) throws InterruptedException {
         if (framework == null) {
             return;
         }
-
-        if (await) {
-            while (true) {
-                FrameworkEvent event = framework.waitForStop(0);
-                if (event.getType() != FrameworkEvent.STOPPED_UPDATE) {
-                    break;
-                }
+        while (true) {
+            FrameworkEvent event = framework.waitForStop(timeout);
+            if (event.getType() != FrameworkEvent.STOPPED_UPDATE) {
+                break;
             }
+        }
+    }
+    
+    private void stopFramework(long timeout) throws BundleException, InterruptedException {
+        if (framework == null) {
+            return;
         }
         if (framework.getState() == Bundle.ACTIVE) {
             framework.stop();
-            framework.waitForStop(0);
+            framework.waitForStop(timeout);
         }
     }
-
+    
     public Framework getFramework() {
         return framework;
     }
