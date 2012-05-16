@@ -125,6 +125,12 @@ public class SecurityValve extends ValveBase implements org.apache.catalina.Auth
         return session == null? null: (UserIdentity)session.getNote(CACHED_IDENTITY_KEY);
 
     }
+    
+    @Override
+    public boolean authenticate(Request request, HttpServletResponse response)
+            throws IOException {        
+        return authenticate(request, response, null);
+    }
 
     @Override
     public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException {

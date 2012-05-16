@@ -59,12 +59,18 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
     public void init(FilterConfig config) throws ServletException {
         log.debug("init() called");
         String parmEnableXSS = config.getInitParameter("enableXSS");
-        String parmEnableXSRF = config.getInitParameter("enableXSRF");
-        if ((parmEnableXSS != null) && (parmEnableXSS.equals("false"))) {
+        if ((parmEnableXSS != null) && (parmEnableXSS.equalsIgnoreCase("false"))) {
             this.enableXSS = false;
         }
-        if ((parmEnableXSRF != null) && (parmEnableXSRF.equals("false"))) {
+        
+        String parmEnableXSRF = config.getInitParameter("enableXSRF");
+        if ((parmEnableXSRF != null) && (parmEnableXSRF.equalsIgnoreCase("false"))) {
             this.enableXSRF = false;
+        }
+        
+        String ignoreResources = config.getInitParameter("xsrf.ignorePaths");
+        if (ignoreResources != null) {
+            xsrf.setIgnorePaths(ignoreResources);
         }
     }
 
@@ -93,6 +99,7 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
             HttpServletRequest hreq = (HttpServletRequest)request;
             hreq.setCharacterEncoding("UTF-8");
             String errStr = null;
+            
             //--------------------------------------------------------------
             // Check the URI and QueryString for simple XSS attacks
             // Validate any FORM submission with our XSRF protection code
@@ -100,15 +107,15 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
             // check the URI/Params first, as they get logged during the XSRF checks
             if (enableXSS && xss.isInvalidURI(hreq)) {
                 // Block simple XSS attacks in GET request URIs
-                errStr = new String("XSSXSRFFilter blocked HttpServletRequest due to invalid URI content.");
+                errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid URI content.";
             }
             else if (enableXSS && xss.isInvalidParameters(hreq)) {
                 // Block simple XSS attacks in POST parameters
-                errStr = new String("XSSXSRFFilter blocked HttpServletRequest due to invalid POST content.");
+                errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid POST content.";
             }
             else if (enableXSRF && xsrf.isInvalidSession(hreq)) {
                 // Block simple XSRF attacks on our forms
-                errStr = new String("XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content.");   
+                errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content.";   
             }
             // if we found a problem, return a HTTP 400 error code and message
             if (errStr != null) {

@@ -28,14 +28,6 @@ public class TomcatEngine extends StandardEngine implements Engine{
     private static final long serialVersionUID = 3834312825844611385L;
 
     public Realm getRealm() {
-        if (realm != null)
-            return realm;
-        
-        if (parent != null){
-            Realm configured = parent.getRealm();
-            if (configured != null)
-                return configured;
-        }
-        return null;
+        return super.getRealm();
     }
 }

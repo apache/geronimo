@@ -21,12 +21,7 @@
 package org.apache.geronimo.system.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.SecureRandom;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -34,8 +29,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.crypto.AbstractEncryption;
-import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * Like SimpleEncryption except it uses a stored secret key.  If the key file is missing, it makes up a new one.
@@ -52,64 +45,22 @@ import org.apache.geronimo.crypto.EncryptionManager;
  *
  * @version $Rev$ $Date$
  */
-public class ConfiguredEncryption extends AbstractEncryption implements GBeanLifecycle {
+public class ConfiguredEncryption implements GBeanLifecycle {
 
-    private final SecretKeySpec spec;
+    private org.apache.geronimo.crypto.ConfiguredEncryption ce;
 
     public ConfiguredEncryption(String path, ServerInfo serverInfo) throws IOException, ClassNotFoundException {
         File location = serverInfo.resolve(path);
-        if (location.exists()) {
-            FileInputStream in = new FileInputStream(location);
-            try {
-                ObjectInputStream oin = new ObjectInputStream(in);
-                try {
-                    spec = (SecretKeySpec) oin.readObject();
-                } finally {
-                    oin.close();
-                }
-            } finally {
-                in.close();
-            }
-        } else {
-            SecureRandom random = new SecureRandom();
-            random.setSeed(System.currentTimeMillis());
-            byte[] bytes = new byte[16];
-            random.nextBytes(bytes);
-            spec = new SecretKeySpec(bytes, "AES");
-            File dir = location.getParentFile();
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            if (!dir.exists() || !dir.isDirectory()) {
-                throw new IllegalStateException("Could not create directory for secret key spec: " + dir);
-            }
-            FileOutputStream out = new FileOutputStream(location);
-            try {
-                ObjectOutputStream oout = new ObjectOutputStream(out);
-                try {
-                    oout.writeObject(spec);
-                    oout.flush();
-                } finally {
-                    oout.close();
-                }
-            } finally {
-                out.close();
-            }
-        }
+        ce = new org.apache.geronimo.crypto.ConfiguredEncryption(location.getAbsolutePath());
     }
 
     public void doStart() throws Exception {
-        EncryptionManager.setEncryptionPrefix("{Configured}", this);
     }
 
     public void doStop() throws Exception {
     }
 
     public void doFail() {
-    }
-
-    protected SecretKeySpec getSecretKeySpec() {
-        return spec;
     }
     
     public static final GBeanInfo GBEAN_INFO;
