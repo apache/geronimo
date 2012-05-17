@@ -271,6 +271,8 @@ public class WebAppInfoBuilder {
                 cookieConfigInfo.maxAge = sessionConfig.getCookieConfig().getMaxAge() != null? sessionConfig.getCookieConfig().getMaxAge(): -1;
                 sessionConfigInfo.sessionCookieConfig = cookieConfigInfo;
             }
+            webAppInfo.sessionConfig = sessionConfigInfo;
+            break;
         }
 
         for (WelcomeFileList welcomeFileList: webApp.getWelcomeFileList()) {

@@ -20,10 +20,12 @@
 
 package org.apache.geronimo.web.info;
 
+import java.io.Serializable;
+
 /**
  * @version $Rev:$ $Date:$
  */
-public class SessionCookieConfigInfo {
+public class SessionCookieConfigInfo implements Serializable{
 
     public String name;
     public String comment;
