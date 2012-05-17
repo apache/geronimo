@@ -20,6 +20,7 @@
 
 package org.apache.geronimo.web.info;
 
+import java.io.Serializable;
 import java.util.EnumSet;
 
 import javax.servlet.SessionTrackingMode;
@@ -27,7 +28,7 @@ import javax.servlet.SessionTrackingMode;
 /**
  * @version $Rev:$ $Date:$
  */
-public class SessionConfigInfo {
+public class SessionConfigInfo implements Serializable{
 
     public int sessionTimeoutMinutes;
     public SessionCookieConfigInfo sessionCookieConfig;
