@@ -1154,7 +1154,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             // convert to osgi bundle jars using wrap url handler
             URL wrap = new URL("wrap", null, libFile.toURI().toURL().toExternalForm() 
                     + "$Bundle-SymbolicName=" + artifact.getArtifactId() 
-                    + "&Bundle-Version=" + artifact.getVersion().toString().replace("-", ".")); //need improve the version processing
+                    + "&Bundle-Version=" + artifact.getVersion().toString().replace("-", ".")+"&DynamicImport-Package=*"); //need improve the version processing
             InputStream in = null;
             try {
                 in = wrap.openStream();
