@@ -64,13 +64,10 @@ public class GeronimoApplication implements AriesApplication {
 
         bundleInfo = new HashSet<BundleInfo>();
 
-        boolean bundleInfoCollected = false;
         File bundleFile = BundleUtils.toFile(bundle);
         if (bundleFile != null && bundleFile.isDirectory()) {
             collectFileSystemBasedBundleInfos(bundleFile, applicationFactory);
-            bundleInfoCollected = true;
-        }
-        if (!bundleInfoCollected) {
+        } else {
             collectBundleEntryBasedBundleInfos(bundle, applicationFactory);
         }
 
@@ -113,11 +110,18 @@ public class GeronimoApplication implements AriesApplication {
     private void collectFileSystemBasedBundleInfos(File baseDir, ApplicationMetadataFactory applicationFactory) throws IOException {
         for (File file : baseDir.listFiles()) {
             if (file.isDirectory()) {
+                collectFileSystemBasedBundleInfos(file, applicationFactory);
                 continue;
             }
             BundleManifest bm = BundleManifest.fromBundle(file);
             if (bm != null && bm.isValid()) {
-                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, BundleUtils.toReferenceFileLocation(file)));
+                /*
+                 * Pass file:// url instead of reference:file:// as bundle location to make sure
+                 * Equinox has its own copy of the jar. That is, to prevent strange ZipErrors when
+                 * application bundles are updated at runtime, specifically, when 
+                 * ApplicationGBean.hotSwapApplicationContent() is called.
+                 */
+                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, file.toURI().toString()));
             }
         }
     }
