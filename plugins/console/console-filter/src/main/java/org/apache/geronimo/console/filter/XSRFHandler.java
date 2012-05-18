@@ -96,7 +96,7 @@ public class XSRFHandler
         if (hses.isNew() || (uniqueId == null)) {
             // New client session, so create and add our uniqueId
             uniqueId = createSession(hses.getId());
-            hses.setAttribute(XSRF_UNIQUEID, uniqueId);hreq.getRequestURI();
+            hses.setAttribute(XSRF_UNIQUEID, uniqueId);
             log.info("Created session for uid=" + hreq.getRemoteUser() + " with sessionId=" + hses.getId() + ", uniqueId=" + uniqueId);
             return false;
         }
@@ -134,18 +134,9 @@ public class XSRFHandler
             }
             else if (!reqId.equals(uniqueId)) {
                 // The unique Ids didn't match
-                log.warn("The formId in queryString is not equal to the saved formId in the session.");
+                log.warn("Blocked due to invalid HttpServletRequest parameter.");
                 // TODO - Should we invalidate the session?
-                String useragent = hreq.getHeader("user-agent");
-                if (useragent.indexOf("MSIE") > -1) {
-                    // let pass for IE
-                    log.debug("User client is IE, when reqId!=uniqueId.");
-                    return false;                    
-                } else {
-                    // block other browser
-                    log.debug("User client is " + useragent + ", when reqId!=uniqueId.");
-                    return true;
-                }
+                return true;
             }
             else {
                 // Unique Ids matched, so let the request thru
