@@ -111,7 +111,7 @@
             <br />
             <br />
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif" alt="Powered by Geronimo"/><br />
-            Copyright &copy; 2003-2011 <br />
+            Copyright &copy; 2003-2012 <br />
             Apache Software Foundation <br />
             All Rights Reserved <br />
 

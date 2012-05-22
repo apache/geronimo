@@ -112,7 +112,7 @@
         <td colspan="2" align="right">
             <p align="right">
             <img src="/console/images/powered_by_100x30.gif" alt="Powered by Apache Geronimo"/><br />
-            Copyright &copy; 2003-2011 Apache Software Foundation<br />
+            Copyright &copy; 2003-2012 Apache Software Foundation<br />
             All Rights Reserved
             </p>
         </td>
