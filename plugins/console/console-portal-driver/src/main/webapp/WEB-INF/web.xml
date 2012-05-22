@@ -37,7 +37,7 @@ limitations under the License.
     <filter-class>org.apache.geronimo.console.filter.XSSXSRFFilter</filter-class>
     <init-param>
        <param-name>xsrf.ignorePaths</param-name>
-       <param-value>/dojo/dojo/resources/blank.html,portal/0/Welcome</param-value>
+       <param-value>/dojo/dojo/resources/blank.html,/portal/0/Welcome</param-value>
     </init-param>
   </filter>
   <filter-mapping>
