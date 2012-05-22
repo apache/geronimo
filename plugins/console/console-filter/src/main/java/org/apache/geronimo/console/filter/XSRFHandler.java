@@ -90,6 +90,8 @@ public class XSRFHandler
      * @return String if the session was invalid or null if OK
      */
     public boolean isInvalidSession(HttpServletRequest hreq) {
+        log.debug("The HttpServletRequest to be filtered: requestURL=" + hreq.getRequestURL()
+                + ", queryString=" + hreq.getQueryString());
         HttpSession hses = hreq.getSession(true);
         String uniqueId = getSession(hses);
 
