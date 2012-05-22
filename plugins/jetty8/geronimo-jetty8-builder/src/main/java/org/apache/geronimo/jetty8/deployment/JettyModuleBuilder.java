@@ -493,7 +493,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //TODO merge from default web app
             if (webAppInfo.sessionConfig != null) {
-                if (webAppInfo.sessionConfig.sessionTimeoutMinutes == -1 && defaultSessionTimeoutMinutes != -1) {
+                if (webAppInfo.sessionConfig.sessionTimeoutMinutes == null && defaultSessionTimeoutMinutes != -1) {
                     webAppInfo.sessionConfig.sessionTimeoutMinutes = defaultSessionTimeoutMinutes;
                 }
             }

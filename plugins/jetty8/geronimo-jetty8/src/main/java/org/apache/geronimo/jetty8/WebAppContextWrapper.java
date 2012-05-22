@@ -61,6 +61,7 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.web.WebApplicationConstants;
 import org.apache.geronimo.web.info.ErrorPageInfo;
+import org.apache.geronimo.web.info.SessionCookieConfigInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -285,19 +286,36 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
 
         if (!webAppInfo.distributable && webAppInfo.sessionConfig != null) {
             SessionManager sessionManager = this.webAppContext.getSessionHandler().getSessionManager();
-            if (webAppInfo.sessionConfig.sessionTimeoutMinutes != -1) {
+            if (webAppInfo.sessionConfig.sessionTimeoutMinutes != null) {
                 sessionManager.setMaxInactiveInterval(webAppInfo.sessionConfig.sessionTimeoutMinutes * 60);
             }
-            sessionManager.setSessionTrackingModes(webAppInfo.sessionConfig.sessionTrackingModes);
-            if (webAppInfo.sessionConfig.sessionCookieConfig != null) {
+            if (webAppInfo.sessionConfig.sessionTrackingModes != null) {
+                sessionManager.setSessionTrackingModes(webAppInfo.sessionConfig.sessionTrackingModes);
+            }
+            SessionCookieConfigInfo sessionCookieConfigInfo = webAppInfo.sessionConfig.sessionCookieConfig;
+            if (sessionCookieConfigInfo != null) {
                 SessionCookieConfig cookieConfig = sessionManager.getSessionCookieConfig();
-                cookieConfig.setName(webAppInfo.sessionConfig.sessionCookieConfig.name);
-                cookieConfig.setPath(webAppInfo.sessionConfig.sessionCookieConfig.path);
-                cookieConfig.setDomain(webAppInfo.sessionConfig.sessionCookieConfig.domain);
-                cookieConfig.setComment(webAppInfo.sessionConfig.sessionCookieConfig.comment);
-                cookieConfig.setHttpOnly(webAppInfo.sessionConfig.sessionCookieConfig.httpOnly);
-                cookieConfig.setSecure(webAppInfo.sessionConfig.sessionCookieConfig.secure);
-                cookieConfig.setMaxAge(webAppInfo.sessionConfig.sessionCookieConfig.maxAge);
+                if (sessionCookieConfigInfo.name != null) {
+                    cookieConfig.setName(sessionCookieConfigInfo.name);
+                }
+                if (sessionCookieConfigInfo.comment != null) {
+                    cookieConfig.setComment(sessionCookieConfigInfo.comment);
+                }
+                if (sessionCookieConfigInfo.domain != null) {
+                    cookieConfig.setDomain(sessionCookieConfigInfo.domain);
+                }
+                if (sessionCookieConfigInfo.httpOnly != null) {
+                    cookieConfig.setHttpOnly(sessionCookieConfigInfo.httpOnly);
+                }
+                if (sessionCookieConfigInfo.maxAge != null) {
+                    cookieConfig.setMaxAge(sessionCookieConfigInfo.maxAge);
+                }
+                if (sessionCookieConfigInfo.path != null) {
+                    cookieConfig.setPath(sessionCookieConfigInfo.path);
+                }
+                if (sessionCookieConfigInfo.secure != null) {
+                    cookieConfig.setSecure(sessionCookieConfigInfo.secure);
+                }
             }
         }
         //supply web.xml to jasper

@@ -116,19 +116,35 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
         authenticatorConfig(webAppInfo.loginConfig);
         if (webAppInfo.sessionConfig != null) {
             SessionConfigInfo sessionConfig = webAppInfo.sessionConfig;
-            context.setSessionTimeout(sessionConfig.sessionTimeoutMinutes);
+            if (sessionConfig.sessionTimeoutMinutes != null) {
+                context.setSessionTimeout(sessionConfig.sessionTimeoutMinutes);
+            }
             if (sessionConfig.sessionTrackingModes != null) {
                 servletContext.setSessionTrackingModes(sessionConfig.sessionTrackingModes);
             }
             if (sessionConfig.sessionCookieConfig != null) {
                 SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
-                sessionCookieConfig.setName(sessionConfig.sessionCookieConfig.name);
-                sessionCookieConfig.setComment(sessionConfig.sessionCookieConfig.comment);
-                sessionCookieConfig.setDomain(sessionConfig.sessionCookieConfig.domain);
-                sessionCookieConfig.setHttpOnly(sessionConfig.sessionCookieConfig.httpOnly);
-                sessionCookieConfig.setMaxAge(sessionConfig.sessionCookieConfig.maxAge);
-                sessionCookieConfig.setPath(sessionConfig.sessionCookieConfig.path);
-                sessionCookieConfig.setSecure(sessionConfig.sessionCookieConfig.secure);
+                if (sessionConfig.sessionCookieConfig.name != null) {
+                    sessionCookieConfig.setName(sessionConfig.sessionCookieConfig.name);
+                }
+                if (sessionConfig.sessionCookieConfig.comment != null) {
+                    sessionCookieConfig.setComment(sessionConfig.sessionCookieConfig.comment);
+                }
+                if (sessionConfig.sessionCookieConfig.domain != null) {
+                    sessionCookieConfig.setDomain(sessionConfig.sessionCookieConfig.domain);
+                }
+                if (sessionConfig.sessionCookieConfig.httpOnly != null) {
+                    sessionCookieConfig.setHttpOnly(sessionConfig.sessionCookieConfig.httpOnly);
+                }
+                if (sessionConfig.sessionCookieConfig.maxAge != null) {
+                    sessionCookieConfig.setMaxAge(sessionConfig.sessionCookieConfig.maxAge);
+                }
+                if (sessionConfig.sessionCookieConfig.path != null) {
+                    sessionCookieConfig.setPath(sessionConfig.sessionCookieConfig.path);
+                }
+                if (sessionConfig.sessionCookieConfig.secure != null) {
+                    sessionCookieConfig.setSecure(sessionConfig.sessionCookieConfig.secure);
+                }
             }
         }
         context.setConfigured(true);

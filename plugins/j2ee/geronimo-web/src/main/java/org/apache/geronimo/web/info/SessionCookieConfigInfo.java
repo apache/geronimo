@@ -31,7 +31,7 @@ public class SessionCookieConfigInfo implements Serializable{
     public String comment;
     public String domain;
     public String path;
-    public boolean httpOnly;
-    public boolean secure;
-    public int maxAge;
+    public Boolean httpOnly;
+    public Boolean secure;
+    public Integer maxAge;
 }

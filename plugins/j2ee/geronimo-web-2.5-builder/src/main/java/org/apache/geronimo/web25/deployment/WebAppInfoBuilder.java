@@ -254,21 +254,21 @@ public class WebAppInfoBuilder {
 
         for (SessionConfig sessionConfig: webApp.getSessionConfig()) {
             SessionConfigInfo sessionConfigInfo = new SessionConfigInfo();
-            sessionConfigInfo.sessionTimeoutMinutes = sessionConfig.getSessionTimeout() != null? sessionConfig.getSessionTimeout(): -1;
+            sessionConfigInfo.sessionTimeoutMinutes = sessionConfig.getSessionTimeout() != null? sessionConfig.getSessionTimeout(): null;
             List<SessionTrackingMode> modes = new ArrayList<SessionTrackingMode>();
             for (TrackingMode mode: sessionConfig.getTrackingMode()) {
                 modes.add(SessionTrackingMode.valueOf(mode.value()));
             }
-            sessionConfigInfo.sessionTrackingModes = modes.isEmpty()? EnumSet.noneOf(SessionTrackingMode.class): EnumSet.copyOf(modes);
+            sessionConfigInfo.sessionTrackingModes = modes.isEmpty() ? null : EnumSet.copyOf(modes);
             if (sessionConfig.getCookieConfig() != null) {
                 SessionCookieConfigInfo cookieConfigInfo = new SessionCookieConfigInfo();
                 cookieConfigInfo.name = sessionConfig.getCookieConfig().getName();
                 cookieConfigInfo.domain = sessionConfig.getCookieConfig().getDomain();
                 cookieConfigInfo.comment = sessionConfig.getCookieConfig().getComment();
                 cookieConfigInfo.path = sessionConfig.getCookieConfig().getPath();
-                cookieConfigInfo.httpOnly = sessionConfig.getCookieConfig().getHttpOnly() != null? sessionConfig.getCookieConfig().getHttpOnly(): false;
-                cookieConfigInfo.secure = sessionConfig.getCookieConfig().getSecure() != null? sessionConfig.getCookieConfig().getSecure(): false;
-                cookieConfigInfo.maxAge = sessionConfig.getCookieConfig().getMaxAge() != null? sessionConfig.getCookieConfig().getMaxAge(): -1;
+                cookieConfigInfo.httpOnly = sessionConfig.getCookieConfig().getHttpOnly() != null? sessionConfig.getCookieConfig().getHttpOnly(): null;
+                cookieConfigInfo.secure = sessionConfig.getCookieConfig().getSecure() != null? sessionConfig.getCookieConfig().getSecure(): null;
+                cookieConfigInfo.maxAge = sessionConfig.getCookieConfig().getMaxAge() != null? sessionConfig.getCookieConfig().getMaxAge(): null;
                 sessionConfigInfo.sessionCookieConfig = cookieConfigInfo;
             }
             webAppInfo.sessionConfig = sessionConfigInfo;
