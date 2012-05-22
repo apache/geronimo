@@ -327,7 +327,13 @@ public class AxisServiceGenerator
         if (wsdlFile == null) {
             return null;
         }
-        URL wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+        URL wsdlURL;
+        try {
+            wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+        } catch (MalformedURLException e) {
+            log.warn("MalformedURLException when getting entry:" + wsdlFile + " from bundle " + bundle.getSymbolicName(), e);
+            wsdlURL = null;
+        }
         if (wsdlURL == null) {
             wsdlURL = bundle.getResource(wsdlFile);
             if (wsdlURL == null) {

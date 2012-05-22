@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty8.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
@@ -165,9 +166,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions, bundleContext);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutMinutes = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
-        this.jettyContainerObjectName = jettyContainerName;        
+        this.jettyContainerObjectName = jettyContainerName;
         this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, null);
-
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);//, GerClusteringDocument.type.getDocumentElementName());
     }
 
@@ -181,7 +181,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
         kernel.getLifecycleMonitor().removeLifecycleListener(jspServletInfoProviderListener);
         //TODO not yet implemented
-        // SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
+//        SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doFail() {
@@ -201,7 +201,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         String specDD = null;
         WebApp webApp = null;
 
-        URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
+        URL specDDUrl;
+        try {
+            specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
+        } catch (MalformedURLException e) {
+            log.warn("MalformedURLException when getting entry:" + "WEB-INF/web.xml" + " from bundle " + bundle.getSymbolicName(), e);
+            specDDUrl = null;
+        }
+        
         if (specDDUrl == null) {
             webApp = new WebApp();
         } else {
@@ -486,7 +493,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //TODO merge from default web app
             if (webAppInfo.sessionConfig != null) {
-                if (webAppInfo.sessionConfig.sessionTimeoutMinutes == -1 && defaultSessionTimeoutMinutes != -1) {
+                if (webAppInfo.sessionConfig.sessionTimeoutMinutes == null && defaultSessionTimeoutMinutes != -1) {
                     webAppInfo.sessionConfig.sessionTimeoutMinutes = defaultSessionTimeoutMinutes;
                 }
             }

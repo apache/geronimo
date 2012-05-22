@@ -45,8 +45,12 @@ import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class CXFEndpoint {
+
+    private static final Logger log = LoggerFactory.getLogger(CXFEndpoint.class);
 
     protected Bus bus;
 
@@ -88,7 +92,11 @@ public abstract class CXFEndpoint {
             // Not a URL, try as a resource
             wsdlURL = bundle.getResource("/" + wsdlFile);
             if (wsdlURL == null) {
-                wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+                 try {
+                    wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+                } catch (MalformedURLException e1) {
+                    log.warn("MalformedURLException when getting entry:" + wsdlFile + " from bundle " + bundle.getSymbolicName(), e);
+                }
             }
         }
         return wsdlURL;

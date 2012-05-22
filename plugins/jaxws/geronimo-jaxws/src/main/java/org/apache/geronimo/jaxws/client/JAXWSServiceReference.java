@@ -106,7 +106,12 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
             if (wsdlURL == null) {
                 wsdlURL = bundle.getResource(this.wsdlURI.toString());
                 if (wsdlURL == null) {
-                    wsdlURL = BundleUtils.getEntry(bundle, wsdlURI.toString());
+                    try {
+                        wsdlURL = BundleUtils.getEntry(bundle, wsdlURI.toString());
+                    } catch (MalformedURLException e) {
+                        LOG.warn("MalformedURLException when getting entry:" + wsdlURI + " from bundle " + bundle.getSymbolicName(), e);
+                        wsdlURL = null;
+                    }
                 }
                 if (wsdlURL == null) {
                     LOG.warn("Failed to obtain WSDL: " + this.wsdlURI);
