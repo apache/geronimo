@@ -30,7 +30,7 @@ import javax.servlet.SessionTrackingMode;
  */
 public class SessionConfigInfo implements Serializable{
 
-    public int sessionTimeoutMinutes;
+    public Integer sessionTimeoutMinutes;
     public SessionCookieConfigInfo sessionCookieConfig;
     public EnumSet<SessionTrackingMode> sessionTrackingModes;
 
