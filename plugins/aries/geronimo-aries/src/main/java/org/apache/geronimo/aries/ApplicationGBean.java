@@ -360,11 +360,18 @@ public class ApplicationGBean implements GBeanLifecycle {
             String rootMessage = be.getMessage();
             
             // check for resolver errors
-            ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(bundle.getBundleContext());
-            String resolverErrors = errorAnalyzer.getErrorsAsString(applicationBundles);
-            if (resolverErrors != null) {
-                rootException = null;
-                rootMessage = resolverErrors;
+            BundleContext bundleContext = bundle.getBundleContext();
+            if (bundleContext != null) {
+                try {
+                    ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(bundleContext);
+                    String resolverErrors = errorAnalyzer.getErrorsAsString(applicationBundles);
+                    if (resolverErrors != null) {
+                        rootException = null;
+                        rootMessage = resolverErrors;
+                    }
+                } catch (IllegalStateException e) {
+                    // bundle is no loger valid, use the original exception
+                }
             }
 
             String message = MessageFormat.format("Error starting {0} application. {1}", getApplicationName(), rootMessage);
