@@ -318,6 +318,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         Context context = ctx.getContext();
 
         if (context != null) {
+            if (context.getParent() != null) {
+                Container existingContext = context.getParent().findChild(context.getName());
+                if(existingContext != context){
+                    return;
+                }
+            }
             if (context instanceof GeronimoStandardContext) {
                 GeronimoStandardContext stdctx = (GeronimoStandardContext) context;
 
