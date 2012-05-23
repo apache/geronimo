@@ -62,7 +62,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis2-saaj</artifactId>
-                <version>${axis2Version}</version>
+                <version>1.6.1_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.axis2</groupId>
