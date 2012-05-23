@@ -59,6 +59,12 @@
 <fmt:message key="keystore.certificateDetails.changeKeyPwd"/></a></td>
 </c:if>
 
+<c:if test="${(keyLocked)}">
+<td><u><fmt:message key="keystore.certificateDetails.generateCSR"/></u></td>
+<td><u><fmt:message key="keystore.certificateDetails.importCAReply"/></u></td>
+<td><u><fmt:message key="keystore.certificateDetails.changeKeyPwd"/></u></td>
+</c:if>
+
 <td>
 <a href="<portlet:actionURL portletMode="view">
 <portlet:param name="mode" value="deleteEntry-before" />
