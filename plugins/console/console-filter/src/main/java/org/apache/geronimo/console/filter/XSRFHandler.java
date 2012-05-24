@@ -136,7 +136,7 @@ public class XSRFHandler
             }
             else if (!reqId.equals(uniqueId)) {
                 // The unique Ids didn't match
-                log.warn("Found invalid HttpServletRequest parameter, please try to log out and then log in again!");
+                log.warn("Blocked due to invalid HttpServletRequest parameter.");
                 // TODO - Should we invalidate the session?
                 return true;
             }
@@ -149,12 +149,6 @@ public class XSRFHandler
             log.debug("Skipped check due to no QueryString or ParameterNames for requestURI=" + hreq.getRequestURI());
         }
         return false;
-    }
-    
-    public boolean isWorkaroundPattern(HttpServletRequest hreq){
-        boolean isIE8 = hreq.getHeader("user-agent").indexOf("MSIE 8.0") != -1;
-        boolean isGETMethod = hreq.getMethod().equalsIgnoreCase("GET");
-        return isIE8 && isGETMethod;
     }
 
     /**

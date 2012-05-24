@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -36,12 +37,13 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
 
     private SubstituteResponseOutputStream stream = null;
     private SubstitutePrintWriter writer = null;
+    private HttpServletRequest request;
     private String substitute = null;
 
-    public SubstituteResponseWrapper(HttpServletResponse response,
-            String substitute) {
+    public SubstituteResponseWrapper(HttpServletRequest request, HttpServletResponse response, String substitute) {
         super(response);
         this.substitute = substitute;
+        this.request = request;
     }
 
     private boolean substituteRequired() {
@@ -54,10 +56,34 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
         }
         return false;
     }
-
+    
+    private void disableClientCache() {
+        // check if we need to disable cache
+        if (shouldDisableClientCache()) {
+            setHeader("Cache-Control", "No-cache,no-store");
+            setDateHeader("Expires", 1);
+        }
+    }
+    
+    private boolean shouldDisableClientCache() {
+        // We disable cache for IE8 and its compatibility mode. See GERONIMO-6348.
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
+            String userAgent = request.getHeader("user-agent");
+            if (userAgent != null) {
+                int pos = userAgent.indexOf("MSIE ");
+                if (pos != -1) {
+                    char version = userAgent.charAt(pos + 5);
+                    return version == '8' || version == '7';
+                }
+            }
+        }
+        return false;
+    }
+    
     @Override
     public void flushBuffer() throws IOException {
         if (substituteRequired()) {
+            disableClientCache();
             if (writer != null) {
                 writer.flush();
             } else if (stream != null) {
@@ -77,6 +103,7 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
             throw new IllegalStateException(
                     "getWriter() has already been called on this response.");
         } else if (stream == null) {
+            disableClientCache();
             stream = new SubstituteResponseOutputStream(substitute,
                     getCharacterEncoding(), super.getOutputStream());
         }
@@ -92,6 +119,7 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
             throw new IllegalStateException(
                     "getStream() has already been called on this response.");
         } else if (writer == null) {
+            disableClientCache();
             writer = new SubstitutePrintWriter(new SubstituteWriter(
                     substitute, getCharacterEncoding(), super
                             .getOutputStream()));
@@ -106,6 +134,7 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
         super.reset();
         // If no exception from the wrapped response, let's reset too
         if (substituteRequired()) {
+            disableClientCache();
             if (stream != null) {
                 stream.reset();
             } else if (writer != null) {
@@ -118,8 +147,9 @@ public class SubstituteResponseWrapper extends HttpServletResponseWrapper {
     public void resetBuffer() {
         log.debug("Resetting buffer...");
         super.resetBuffer();
+        // If no exception from the wrapped response, let's reset too
         if (substituteRequired()) {
-            // If no exception from the wrapped response, let's reset too
+            disableClientCache();
             if (stream != null) {
                 stream.reset();
             } else if (writer != null) {

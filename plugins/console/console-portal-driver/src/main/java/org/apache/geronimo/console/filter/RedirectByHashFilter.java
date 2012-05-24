@@ -53,7 +53,6 @@ public class RedirectByHashFilter implements Filter {
     private static final String NOXSS_HASH_OF_PAGE_TO_REDIRECT = "noxssPage";
     private static final String NOXSS_SHOW_TREE = "noxssShowTree";
     private static final String HASH_OF_CURRENT_PORTAL_PAGE = "hashOfCurrentPortalPage";
-    private String welcomeURI;
     
     public void destroy() {
     }
@@ -94,8 +93,6 @@ public class RedirectByHashFilter implements Filter {
         }
         
         String hashOfPageToRedirect = request.getParameter(NOXSS_HASH_OF_PAGE_TO_REDIRECT);
-        // Workaround for GERONIMO-6348 IE 8 issue
-        String redirectURI = (String)request.getAttribute("isWorkaroundPattern");
         
         //Redirect index page url that contain noxssPage=xxxxxx to the real destination.
         if (hashOfPageToRedirect != null && request.getParameter(NOXSS_SHOW_TREE) != null) {
@@ -113,19 +110,6 @@ public class RedirectByHashFilter implements Filter {
             return;
             //httpServletResponse.sendRedirect(pageToRedirect);
             
-        } 
-        // Workaround for GERONIMO-6348 IE 8 issue
-        else if(redirectURI != null) {
-            String pageToRedirect = "";
-            String pageToRedirectURI = hashToRedirectURL.get(request.getAttribute(HASH_OF_CURRENT_PORTAL_PAGE));
-            if (pageToRedirectURI.equals(welcomeURI)) {
-                pageToRedirect = pageToRedirectURI + "?"+NOXSS_SHOW_TREE+"=true";
-            } else {
-                pageToRedirect = pageToRedirectURI;
-            }
-            log.debug("Redirecting to:" + pageToRedirect+" according to hash:"+hashOfPageToRedirect);
-            request.getRequestDispatcher(pageToRedirect).forward(request, response);
-            return;
         } else {
             
             log.debug("no redirect for:" + ((HttpServletRequest)request).getRequestURL());
@@ -135,14 +119,8 @@ public class RedirectByHashFilter implements Filter {
 
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-        if (filterConfig.getInitParameter("WelcomeURI") != null) {
-            this.welcomeURI = filterConfig.getInitParameter("WelcomeURI");
-        } else {
-            log.info("Set default welcome URI to /portal/0/Welcome.");
-            this.welcomeURI = "/portal/0/Welcome";
-        }
-        
+    public void init(FilterConfig arg0) throws ServletException {
+        // TODO Auto-generated method stub   
     }
 
 }

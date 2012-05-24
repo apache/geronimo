@@ -52,8 +52,6 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
     private XSRFHandler xsrf = new XSRFHandler();
     private boolean enableXSS = true;
     private boolean enableXSRF = true;
-    private boolean allowWorkaround = false;
-    
 
     /* (non-Javadoc)
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -73,11 +71,6 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
         String ignoreResources = config.getInitParameter("xsrf.ignorePaths");
         if (ignoreResources != null) {
             xsrf.setIgnorePaths(ignoreResources);
-        }
-        
-        String parmAllowWorkaround = config.getInitParameter("allowWorkaround");
-        if (parmAllowWorkaround != null && (parmAllowWorkaround.equalsIgnoreCase("true"))) {
-            allowWorkaround = true;
         }
     }
 
@@ -121,13 +114,8 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
                 errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid POST content.";
             }
             else if (enableXSRF && xsrf.isInvalidSession(hreq)) {
-                if (allowWorkaround && xsrf.isWorkaroundPattern(hreq)) {
-                    // Workaround for GERONIMO-6348 IE 8 issue
-                    hreq.setAttribute("isWorkaroundPattern", "true");
-                } else {
-                    // Block simple XSRF attacks on our forms
-                    errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content.";
-                }
+                // Block simple XSRF attacks on our forms
+                errStr = "XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content.";   
             }
             // if we found a problem, return a HTTP 400 error code and message
             if (errStr != null) {
@@ -144,7 +132,7 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
             String replacement = xsrf.getReplacement(hreq);
             ServletResponse whres = response;
             if (replacement != null ) {
-                whres = new SubstituteResponseWrapper((HttpServletResponse)response, replacement);
+                whres = new SubstituteResponseWrapper(hreq, (HttpServletResponse)response, replacement);
             }
             chain.doFilter(hreq, whres);
         }

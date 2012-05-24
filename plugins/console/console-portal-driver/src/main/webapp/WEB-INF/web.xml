@@ -39,10 +39,6 @@ limitations under the License.
        <param-name>xsrf.ignorePaths</param-name>
        <param-value>/dojo/dojo/resources/blank.html</param-value>
     </init-param>
-    <init-param>
-       <param-name>allowWorkaround</param-name>
-       <param-value>true</param-value>
-    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>XSSXSRFFilter</filter-name>
@@ -78,10 +74,6 @@ limitations under the License.
   <filter>
     <filter-name>RedirectByHashFilter</filter-name>
     <filter-class>org.apache.geronimo.console.filter.RedirectByHashFilter</filter-class>
-    <init-param>
-       <param-name>WelcomeURI</param-name>
-       <param-value>/portal/0/Welcome</param-value>
-    </init-param>
   </filter>
   
   <filter-mapping>
