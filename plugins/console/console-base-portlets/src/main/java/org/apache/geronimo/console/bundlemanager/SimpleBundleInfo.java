@@ -18,19 +18,24 @@ package org.apache.geronimo.console.bundlemanager;
 
 import org.osgi.framework.Bundle;
 
-public class SimpleBundleInfo implements BundleInfo{
-    private final long bundleId;
-    private final String symbolicName;
-    private final String bundleVersion;
-    private final String bundleName;
-    private final BundleState state;
+public class SimpleBundleInfo implements BundleInfo {
+    private long bundleId;
+    private String symbolicName;
+    private String bundleVersion;
+    private String bundleName;
+    private BundleState state;
     
-    public SimpleBundleInfo(Bundle bundle){
-        this.bundleId = bundle.getBundleId();
-        this.symbolicName = BundleUtil.getSymbolicName(bundle);
-        this.bundleName = BundleUtil.getBundleName(bundle);
-        this.bundleVersion = bundle.getVersion().toString();
-        this.state = BundleState.getState(bundle);
+    public SimpleBundleInfo(Bundle bundle) {
+        if (bundle == null) {
+            this.bundleId = -1;
+            this.symbolicName = "";
+        } else {
+            this.bundleId = bundle.getBundleId();
+            this.symbolicName = BundleUtil.getSymbolicName(bundle);
+            this.bundleName = BundleUtil.getBundleName(bundle);
+            this.bundleVersion = bundle.getVersion().toString();
+            this.state = BundleState.getState(bundle);
+        }
     }
     
     public long getBundleId() {
@@ -48,7 +53,6 @@ public class SimpleBundleInfo implements BundleInfo{
     public String getBundleName() {
         return bundleName;
     }
-    
     
     public BundleState getState() {
         return state;

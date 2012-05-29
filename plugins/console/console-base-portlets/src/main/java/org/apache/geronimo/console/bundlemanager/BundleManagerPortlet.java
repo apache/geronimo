@@ -381,8 +381,9 @@ public class BundleManagerPortlet extends BasePortlet {
                 PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
                 
 
-                Set<PackageBundlePair> importingPairs = getImportingPairs(packageAdmin, bundle);
-                Set<PackageBundlePair> dynamicImportingPairs = getDynamicImportingPairs(packageAdmin, bundle, importingPairs);
+                Set<String> wiredPackages = new HashSet<String>();                
+                Set<PackageBundlePair> importingPairs = getImportingPairs(packageAdmin, bundle, wiredPackages);
+                Set<PackageBundlePair> dynamicImportingPairs = getDynamicImportingPairs(packageAdmin, bundle, wiredPackages);
                 Set<PackageBundlePair> requireBundlesImportingPairs = getRequireBundlesImportingPairs(packageAdmin, bundle);
                 Set<PackageBundlePair> exportingPairs = getExportingPairs(packageAdmin, bundle);
                 
@@ -758,34 +759,44 @@ public class BundleManagerPortlet extends BasePortlet {
         }
     }
     
-    private Set<PackageBundlePair> getImportingPairs(PackageAdmin packageAdmin, Bundle bundle) {
+    private boolean containsBundle(Bundle[] bundles, Bundle bundle) {
+        if (bundles != null) {
+            for (Bundle importingBundle : bundles) {
+                if (importingBundle == bundle) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private String toString(ExportedPackage exportedPackage) {
+        return exportedPackage.getName() + ":" + exportedPackage.getVersion().toString();
+    }
+    
+    private Set<PackageBundlePair> getImportingPairs(PackageAdmin packageAdmin, Bundle bundle, Set<String> wiredPackages) {
+                
         BundleDescription description = new BundleDescription(bundle.getHeaders());
         
         Set<PackageBundlePair> importingPairs = new HashSet<PackageBundlePair>();
 
-
-        // description.getExternalImports() only shows the packages from other bundles. This will exclude the packages
-        // which are exported by itself, but may actually import from others during resolve.
         List<BundleDescription.ImportPackage> imports = description.getImportPackage();
         for (BundleDescription.ImportPackage packageImport : imports) {
             //find the packages that we are importing
             ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(packageImport.getName());
-            if (exportedPackages!=null){
+            if (exportedPackages == null) {
+                importingPairs.add(new PackageBundlePair(packageImport.getName(), packageImport.getVersionRange().toString(), null));
+            } else {
                 for (ExportedPackage exportedPackage : exportedPackages) {
                     Bundle exportingBundle = exportedPackage.getExportingBundle();
-                    Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                    if (importingBundles != null) {
-                        for (Bundle importingBundle : importingBundles) {
-                            if (exportingBundle != bundle && importingBundle == bundle) {
-                                importingPairs.add(new PackageBundlePair(exportedPackage, exportedPackage.getExportingBundle()));
-                            }
-                        }
-                    }
+                    if (exportingBundle != bundle && containsBundle(exportedPackage.getImportingBundles(), bundle)) {
+                        importingPairs.add(new PackageBundlePair(packageImport.getName(), packageImport.getVersionRange().toString(), exportedPackage.getExportingBundle()));
+                        wiredPackages.add(toString(exportedPackage));
+                    }                    
                 }
             }
             
         }
-        //TODO  the result set may contains 2 items which have the same package name but different versions.
         return importingPairs;
     }
 
@@ -814,13 +825,9 @@ public class BundleManagerPortlet extends BasePortlet {
                     if (exportedPackages != null) {
                         for (ExportedPackage exportedPackage : exportedPackages) {
                             Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                            if (importingBundles != null) {
-                                for (Bundle importingBundle : importingBundles) {
-                                    if (importingBundle == bundle) {
-                                        requireBundlesImportingPairs.add(new PackageBundlePair(exportedPackage, b));
-                                    }
-                                }
-                            }
+                            if (containsBundle(importingBundles, bundle)) {
+                                requireBundlesImportingPairs.add(new PackageBundlePair(exportedPackage, b));                                  
+                            }                            
                         }
                     }
 
@@ -834,7 +841,7 @@ public class BundleManagerPortlet extends BasePortlet {
     }
     
     
-    private Set<PackageBundlePair> getDynamicImportingPairs(PackageAdmin packageAdmin, Bundle bundle, Set<PackageBundlePair> explicitImportingPairs) {
+    private Set<PackageBundlePair> getDynamicImportingPairs(PackageAdmin packageAdmin, Bundle bundle, Set<String> wiredPackages) {
         BundleDescription description = new BundleDescription(bundle.getHeaders());
         
         Set<PackageBundlePair> dynamicImportingPairs = new HashSet<PackageBundlePair>();
@@ -846,16 +853,12 @@ public class BundleManagerPortlet extends BasePortlet {
                 ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(b);
                 if (exportedPackages != null) {
                     for (ExportedPackage exportedPackage : exportedPackages) {
-                        Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                        if (importingBundles != null) {
-                            for (Bundle importingBundle : importingBundles) {
-                                if (importingBundle == bundle) {
-                                    PackageBundlePair pair = new PackageBundlePair(exportedPackage, b);
-                                    if (!explicitImportingPairs.contains(pair)){
-                                        dynamicImportingPairs.add(pair);
-                                    }
-                                }
-                            }
+                        if (wiredPackages.contains(toString(exportedPackage))) {
+                            continue;
+                        }
+                        Bundle[] importingBundles = exportedPackage.getImportingBundles();                        
+                        if (containsBundle(importingBundles, bundle)) {
+                            dynamicImportingPairs.add(new PackageBundlePair(exportedPackage, b));
                         }
                     }
                 }
@@ -879,7 +882,6 @@ public class BundleManagerPortlet extends BasePortlet {
                 if (importingBundles != null) {
                     for (Bundle importingBundle : importingBundles) {
                         exportingPairs.add(new PackageBundlePair(exportedPackage, importingBundle));
-                        
                     }
                 }
             }
@@ -890,66 +892,85 @@ public class BundleManagerPortlet extends BasePortlet {
     }
     
     private static class PackageBundlePair {
-        final ExportedPackage exportedPackage;
-        final Bundle bundle;
+        private final String packageName;
+        private final String version;
+        private final Bundle bundle;
         
-        PackageBundlePair(ExportedPackage exportedPackage,Bundle bundle ){
-            this.exportedPackage = exportedPackage;
+        public PackageBundlePair(String packageName, String version, Bundle bundle) {
+            this.packageName = packageName;
+            this.version = version;
             this.bundle = bundle;
         }
         
+        public PackageBundlePair(ExportedPackage exportedPackage, Bundle bundle) {
+            this.packageName = exportedPackage.getName();
+            this.version = exportedPackage.getVersion().toString();
+            this.bundle = bundle;
+        }
+        
+        public String getPackageName() {
+            return packageName;
+        }
+        
+        public String getVersion() {
+            return version;
+        }
+        
+        public Bundle getBundle() {
+            return bundle;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((bundle == null) ? 0 : (int) bundle.getBundleId());
+            result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
+            result = prime * result + ((version == null) ? 0 : version.hashCode());
+            return result;
+        }
+
         @Override
         public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
             if (obj == null) {
                 return false;
             }
-
             if (getClass() != obj.getClass()) {
                 return false;
             }
-
-            final PackageBundlePair other = (PackageBundlePair) obj;
-// when using the following, there still be same pairs in the set. Maybe the equal method is not re-written.
-//            if (this.exportedPackage != other.exportedPackage && (this.exportedPackage == null || !this.exportedPackage.equals(other.exportedPackage))) {
-//                return false;
-//            }
-//            if (this.bundle != other.bundle && (this.bundle == null || !this.bundle.equals(other.bundle))) {
-//                return false;
-//            }
             
-            if (this.exportedPackage != null && other.exportedPackage == null) return false;
-            if (this.exportedPackage == null && other.exportedPackage != null) return false;
-            if (this.exportedPackage != null && other.exportedPackage != null) {
-                if (this.exportedPackage.getName()!= other.exportedPackage.getName() || this.exportedPackage.getVersion() != other.exportedPackage.getVersion())
+            PackageBundlePair other = (PackageBundlePair) obj;
+            
+            if (bundle == null) {
+                if (other.bundle != null) {
                     return false;
+                }
+            } else if (bundle.getBundleId() != other.bundle.getBundleId()) {
+                return false;
             }
             
-            if (this.bundle != null && other.bundle == null) return false;
-            if (this.bundle == null && other.bundle != null) return false;
-            if (this.bundle != null && other.bundle != null) {
-                if (this.bundle.getSymbolicName()!= other.bundle.getSymbolicName() || this.bundle.getVersion() != other.bundle.getVersion())
+            if (packageName == null) {
+                if (other.packageName != null) {
                     return false;
+                }
+            } else if (!packageName.equals(other.packageName)) {
+                return false;
+            }
+            
+            if (version == null) {
+                if (other.version != null) {
+                    return false;
+                }
+            } else if (!version.equals(other.version)) {
+                return false;
             }
             
             return true;
-            
         }
-        
-        @Override
-        public int hashCode() {
-            int hash = 11;
-// because we used exportedPackage.getName(); exportedPackage.getVersion();  bundle.getSymbolicName();bundle.getVersion()
-// to calculate equals(), we must use them to calculate hashCode()
-//            hash = 17 * hash + (exportedPackage != null ? exportedPackage.hashCode():0);
-//            hash = 17 * hash + (bundle != null ? bundle.hashCode():0);
-            hash = 17 * hash + (exportedPackage != null ? exportedPackage.getName().hashCode():0);
-            hash = 17 * hash + (exportedPackage != null ? exportedPackage.getVersion().hashCode():0);
-            hash = 17 * hash + (bundle != null ? bundle.getSymbolicName().hashCode():0);
-            hash = 17 * hash + (bundle != null ? bundle.getVersion().hashCode():0);
 
-            return hash;
-        }
-        
     }
     
 
@@ -958,8 +979,8 @@ public class BundleManagerPortlet extends BasePortlet {
         
         for (PackageBundlePair pair : pairs) {
             
-            PackageInfo packageInfo = new PackageInfo(pair.exportedPackage.getName(), pair.exportedPackage.getVersion().toString());
-            BundleInfo bundleInfo = new SimpleBundleInfo(pair.bundle);
+            PackageInfo packageInfo = new PackageInfo(pair.getPackageName(), pair.getVersion());
+            BundleInfo bundleInfo = new SimpleBundleInfo(pair.getBundle());
             
             fillPackageBundlesMap(pbs, packageInfo, bundleInfo);
             
@@ -981,8 +1002,8 @@ public class BundleManagerPortlet extends BasePortlet {
         
         for (PackageBundlePair pair : pairs) {
             
-            BundleInfo bundleInfo = new SimpleBundleInfo(pair.bundle);
-            PackageInfo packageInfo = new PackageInfo(pair.exportedPackage.getName(), pair.exportedPackage.getVersion().toString());
+            BundleInfo bundleInfo = new SimpleBundleInfo(pair.getBundle());
+            PackageInfo packageInfo = new PackageInfo(pair.getPackageName(), pair.getVersion());
             
             fillBundlePackagesMap(bps, bundleInfo, packageInfo);
             
