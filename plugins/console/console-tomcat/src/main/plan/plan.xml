@@ -221,6 +221,16 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
+            <!-- 3-8 is plugins portlet, so here is 3-9 -->
+            <gbean name="OBRManager" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">3-9/Resources/OBR Manager</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[OBRManagerPortlet]</attribute>
+                <attribute name="icon">/images/ico_car_16x16.gif</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
             <gbean name="UsersGroups" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">4-1/Security/Users and Groups</attribute>
                 <attribute name="portletContext">/console-base</attribute>

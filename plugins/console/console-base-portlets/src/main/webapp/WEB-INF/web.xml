@@ -189,7 +189,7 @@ limitations under the License.
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-     <servlet>
+    <servlet>
         <servlet-name>BundleManagerPortletServlet</servlet-name>
         <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
@@ -197,7 +197,16 @@ limitations under the License.
             <param-value>BundleManagerPortlet</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
-    </servlet>    
+    </servlet>
+    <servlet>
+        <servlet-name>OBRManagerPortletServlet</servlet-name>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>OBRManagerPortlet</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
     <servlet>
         <servlet-name>SystemModules</servlet-name>
         <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
@@ -348,14 +357,18 @@ limitations under the License.
         <servlet-name>WARModules</servlet-name>
         <url-pattern>/PlutoInvoker/WARModules</url-pattern>
     </servlet-mapping>
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>EBAModules</servlet-name>
         <url-pattern>/PlutoInvoker/EBAModules</url-pattern>
     </servlet-mapping>
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>BundleManagerPortletServlet</servlet-name>
         <url-pattern>/PlutoInvoker/BundleManagerPortlet</url-pattern>
-    </servlet-mapping>    
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OBRManagerPortletServlet</servlet-name>
+        <url-pattern>/PlutoInvoker/OBRManagerPortlet</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SystemModules</servlet-name>
         <url-pattern>/PlutoInvoker/SystemModules</url-pattern>
