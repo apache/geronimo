@@ -36,15 +36,15 @@
     </tr>
 </table>
 
-
+<!-- show OBR list -->
 <table width="100%" class="TableLine" summary="OBR Repositories">
     <tr class="DarkBackground">
-        <th scope="col" width="35">OSGi Bundle Repository URLs</th>   
-        <th scope="col" width="100">Actions</th>
+        <th scope="col" width="80%">OSGi Bundle Repository Name</th>   
+        <th scope="col" width="20%">Actions</th>
     </tr>
 
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="uri" items="${repoURIs}">
+    <c:forEach var="repo" items="${repos}">
       <c:choose>
           <c:when test="${backgroundClass == 'MediumBackground'}" >
               <c:set var="backgroundClass" value='LightBackground'/>
@@ -56,16 +56,115 @@
       
       <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">
         <!-- OBR URLs -->
-        <td>&nbsp;${uri}&nbsp;</td>
-
+        <c:choose>
+            <c:when test="${repo.name} == null}">
+              <td>&nbsp;${repo.URI}&nbsp;</td>
+            </c:when>
+            <c:otherwise>
+                <td title="${repo.URI}">&nbsp;${repo.name}&nbsp;</td>
+            </c:otherwise>
+        </c:choose>
+       
         <!-- Actions -->
-        <td>&nbsp; &nbsp;</td>
-        
-
+        <td>
+            <!-- obr:refreshurl -->
+            <span>
+                <a href="<portlet:actionURL><portlet:param name='uri' value='${repo.URI}'/><portlet:param name='action' value='refreshurl'/></portlet:actionURL>">Refresh</a>&nbsp;
+            </span>
+            <!-- obr:removeurl -->
+            <span>
+                <a href="<portlet:actionURL><portlet:param name='uri' value='${repo.URI}'/><portlet:param name='action' value='removeurl'/></portlet:actionURL>">Remove</a>&nbsp;
+            </span>
+        </td>
       </tr>
+
     </c:forEach>
 </table>
+<!-- search area -->
+<table width="100%" class="BlankTableLine" summary="bundle finder">
+    <tr>
+        <td>
+            <form id="listForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='listAll'/></portlet:actionURL>">
+                <input type="submit" name="listAll" value="List All"/>
+            </form>
+        </td>
+        <td align="right">
+            <form id="searchForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='search'/></portlet:actionURL>">
+                Search by Symbolic Name:
+                <input type="text" id="searchString" name="searchString" value="${searchString}"/>&nbsp;
+                <input type="submit" value="Go" />
+                <input type="button" value="Reset" onclick="resetSearchForm()" />
+            </form>
+            <script language="javascript">
+                function resetSearchForm(){
+                    document.getElementById("searchString").value = "";
+                    document.getElementById("searchForm").submit();
+                }
+            </script>
+        </td>
+    </tr>
+</table>
 
+<!-- show resource bundle list -->
+<c:if test="${resources!=null}">
+<table width="100%" class="TableLine" summary="Bundle List" border="0">
+    <tr class="DarkBackground">
+        <th>Symbolic Name</th>
+    </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
 
-
-
+    <c:forEach var="resourceInfo" items="${resources}">
+    <c:choose>
+        <c:when test="${backgroundClass == 'MediumBackground'}" >
+            <c:set var="backgroundClass" value='LightBackground'/>
+        </c:when>
+        <c:otherwise>
+            <c:set var="backgroundClass" value='MediumBackground'/>
+        </c:otherwise>
+    </c:choose>
+    <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}')">
+        <!-- bundle symbolicName -->
+        <td>
+            <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}">${resourceInfo.symbolicName}</div>
+            <div id="${resourceInfo.id}" style="background-color:#F0F8FF;display:none">
+                <table width="100%" class="TableLine" cellpadding="3">
+                    <!-- bundle id -->
+                    <tr valign="top" width="100px">
+                        <td>Description:</td>
+                        <td>
+                            id:${resourceInfo.id}</br>
+                            presentation name:${resourceInfo.presentationName}</br>
+                            URI:${resourceInfo.URI}</br>
+                            version:${resourceInfo.version}</br>
+                            size:${resourceInfo.size}</br>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2"></td></tr>
+                    <tr valign="top" width="100px">
+                        <td>Requires:</td>
+                        <td>
+                            <c:if test="${resourceInfo.requirements!=null}">
+                            <c:forEach var="requireinfo" items="${resourceInfo.requirements}">
+                                ${requireinfo.name}:${requireinfo.filter}</br>
+                            </c:forEach>
+                            </c:if>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2"></td></tr>
+                    <tr valign="top" width="100px">
+                        <td>Capabilities:</td>
+                        <td>
+                            <c:if test="${resourceInfo.capabilities!=null}">
+                            <c:forEach var="capabilityinfo" items="${resourceInfo.capabilities}">
+                                ${capabilityinfo.name}:${capabilityinfo.propertiesAsMap}</br>
+                            </c:forEach>
+                            </c:if>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+    </tr>
+    </c:forEach>
+</table>
+</c:if>
