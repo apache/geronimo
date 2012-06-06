@@ -24,9 +24,13 @@
 
 <suite name="Suite1" verbose="1">
     <test name="enterprise-testsuite.jms">
-        <packages>
+        <!--<packages>
             <package name="org.apache.geronimo.testsuite.enterprise.jms"/>
-        </packages>
+        </packages>-->
+        <classes>
+            <class name="org.apache.geronimo.testsuite.enterprise.jms.JMSTest"/>
+            <class name="org.apache.geronimo.testsuite.enterprise.jms.MessageSenderTest"/>
+        </classes>
         <!-- reverse what is commented out to just run the GERONIMO-4784 failing test -->
         <!--<classes>-->
             <!--<class name="org.apache.geronimo.testsuite.enterprise.jms.RollbackTest"/>-->

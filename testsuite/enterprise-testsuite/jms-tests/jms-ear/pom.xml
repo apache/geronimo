@@ -141,6 +141,7 @@
                             <suiteXmlFiles>
                                 <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <forkedProcessTimeoutInSeconds>60</forkedProcessTimeoutInSeconds>
                         </configuration>
                     </plugin>
 
