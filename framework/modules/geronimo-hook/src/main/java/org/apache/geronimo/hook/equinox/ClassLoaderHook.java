@@ -43,11 +43,15 @@ import org.osgi.framework.BundleException;
 public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
 
     private static final String USE_URL_CLASSLOADER = "org.apache.geronimo.equinox.useURLClassLoader";
+    private static final String USE_URL_CLASSLOADER_LOCAL = "org.apache.geronimo.hook.equinox.useURLClassLoader";
     
     private static final boolean useURLClassLoader = initUseURLClassLoader();
     
     private static boolean initUseURLClassLoader() {
-        String property = System.getProperty(USE_URL_CLASSLOADER, "false");
+        String property = System.getProperty(USE_URL_CLASSLOADER);
+        if (property == null) {
+            property = System.getProperty(USE_URL_CLASSLOADER_LOCAL, "false");
+        }
         return Boolean.parseBoolean(property);        
     }
     
