@@ -27,6 +27,9 @@
         <packages>
             <package name="org.apache.geronimo.testsuite.console"/>
         </packages>
+        <!--<classes>
+            <class name="org.apache.geronimo.testsuite.console.WebServerTest"/>            
+        </classes>-->
     </test>
 </suite>
 
