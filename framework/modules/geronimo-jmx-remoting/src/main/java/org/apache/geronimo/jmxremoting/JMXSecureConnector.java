@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * A secure (SSL/TLS) connector that supports the server side of JSR 160 JMX Remoting.
@@ -57,12 +58,12 @@ public class JMXSecureConnector extends JMXConnector {
     private String keyAlias;
     private boolean clientAuth;
     
-    public JMXSecureConnector(MBeanServerReference mbeanServerReference, String objectName, ClassLoader classLoader) {
-        this(mbeanServerReference.getMBeanServer(), objectName, classLoader);
+    public JMXSecureConnector(MBeanServerReference mbeanServerReference, ServerInfo serverInfo, String objectName, ClassLoader classLoader) {
+        this(mbeanServerReference.getMBeanServer(), serverInfo, objectName, classLoader);
     }
 
-    public JMXSecureConnector(MBeanServer mbeanServer, String objectName, ClassLoader classLoader) {
-        super(mbeanServer, objectName, classLoader);
+    public JMXSecureConnector(MBeanServer mbeanServer, ServerInfo serverInfo, String objectName, ClassLoader classLoader) {
+        super(mbeanServer, serverInfo, objectName, classLoader);
     }
 
     public void setKeystoreManager(KeystoreManager keystoreManager) {
@@ -137,6 +138,8 @@ public class JMXSecureConnector extends JMXConnector {
         Authenticator authenticator = null;
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
+            String accessconfig = serverInfo.resolveServerPath("var/security/jmx_access.properties");
+	    env.put("jmx.remote.x.access.file",accessconfig);
             env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
@@ -181,6 +184,7 @@ public class JMXSecureConnector extends JMXConnector {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMX Secure Remoting Connector", JMXSecureConnector.class);
         infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
+        infoFactory.addReference("ServerInfo",ServerInfo.class);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -200,7 +204,7 @@ public class JMXSecureConnector extends JMXConnector {
         infoFactory.addAttribute("trustStore", String.class, true, true);
         infoFactory.addAttribute("clientAuth", boolean.class, true, true);
         
-        infoFactory.setConstructor(new String[]{"MBeanServerReference", "objectName", "classLoader"});
+        infoFactory.setConstructor(new String[]{"MBeanServerReference", "ServerInfo", "objectName", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

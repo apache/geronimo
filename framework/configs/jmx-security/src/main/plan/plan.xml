@@ -24,6 +24,9 @@
         <attribute name="port">${planJMXSecurePort}</attribute>
         <attribute name="urlPath">/jndi/rmi://${planServerHostname}:${planNamingPort}/JMXSecureConnector</attribute>
         <attribute name="applicationConfigName">geronimo-admin</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
         </reference>

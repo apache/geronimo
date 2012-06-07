@@ -50,6 +50,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

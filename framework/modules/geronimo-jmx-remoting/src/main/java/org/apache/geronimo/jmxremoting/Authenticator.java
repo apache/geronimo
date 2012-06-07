@@ -73,13 +73,13 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
             Set<GeronimoGroupPrincipal> pricipalsGroup = sub.getPrincipals(GeronimoGroupPrincipal.class);
             boolean isInAdminGroup = false;
             for (GeronimoGroupPrincipal principal : pricipalsGroup) {
-                if (principal.getName().equals("admin")) {
+                if (principal.getName().equals("admin")||principal.getName().equals("monitor")) {
                     isInAdminGroup = true;
                     break;
                  }
             }
             if(!isInAdminGroup){
-                throw new LoginException("Only users in admin group are allowed");
+                throw new LoginException("Only users in admin group or monitor group are allowed");
             }
             return context.getSubject();
         } catch (LoginException e) {

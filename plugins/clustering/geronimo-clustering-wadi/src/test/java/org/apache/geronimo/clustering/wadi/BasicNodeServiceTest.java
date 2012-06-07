@@ -33,7 +33,7 @@ public class BasicNodeServiceTest extends RMockTestCase {
         LocalNode localNode = (LocalNode) mock(LocalNode.class);
         localNode.getJMXConnectorInfo();
         
-        JMXConnector connector = new JMXConnector((MBeanServer) null, "name", null);
+        JMXConnector connector = new JMXConnector((MBeanServer) null, null, "name", null);
         String host = "host";
         connector.setHost(host);
         int port = 1;

@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.rmi.GeronimoRMIServerSocketFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +57,11 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
 
     protected JMXConnectorServer server;
     protected JMXServiceURL jmxServiceURL;
+    protected ServerInfo serverInfo;
 
     // todo remove this as soon as Geronimo supports factory beans
-    public JMXConnector(MBeanServerReference mbeanServerReference, String objectName, ClassLoader classLoader) {
-        this(mbeanServerReference.getMBeanServer(), objectName, classLoader);
+    public JMXConnector(MBeanServerReference mbeanServerReference, ServerInfo serverInfo, String objectName, ClassLoader classLoader) {
+        this(mbeanServerReference.getMBeanServer(), serverInfo, objectName, classLoader);
     }
 
     /**
@@ -70,9 +72,10 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
      * @param objectName  this connector's object name
      * @param classLoader the classLoader used to create this connector
      */
-    public JMXConnector(MBeanServer mbeanServer, String objectName, ClassLoader classLoader) {
+    public JMXConnector(MBeanServer mbeanServer, ServerInfo serverInfo, String objectName, ClassLoader classLoader) {
         this.mbeanServer = mbeanServer;
-        this.classLoader = classLoader;
+        this.serverInfo = serverInfo;
+        this.classLoader = classLoader;       
         log = LoggerFactory.getLogger(objectName);
     }
 
@@ -188,6 +191,8 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
         Map<String, Object> env = new HashMap<String, Object>();
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
+            String accessconfig = serverInfo.resolveServerPath("var/security/jmx_access.properties");
+	    env.put("jmx.remote.x.access.file",accessconfig);
             env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
@@ -238,6 +243,7 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMX Remoting Connector", JMXConnector.class);
         infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -249,7 +255,7 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
 
         infoFactory.addInterface(JMXConnectorInfo.class);
 
-        infoFactory.setConstructor(new String[]{"MBeanServerReference", "objectName", "classLoader"});
+        infoFactory.setConstructor(new String[]{"MBeanServerReference", "ServerInfo", "objectName", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
