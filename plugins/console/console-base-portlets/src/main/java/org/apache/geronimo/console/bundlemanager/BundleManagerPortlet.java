@@ -879,7 +879,9 @@ public class BundleManagerPortlet extends BasePortlet {
         if (exportedPackages != null){
             for (ExportedPackage exportedPackage : exportedPackages) {
                 Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                if (importingBundles != null) {
+                if (importingBundles == null || importingBundles.length == 0) {
+                    exportingPairs.add(new PackageBundlePair(exportedPackage, null));
+                } else {
                     for (Bundle importingBundle : importingBundles) {
                         exportingPairs.add(new PackageBundlePair(exportedPackage, importingBundle));
                     }
