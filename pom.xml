@@ -77,7 +77,7 @@
         <axis2Version>1.6.1_2</axis2Version>
         <axiomVersion>1.2.12_1</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
-        <xbeanVersion>3.11</xbeanVersion>
+        <xbeanVersion>3.11.1</xbeanVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1.1</txmanagerVersion>
         <tranqlVersion>1.7</tranqlVersion>
@@ -2374,11 +2374,11 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </pluginRepository>
+                </pluginRepository>-->
                 <pluginRepository>
                     <id>voting_repo5</id>
-                    <name>Geronimo axis2 bundle 1.6.1_2 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-119/</url>
+                    <name>Geronimo xbean 3.11.1 voting repository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-205/</url>
                     <layout>default</layout>
                     <snapshots>
                         <enabled>false</enabled>
@@ -2388,7 +2388,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </pluginRepository>-->
+                </pluginRepository>
     </pluginRepositories>
     
     <repositories>
@@ -2448,11 +2448,11 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </repository>
+                </repository>-->
                 <repository>
                     <id>voting_repo5</id>
-                    <name>Geronimo axis2 bundle 1.6.1_2 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-119/</url>
+                    <name>Geronimo xbean 3.11.1 voting repository</name>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-205/</url>
                     <layout>default</layout>
                     <snapshots>
                         <enabled>false</enabled>
@@ -2462,7 +2462,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </repository>-->
+                </repository>
     </repositories>      
 
     <profiles>
