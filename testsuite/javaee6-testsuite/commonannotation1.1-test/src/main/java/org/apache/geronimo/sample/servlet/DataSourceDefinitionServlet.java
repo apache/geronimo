@@ -27,7 +27,7 @@ import javax.sql.DataSource;
         description="this is my data source",
         user="system",
         databaseName="MyDatabase",
-        properties = { "osgi.jndi.service.name = mydatasource", "createDatabase = create" },
+        properties = { "createDatabase = create" },
         serverName="localhost")
 public class DataSourceDefinitionServlet extends BaseServlet {
 
