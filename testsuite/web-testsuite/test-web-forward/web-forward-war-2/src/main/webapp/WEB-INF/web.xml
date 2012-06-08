@@ -56,7 +56,7 @@
        <display-name>TestServlet</display-name>
        <servlet-name>TestServlet</servlet-name>
        <servlet-class>
-              org.apache.geronimo.test.TestServlet
+              org.apache.geronimo.test.TestServlet2
        </servlet-class>
    </servlet>
 

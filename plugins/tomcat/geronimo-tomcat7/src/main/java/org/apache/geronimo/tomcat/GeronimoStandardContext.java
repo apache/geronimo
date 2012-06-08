@@ -897,6 +897,11 @@ public class GeronimoStandardContext extends StandardContext {
     public boolean fireRequestInitEvent(ServletRequest request) {
         return true;
     }
+    
+    @Override
+    public boolean fireRequestDestroyEvent(ServletRequest request) {
+        return true;
+    }
 
     public boolean fireRequestInitEventInBeforeAfter(ServletRequest request) {
         return super.fireRequestInitEvent(request);

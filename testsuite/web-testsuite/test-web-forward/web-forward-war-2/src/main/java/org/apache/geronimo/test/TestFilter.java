@@ -28,17 +28,17 @@ import javax.servlet.ServletResponse;
 public class TestFilter implements Filter {
         
     public void init(FilterConfig filterConfig) {
-        TestServlet.testLookup("filterInit");
+        TestServlet2.testLookup("filterInit");
     }
 
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
-        TestServlet.testLookup("doFilter");
+        TestServlet2.testLookup("doFilter");
         chain.doFilter(request, response);
     }
 
     public void destroy() {  
-        TestServlet.testLookup("filterDestroy");
+        TestServlet2.testLookup("filterDestroy");
     }
 
 }

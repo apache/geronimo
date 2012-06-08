@@ -24,11 +24,11 @@ import javax.servlet.http.HttpSessionEvent;
 public class SessionListener implements HttpSessionListener {
         
     public void sessionCreated(HttpSessionEvent se) {
-        TestServlet.testLookup("sessionCreated");
+        TestServlet2.testLookup("sessionCreated");
     }
 
     public void sessionDestroyed(HttpSessionEvent se) {
-        TestServlet.testLookup("sessionDestroyed");
+        TestServlet2.testLookup("sessionDestroyed");
     }
 
 }

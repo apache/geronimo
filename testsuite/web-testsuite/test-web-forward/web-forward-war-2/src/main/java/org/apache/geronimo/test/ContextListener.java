@@ -23,11 +23,11 @@ import javax.servlet.ServletContextListener;
 public class ContextListener implements ServletContextListener {
         
     public void contextDestroyed(ServletContextEvent event) {
-        TestServlet.testLookup("contextDestroyed");
+        TestServlet2.testLookup("contextDestroyed");
     }
 
     public void contextInitialized(ServletContextEvent event) {
-        TestServlet.testLookup("contextInitialized");
+        TestServlet2.testLookup("contextInitialized");
     }
     
 }

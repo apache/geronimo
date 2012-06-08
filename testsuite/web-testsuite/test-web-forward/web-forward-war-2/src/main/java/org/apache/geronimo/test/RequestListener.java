@@ -23,11 +23,11 @@ import javax.servlet.ServletRequestListener;
 public class RequestListener implements ServletRequestListener {
         
     public void requestDestroyed(ServletRequestEvent event) {
-        TestServlet.testLookup("requestDestroyed");
+        TestServlet2.testLookup("requestDestroyed");
     }
 
     public void requestInitialized(ServletRequestEvent event) {
-        TestServlet.testLookup("requestInitialized");
+        TestServlet2.testLookup("requestInitialized");
     }
     
 }
