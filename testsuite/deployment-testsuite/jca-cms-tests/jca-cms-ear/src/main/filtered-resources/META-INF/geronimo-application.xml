@@ -172,8 +172,11 @@
                         </realm>
                     </credential-store>
                 </xml-attribute>
+                <reference name="Realms">
+                    <name>test-cms-realm</name>
+                </reference>
                 <dependency>
                     <name>test-cms-realm</name>
-		</dependency>
+                </dependency>
             </gbean>
 </application>
