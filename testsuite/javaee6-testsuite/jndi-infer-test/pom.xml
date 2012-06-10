@@ -76,7 +76,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/war</moduleId>
+                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>
                                 </configuration>
                             </execution>
                         </executions>

@@ -34,9 +34,10 @@ public class DataSourceDefinitionServlet extends BaseServlet {
     @Resource(lookup="java:app/MyDataSource")
     DataSource dataSource1;
 
-    @Resource(lookup="osgi:service/mydatasource")
+    @Resource(lookup="java:app/MyDataSource")
     DataSource dataSource2;
 
+    @Override
     DataSource getDataSourceA() {
         return dataSource1;
     }

@@ -36,7 +36,7 @@ public class JndiInferTest extends TestSupport{
 
     private void checkReply(String address)
         throws Exception {
-        String warName = System.getProperty("webAppName");
+        String warName = System.getProperty("appContext");
         assertNotNull(warName);
         URL url = new URL(baseURL + warName + address);
        

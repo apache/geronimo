@@ -25,7 +25,7 @@
 <suite name="Suite1" verbose="5">
     <test name="javaee6-testsuite.jndiInfer">
         <packages>
-            <package name="org.apache.geronimo.javaee6.jndiinfer.test"/>
+            <package name="org.apache.geronimo.testsuite.javaee6.jndiinfer.test"/>
         </packages>
     </test>
 </suite>

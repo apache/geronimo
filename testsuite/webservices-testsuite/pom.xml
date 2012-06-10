@@ -39,8 +39,7 @@
     </description>
 
     <modules>        
-<!--        
-        <module>jaxrpc-jaxws-tests</module>
+<!--                
         <module>jaxws-catalog-tests</module>        
 -->
         <module>jaxb-tests</module>
@@ -51,6 +50,7 @@
         <module>jaxws-tests</module>
         <module>jaxws-wsa-tests</module>
         <module>saaj-tests</module>
+        <module>jaxrpc-jaxws-tests</module>
     </modules>
         
     <profiles>
