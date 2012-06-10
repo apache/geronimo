@@ -32,12 +32,12 @@ import javax.xml.ws.WebServiceContext;
             targetNamespace = "http://apache.org/greeter_control")
 public class GreeterImpl implements Greeter {
 
-    @Resource
+    /*@Resource
     private WebServiceContext context;
 
     public WebServiceContext getContext() {
         return context;
-    }
+    }*/
 
     public String greetMe(String me) {
         return "Hello " + me;
