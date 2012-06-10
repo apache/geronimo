@@ -141,6 +141,11 @@
                             <suiteXmlFiles>
                                 <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <!-- <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds> -->
+                            <systemPropertyVariables>
+                                <total-shipment>2</total-shipment>
+                                <requests-per-shipment>5</requests-per-shipment>            
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
 

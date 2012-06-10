@@ -27,9 +27,19 @@
         <packages>
             <package name="org.apache.geronimo.testsuite.enterprise.jms"/>
         </packages>
+<!--         <classes> -->
+<!--             <class name="org.apache.geronimo.testsuite.enterprise.jms.JMSTest"/> -->
+<!--             <class name="org.apache.geronimo.testsuite.enterprise.jms.MessageSenderTest"/> -->
+<!--         </classes> -->
         <!-- reverse what is commented out to just run the GERONIMO-4784 failing test -->
-        <!--<classes>-->
-            <!--<class name="org.apache.geronimo.testsuite.enterprise.jms.RollbackTest"/>-->
-        <!--</classes>-->
+        <!-- <classes>
+            <class name="org.apache.geronimo.testsuite.enterprise.jms.RollbackTest">
+                <methods>
+                    <include name="XXtestRollbackQUeueAndTopic"/>
+                    <include name="testRollbackQueue"/>
+                    <include name="testRollbackTopic"/>
+                </methods>
+            </class>
+        </classes> -->
     </test>
 </suite>

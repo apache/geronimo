@@ -134,7 +134,7 @@ public class JmsBmtBean implements JmsBmtRemote {
 
                 ut.begin();
                 try {
-                    received = consumer.receive(1000);
+                    received = consumer.receive(2000);
                     if (received == null) throw new JMSException("Not received second time");
                     if (!to.equals(((ObjectMessage)received).getObject())) throw new JMSException("Wrong object inside: " + ((ObjectMessage)received).getObject());
                 } finally {
