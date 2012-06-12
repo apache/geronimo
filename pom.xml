@@ -1873,8 +1873,8 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <version>1.0.1</version>
-                     <dependencies>
+                    <version>2.3</version>
+                     <!--<dependencies>
                         <dependency>
                             <groupId>org.seleniumhq.selenium.server</groupId>
                             <artifactId>selenium-server</artifactId>
@@ -1891,7 +1891,7 @@
                                 </exclusion>
                             </exclusions>
                         </dependency>
-                    </dependencies>
+                    </dependencies>-->
                 
                 </plugin>
 

@@ -132,6 +132,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
     private static final String JASPI_NAMESPACE = "http://geronimo.apache.org/xml/ns/geronimo-jaspi";
+    private static final String TOMCAT_DEFAULT_SERVLET_NAME = "default";
 
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -737,9 +738,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         for (ServletMappingType servletMappingType : servletMappingArray) {
             String servletName = servletMappingType.getServletName().getStringValue().trim();
             if (!knownServlets.contains(servletName)) {
-                throw new DeploymentException("Web app " + module.getName() +
-                        " contains a servlet mapping that refers to servlet '" + servletName +
-                        "' but no such servlet was found!");
+                if (!TOMCAT_DEFAULT_SERVLET_NAME.equals(servletName)) {
+                    throw new DeploymentException("Web app " + module.getName() +
+                            " contains a servlet mapping that refers to servlet '" + servletName +
+                            "' but no such servlet was found!");
+                }
             }
             UrlPatternType[] urlPatterns = servletMappingType.getUrlPatternArray();
             addMappingsForServlet(servletName, urlPatterns, knownServletMappings, servletMappings);
