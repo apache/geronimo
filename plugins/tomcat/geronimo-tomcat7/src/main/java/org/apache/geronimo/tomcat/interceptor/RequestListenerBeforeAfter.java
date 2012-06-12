@@ -53,6 +53,13 @@ public class RequestListenerBeforeAfter implements BeforeAfter {
 
     public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse,
             int dispatch) {
+        if (httpRequest != null && httpResponse != null) {
+            DispatcherType dispatcherType = httpRequest.getDispatcherType();
+            if (dispatcherType == DispatcherType.REQUEST
+                    || (dispatcherType == DispatcherType.FORWARD && standardContext.getFireRequestListenersOnForwards())) {
+                standardContext.fireRequestDestroyEventInBeforeAfter(httpRequest);
+            }
+        }
         if (next != null) {
             next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
         }
