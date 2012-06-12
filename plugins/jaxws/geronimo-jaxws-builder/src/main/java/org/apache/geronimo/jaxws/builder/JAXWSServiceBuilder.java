@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.jaxws.builder;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -106,7 +107,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         if (wsDDUrl != null) {
             InputStream in = null;
             try {
-                in = wsDDUrl.openStream();
+                in = new BufferedInputStream(wsDDUrl.openStream());
 
                 Webservices wst = (Webservices) JaxbJavaee.unmarshalJavaee(Webservices.class, in);
                 for (WebserviceDescription desc : wst.getWebserviceDescription()) {
@@ -319,6 +320,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         containerFactoryData.setAttribute("componentContext", componentContext);
         containerFactoryData.setAttribute("holder", serviceHolder);
         containerFactoryData.setAttribute("contextRoot", ((WebModule) module).getContextRoot());
+        containerFactoryData.setAttribute("catalogName", JAXWSBuilderUtils.normalizeCatalogPath(module, JAXWSUtils.DEFAULT_CATALOG_WEB));
         try {
             context.addGBean(containerFactoryData);
         } catch (GBeanAlreadyExistsException e) {
@@ -393,6 +395,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
 
         targetGBean.setAttribute("portInfo", portInfo);
+
+        targetGBean.setAttribute("catalogName", JAXWSBuilderUtils.normalizeCatalogPath(module, JAXWSUtils.DEFAULT_CATALOG_EJB));
 
         initialize(targetGBean, beanClass, portInfo, module, bundle);
 

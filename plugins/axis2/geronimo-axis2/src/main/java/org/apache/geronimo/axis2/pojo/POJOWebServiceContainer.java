@@ -64,8 +64,9 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
                                    Axis2ModuleRegistry axis2ModuleRegistry,
                                    AnnotationHolder holder,
                                    String contextRoot,
-                                   String moduleName) {
-        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, moduleName);
+                                   String moduleName,
+                                   String catalogName) {
+        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, moduleName, catalogName);
         this.holder = holder;
         this.contextRoot = contextRoot;
     }
@@ -117,7 +118,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
     @Override
     protected AxisServiceGenerator createServiceGenerator() {
         AxisServiceGenerator serviceGenerator = super.createServiceGenerator();
-        serviceGenerator.setCatalogName(JAXWSUtils.DEFAULT_CATALOG_WEB);
+        serviceGenerator.setCatalogName(catalogName);
         return serviceGenerator;
     }
 

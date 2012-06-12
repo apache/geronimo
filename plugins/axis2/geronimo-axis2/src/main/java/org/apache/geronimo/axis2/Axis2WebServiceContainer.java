@@ -135,8 +135,10 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     protected Axis2ModuleRegistry axis2ModuleRegistry;
 
     protected String moduleName;
+    
+    protected String catalogName;
 
-    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Bundle bundle, Context context, Axis2ModuleRegistry axis2ModuleRegistry, String moduleName) {
+    public Axis2WebServiceContainer(PortInfo portInfo, String endpointClassName, Bundle bundle, Context context, Axis2ModuleRegistry axis2ModuleRegistry, String moduleName, String catalogName) {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.bundle = bundle;
@@ -144,6 +146,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         this.jndiResolver = new ServerJNDIResolver(context);
         this.axis2ModuleRegistry = axis2ModuleRegistry;
         this.moduleName = moduleName;
+        this.catalogName = catalogName;
     }
 
     public void init() throws Exception {
@@ -395,7 +398,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             // wsdl or xsd request
 
             if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) {
-                URL wsdlURL = AxisServiceGenerator.getWsdlURL(portInfo.getWsdlFile(), bundle);
+                URL wsdlURL = JAXWSUtils.getWsdlURL(bundle, portInfo.getWsdlFile());
                 this.wsdlQueryHandler.writeResponse(request.getURI().toString(), wsdlURL.toString(), response.getOutputStream());
             } else {
                 throw new Exception("Service does not have WSDL");

@@ -60,6 +60,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private Bundle bundle;
     private Axis2ModuleRegistry axis2ModuleRegistry;
     private String webModuleName;
+    private String catalogName;
 
     public POJOWebServiceContainerFactoryGBean(
                         @ParamAttribute(name="portInfo") PortInfo portInfo,
@@ -68,6 +69,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                         @ParamReference(name="TransactionManager", namingType=NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
                         @ParamAttribute(name="holder") AnnotationHolder holder,
                         @ParamAttribute(name="contextRoot") String contextRoot,
+                        @ParamAttribute(name="catalogName") String catalogName,
                         @ParamReference(name="Axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
@@ -94,10 +96,11 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.contextRoot = contextRoot;
         this.axis2ModuleRegistry = axis2ModuleRegistry;
         this.webModuleName = abName.getNameProperty(NameFactory.WEB_MODULE);
+        this.catalogName = catalogName;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, holder, contextRoot, webModuleName);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, holder, contextRoot, webModuleName, catalogName);
         try {
             container.init();
         } catch (Exception e) {

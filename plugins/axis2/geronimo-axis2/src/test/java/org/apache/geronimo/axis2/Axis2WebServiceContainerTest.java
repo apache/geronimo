@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainer;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.osgi.MockBundle;
@@ -77,7 +78,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 
         String endpointClassName = "org.apache.geronimo.axis2.testdata.simple.HelloWorld";
         Bundle mockBundle = new MockBundle(cl, null, 11L);
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, mockBundle, null, new Axis2ModuleRegistry(mockBundle.getBundleContext()), AnnotationHolder.EMPTY, "/axis2", "TestWebModuleName");
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, mockBundle, null, new Axis2ModuleRegistry(mockBundle.getBundleContext()), AnnotationHolder.EMPTY, "/axis2", "TestWebModuleName", JAXWSUtils.DEFAULT_CATALOG_WEB);
         container.init();
         container.invoke(req, res);
         out.flush();
@@ -152,7 +153,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
                 Bundle mockBundle = new MockBundle(cl, null, 11L);
                 POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, mockBundle, null, new Axis2ModuleRegistry(mockBundle.getBundleContext()),
-                        AnnotationHolder.EMPTY, "/axis2","TestWebModuleName");
+                        AnnotationHolder.EMPTY, "/axis2","TestWebModuleName", JAXWSUtils.DEFAULT_CATALOG_WEB);
                 container.init();
                 container.invoke(req, res);
                 System.out.println("Response "+out);

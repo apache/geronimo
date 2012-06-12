@@ -162,7 +162,7 @@ public class AxisServiceGenerator
             //instance, we will call the parseCatalog(URL) to add the file
             //catalogManager.setCatalogFiles(catalogURL.toString());
         }
-        URL wsdlURL = getWsdlURL(wsdlFile, bundle);
+        URL wsdlURL = JAXWSUtils.getWsdlURL(bundle, wsdlFile);
         WSDL4JWrapper wsdlWrapper = new WSDL4JWrapper(wsdlURL, this.configurationContext, catalogManager);
         Definition wsdlDefinition = wsdlWrapper.getDefinition();
 
@@ -327,30 +327,7 @@ public class AxisServiceGenerator
             composite.setWsdlDefinition(testMap);
             return composite;
         }
-    }
-
-    public static URL getWsdlURL(String wsdlFile, Bundle bundle) {
-        if (wsdlFile == null) {
-            return null;
-        }
-        URL wsdlURL;
-        try {
-            wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
-        } catch (MalformedURLException e) {
-            log.warn("MalformedURLException when getting entry:" + wsdlFile + " from bundle " + bundle.getSymbolicName(), e);
-            wsdlURL = null;
-        }
-        if (wsdlURL == null) {
-            wsdlURL = bundle.getResource(wsdlFile);
-            if (wsdlURL == null) {
-                try {
-                    wsdlURL = new URL(wsdlFile);
-                } catch (MalformedURLException e) {
-                }
-            }
-        }
-        return wsdlURL;
-    }
+    }    
 
     public static EndpointDescription getEndpointDescription(AxisService service) {
         Parameter param = service.getParameter(EndpointDescription.AXIS_SERVICE_PARAMETER);
