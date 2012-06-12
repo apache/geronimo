@@ -77,6 +77,8 @@ public class WebAppInfoBuilder {
 
     private WebAppInfo webAppInfo;
 
+    private static final String TOMCAT_DEFAULT_SERVLET_NAME = "default";
+
     public WebAppInfoBuilder(WebApp webApp, WebAppInfoFactory webAppInfoFactory) {
         this.webApp = webApp;
         this.webAppInfoFactory = webAppInfoFactory;
@@ -246,7 +248,9 @@ public class WebAppInfoBuilder {
             String servletName = servletMapping.getServletName().trim();
             ServletInfo servletInfo = servletMap.get(servletName);
             if (servletInfo == null) {
-                problems.add("\nNo servlet matching servlet mappings for " + servletName);
+                if (!TOMCAT_DEFAULT_SERVLET_NAME.equals(servletName)) {
+                    problems.add("\nNo servlet matching servlet mappings for " + servletName);
+                }
             } else {
                 normalizeUrlPatterns(servletMapping.getUrlPattern(), servletInfo.servletMappings);
             }
