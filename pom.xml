@@ -2374,7 +2374,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </pluginRepository>-->
+                </pluginRepository>
                 <pluginRepository>
                     <id>voting_repo5</id>
                     <name>Geronimo xbean 3.11.1 voting repository</name>
@@ -2388,7 +2388,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </pluginRepository>
+                </pluginRepository>-->
     </pluginRepositories>
     
     <repositories>
@@ -2448,7 +2448,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </repository>-->
+                </repository>
                 <repository>
                     <id>voting_repo5</id>
                     <name>Geronimo xbean 3.11.1 voting repository</name>
@@ -2462,7 +2462,7 @@ only found in cxf
                     <releases>
                         <enabled>true</enabled>
                     </releases>
-                </repository>
+                </repository>-->
     </repositories>      
 
     <profiles>
