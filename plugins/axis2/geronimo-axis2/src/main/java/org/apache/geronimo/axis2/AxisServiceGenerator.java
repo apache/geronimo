@@ -59,6 +59,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.apache.xml.resolver.Catalog;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +155,12 @@ public class AxisServiceGenerator
         OASISCatalogManager catalogManager = new OASISCatalogManager();
         URL catalogURL = JAXWSUtils.getOASISCatalogURL(bundle, this.catalogName);
         if (catalogURL != null) {
-            catalogManager.setCatalogFiles(catalogURL.toString());
+            Catalog catalog = catalogManager.getCatalog();
+            catalog.parseCatalog(catalogURL);
+            //The default logic in the Catalog.parseCatalogFile(String) method always assume that the URL is file-based
+            //This is not correct in OSGi environment, so considering that one Catalog instance will be shared per OASISCatalogManager
+            //instance, we will call the parseCatalog(URL) to add the file
+            //catalogManager.setCatalogFiles(catalogURL.toString());
         }
         URL wsdlURL = getWsdlURL(wsdlFile, bundle);
         WSDL4JWrapper wsdlWrapper = new WSDL4JWrapper(wsdlURL, this.configurationContext, catalogManager);
