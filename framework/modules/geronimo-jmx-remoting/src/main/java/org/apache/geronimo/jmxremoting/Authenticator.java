@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.jmxremoting;
 
+import java.security.Principal;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +31,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 /**
  * JMX Authenticator that checks the Credentials by logging in via JAAS.
  *
@@ -71,19 +74,26 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
             threadContext.set(context);
             Subject sub = context.getSubject();
             Set<GeronimoGroupPrincipal> pricipalsGroup = sub.getPrincipals(GeronimoGroupPrincipal.class);
-            boolean isInAdminGroup = false;
+            boolean isAllowedGroups = false;
             for (GeronimoGroupPrincipal principal : pricipalsGroup) {
-                if (principal.getName().equals("admin")||principal.getName().equals("monitor")) {
-                    isInAdminGroup = true;
+                if (principal.getName().equals("admin") || principal.getName().equals("monitor")) {
+                    isAllowedGroups = true;
                     break;
-                 }
+                }
             }
-            if(!isInAdminGroup){
+            if (!isAllowedGroups) {
                 throw new LoginException("Only users in admin group or monitor group are allowed");
             }
-            return context.getSubject();
+            //Let's remove the GeronimoUserPrincipal, as in the access control file, the identities are group names
+            for (Iterator<Principal> it = sub.getPrincipals().iterator(); it.hasNext();) {
+                Principal principal = it.next();
+                if (principal instanceof GeronimoUserPrincipal) {
+                    it.remove();
+                }
+            }
+            return sub;
         } catch (LoginException e) {
-            // do not propogate cause - we don't know what information is may contain
+            // do not propagate cause - we don't know what information is may contain
             throw new SecurityException("Invalid login");
         } finally {
             credentials.clear();
