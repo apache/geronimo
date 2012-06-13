@@ -35,6 +35,7 @@ public class GreeterImpl2 {
     @Resource
     private WebServiceContext context;
 
+    @WebMethod(exclude=true)
     public WebServiceContext getContext() {
         return context;
     }
