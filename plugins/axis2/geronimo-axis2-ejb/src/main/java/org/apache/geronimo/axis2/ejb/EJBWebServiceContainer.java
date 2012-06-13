@@ -52,8 +52,9 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
                                   Context context,
                                   Axis2ModuleRegistry axis2ModuleRegistry,
                                   BeanContext deploymnetInfo,
-                                  String ejbModuleName) {
-        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, ejbModuleName);
+                                  String ejbModuleName,
+                                  String catalogName) {
+        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry, ejbModuleName, catalogName);
         this.deploymnetInfo = deploymnetInfo;
     }
 
@@ -98,7 +99,7 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
     @Override
     protected AxisServiceGenerator createServiceGenerator() {
         AxisServiceGenerator serviceGenerator = super.createServiceGenerator();
-        serviceGenerator.setCatalogName(JAXWSUtils.DEFAULT_CATALOG_EJB);
+        serviceGenerator.setCatalogName(catalogName);
         EJBMessageReceiver messageReceiver =
             new EJBMessageReceiver(this, this.endpointClass, this.deploymnetInfo);
         serviceGenerator.setMessageReceiver(messageReceiver);

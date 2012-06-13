@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.axis2.client;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.jaxws.info.HandlerChainsInfo;
+import org.apache.xml.resolver.Catalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +67,14 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
         if (catalogURL != null) {
             composite = new DescriptionBuilderComposite();
             OASISCatalogManager catalogManager = new OASISCatalogManager();
-            catalogManager.setCatalogFiles(catalogURL.toString());
+            Catalog catalog = catalogManager.getCatalog();
+            try {
+                catalog.parseCatalog(catalogURL);
+            } catch (IOException e) {
+                NamingException toThrow = new NamingException("Fail to parse catalog file " + catalogURL.toString());
+                toThrow.initCause(e);
+                throw toThrow;
+            }            
             composite.setCatalogManager(catalogManager);
         }
 

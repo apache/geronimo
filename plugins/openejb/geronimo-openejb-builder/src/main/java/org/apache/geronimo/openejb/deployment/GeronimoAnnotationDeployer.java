@@ -20,12 +20,7 @@
 
 package org.apache.geronimo.openejb.deployment;
 
-import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.config.AnnotationDeployer;
-import org.apache.openejb.config.AppModule;
-import org.apache.openejb.config.EnvEntriesPropertiesDeployer;
-import org.apache.openejb.jee.JndiConsumer;
-import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$

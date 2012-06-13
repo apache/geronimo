@@ -23,7 +23,8 @@ import java.net.URL;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
-public class JAXWSBuilderUtils {    
+public class JAXWSBuilderUtils {
+
     private static boolean isURL(String name) {
         try {
             new URL(name);
@@ -37,20 +38,56 @@ public class JAXWSBuilderUtils {
         // is Absolute URL path
         if (isURL(wsdlLocation)) return wsdlLocation;
         
+        Module parentModule = module.getParentModule();
+
+        if(parentModule == null) {
+            return wsdlLocation;
+        }
+
         // EAR
         //   L WAR
-        if (module.getType().equals(ConfigurationModuleType.WAR) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.EAR))
+        if (module.getType().equals(ConfigurationModuleType.WAR) && parentModule.getType().equals(ConfigurationModuleType.EAR))
             return module.getTargetPathURI().resolve(wsdlLocation).toString();
         
         // EAR 
         //   L WAR
         //       L EJB
-        if (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType().equals(ConfigurationModuleType.WAR)
-                && module.getParentModule().getParentModule() != null && module.getParentModule().getParentModule().getType().equals(ConfigurationModuleType.EAR))
-            return module.getParentModule().getTargetPathURI().resolve(wsdlLocation).toString();
+        if (module.getType().equals(ConfigurationModuleType.EJB) && parentModule.getType().equals(ConfigurationModuleType.WAR)
+                && parentModule.getParentModule() != null && parentModule.getParentModule().getType().equals(ConfigurationModuleType.EAR))
+            return parentModule.getTargetPathURI().resolve(wsdlLocation).toString();
         
-            
+        // EAR
+        //   L EJB
+        if(module.getType().equals(ConfigurationModuleType.EJB) && parentModule.getType().equals(ConfigurationModuleType.EAR)) {
+            return module.getModuleURI().toString() + "!/" + wsdlLocation;
+        }
+
         return wsdlLocation;
+    }
+    
+    public static String normalizeCatalogPath(Module module, String catalogName) {
+        if(isURL(catalogName)) {
+            return catalogName;
+        }
+
+        Module parentModule = module.getParentModule();
+
+        if(parentModule == null) {
+            return catalogName;
+        }
+        // EAR
+        // L WAR
+        if(module.getType().equals(ConfigurationModuleType.WAR) && parentModule.getType().equals(ConfigurationModuleType.EAR)) {
+            return module.getTargetPathURI().resolve(catalogName).toString();
+        }
+        
+        // EAR
+        //   L EJB
+        if(module.getType().equals(ConfigurationModuleType.EJB) && parentModule.getType().equals(ConfigurationModuleType.EAR)) {
+            return module.getModuleURI().toString() + "!/" + catalogName;
+        }
+
+        return catalogName;
     }
     
     private static boolean isURL(URI name) {

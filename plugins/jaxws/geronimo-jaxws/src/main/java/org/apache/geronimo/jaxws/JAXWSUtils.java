@@ -19,6 +19,7 @@ package org.apache.geronimo.jaxws;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -312,23 +313,82 @@ public class JAXWSUtils {
         if (catalogName == null) {
             return null;
         }
-        LOG.debug("Checking for {} catalog in classloader", catalogName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Checking for {} catalog in classloader", catalogName);
+        }
         URL catalogURL = bundle.getResource(catalogName);
         if (catalogURL == null ) {
             try {
-                LOG.debug("Checking for {} catalog in module directory", catalogName);
-                URL tmpCatalogURL = BundleUtils.getEntry(bundle, catalogName);
-                if (tmpCatalogURL != null) {
-                    tmpCatalogURL.openStream().close();
-                    catalogURL = tmpCatalogURL;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Checking for {} catalog in module directory", catalogName);
+                }
+                int jarSeparatorIndex = catalogName.indexOf("!/"); 
+                if (jarSeparatorIndex != -1 && jarSeparatorIndex < (catalogName.length() - 2)) {
+                    String jarFileName = catalogName.substring(0,jarSeparatorIndex);
+                    URL jarFileURL = bundle.getEntry(jarFileName);
+                    if(jarFileURL != null) {
+                        return new URL("jar:" + jarFileURL + "!/" + catalogName.substring(jarSeparatorIndex +2));
+                    }
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Not found the entry {} in the bundle {}", jarFileName, bundle.getLocation());
+                    }
+                } else {
+                    URL tmpCatalogURL = BundleUtils.getEntry(bundle, catalogName);
+                    if (tmpCatalogURL != null) {
+                        tmpCatalogURL.openStream().close();
+                        catalogURL = tmpCatalogURL;
+                    }
                 }
             } catch (FileNotFoundException e) {
-                LOG.debug("Catalog {} is not present in the module", catalogName);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Catalog {} is not present in the module", catalogName);
+                }
             } catch (IOException e) {
-                LOG.warn("Failed to open catalog file: " + catalogURL, e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.warn("Failed to open catalog file: " + catalogURL, e);
+                }
             }
         }
         return catalogURL;
     }
 
+    public static URL getWsdlURL(Bundle bundle, String wsdlFile) {
+        if (wsdlFile == null) {
+            return null;
+        }
+        URL wsdlURL = null;
+        try {
+            /**
+             * Geronimo now installs the whole EAR as one bundle, and the nested WARs are extracted, while EJB are left as Jar files.
+             * If the WSDL file is included in the EJB, it is required to get the Jar file entry firstly, then use jar protocol to load the WSDL
+             * file.
+             */
+            int jarSeparatorIndex = wsdlFile.indexOf("!/");
+            if (jarSeparatorIndex != -1 && jarSeparatorIndex < (wsdlFile.length() - 2)) {
+                String jarFileName = wsdlFile.substring(0, jarSeparatorIndex);
+                URL jarFileURL = bundle.getEntry(jarFileName);
+                if (jarFileURL != null) {
+                    wsdlURL = new URL("jar:" + jarFileURL + "!/" + wsdlFile.substring(jarSeparatorIndex + 2));
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Not found the entry {} in the bundle {}", jarFileName, bundle.getLocation());
+                }
+            } else {
+                wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+            }
+        } catch (MalformedURLException e) {
+            LOG.warn("MalformedURLException when getting entry:" + wsdlFile + " from bundle " + bundle.getSymbolicName(), e);
+            wsdlURL = null;
+        }
+        if (wsdlURL == null) {
+            wsdlURL = bundle.getResource(wsdlFile);
+            if (wsdlURL == null) {
+                try {
+                    wsdlURL = new URL(wsdlFile);
+                } catch (MalformedURLException e) {
+                }
+            }
+        }
+        return wsdlURL;
+    }
 }

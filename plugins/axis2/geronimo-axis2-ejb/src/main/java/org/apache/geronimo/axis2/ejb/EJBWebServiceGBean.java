@@ -62,7 +62,8 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               @ParamAttribute(name="realmName")String realmName,
                               @ParamAttribute(name="authMethod")String authMethod,
                               @ParamAttribute(name="virtualHosts")String[] virtualHosts,
-                              @ParamAttribute(name="properties")Properties properties) throws Exception {
+                              @ParamAttribute(name="properties")Properties properties,
+                              @ParamAttribute(name="catalogName")String catalogName) throws Exception {
 
         if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
@@ -78,7 +79,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         BeanContext deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
         Context context = deploymnetInfo.getJndiEnc();
 
-        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, axis2ModuleRegistry, deploymnetInfo, abName.getNameProperty(NameFactory.EJB_MODULE));
+        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, axis2ModuleRegistry, deploymnetInfo, abName.getNameProperty(NameFactory.EJB_MODULE), catalogName);
         this.container.init();
 
         soapHandler.addWebService(this.location,
