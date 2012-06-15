@@ -90,7 +90,14 @@
         </td>
         <td align="right">
             <form id="searchForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='search'/></portlet:actionURL>">
-                Search by Symbolic Name:
+                Search type:
+                
+                <select name="searchType">
+                    <option id="symbolic-name" value="symbolic-name">Symbolic name</option>
+                    <option id="bundle-name" value="bundle-name">Bundle name</option>
+                    <option id="package-capability" value="package-capability">Package capability</option>
+                </select>
+                
                 <input type="text" id="searchString" name="searchString" value="${searchString}"/>&nbsp;
                 <input type="submit" value="Go" />
                 <input type="button" value="Reset" onclick="resetSearchForm()" />
@@ -99,6 +106,10 @@
                 function resetSearchForm(){
                     document.getElementById("searchString").value = "";
                     document.getElementById("searchForm").submit();
+                }
+                var searchOption = document.getElementById("${param.searchType}");
+                if (searchOption) {
+                	searchOption.selected = true;
                 }
             </script>
         </td>

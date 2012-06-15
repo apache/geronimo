@@ -20,6 +20,9 @@ package org.apache.geronimo.console.obrmanager;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
@@ -32,11 +35,13 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.geronimo.console.BasePortlet;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +65,6 @@ public class OBRManagerPortlet extends BasePortlet {
     private static final String ADD_URL_ACTION = "add_url";
 
     private static final String SEARCH_TYPE_ALL = "ALL";
-
-    private static final String SEARCH_TYPE_SEARCH = "SEARCH";
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -119,10 +122,10 @@ public class OBRManagerPortlet extends BasePortlet {
             actionResponse.setRenderParameter("searchType", searchType);
         }
         else if (SERACH_ACTION.equals(action)) {
-            String searchType = SEARCH_TYPE_SEARCH;
             String searchString = actionRequest.getParameter("searchString");
+            actionResponse.setRenderParameter("searchString", searchString);        
+            String searchType = actionRequest.getParameter("searchType");
             actionResponse.setRenderParameter("searchType", searchType);
-            actionResponse.setRenderParameter("searchString", searchString);            
         }
         
     }
@@ -142,50 +145,162 @@ public class OBRManagerPortlet extends BasePortlet {
             Repository[] repos = repositoryAdmin.listRepositories();
             renderRequest.setAttribute("repos", repos);
 
-            String searchType = renderRequest.getParameter("searchType");
-            if (searchType != null && !"".equals(searchType)) {
-                if (SEARCH_TYPE_ALL.equals(searchType)) {
-                    Repository[] repoAll = repositoryAdmin.listRepositories();
-                    List<Resource> resourcesResult = new ArrayList<Resource>();
-                    
-                    for (Repository repo : repoAll) {
-                        Resource[] resources = repo.getResources();
-                        for (Resource reso : resources) {
-                            resourcesResult.add(reso);
+            try {
+                String searchType = renderRequest.getParameter("searchType");
+                if (searchType != null && !"".equals(searchType)) {
+                    if (SEARCH_TYPE_ALL.equals(searchType)) {
+                        Resource[] resources = getAllResources(repositoryAdmin);
+                        Arrays.sort(resources, ResourceComparator.INSTANCE);
+                        renderRequest.setAttribute("resources", resources);
+                    } else {
+                        String searchString = renderRequest.getParameter("searchString");
+                        if (searchString == null || searchString.length() == 0) {
+                            Resource[] resources = getAllResources(repositoryAdmin);
+                            Arrays.sort(resources, ResourceComparator.INSTANCE);
+                            renderRequest.setAttribute("resources", resources);
+                        } else {
+                            ResourceMatcher resourceMatcher = getResourceMatcher(searchType, searchString);
+                            List<Resource> resourcesResult = queryResources(repositoryAdmin, resourceMatcher);
+                            renderRequest.setAttribute("resources", resourcesResult);
                         }
                     }
-                    renderRequest.setAttribute("resources", resourcesResult);
-                    
-                }
-                else if (SEARCH_TYPE_SEARCH.equals(searchType)) {
-                    try {
-                        String searchString = renderRequest.getParameter("searchString");
-                        StringBuffer sb = new StringBuffer();
-                        
-                        if (searchString==null||"".equals(searchString)) {
-                            sb.append("(|(presentationname=*)(symbolicname=*))");
-                        }
-                        else {
-                            sb.append("(|(presentationname=*");
-                            sb.append(searchString);
-                            sb.append("*)(symbolicname=*");
-                            sb.append(searchString);
-                            sb.append("*))");
-                        }
-                        
-                        Resource[] resources = repositoryAdmin.discoverResources(sb.toString());
-                        renderRequest.setAttribute("resources", resources);
-                    } catch (Exception e) {
-                        addErrorMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.obrmanager.err.actionError"), e.getMessage());
-                        logger.error("Exception", e);
-                     } finally {
-                         bundleContext.ungetService(reference);
-                     }
-                }
+                }                
+            } catch (Exception e) {
+                addErrorMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.obrmanager.err.actionError"), e.getMessage());
+                logger.error("Exception", e);
+            } finally {
+                bundleContext.ungetService(reference);
             }
+
             obrManagerView.include(renderRequest, renderResponse);
         }
 
+    }
+    
+    private List<Resource> queryResources(RepositoryAdmin repositoryAdmin, ResourceMatcher resourceMatcher) {
+        List<Resource> resourcesResult = null;
+        Resource[] resources = getAllResources(repositoryAdmin);
+        if (resources != null) {
+            resourcesResult = new ArrayList<Resource>();
+            for (Resource resource : resources) {
+                if (resourceMatcher.match(resource)) {
+                    resourcesResult.add(resource);
+                }
+            }       
+            Collections.sort(resourcesResult, ResourceComparator.INSTANCE);
+        } else {
+            resourcesResult = new ArrayList<Resource>(0);
+        }
+        return resourcesResult;
+    }
+    
+    private Resource[] getAllResources(RepositoryAdmin repositoryAdmin) {
+        try {
+            return repositoryAdmin.discoverResources("(symbolicname=*)");
+        } catch (InvalidSyntaxException e) {
+            throw new RuntimeException("Unexpected error", e);
+        }
+    }
+
+    private ResourceMatcher getResourceMatcher(String searchType, String searchString) {
+        if (searchType.equalsIgnoreCase("symbolic-name")) {
+            return new SymbolicNameMatcher(searchString);
+        } else if (searchType.equalsIgnoreCase("bundle-name")) {
+            return new BundleNameMatcher(searchString);
+        } else if (searchType.equalsIgnoreCase("package-capability")) {
+            return new PackageCapabilityMatcher(searchString);
+        } else {
+            throw new RuntimeException("Unsupported search type: " + searchType);
+        }
+    }
+    
+    private abstract static class ResourceMatcher {
+        
+        private String query;
+        
+        public ResourceMatcher(String query) {
+            this.query = query;
+        }
+        
+        abstract boolean match(Resource resource);
+        
+        protected boolean matchQuery(String name) {
+            if (name != null) {
+                return name.toLowerCase().contains(query);
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    private static class SymbolicNameMatcher extends ResourceMatcher {
+
+        public SymbolicNameMatcher(String query) {
+            super(query);
+        }
+
+        public boolean match(Resource resource) {
+            return matchQuery(resource.getSymbolicName());
+        }
+        
+    }
+    
+    private static class BundleNameMatcher extends ResourceMatcher {
+
+        public BundleNameMatcher(String query) {
+            super(query);
+        }
+
+        public boolean match(Resource resource) {
+            return matchQuery(resource.getPresentationName());
+        }
+        
+    }
+    
+    private static class PackageCapabilityMatcher extends ResourceMatcher {
+
+        public PackageCapabilityMatcher(String query) {
+            super(query);
+        }
+
+        public boolean match(Resource resource) {
+            Capability[] capabilities = resource.getCapabilities();
+            if (capabilities != null) {
+                for (Capability capability : capabilities) {
+                    if (Capability.PACKAGE.equals(capability.getName())) {
+                        String packageName = (String) capability.getPropertiesAsMap().get(Capability.PACKAGE);
+                        if (matchQuery(packageName)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+    }
+    
+    private static class ResourceComparator implements Comparator<Resource> {
+
+        public static final ResourceComparator INSTANCE = new ResourceComparator();
+        
+        @Override
+        public int compare(Resource resource1, Resource resource2) {
+            String name1 = resource1.getSymbolicName();
+            String name2 = resource2.getSymbolicName();
+            if (name1 == null) {
+                if (name2 == null) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            } else if (name2 == null) {
+                return -1;
+            } else {
+                return name1.compareTo(name2);
+            }
+        }
+        
     }
 
     private BundleContext getBundleContext(PortletRequest request) {
