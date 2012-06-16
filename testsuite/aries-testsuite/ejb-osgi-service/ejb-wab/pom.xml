@@ -24,7 +24,7 @@
   <parent>
     <artifactId>ejb-osgi-service</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0-beta-2-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
   
  
