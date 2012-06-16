@@ -96,6 +96,7 @@
                     <option id="symbolic-name" value="symbolic-name">Symbolic name</option>
                     <option id="bundle-name" value="bundle-name">Bundle name</option>
                     <option id="package-capability" value="package-capability">Package capability</option>
+                    <option id="package-requirement" value="package-requirement">Package requirement</option>
                 </select>
                 
                 <input type="text" id="searchString" name="searchString" value="${searchString}"/>&nbsp;
@@ -143,20 +144,20 @@
                     <tr valign="top" width="100px">
                         <td>Description:</td>
                         <td>
-                            id:${resourceInfo.id}</br>
-                            presentation name:${resourceInfo.presentationName}</br>
-                            URI:${resourceInfo.URI}</br>
-                            version:${resourceInfo.version}</br>
-                            size:${resourceInfo.size}</br>
+                            id: ${resourceInfo.id}</br>
+                            presentation name: ${resourceInfo.presentationName}</br>
+                            uri: ${resourceInfo.URI}</br>
+                            version: ${resourceInfo.version}</br>
+                            size: ${resourceInfo.size}</br>
                         </td>
                     </tr>
                     <tr><td colspan="2"></td></tr>
                     <tr valign="top" width="100px">
-                        <td>Requires:</td>
+                        <td>Requirements:</td>
                         <td>
                             <c:if test="${resourceInfo.requirements!=null}">
                             <c:forEach var="requireinfo" items="${resourceInfo.requirements}">
-                                ${requireinfo.name}:${requireinfo.filter}</br>
+                                ${requireinfo.name}: ${requireinfo.filter}</br>
                             </c:forEach>
                             </c:if>
                         </td>
@@ -167,7 +168,7 @@
                         <td>
                             <c:if test="${resourceInfo.capabilities!=null}">
                             <c:forEach var="capabilityinfo" items="${resourceInfo.capabilities}">
-                                ${capabilityinfo.name}:${capabilityinfo.propertiesAsMap}</br>
+                                ${capabilityinfo.name}: ${capabilityinfo.propertiesAsMap}</br>
                             </c:forEach>
                             </c:if>
                         </td>

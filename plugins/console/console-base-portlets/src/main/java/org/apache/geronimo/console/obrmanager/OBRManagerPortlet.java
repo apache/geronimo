@@ -38,6 +38,7 @@ import javax.portlet.WindowState;
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.geronimo.console.BasePortlet;
 import org.osgi.framework.BundleContext;
@@ -154,12 +155,12 @@ public class OBRManagerPortlet extends BasePortlet {
                         renderRequest.setAttribute("resources", resources);
                     } else {
                         String searchString = renderRequest.getParameter("searchString");
-                        if (searchString == null || searchString.length() == 0) {
+                        if (searchString == null || searchString.trim().length() == 0) {
                             Resource[] resources = getAllResources(repositoryAdmin);
                             Arrays.sort(resources, ResourceComparator.INSTANCE);
                             renderRequest.setAttribute("resources", resources);
                         } else {
-                            ResourceMatcher resourceMatcher = getResourceMatcher(searchType, searchString);
+                            ResourceMatcher resourceMatcher = getResourceMatcher(searchType, searchString.trim().toLowerCase());
                             List<Resource> resourcesResult = queryResources(repositoryAdmin, resourceMatcher);
                             renderRequest.setAttribute("resources", resourcesResult);
                         }
@@ -209,6 +210,8 @@ public class OBRManagerPortlet extends BasePortlet {
             return new BundleNameMatcher(searchString);
         } else if (searchType.equalsIgnoreCase("package-capability")) {
             return new PackageCapabilityMatcher(searchString);
+        } else if (searchType.equalsIgnoreCase("package-requirement")) {
+            return new PackageRequirementMatcher(searchString);
         } else {
             throw new RuntimeException("Unsupported search type: " + searchType);
         }
@@ -278,6 +281,69 @@ public class OBRManagerPortlet extends BasePortlet {
             return false;
         }
         
+    }
+    
+    private static class PackageRequirementMatcher extends ResourceMatcher {
+
+        public PackageRequirementMatcher(String query) {
+            super(query);
+        }
+
+        public boolean match(Resource resource) {
+            Requirement[] requirements = resource.getRequirements();
+            if (requirements != null) {
+                for (Requirement requirement : requirements) {
+                    if (Capability.PACKAGE.equals(requirement.getName())) {
+                        String filter = requirement.getFilter();
+                        String packageName = getPackageName(filter);
+                        if (packageName != null) {
+                            if (matchQuery(packageName)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        /*
+         * look for "(package = <package name>)" in the filter and return <package name>.
+         */
+        private String getPackageName(String filter) {
+            int pos = filter.indexOf(Capability.PACKAGE);
+            if (pos != -1) {
+                int length = filter.length();
+                pos += Capability.PACKAGE.length();
+                pos = skipWhitespace(filter, pos);
+                if (pos < length && filter.charAt(pos) == '=') {
+                    pos = skipWhitespace(filter, pos + 1);
+                    if (pos < length) {
+                        int start = pos;
+                        while (pos < length) {
+                            char ch = filter.charAt(pos);
+                            if (Character.isWhitespace(ch) || ch == ')') {
+                                break;
+                            } else {
+                                pos++;
+                            }
+                        }
+                        int end = pos;
+                        return filter.substring(start, end);
+                    }
+                }
+            }
+            return null;
+        }
+        
+        private int skipWhitespace(String filter, int start) {
+            int size = filter.length();
+            int pos = start;
+            while (pos < size && Character.isWhitespace(filter.charAt(pos))) {
+                pos++;
+            }
+            return pos;
+        }
     }
     
     private static class ResourceComparator implements Comparator<Resource> {
