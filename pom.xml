@@ -45,9 +45,9 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/3.0-beta</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/3.0-beta</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/branches/3.0-beta</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/3.0</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/3.0</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/branches/3.0</url>
     </scm>
 
     <properties>
