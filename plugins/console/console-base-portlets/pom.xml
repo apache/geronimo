@@ -120,6 +120,13 @@
             <artifactId>org.apache.felix.bundlerepository</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-obr</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 

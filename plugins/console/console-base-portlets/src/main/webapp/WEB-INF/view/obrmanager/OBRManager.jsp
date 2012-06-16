@@ -69,11 +69,11 @@
         <td>
             <!-- obr:refreshurl -->
             <span>
-                <a href="<portlet:actionURL><portlet:param name='uri' value='${repo.URI}'/><portlet:param name='action' value='refreshurl'/></portlet:actionURL>">Refresh</a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='refreshurl'/></portlet:actionURL>">Refresh</a>&nbsp;
             </span>
             <!-- obr:removeurl -->
             <span>
-                <a href="<portlet:actionURL><portlet:param name='uri' value='${repo.URI}'/><portlet:param name='action' value='removeurl'/></portlet:actionURL>">Remove</a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='removeurl'/></portlet:actionURL>">Remove</a>&nbsp;
             </span>
         </td>
       </tr>

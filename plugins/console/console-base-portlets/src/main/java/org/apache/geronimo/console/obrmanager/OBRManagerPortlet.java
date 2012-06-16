@@ -41,6 +41,7 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.obr.GeronimoOBRGBean;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -83,40 +84,31 @@ public class OBRManagerPortlet extends BasePortlet {
             IOException {
         actionResponse.setRenderParameter("message", ""); // set to blank first
         
-        BundleContext bundleContext = getBundleContext(actionRequest);
-        ServiceReference reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
-        
         String action = actionRequest.getParameter("action");
 
-
         if (ADD_URL_ACTION.equals(action)) {
-            String obrUrl = actionRequest.getParameter("obrUrl");
-
             try {
-                repositoryAdmin.addRepository(new URI(obrUrl).toURL());
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.add", obrUrl));
+                addRepository(actionRequest);
             } catch (Exception e) {
                 addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.err.actionError") + action, e.getMessage());
                 logger.error("Exception", e);
             }
         }
         else if (REFRESH_URL_ACTION.equals(action)) {
-            String uri = actionRequest.getParameter("uri");
-
             try {
-                repositoryAdmin.removeRepository(uri);
-                repositoryAdmin.addRepository(uri);
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.refreshurl", uri));
+                refreshRepository(actionRequest);    
             } catch (Exception e) {
                 addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.err.actionError") + action, e.getMessage());
                 logger.error("Exception", e);
             }
         }
         else if (REMOVE_URL_ACTION.equals(action)) {
-            String uri = actionRequest.getParameter("uri");
-            repositoryAdmin.removeRepository(uri);
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.removeurl", uri));
+            String uri = actionRequest.getParameter("repo.uri");
+            String name = actionRequest.getParameter("repo.name");
+            if (name == null || name.trim().length() == 0) {
+                name = uri;
+            }
+            removeRepository(actionRequest);
         }
         else if (LIST_ACTION.equals(action)) {
             String searchType = SEARCH_TYPE_ALL;
@@ -130,7 +122,92 @@ public class OBRManagerPortlet extends BasePortlet {
         }
         
     }
+        
+    private void refreshRepository(ActionRequest actionRequest) throws Exception {
+        String uri = actionRequest.getParameter("repo.uri");
+        String name = getName(actionRequest.getParameter("repo.name"), uri);
 
+        BundleContext bundleContext = getBundleContext(actionRequest);
+        ServiceReference reference = null;
+        
+        try {
+            if (GeronimoOBRGBean.REPOSITORY_NAME.equals(name)) {
+                reference = bundleContext.getServiceReference(GeronimoOBRGBean.class.getName());
+                GeronimoOBRGBean obrGBean = (GeronimoOBRGBean) bundleContext.getService(reference);
+
+                // do refresh
+                obrGBean.refresh();                
+            } else {
+                reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+                RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
+
+                // do refresh
+                repositoryAdmin.removeRepository(uri);
+                repositoryAdmin.addRepository(uri);
+            }
+        } finally {
+            if (reference != null) {
+                bundleContext.ungetService(reference);
+            }
+        }
+        
+        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.refreshurl", name));
+    }
+    
+    private void removeRepository(ActionRequest actionRequest) {
+        String uri = actionRequest.getParameter("repo.uri");
+        String name = getName(actionRequest.getParameter("repo.name"), uri);
+
+        BundleContext bundleContext = getBundleContext(actionRequest);
+        ServiceReference reference = null;
+        
+        try {
+            reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+            RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
+
+            // do remove
+            repositoryAdmin.removeRepository(uri);
+        } finally {
+            if (reference != null) {
+                bundleContext.ungetService(reference);
+            }
+        }
+        
+        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.removeurl", name));
+    }
+    
+    private void addRepository(ActionRequest actionRequest) throws Exception {
+        String obrUrl = actionRequest.getParameter("obrUrl");
+
+        BundleContext bundleContext = getBundleContext(actionRequest);
+        ServiceReference reference = null;
+        String name = null;
+        
+        try {
+            reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+            RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
+
+            // do add
+            Repository repository = repositoryAdmin.addRepository(new URI(obrUrl).toURL());
+            name = getName(repository.getName(), obrUrl);
+            
+        } finally {
+            if (reference != null) {
+                bundleContext.ungetService(reference);
+            }
+        }
+        
+        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.obrmanager.info.add", name));        
+    }
+    
+    private static String getName(String name, String uri) {
+        if (name == null || name.trim().length() == 0) {
+            return uri;
+        } else {
+            return name;
+        }
+    }
+    
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
 

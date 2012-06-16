@@ -60,6 +60,8 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeronimoOBRGBean.class);
 
+    public static final String REPOSITORY_NAME = "Geronimo OBR Repository";
+    
     private BundleContext bundleContext;
     private ListableRepository repository;
     private File obrFile;
@@ -117,8 +119,6 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
 
     private void generateRepository() throws Exception {
 
-        String obrName = "Geronimo OBR Repository";
-
         org.apache.geronimo.kernel.repository.Repository geronimoRepository = repository;
         Set<Artifact> artifacts = repository.list();
 
@@ -134,7 +134,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
             }
         }
 
-        generateOBR(obrName, artifacts, geronimoRepository, obrFile);
+        generateOBR(REPOSITORY_NAME, artifacts, geronimoRepository, obrFile);
     }
 
     public static void generateOBR(String obrName, Set<Artifact> artifacts, org.apache.geronimo.kernel.repository.Repository geronimoRepository, File obrFile) throws IOException, JAXBException {
