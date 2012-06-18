@@ -17,7 +17,14 @@
 
 package org.apache.geronimo.console.obrmanager;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +48,9 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.obr.GeronimoOBRGBean;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -165,8 +174,10 @@ public class OBRManagerPortlet extends BasePortlet {
             reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
             RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
 
-            // do remove
+            // remove repository and persist
             repositoryAdmin.removeRepository(uri);
+            persistRepositoryList(repositoryAdmin, PortletManager.getCurrentServer(actionRequest).getServerInfo()); 
+            
         } finally {
             if (reference != null) {
                 bundleContext.ungetService(reference);
@@ -187,8 +198,10 @@ public class OBRManagerPortlet extends BasePortlet {
             reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
             RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
 
-            // do add
+            // add repository and persist
             Repository repository = repositoryAdmin.addRepository(new URI(obrUrl).toURL());
+            persistRepositoryList(repositoryAdmin, PortletManager.getCurrentServer(actionRequest).getServerInfo());                   
+            
             name = getName(repository.getName(), obrUrl);
             
         } finally {
@@ -446,6 +459,66 @@ public class OBRManagerPortlet extends BasePortlet {
         
     }
 
+    /*
+     * Borrowed from ObrCommandSupport.java in Apache Karaf.     
+     */
+    private void persistRepositoryList(RepositoryAdmin admin, ServerInfo serverInfo) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (Repository repo : admin.listRepositories()) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(repo.getURI());
+            }
+
+            File sys = serverInfo.resolveServer("etc/config.properties");
+            File sysTmp = serverInfo.resolveServer("etc/config.properties.tmp");
+
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sysTmp)));
+            boolean modified = false;
+            try {
+                if (sys.exists()) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sys)));
+                    try {
+                        String line = reader.readLine();
+                        while (line != null) {
+                            if (line.matches("obr\\.repository\\.url[:= ].*")) {
+                                modified = true;
+                                line = "obr.repository.url = " + sb.toString();
+                            }
+                            writer.write(line);
+                            writer.newLine();
+                            line = reader.readLine();
+                        }
+                    } finally {
+                        reader.close();
+                    }
+                }
+                if (!modified) {
+                    writer.newLine();
+                    writer.write("# ");
+                    writer.newLine();
+                    writer.write("# OBR Repository list");
+                    writer.newLine();
+                    writer.write("# ");
+                    writer.newLine();
+                    writer.write("obr.repository.url = " + sb.toString());
+                    writer.newLine();
+                    writer.newLine();
+                }
+            } finally {
+                writer.close();
+            }
+
+            sys.delete();
+            sysTmp.renameTo(sys);
+
+        } catch (Exception e) {
+            logger.error("Error while persisting repository list", e);
+        }
+    }
+        
     private BundleContext getBundleContext(PortletRequest request) {
         return (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
     }
