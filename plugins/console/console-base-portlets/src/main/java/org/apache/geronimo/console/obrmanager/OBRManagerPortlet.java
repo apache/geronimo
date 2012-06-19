@@ -54,6 +54,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -442,6 +443,15 @@ public class OBRManagerPortlet extends BasePortlet {
         
         @Override
         public int compare(Resource resource1, Resource resource2) {
+            int rs = compareSymbolicNames(resource1, resource2);
+            if (rs == 0) {
+                return compareVersions(resource2, resource1);
+            } else {
+                return rs;
+            }
+        }
+        
+        private int compareSymbolicNames(Resource resource1, Resource resource2) {
             String name1 = resource1.getSymbolicName();
             String name2 = resource2.getSymbolicName();
             if (name1 == null) {
@@ -457,6 +467,21 @@ public class OBRManagerPortlet extends BasePortlet {
             }
         }
         
+        private int compareVersions(Resource resource1, Resource resource2) {
+            Version version1 = resource1.getVersion();
+            Version version2 = resource2.getVersion();
+            if (version1 == null) {
+                if (version2 == null) {
+                    return 0;
+                } else {
+                    return 1;                    
+                }
+            } else if (version2 == null) {
+                return -1;
+            } else {
+                return version1.compareTo(version2);
+            }
+        }
     }
 
     /*

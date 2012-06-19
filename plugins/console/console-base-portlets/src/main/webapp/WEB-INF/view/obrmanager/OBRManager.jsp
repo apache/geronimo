@@ -121,7 +121,7 @@
 <c:if test="${resources!=null}">
 <table width="100%" class="TableLine" summary="Bundle List" border="0">
     <tr class="DarkBackground">
-        <th>Symbolic Name</th>
+        <th>Symbolic Name and Version</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
 
@@ -134,10 +134,10 @@
             <c:set var="backgroundClass" value='MediumBackground'/>
         </c:otherwise>
     </c:choose>
-    <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}')">
+    <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">
         <!-- bundle symbolicName -->
-        <td>
-            <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}">${resourceInfo.symbolicName}</div>
+        <td onclick="showHideById('${resourceInfo.id}')">
+            <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">${resourceInfo.symbolicName} (${resourceInfo.version})</div>
             <div id="${resourceInfo.id}" style="background-color:#F0F8FF;display:none">
                 <table width="100%" class="TableLine" cellpadding="3">
                     <!-- bundle id -->
