@@ -204,7 +204,7 @@ public class WsdlGenerator {
 
     private boolean forkWsgen(String classPath, String endorsedPath, String[] arguments) throws Exception {
         List<String> cmd = new ArrayList<String>(4 + arguments.length);
-        cmd.add("-Djava.endorsed.dirs=\"" + endorsedPath + "\"");
+        cmd.add("-Djava.endorsed.dirs=" + endorsedPath);
         cmd.add("-classpath");
         cmd.add(classPath);
         cmd.add("com.sun.tools.ws.WsGen");
