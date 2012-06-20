@@ -119,8 +119,12 @@
 
 <!-- show resource bundle list -->
 <c:if test="${resources!=null}">
+
+<form name="selection-form" method="POST" action="<portlet:actionURL><portlet:param name='action' value='resolve'/></portlet:actionURL>">
+
 <table width="100%" class="TableLine" summary="Bundle List" border="0">
     <tr class="DarkBackground">
+        <th>Selected</th>
         <th>Symbolic Name and Version</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
@@ -135,6 +139,9 @@
         </c:otherwise>
     </c:choose>
     <tr class="${backgroundClass}" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">
+        <td align="center">
+            <input name="selected-resources" type="checkbox" value="${resourceInfo.symbolicName}/${resourceInfo.version}"/>
+        </td>
         <!-- bundle symbolicName -->
         <td onclick="showHideById('${resourceInfo.id}')">
             <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">${resourceInfo.symbolicName} (${resourceInfo.version})</div>
@@ -179,4 +186,7 @@
     </tr>
     </c:forEach>
 </table>
+    </p>
+    <input type="submit" value="Resolve"/> 
+</form>
 </c:if>

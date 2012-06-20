@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -46,6 +48,7 @@ import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
+import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
@@ -65,6 +68,8 @@ public class OBRManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     private PortletRequestDispatcher obrManagerView;
+    
+    private PortletRequestDispatcher resolveView;
 
     private static final String SERACH_ACTION = "search";
 
@@ -75,6 +80,8 @@ public class OBRManagerPortlet extends BasePortlet {
     private static final String REFRESH_URL_ACTION = "refreshurl";
 
     private static final String ADD_URL_ACTION = "add_url";
+    
+    private static final String RESOLVE_ACTION = "resolve";
 
     private static final String SEARCH_TYPE_ALL = "ALL";
 
@@ -82,7 +89,7 @@ public class OBRManagerPortlet extends BasePortlet {
         super.init(portletConfig);
         helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/obrmanager/OBRManager.jsp");
         obrManagerView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/obrmanager/OBRManager.jsp");
-
+        resolveView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/obrmanager/resolve.jsp");
     }
 
     public void destroy() {
@@ -130,7 +137,12 @@ public class OBRManagerPortlet extends BasePortlet {
             String searchType = actionRequest.getParameter("searchType");
             actionResponse.setRenderParameter("searchType", searchType);
         }
-        
+        else if (RESOLVE_ACTION.equals(action)) {
+            actionResponse.setRenderParameter("mode", RESOLVE_ACTION);
+            String[] selectedResources = actionRequest.getParameterValues("selected-resources");
+            actionResponse.setRenderParameter("selected-resources", selectedResources);
+
+        }        
     }
         
     private void refreshRepository(ActionRequest actionRequest) throws Exception {
@@ -228,7 +240,16 @@ public class OBRManagerPortlet extends BasePortlet {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) { // minimal view
             return;
         } else { // normal and maximal view
-
+            if (RESOLVE_ACTION.equals(renderRequest.getParameter("mode"))) {
+                try {
+                    resolveResources(renderRequest, renderResponse);
+                } catch (Exception e) {
+                    addErrorMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.obrmanager.err.actionError"), e.getMessage());
+                    logger.error("Exception", e);
+                }
+                return;
+            }
+            
             BundleContext bundleContext = getBundleContext(renderRequest);
             ServiceReference reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
             RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
@@ -543,7 +564,46 @@ public class OBRManagerPortlet extends BasePortlet {
             logger.error("Error while persisting repository list", e);
         }
     }
+
+    private void resolveResources(RenderRequest request, RenderResponse response) throws Exception {
+        String[] selectedResources = request.getParameterValues("selected-resources");
+        if (selectedResources == null || selectedResources.length == 0) {
+            throw new IllegalArgumentException("No resources selected");
+        }
         
+        BundleContext bundleContext = getBundleContext(request);
+        ServiceReference reference = null;
+            
+        try {
+            reference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+            RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(reference);
+        
+            Map<String, Resource> resourceMap = new HashMap<String, Resource>();
+            Resource[] resources = getAllResources(repositoryAdmin);
+            for (Resource resource : resources) {
+                resourceMap.put(resource.getSymbolicName() + "/" + resource.getVersion(), resource);
+            }
+                    
+            Resolver resolver = repositoryAdmin.resolver();
+                    
+            for (String resourceName : selectedResources) {
+                Resource resource = resourceMap.get(resourceName);
+                if (resource == null) {
+                    throw new IllegalArgumentException("Resource not found: " + resourceName);
+                }
+                resolver.add(resource);
+            }
+            
+            request.setAttribute("resolved", resolver.resolve());
+            request.setAttribute("resolver", resolver);
+            resolveView.include(request, response);
+        } finally {
+            if (reference != null) {
+                bundleContext.ungetService(reference);
+            }
+        }
+    }        
+
     private BundleContext getBundleContext(PortletRequest request) {
         return (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
     }
