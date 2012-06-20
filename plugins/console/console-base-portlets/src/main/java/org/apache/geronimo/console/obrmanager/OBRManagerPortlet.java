@@ -82,8 +82,12 @@ public class OBRManagerPortlet extends BasePortlet {
     private static final String ADD_URL_ACTION = "add_url";
     
     private static final String RESOLVE_ACTION = "resolve";
+    
+    private static final String DEPLOY_ACTION = "deploy";
 
     private static final String SEARCH_TYPE_ALL = "ALL";
+    
+    private Map<String, Resolver> resolverMap = Collections.synchronizedMap(new HashMap<String, Resolver>());
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -141,8 +145,12 @@ public class OBRManagerPortlet extends BasePortlet {
             actionResponse.setRenderParameter("mode", RESOLVE_ACTION);
             String[] selectedResources = actionRequest.getParameterValues("selected-resources");
             actionResponse.setRenderParameter("selected-resources", selectedResources);
-
-        }        
+        }  
+        else if (DEPLOY_ACTION.equals(action)) {
+            actionResponse.setRenderParameter("mode", DEPLOY_ACTION);
+            String resolverId = actionRequest.getParameter("resolverId");
+            actionResponse.setRenderParameter("resolverId", resolverId);
+        }
     }
         
     private void refreshRepository(ActionRequest actionRequest) throws Exception {
@@ -240,14 +248,18 @@ public class OBRManagerPortlet extends BasePortlet {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) { // minimal view
             return;
         } else { // normal and maximal view
-            if (RESOLVE_ACTION.equals(renderRequest.getParameter("mode"))) {
-                try {
+            String mode = renderRequest.getParameter("mode");
+            try {
+                if (RESOLVE_ACTION.equals(mode)) {
                     resolveResources(renderRequest, renderResponse);
-                } catch (Exception e) {
-                    addErrorMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.obrmanager.err.actionError"), e.getMessage());
-                    logger.error("Exception", e);
+                    return;
+                } else if (DEPLOY_ACTION.equals(mode)) {
+                    deployResources(renderRequest, renderResponse);
+                    return;
                 }
-                return;
+            } catch (Exception e) {
+                addErrorMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.obrmanager.err.actionError"), e.getMessage());
+                logger.error("Exception", e);
             }
             
             BundleContext bundleContext = getBundleContext(renderRequest);
@@ -318,8 +330,8 @@ public class OBRManagerPortlet extends BasePortlet {
     private ResourceMatcher getResourceMatcher(String searchType, String searchString) {
         if (searchType.equalsIgnoreCase("symbolic-name")) {
             return new SymbolicNameMatcher(searchString);
-        } else if (searchType.equalsIgnoreCase("bundle-name")) {
-            return new BundleNameMatcher(searchString);
+        } else if (searchType.equalsIgnoreCase("resource-name")) {
+            return new ResourceNameMatcher(searchString);
         } else if (searchType.equalsIgnoreCase("package-capability")) {
             return new PackageCapabilityMatcher(searchString);
         } else if (searchType.equalsIgnoreCase("package-requirement")) {
@@ -360,9 +372,9 @@ public class OBRManagerPortlet extends BasePortlet {
         
     }
     
-    private static class BundleNameMatcher extends ResourceMatcher {
+    private static class ResourceNameMatcher extends ResourceMatcher {
 
-        public BundleNameMatcher(String query) {
+        public ResourceNameMatcher(String query) {
             super(query);
         }
 
@@ -596,6 +608,9 @@ public class OBRManagerPortlet extends BasePortlet {
             
             request.setAttribute("resolved", resolver.resolve());
             request.setAttribute("resolver", resolver);
+            String resolverId = String.valueOf(resolver.hashCode());
+            request.setAttribute("resolverId", resolverId);
+            resolverMap.put(resolverId, resolver);
             resolveView.include(request, response);
         } finally {
             if (reference != null) {
@@ -604,6 +619,24 @@ public class OBRManagerPortlet extends BasePortlet {
         }
     }        
 
+    private void deployResources(RenderRequest request, RenderResponse response) throws Exception {
+        String resolverId = request.getParameter("resolverId");
+
+        Resolver resolver = resolverMap.get(resolverId);
+        
+        try {
+            resolver.deploy(Resolver.START);
+            addInfoMessage(request, getLocalizedString(request, "consolebase.obrmanager.info.deploy"));
+        } catch (Exception e) {
+            addErrorMessage(request, getLocalizedString(request, "consolebase.obrmanager.err.deploy"), e.getMessage());
+            logger.error("Exception", e);
+        }
+        
+        request.setAttribute("resolved", true);
+        request.setAttribute("resolver", resolver);
+        resolveView.include(request, response);
+    }
+    
     private BundleContext getBundleContext(PortletRequest request) {
         return (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
     }

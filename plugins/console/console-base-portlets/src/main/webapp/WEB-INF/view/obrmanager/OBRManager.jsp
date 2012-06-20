@@ -28,9 +28,9 @@
     <tr>
         <td>
             <form id="addForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='add_url'/></portlet:actionURL>">
-                Add an OBR URL:
+                <fmt:message key="obrmanager.addRepository"/>
                 <input type="text" id="obrUrl" name="obrUrl" size="80" value=""/>&nbsp;
-                <input type="submit" value="Add" />
+                <input type="submit" value="<fmt:message key="consolebase.common.add"/>" />
             </form>
         </td>
     </tr>
@@ -39,8 +39,8 @@
 <!-- show OBR list -->
 <table width="100%" class="TableLine" summary="OBR Repositories">
     <tr class="DarkBackground">
-        <th scope="col" width="80%">OSGi Bundle Repository Name</th>   
-        <th scope="col" width="20%">Actions</th>
+        <th scope="col" width="80%"><fmt:message key="obrmanager.bundleRepositoryNameHeader"/></th>   
+        <th scope="col" width="20%"><fmt:message key="consolebase.common.actions"/></th>
     </tr>
 
     <c:set var="backgroundClass" value='MediumBackground'/>
@@ -69,11 +69,11 @@
         <td>
             <!-- obr:refreshurl -->
             <span>
-                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='refreshurl'/></portlet:actionURL>">Refresh</a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='refreshurl'/></portlet:actionURL>"><fmt:message key="consolebase.common.refresh"/></a>&nbsp;
             </span>
             <!-- obr:removeurl -->
             <span>
-                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='removeurl'/></portlet:actionURL>">Remove</a>&nbsp;
+                <a href="<portlet:actionURL><portlet:param name='repo.uri' value='${repo.URI}'/><portlet:param name='repo.name' value='${repo.name}'/><portlet:param name='action' value='removeurl'/></portlet:actionURL>"><fmt:message key="consolebase.common.remove"/></a>&nbsp;
             </span>
         </td>
       </tr>
@@ -85,23 +85,23 @@
     <tr>
         <td>
             <form id="listForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='listAll'/></portlet:actionURL>">
-                <input type="submit" name="listAll" value="List All"/>
+                <input type="submit" name="listAll" value="<fmt:message key="obrmanager.listAll"/>"/>
             </form>
         </td>
         <td align="right">
             <form id="searchForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='search'/></portlet:actionURL>">
-                Search type:
+                <fmt:message key="obrmanager.searchBy"/>&nbsp;
                 
                 <select name="searchType">
-                    <option id="symbolic-name" value="symbolic-name">Symbolic name</option>
-                    <option id="bundle-name" value="bundle-name">Bundle name</option>
-                    <option id="package-capability" value="package-capability">Package capability</option>
-                    <option id="package-requirement" value="package-requirement">Package requirement</option>
+                    <option id="symbolic-name" value="symbolic-name"><fmt:message key="obrmanager.search.symbolicName"/></option>
+                    <option id="resource-name" value="resource-name"><fmt:message key="obrmanager.search.resourceName"/></option>
+                    <option id="package-capability" value="package-capability"><fmt:message key="obrmanager.search.packageCapability"/></option>
+                    <option id="package-requirement" value="package-requirement"><fmt:message key="obrmanager.search.packageRequirement"/></option>
                 </select>
                 
                 <input type="text" id="searchString" name="searchString" value="${searchString}"/>&nbsp;
-                <input type="submit" value="Go" />
-                <input type="button" value="Reset" onclick="resetSearchForm()" />
+                <input type="submit" value="<fmt:message key="consolebase.common.search"/>" />
+                <input type="button" value="<fmt:message key="consolebase.common.reset"/>" onclick="resetSearchForm()" />
             </form>
             <script language="javascript">
                 function resetSearchForm(){
@@ -124,8 +124,8 @@
 
 <table width="100%" class="TableLine" summary="Bundle List" border="0">
     <tr class="DarkBackground">
-        <th>Selected</th>
-        <th>Symbolic Name and Version</th>
+        <th><fmt:message key="obrmanager.selectedHeader"/></th>
+        <th><fmt:message key="obrmanager.symbolicNameAndVersionHeader"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
 
@@ -149,7 +149,7 @@
                 <table width="100%" class="TableLine" cellpadding="3">
                     <!-- bundle id -->
                     <tr valign="top" width="100px">
-                        <td>Description:</td>
+                        <td><fmt:message key="obrmanager.resourceDescription"/></td>
                         <td>
                             id: ${resourceInfo.id}</br>
                             presentation name: ${resourceInfo.presentationName}</br>
@@ -160,7 +160,7 @@
                     </tr>
                     <tr><td colspan="2"></td></tr>
                     <tr valign="top" width="100px">
-                        <td>Requirements:</td>
+                        <td><fmt:message key="obrmanager.resourceRequirements"/></td>
                         <td>
                             <c:if test="${resourceInfo.requirements!=null}">
                             <c:forEach var="requireinfo" items="${resourceInfo.requirements}">
@@ -171,7 +171,7 @@
                     </tr>
                     <tr><td colspan="2"></td></tr>
                     <tr valign="top" width="100px">
-                        <td>Capabilities:</td>
+                        <td><fmt:message key="obrmanager.resourceCapabilities"/></td>
                         <td>
                             <c:if test="${resourceInfo.capabilities!=null}">
                             <c:forEach var="capabilityinfo" items="${resourceInfo.capabilities}">
@@ -187,6 +187,6 @@
     </c:forEach>
 </table>
     </p>
-    <input type="submit" value="Resolve"/> 
+    <input type="submit" value="<fmt:message key="obrmanager.resolve"/>"/> 
 </form>
 </c:if>
