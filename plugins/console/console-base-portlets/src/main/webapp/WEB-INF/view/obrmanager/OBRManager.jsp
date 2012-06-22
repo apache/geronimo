@@ -143,8 +143,8 @@
             <input name="selected-resources" type="checkbox" value="${resourceInfo.symbolicName}/${resourceInfo.version}"/>
         </td>
         <!-- bundle symbolicName -->
-        <td onclick="showHideById('${resourceInfo.id}')">
-            <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)">${resourceInfo.symbolicName} (${resourceInfo.version})</div>
+        <td>
+            <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}')">${resourceInfo.symbolicName} (${resourceInfo.version})</div>
             <div id="${resourceInfo.id}" style="background-color:#F0F8FF;display:none">
                 <table width="100%" class="TableLine" cellpadding="3">
                     <!-- bundle id -->
