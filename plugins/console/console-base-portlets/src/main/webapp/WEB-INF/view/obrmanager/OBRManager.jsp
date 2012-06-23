@@ -145,12 +145,12 @@
         <!-- bundle symbolicName -->
         <td>
             <div style="cursor:pointer;clear:both;" onmouseover="highlightBgColor(this)" onmouseout="recoverBgColor(this)" onclick="showHideById('${resourceInfo.id}')">${resourceInfo.symbolicName} (${resourceInfo.version})</div>
-            <div id="${resourceInfo.id}" style="background-color:#F0F8FF;display:none">
-                <table width="100%" class="TableLine" cellpadding="3">
+            <div id="${resourceInfo.id}" style="background-color:#F0F8FF;display:none;white-space:normal;word-wrap:break-word;">
+                <table width="100%" class="TableLine" cellpadding="3" style="table-layout: fixed">
                     <!-- bundle id -->
-                    <tr valign="top" width="100px">
-                        <td><fmt:message key="obrmanager.resourceDescription"/></td>
-                        <td>
+                    <tr valign="top">
+                        <td width="10%"><i><fmt:message key="obrmanager.resourceDescription"/></i></td>
+                        <td width="90%">
                             id: ${resourceInfo.id}</br>
                             presentation name: ${resourceInfo.presentationName}</br>
                             uri: ${resourceInfo.URI}</br>
@@ -159,20 +159,20 @@
                         </td>
                     </tr>
                     <tr><td colspan="2"></td></tr>
-                    <tr valign="top" width="100px">
-                        <td><fmt:message key="obrmanager.resourceRequirements"/></td>
-                        <td>
+                    <tr valign="top">
+                        <td width="10%"><i><fmt:message key="obrmanager.resourceRequirements"/></i></td>
+                        <td width="90%">
                             <c:if test="${resourceInfo.requirements!=null}">
                             <c:forEach var="requireinfo" items="${resourceInfo.requirements}">
                                 ${requireinfo.name}: ${requireinfo.filter}</br>
                             </c:forEach>
                             </c:if>
-                        </td>
+                        </td>                        
                     </tr>
                     <tr><td colspan="2"></td></tr>
-                    <tr valign="top" width="100px">
-                        <td><fmt:message key="obrmanager.resourceCapabilities"/></td>
-                        <td>
+                    <tr valign="top">
+                        <td width="10%"><i><fmt:message key="obrmanager.resourceCapabilities"/></i></td>
+                        <td width="90%">
                             <c:if test="${resourceInfo.capabilities!=null}">
                             <c:forEach var="capabilityinfo" items="${resourceInfo.capabilities}">
                                 ${capabilityinfo.name}: ${capabilityinfo.propertiesAsMap}</br>
