@@ -80,9 +80,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>geronimo-jetty8-minimal</module>
+                <!--<module>geronimo-jetty8-minimal</module>
                 <module>geronimo-jetty8-javaee6-web</module>
-                <module>geronimo-jetty8-javaee6</module>
+                <module>geronimo-jetty8-javaee6</module>-->
                 <module>geronimo-tomcat7-minimal</module>
                 <module>geronimo-tomcat7-javaee6-web</module>
                 <module>geronimo-tomcat7-javaee6</module>
