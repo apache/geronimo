@@ -95,7 +95,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>${jetty}-deployer</artifactId>
+            <artifactId>jetty8-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -119,7 +119,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>${jetty}</artifactId>
+            <artifactId>jetty8</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
