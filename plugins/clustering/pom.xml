@@ -45,7 +45,18 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-               <!-- <module>clustering-it</module> -->
+                <module>geronimo-clustering</module>
+                <module>geronimo-clustering-wadi</module>
+                <module>geronimo-farm</module>
+                <module>geronimo-deploy-farm</module>
+                <module>geronimo-plugin-farm</module>
+                <module>clustering</module>
+                <module>wadi-clustering</module>
+                <module>farming</module>
+                <module>plugin-farm</module>
+                <module>plugin-farm-member</module>
+                <module>geronimo-plugin-farm-node</module>
+                <module>plugin-farm-datasource</module>
             </modules>
         </profile>
         <profile>

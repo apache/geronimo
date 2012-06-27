@@ -37,6 +37,20 @@
     </description>
     <profiles>
         <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>geronimo-tomcat7</module>
+                <module>geronimo-tomcat7-builder</module>
+                <module>tomcat7</module>
+                <module>tomcat7-no-ha</module>
+                <module>tomcat7-deployer</module>
+                <module>geronimo-tomcat7-clustering-wadi</module>
+                <module>geronimo-tomcat7-clustering-builder-wadi</module>
+                <module>tomcat7-clustering-wadi</module>
+                <module>tomcat7-clustering-builder-wadi</module>
+            </modules>
+        </profile>
+        <profile>
             <id>all</id>
 
             <activation>

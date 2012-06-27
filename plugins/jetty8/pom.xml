@@ -120,9 +120,14 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <!--
-                <module>jetty-server</module>
-                -->
+                <module>geronimo-jetty8</module>
+                <module>geronimo-jetty8-builder</module>
+                <module>jetty8</module>
+                <module>jetty8-deployer</module>
+                <module>geronimo-jetty8-clustering-builder-wadi</module>
+                <module>geronimo-jetty8-clustering-wadi</module>
+                <module>jetty8-clustering-builder-wadi</module>
+                <module>jetty8-clustering-wadi</module>
             </modules>
         </profile>
         <profile>
