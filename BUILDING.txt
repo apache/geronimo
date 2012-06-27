@@ -46,10 +46,9 @@ Testing the Build
 
 The end result of a successful build will be a set of functional distributions.
 To test the build, simply start the server:
-
-    mvn -Ptools geronimo:start
-    ...
-    CTRL-C or from another terminal: mvn -Ptools geronimo:stop
+    1. Start the server manually
+    2. cd $GERONIMO_HOME/testsuite
+    3. mvn clean install -Dit
 
 
 Generating a Site
