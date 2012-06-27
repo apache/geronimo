@@ -2392,6 +2392,17 @@ only found in cxf
     </pluginRepositories>
     
     <repositories>
+        <repository>
+            <id>geronimo-svn-repo</id>
+            <name>Geronimo 3rd Party libraries</name>
+            <url>http://svn.apache.org/repos/asf/geronimo/repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     <!-- Staging repo to validate voting artifacts 
         <repository>
                     <id>voting_repo</id>
@@ -2481,18 +2492,7 @@ only found in cxf
                 <module>assemblies</module>
             </modules>
 
-            <repositories>
-                <repository>
-                    <id>geronimo-svn-repo</id>
-                    <name>Geronimo 3rd Party libraries</name>
-                    <url>http://svn.apache.org/repos/asf/geronimo/repo/</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
+            <repositories>                
                 <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
