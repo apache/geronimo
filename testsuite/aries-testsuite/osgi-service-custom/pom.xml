@@ -23,7 +23,7 @@
   <parent>
     <artifactId>aries-testsuite</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
   </parent>
   
   <artifactId>osgi-service-custom</artifactId>
