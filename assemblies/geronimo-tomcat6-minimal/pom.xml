@@ -247,7 +247,7 @@
                                     <groupId>org.apache.geronimo.assemblies</groupId>
                                     <artifactId>geronimo-framework</artifactId>
                                     <version>${version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <classifier>bin</classifier>
                                 </artifactItem>
                             </artifactItems>
