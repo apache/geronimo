@@ -2162,7 +2162,21 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-           
+
+    <repositories>
+       <!-- activemq webconsole needs this to compile -->
+       <repository>
+          <id>com.fusesource.m2</id>
+          <name>Fusesource Release Repository</name>
+          <url>http://repo.fusesource.com/maven2</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+    </repository>
+  </repositories>      
 
     <profiles>
         <profile>
