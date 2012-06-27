@@ -2093,12 +2093,6 @@ only found in cxf
                         </dependency>
                     </dependencies>
                 </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.3.2</version>                    
-                </plugin>
 
 
                 <!-- INTERNAL -->
