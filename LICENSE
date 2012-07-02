@@ -1007,6 +1007,7 @@ The artifacts under the following folder are covered by Apache License 2.0:
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xpp3/
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xstream/
 ./repository/org/apache/sshd/
+./repository/org/apache/wink/
 ./repository/org/apache/woden/
 ./repository/org/apache/ws/
 ./repository/org/apache/xbean/
@@ -1017,7 +1018,7 @@ The artifacts under the following folder are covered by Apache License 2.0:
 ./repository/org/ops4j/pax/
 ./repository/org/osgi/org.osgi.compendium/
 ./repository/org/osgi/org.osgi.core/
-./repository/org/tranql/tranql-connector/
+./repository/org/tranql/
 
 =========================================================================
 ==  OMG License                                                        ==
