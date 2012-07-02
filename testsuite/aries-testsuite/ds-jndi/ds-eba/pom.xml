@@ -23,7 +23,7 @@
   <parent>
     <artifactId>ds-jndi</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
   </parent>
   
   
