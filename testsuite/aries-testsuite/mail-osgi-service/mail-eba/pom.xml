@@ -23,7 +23,7 @@
   <parent>
     <artifactId>mail-osgi-service</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.0</version>
   </parent>  
   
   <artifactId>mail-eba</artifactId>
