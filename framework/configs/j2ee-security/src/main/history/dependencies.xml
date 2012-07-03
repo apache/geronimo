@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>j2ee-security</artifactId>
-        <version>3.0-beta-2-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>car</type>
     </module-id>
     <dependency>
