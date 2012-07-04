@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>clustering-it</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.plugins.it</groupId>

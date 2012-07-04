@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>

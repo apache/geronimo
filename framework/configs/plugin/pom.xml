@@ -122,7 +122,7 @@
                         <plugin-artifact>
                             <config-xml-content>
                                 <gbean name="DownloadedPluginRepos">
-                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.0.txt</attribute>
+                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.1.txt</attribute>
                                 </gbean>
                             </config-xml-content>
                             <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>-->

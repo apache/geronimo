@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jsr88-war-configurer</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
