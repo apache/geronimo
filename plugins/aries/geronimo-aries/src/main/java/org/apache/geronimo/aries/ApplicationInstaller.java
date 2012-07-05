@@ -19,9 +19,11 @@ package org.apache.geronimo.aries;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.zip.ZipFile;
 
 import org.apache.aries.application.ApplicationMetadata;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.utils.manifest.BundleManifest;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -47,6 +49,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -126,6 +129,9 @@ public class ApplicationInstaller implements GBeanLifecycle {
         Naming naming = kernel.getNaming();
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), "AriesApplication");
         //Use a temporary folder to hold the extracted files for analysis use
+        File ariesTempDirectory = FileUtils.createTempDir();
+        app.store(ariesTempDirectory);
+        
         File tempDirectory = FileUtils.createTempDir();
         try {
             DeploymentContext context = new DeploymentContext(tempDirectory,
@@ -140,8 +146,32 @@ public class ApplicationInstaller implements GBeanLifecycle {
 
             context.flush();
             context.initializeConfiguration();
-
-            app.store(tempDirectory);
+            
+			// extract bundle in EBA applications
+			for (File file : ariesTempDirectory.listFiles()) {
+				if (file.isFile()) {
+					BundleManifest bm = BundleManifest.fromBundle(file);
+					if (bm != null && bm.isValid()) {
+						//extract it
+						File dir = new File(tempDirectory, file.getName());
+						
+						if (dir != null && !dir.exists()) {
+				            boolean success = dir.mkdirs();
+				            if (!success) {
+				                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+				            }
+				        }
+						JarUtils.unzipToDirectory(new ZipFile(file), dir);					
+					}
+				} else {
+					for(File f : file.listFiles()){
+						FileUtils.copyFile(f, new File(tempDirectory, file.getName() + '/' + f.getName()));
+					}
+				}
+			}
+			
+			FileUtils.recursiveDelete(ariesTempDirectory);
+            
 
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
