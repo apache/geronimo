@@ -147,30 +147,30 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.flush();
             context.initializeConfiguration();
             
-			// extract bundle in EBA applications
-			for (File file : ariesTempDirectory.listFiles()) {
-				if (file.isFile()) {
-					BundleManifest bm = BundleManifest.fromBundle(file);
-					if (bm != null && bm.isValid()) {
-						//extract it
-						File dir = new File(tempDirectory, file.getName());
-						
-						if (dir != null && !dir.exists()) {
-				            boolean success = dir.mkdirs();
-				            if (!success) {
-				                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
-				            }
-				        }
-						JarUtils.unzipToDirectory(new ZipFile(file), dir);					
-					}
-				} else {
-					for(File f : file.listFiles()){
-						FileUtils.copyFile(f, new File(tempDirectory, file.getName() + '/' + f.getName()));
-					}
-				}
-			}
-			
-			FileUtils.recursiveDelete(ariesTempDirectory);
+            // extract bundle in EBA applications
+            for (File file : ariesTempDirectory.listFiles()) {
+                if (file.isFile()) {
+                    BundleManifest bm = BundleManifest.fromBundle(file);
+                    if (bm != null && bm.isValid()) {
+                        //extract it
+                        File dir = new File(tempDirectory, file.getName());
+                        
+                        if (dir != null && !dir.exists()) {
+                            boolean success = dir.mkdirs();
+                            if (!success) {
+                                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+                            }
+                        }
+                        JarUtils.unzipToDirectory(new ZipFile(file), dir);                    
+                    }
+                } else {
+                    for(File f : file.listFiles()){
+                        FileUtils.copyFile(f, new File(tempDirectory, file.getName() + '/' + f.getName()));
+                    }
+                }
+            }
+            
+            FileUtils.recursiveDelete(ariesTempDirectory);
             
 
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
