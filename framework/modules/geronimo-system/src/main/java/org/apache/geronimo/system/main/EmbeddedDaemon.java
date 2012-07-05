@@ -160,8 +160,15 @@ public class EmbeddedDaemon implements Main {
         }
     }
 
-    private Set<Artifact> getLoadOnlyConfigList() {
+    private Set<Artifact> getNoNeedStartConfigList() {
         String list = System.getProperty("geronimo.loadOnlyConfigList");
+        if(System.getProperty("geronimo.removedArtifactList") != null) {
+        	if(list == null || list.equals("")) {
+        		list = System.getProperty("geronimo.removedArtifactList");
+        	} else {
+        		list += "," + System.getProperty("geronimo.removedArtifactList");
+        	}
+        }
         Set<Artifact> artifacts = new HashSet<Artifact>();
         if (list != null) {
             for (String name : list.split("\\s*,\\s*")) {
@@ -216,7 +223,7 @@ public class EmbeddedDaemon implements Main {
 
             monitor.foundModules(configs.toArray(new Artifact[configs.size()]));
 
-            Set<Artifact> loadOnlyConfigs = getLoadOnlyConfigList();
+            Set<Artifact> noNeedStartConfigList = getNoNeedStartConfigList();
             
             // load the rest of the configurations
             try {
@@ -235,7 +242,7 @@ public class EmbeddedDaemon implements Main {
                             monitor.moduleLoaded(configID);
                             try {
                                 monitor.moduleStarting(configID);
-                                if (!loadOnlyConfigs.contains(configID)) {
+                                if (!noNeedStartConfigList.contains(configID)) {
                                     configurationManager.startConfiguration(configID, lifecycleMonitor);
                                 }
                                 monitor.moduleStarted(configID);
