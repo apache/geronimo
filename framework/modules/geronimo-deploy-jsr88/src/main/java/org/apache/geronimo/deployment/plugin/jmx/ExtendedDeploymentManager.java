@@ -308,8 +308,8 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     /**
      * Only support local bundle update
      */
-    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws Exception {
-        Object[] arguments = new Object[] {bundleId, changesFile, updateArchive};
+    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesDir, boolean updateArchive) throws Exception {
+        Object[] arguments = new Object[] {bundleId, changesDir, updateArchive};
         String[] argumentTypes = new String[] {long.class.getName(), File.class.getName(), boolean.class.getName()};
         return (Boolean) kernel.invoke(applicationGBeanName, "hotSwapApplicationContent", arguments, argumentTypes);
     }

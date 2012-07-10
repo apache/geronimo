@@ -164,10 +164,10 @@ public class ApplicationUpdateHelper {
         }
         
         if (updateArchive) {
-            // create updated bundle jar & update archive
+            // create updated bundle directory
             File updatedBundleFile = null;
             try {
-                updatedBundleFile = createUpdatedJarFile(targetBundle, changesFile);
+                updatedBundleFile = createUpdatedJarDir(targetBundle, changesFile);
                 updateEBA(targetBundle, updatedBundleFile);
             } catch (Exception e) {
                 LOG.warn("Error updating application archive with the new contents. " +
@@ -179,6 +179,8 @@ public class ApplicationUpdateHelper {
         
         return true;
     }
+    
+    
     
     private boolean hotSwapClasses(Bundle bundle, File changesFile) {
         String bundleName = bundle.getSymbolicName();
@@ -339,7 +341,8 @@ public class ApplicationUpdateHelper {
        return builder.toString();
     }
     
-    private File createUpdatedJarFile(Bundle targetBundle, File changesFile) throws IOException {
+        
+    private File createUpdatedJarDir(Bundle targetBundle, File changesFile) throws IOException {
         File ebaArchive = applicationGBean.getApplicationArchive();
         
         String bundleNameInApp = getBundleNameInArchive(targetBundle);
@@ -352,20 +355,26 @@ public class ApplicationUpdateHelper {
     }
 
     private File createUpdateJarFileDirectory(File changesFile, File ebaArchive, String bundleNameInApp) throws IOException {
+        if(bundleNameInApp.endsWith("/")){
+            bundleNameInApp = bundleNameInApp.substring(0, bundleNameInApp.length() - 1);
+        }
         File sourceFile = new File(ebaArchive, bundleNameInApp);
+        
         if (!sourceFile.exists()) {
             throw new IOException("Unable to locate " + bundleNameInApp + " in " + ebaArchive);
         }
-        File updatedFile = null;
+        File updatedDir = null;
         try {
-            updatedFile = File.createTempFile(bundleNameInApp, ".jar");
-            JarInputStream jarIn = new JarInputStream(new FileInputStream(sourceFile));
-            updateJarFile(jarIn, changesFile, updatedFile);
+            updatedDir = FileUtils.createTempDir();
+            //JarInputStream jarIn = new JarInputStream(new FileInputStream(sourceFile));
+            //Extract changes file in a jar to a temp directory
+            FileUtils.unpackFile(new FileInputStream(changesFile), updatedDir);            
+           
         } catch (IOException e) {
-            deleteFile(updatedFile);
+            FileUtils.recursiveDelete(updatedDir);
             throw e;
         }
-        return updatedFile;
+        return updatedDir;
     }
 
     private File createUpdateJarFileArchive(File changesFile, File ebaArchive, String bundleNameInApp) throws IOException {
@@ -445,6 +454,10 @@ public class ApplicationUpdateHelper {
         File ebaArchive = applicationGBean.getApplicationArchive();
 
         String bundleNameInApp = getBundleNameInArchive(bundle);
+        
+        if(bundleNameInApp.endsWith("/")){
+            bundleNameInApp = bundleNameInApp.substring(0, bundleNameInApp.length() - 1);
+        }
 
         LOG.debug("Updating {} application archive with new contents for {}", ebaArchive, bundleNameInApp);
 
@@ -458,7 +471,16 @@ public class ApplicationUpdateHelper {
     private void updateApplicationDirectory(File ebaArchive, File bundleFile, String bundleNameInApp) throws IOException {
         File destinationFile = new File(ebaArchive, bundleNameInApp);
         LOG.debug("Updating contents of {} with {}", bundleNameInApp, bundleFile.getAbsolutePath());
-        FileUtils.copyFile(bundleFile, destinationFile);
+        if(bundleFile.isDirectory()){
+            FileUtils.recursiveCopyOverwrite(bundleFile, destinationFile);            
+        } else {
+           //First delete bundle directory, then extract bundle file to it
+            FileUtils.recursiveDelete(destinationFile);
+            FileUtils.unpackFile(new FileInputStream(bundleFile), destinationFile);
+            
+        }
+        
+        
     }
     
     private void updateApplicationArchive(File ebaArchive, File bundleFile, String bundleNameInApp) throws IOException {

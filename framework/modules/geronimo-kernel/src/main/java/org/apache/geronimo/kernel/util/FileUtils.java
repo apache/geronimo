@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,6 +213,41 @@ public class FileUtils {
                 File destFile = new File(destDir, srcFile.getName());
                 if (srcFile.isDirectory()) {
                     recursiveCopy(srcFile, destFile);
+                } else {
+                    copyFile(srcFile, destFile);
+                }
+            }
+        }
+    }
+    
+    //Overwrite files in dest directory
+    public static void recursiveCopyOverwrite(File srcDir, File destDir) throws IOException {
+        if (srcDir == null)
+            throw new NullPointerException("sourceDir is null");
+        if (destDir == null)
+            throw new NullPointerException("destDir is null");
+        if (!srcDir.isDirectory() || !srcDir.canRead()) {
+            throw new IllegalArgumentException("Source directory must be a readable directory " + srcDir);
+        }
+        
+        if (srcDir.equals(destDir)) {
+            throw new IllegalArgumentException("Source and destination directory are the same " + srcDir);
+        }
+        
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+        
+        if (!destDir.exists()) {
+            throw new IOException("Could not create destination directory " + destDir);
+        }
+        File[] srcFiles = srcDir.listFiles();
+        if (srcFiles != null) {
+            for (int i = 0; i < srcFiles.length; i++) {
+                File srcFile = srcFiles[i];
+                File destFile = new File(destDir, srcFile.getName());
+                if (srcFile.isDirectory()) {
+                    recursiveCopyOverwrite(srcFile, destFile);
                 } else {
                     copyFile(srcFile, destFile);
                 }
@@ -437,6 +473,49 @@ public class FileUtils {
         logger.debug(directory.getPath() + " has " + files.length + " files:");
         for (File file : files) {
             logger.debug(file.getPath());
+        }
+    }
+    
+    public static void unpackFile(InputStream source, File target) throws IOException{
+        
+        ZipInputStream in = new ZipInputStream(source);
+        try {
+
+            int threshold = 10240;
+            byte[] buffer = new byte[10240];
+
+            for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
+                File file = new File(target, entry.getName());
+                if (entry.isDirectory()) {
+                    file.mkdirs();
+                } else {
+                    if (!entry.getName().equals("META-INF/startup-jar")) {
+                        file.getParentFile().mkdirs();
+                        OutputStream out = new FileOutputStream(file);
+                        try {
+                            int count;
+                            while ((count = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, count);
+                                
+                                }
+                            } finally {
+                            IOUtils.flush(out);
+                            out.close();
+                        }
+                        in.closeEntry();
+                    }
+                }
+        }}
+            
+        catch (IOException e) {
+            FileUtils.recursiveDelete(target);
+            throw e;
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                //Ignore
+            }           
         }
     }
 
