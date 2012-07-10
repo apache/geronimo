@@ -17,13 +17,18 @@
 package org.apache.geronimo.aries;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Collection;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.apache.aries.application.ApplicationMetadata;
+import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.management.AriesApplication;
-import org.apache.aries.application.utils.manifest.BundleManifest;
+import org.apache.aries.application.management.BundleInfo;
+import org.apache.aries.application.utils.AppConstants;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -49,6 +54,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -129,9 +135,6 @@ public class ApplicationInstaller implements GBeanLifecycle {
         Naming naming = kernel.getNaming();
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), "AriesApplication");
         //Use a temporary folder to hold the extracted files for analysis use
-        File ariesTempDirectory = FileUtils.createTempDir();
-        app.store(ariesTempDirectory);
-        
         File tempDirectory = FileUtils.createTempDir();
         try {
             DeploymentContext context = new DeploymentContext(tempDirectory,
@@ -146,33 +149,9 @@ public class ApplicationInstaller implements GBeanLifecycle {
 
             context.flush();
             context.initializeConfiguration();
-            
-            // extract bundle in EBA applications
-            for (File file : ariesTempDirectory.listFiles()) {
-                if (file.isFile()) {
-                    BundleManifest bm = BundleManifest.fromBundle(file);
-                    if (bm != null && bm.isValid()) {
-                        //extract it
-                        File dir = new File(tempDirectory, file.getName());
-                        
-                        if (dir != null && !dir.exists()) {
-                            boolean success = dir.mkdirs();
-                            if (!success) {
-                                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
-                            }
-                        }
-                        JarUtils.unzipToDirectory(new ZipFile(file), dir);                    
-                    }
-                } else {
-                    for(File f : file.listFiles()){
-                        FileUtils.copyFile(f, new File(tempDirectory, file.getName() + '/' + f.getName()));
-                    }
-                }
-            }
-            
-            FileUtils.recursiveDelete(ariesTempDirectory);
-            
 
+            storeApplication(app, tempDirectory, true);
+            
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
             data.setAttribute("configId", configId);
@@ -185,6 +164,48 @@ public class ApplicationInstaller implements GBeanLifecycle {
             throw e;
         } catch (Exception e) {
             throw new DeploymentException("Error deploying application", e);
+        }
+    }
+    
+    private void storeApplication(AriesApplication app, File directory, boolean unpack) throws IOException {
+        ApplicationMetadata appMetadata = app.getApplicationMetadata();
+        appMetadata.store(new File(directory, AppConstants.APPLICATION_MF));
+
+        DeploymentMetadata deploymentMetadata = app.getDeploymentMetadata();
+        if (deploymentMetadata != null) {
+            deploymentMetadata.store(new File(directory, AppConstants.DEPLOYMENT_MF));
+        }
+        
+        for (BundleInfo bi : app.getBundleInfo()) { 
+          // bi.getLocation() will return a URL to the source bundle. It may be of the form
+          // file:/path/to/my/file.jar, or
+          // jar:file:/my/path/to/eba.jar!/myBundle.jar
+          String bundleLocation = bi.getLocation();
+          String bundleFileName = bundleLocation.substring(bundleLocation.lastIndexOf('/') + 1);
+          InputStream in = null;
+          try { 
+              URL bundleURL = new URL(bundleLocation);
+              in = bundleURL.openStream();
+              File target = new File(directory, bundleFileName);
+              if (unpack) {
+                  target.mkdirs();
+                  ZipInputStream zipIn = new ZipInputStream(in);
+                  try {
+                      JarUtils.unzipToDirectory(zipIn, target);
+                  } finally {
+                      IOUtils.close(zipIn);
+                  }
+              } else {
+                  FileOutputStream fileOut = new FileOutputStream(target);
+                  try {
+                      IOUtils.copy(in, fileOut);
+                  } finally {
+                      IOUtils.close(fileOut);
+                  }
+              }            
+          } finally {
+              IOUtils.close(in);
+          }
         }
     }
 

@@ -17,9 +17,7 @@
 package org.apache.geronimo.aries;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,8 +25,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.aries.application.ApplicationMetadata;
 import org.apache.aries.application.ApplicationMetadataFactory;
@@ -37,11 +33,9 @@ import org.apache.aries.application.DeploymentMetadataFactory;
 import org.apache.aries.application.management.AriesApplication;
 import org.apache.aries.application.management.BundleInfo;
 import org.apache.aries.application.utils.AppConstants;
-import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.aries.application.utils.management.SimpleBundleInfo;
 import org.apache.aries.application.utils.manifest.BundleManifest;
-import org.apache.geronimo.kernel.repository.UnpackArtifactTypeHandler;
-import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
@@ -147,47 +141,5 @@ public class GeronimoApplication implements AriesApplication {
             }
         }
     }
-    
-    private void unpackBundleFile(InputStream source, File target) throws IOException{
-    	
-        ZipInputStream in = new ZipInputStream(source);
-        try {
-
-            int threshold = 10240;
-            byte[] buffer = new byte[10240];
-
-            for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
-                File file = new File(target, entry.getName());
-                if (entry.isDirectory()) {
-                    file.mkdirs();
-                } else {
-                    if (!entry.getName().equals("META-INF/startup-jar")) {
-                        file.getParentFile().mkdirs();
-                        OutputStream out = new FileOutputStream(file);
-                        try {
-                            int count;
-                            while ((count = in.read(buffer)) > 0) {
-                                out.write(buffer, 0, count);
-                                
-                                }
-                            } finally {
-                            IOUtils.flush(out);
-                            out.close();
-                        }
-                        in.closeEntry();
-                    }
-                }
-        }}
-            
-        catch (IOException e) {
-            FileUtils.recursiveDelete(target);
-            throw e;
-        } finally {
-            try {
-				in.close();
-			} catch (IOException e) {
-				//Ignore
-			}           
-        }
-    }
+   
 }
