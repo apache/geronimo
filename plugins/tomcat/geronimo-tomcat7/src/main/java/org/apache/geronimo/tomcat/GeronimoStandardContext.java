@@ -526,6 +526,7 @@ public class GeronimoStandardContext extends StandardContext {
 
     private DirContext createFileDirContext(TomcatContext tomcatContext, File applicationRoot) throws DeploymentException {
         FileDirContext fileDirContext = new FileDirContext();
+        fileDirContext.setAllowLinking(allowLinking);
         setDocBase(applicationRoot.getAbsolutePath());
         File libraryDirectory = new File(applicationRoot, "WEB-INF/lib");
         if (libraryDirectory.exists()) {
