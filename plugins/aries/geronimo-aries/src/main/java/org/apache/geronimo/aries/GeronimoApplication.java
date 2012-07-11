@@ -109,21 +109,27 @@ public class GeronimoApplication implements AriesApplication {
    
     private void collectFileSystemBasedBundleInfos(File baseDir, ApplicationMetadataFactory applicationFactory) throws IOException {
         for (File file : baseDir.listFiles()) {
-            if (file.isDirectory() && !file.getCanonicalPath().endsWith(".jar")) {
-                collectFileSystemBasedBundleInfos(file, applicationFactory);
-                continue;
-            }
-            BundleManifest bm = BundleManifest.fromBundle(file);
-            
-            if (bm != null && bm.isValid()) {
-                /*
-                 * Pass file:// url instead of reference:file:// as bundle location to make sure
-                 * Equinox has its own copy of the jar. That is, to prevent strange ZipErrors when
-                 * application bundles are updated at runtime, specifically, when 
-                 * ApplicationGBean.hotSwapApplicationContent() is called.
-                 */
-                bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, "reference:" + file.toURI().toString()));       
-                
+            if (file.isDirectory()) {
+                if (file.getName().endsWith(".jar")) {
+                    BundleManifest bm = BundleManifest.fromBundle(file);
+                    if (bm != null && bm.isValid()) {
+                        bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, "reference:" + file.toURI().toString()));                
+                    }
+                } else {
+                    collectFileSystemBasedBundleInfos(file, applicationFactory);
+                    continue;
+                }
+            } else {
+                BundleManifest bm = BundleManifest.fromBundle(file);
+                if (bm != null && bm.isValid()) {
+                    /*
+                     * Pass file:// url instead of reference:file:// as bundle location to make sure
+                     * Equinox has its own copy of the jar. That is, to prevent strange ZipErrors when
+                     * application bundles are updated at runtime, specifically, when 
+                     * ApplicationGBean.hotSwapApplicationContent() is called.
+                     */
+                    bundleInfo.add(new SimpleBundleInfo(applicationFactory, bm, file.toURI().toString()));                
+                }
             }
         }
     }

@@ -150,7 +150,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.flush();
             context.initializeConfiguration();
 
-            storeApplication(app, tempDirectory, true);
+            storeApplication(app, tempDirectory, getUnpackApplicationBundles());
             
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
@@ -165,6 +165,11 @@ public class ApplicationInstaller implements GBeanLifecycle {
         } catch (Exception e) {
             throw new DeploymentException("Error deploying application", e);
         }
+    }
+    
+    private static boolean getUnpackApplicationBundles() {
+        String property = System.getProperty("org.apache.geronimo.aries.unpackApplicationBundles", "true");
+        return Boolean.parseBoolean(property);
     }
     
     private void storeApplication(AriesApplication app, File directory, boolean unpack) throws IOException {

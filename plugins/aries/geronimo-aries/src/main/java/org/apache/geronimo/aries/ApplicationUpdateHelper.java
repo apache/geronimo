@@ -557,8 +557,8 @@ public class ApplicationUpdateHelper {
     }
     
     private String getBundleNameInArchive(Bundle bundle) {
-        String baseLocation = applicationGBean.getBundle().getLocation();
-        String location = bundle.getLocation();
+        String baseLocation = normalizeLocation(applicationGBean.getBundle().getLocation());
+        String location = normalizeLocation(bundle.getLocation());
         if (location.startsWith(baseLocation)) {
             return location.substring(baseLocation.length());
         } else {
@@ -568,6 +568,14 @@ public class ApplicationUpdateHelper {
                 bundleNameInApp = bundleNameInApp.substring(1);
             }
             return bundleNameInApp;
+        }
+    }
+    
+    private static String normalizeLocation(String bundleLocation) {
+        if (bundleLocation.startsWith(BundleUtils.REFERENCE_SCHEME)) {
+            return bundleLocation.substring(BundleUtils.REFERENCE_SCHEME.length());
+        } else {
+            return bundleLocation;
         }
     }
     
