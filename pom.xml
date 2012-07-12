@@ -88,7 +88,7 @@
         <pax.logging.version>1.6.4</pax.logging.version>
         <woodstoxVersion>4.1.2_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
-        <yokoVersion>1.3</yokoVersion>
+        <yokoVersion>1.4-SNAPSHOT</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
         <javamail.version>1.8.3</javamail.version>
         <geronimoel.version>1.0.3</geronimoel.version>
