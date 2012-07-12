@@ -28,6 +28,10 @@ public interface EBADeploymentManager {
     
     public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws Exception;
     
+    public long getEBAContentBundleId(AbstractName applicationGBeanName, String symbolicName, String version) throws Exception;
+    
+    public File getEBAContentBundlePublishLocation(AbstractName applicationGBeanName, String symbolicName, String version) throws Exception;
+    
     public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws Exception;
     
     public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws Exception;

@@ -285,17 +285,30 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     
     public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws Exception {
         long[] ids = (long[])kernel.getAttribute(applicationGBeanName, "applicationContentBundleIds");
-        
         return ids;
     }
     
-    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws Exception {
-        Object name = kernel.invoke(applicationGBeanName, "getApplicationContentBundleSymbolicName", new Object[]{bundleId}, new String[]{long.class.getName()});
-        if (name!=null) return (String)name;
-        
-        return null;
+    public long getEBAContentBundleId(AbstractName applicationGBeanName, String symbolicName, String version) throws Exception {
+        Object[] arguments = new Object[] {symbolicName, version};
+        String[] argumentTypes = new String[] {String.class.getName(), String.class.getName()};
+        Object result = kernel.invoke(applicationGBeanName, "getApplicationContentBundleId", arguments, argumentTypes); 
+        return (result == null) ? -1 : (Long) result;
     }
     
+    public File getEBAContentBundlePublishLocation(AbstractName applicationGBeanName, String symbolicName, String version) throws Exception {
+        Object[] arguments = new Object[] {symbolicName, version};
+        String[] argumentTypes = new String[] {String.class.getName(), String.class.getName()};
+        Object result = kernel.invoke(applicationGBeanName, "getApplicationContentBundlePublishLocation", arguments, argumentTypes); 
+        return (File) result;
+    }
+    
+    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws Exception {
+        Object[] arguments = new Object[] {bundleId};
+        String[] argumentTypes = new String[] {long.class.getName()};
+        Object name = kernel.invoke(applicationGBeanName, "getApplicationContentBundleSymbolicName", arguments, argumentTypes); 
+        return (String) name;
+    }
+
     /**
      * Only support local bundle update
      */

@@ -135,8 +135,39 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
         return ids;
     }
+    
+    public long getApplicationContentBundleId(String symbolicName, String version) {
+        Bundle bundle = findBundle(symbolicName, version);
+        return (bundle == null) ? -1 : bundle.getBundleId();
+    }
+    
+    public File getApplicationContentBundlePublishLocation(String symbolicName, String version) {
+        Bundle bundle = findBundle(symbolicName, version);
+        if (bundle == null) {
+            return null;
+        }
+        File file = BundleUtils.toFile(bundle);
+        return (file != null && file.isDirectory()) ? file : null;
+    }
 
-    private Bundle getBundle(long bundleId) {
+    private Bundle findBundle(String symbolicName, String version) {
+        if (symbolicName != null) {
+            for (Bundle content : applicationBundles) {
+                if (symbolicName.equals(content.getSymbolicName())) {
+                    if (version == null) {
+                        // if no version specified, return first one that matches
+                        return content;
+                    } else if (version.equals(content.getVersion().toString())) {
+                        // version specified - match exactly
+                        return content;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    private Bundle findBundle(long bundleId) {
         for (Bundle content : applicationBundles) {
             if (content.getBundleId() == bundleId) {
                 return content;
@@ -146,7 +177,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     }
     
     public String getApplicationContentBundleSymbolicName(long bundleId) {
-        Bundle bundle = getBundle(bundleId);
+        Bundle bundle = findBundle(bundleId);
         return (bundle != null) ? bundle.getSymbolicName() : null;
     }
     
@@ -157,7 +188,7 @@ public class ApplicationGBean implements GBeanLifecycle {
      * @param file new contents of the bundle.
      */
     public synchronized void updateApplicationContent(long bundleId, File file) throws Exception {
-        Bundle targetBundle = getBundle(bundleId);
+        Bundle targetBundle = findBundle(bundleId);
         if (targetBundle == null) {
             throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
@@ -174,7 +205,7 @@ public class ApplicationGBean implements GBeanLifecycle {
      * @param updateArchive indicates if the application archive file should be updated with the changes. 
      */
     public synchronized boolean hotSwapApplicationContent(long bundleId, File changesFile, boolean updateArchive) throws Exception {
-        Bundle targetBundle = getBundle(bundleId);
+        Bundle targetBundle = findBundle(bundleId);
         if (targetBundle == null) {
             throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
