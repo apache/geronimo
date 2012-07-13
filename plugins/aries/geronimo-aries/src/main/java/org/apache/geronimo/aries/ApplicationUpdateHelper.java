@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassDefinition;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -88,22 +89,48 @@ public class ApplicationUpdateHelper {
                 
         BundleContext context = applicationGBean.getBundle().getBundleContext();
 
+        Collection<Bundle> bundles = Arrays.asList(targetBundle);
+        
+        FrameworkWiring wiring = context.getBundle(0).adapt(FrameworkWiring.class);
+
         try {
+            // log dependents
+            Collection<Bundle> dependents = wiring.getDependencyClosure(bundles);
+            dependents.removeAll(bundles);
+            if (!dependents.isEmpty()) {
+                String bundleListString = bundleCollectionToString(dependents);
+                LOG.info("Update of {} bundle will cause the following bundles to be refreshed: {}", bundleName, bundleListString);
+            }
+        
             // stop the bundle
             targetBundle.stop();
 
-            // update the bundle
-            FileInputStream fi = null;
-            try {
-                fi = new FileInputStream(bundleFile);
-                targetBundle.update(fi);
-            } finally {
-                IOUtils.close(fi);
+            InputStream in = null;
+            String bundleLocation = targetBundle.getLocation();
+            File location = BundleUtils.toFile(bundleLocation);
+            if (location != null && location.isDirectory()) {
+                // bundle installed from a directory - update bundle directory contents before calling update()
+                
+                // update bundle directory
+                try {
+                    updateEBA(targetBundle, bundleFile);
+                } catch (Exception e) {
+                    LOG.warn("Error updating application bundle with the new contents.", e.getMessage());
+                }
+                
+                URL url = new URL(bundleLocation);
+                in = url.openStream();
+            } else {
+                // bundle is NOT installed from a directory - update bundle archive after calling update()            
+                in = new FileInputStream(bundleFile);
             }
-
-            FrameworkWiring wiring = context.getBundle(0).adapt(FrameworkWiring.class);
             
-            Collection<Bundle> bundles = Arrays.asList(targetBundle);
+            // update the bundle
+            try {
+                targetBundle.update(in);
+            } finally {
+                IOUtils.close(in);
+            }
             
             // resolve the bundle
             if (!wiring.resolveBundles(bundles)) {
@@ -120,20 +147,14 @@ public class ApplicationUpdateHelper {
                 throw new BundleException(builder.toString());
             }
             
-            // log dependents
-            Collection<Bundle> dependents = wiring.getDependencyClosure(bundles);
-            dependents.removeAll(bundles);
-            if (!dependents.isEmpty()) {
-                String bundleListString = bundleCollectionToString(dependents);
-                LOG.info("Update of {} bundle will cause the following bundles to be refreshed: {}", bundleName, bundleListString);
-            }
-            
-            // update application archive
-            try {
-                updateEBA(targetBundle, bundleFile);
-            } catch (Exception e) {
-                LOG.warn("Error updating application archive with the new contents. " +
-                         "Changes made might be gone next time the application or server is restarted.", e.getMessage());
+            if (location == null || !location.isDirectory()) {
+                // update application archive
+                try {
+                    updateEBA(targetBundle, bundleFile);
+                } catch (Exception e) {
+                    LOG.warn("Error updating application archive with the new contents. " +
+                             "Changes made might be gone next time the application or server is restarted.", e.getMessage());
+                }
             }
             
             // refresh the bundle and its dependents
@@ -188,11 +209,7 @@ public class ApplicationUpdateHelper {
                     } else {
                         // bundle file is a directory - just update class files
                         ZipFile zipFile = new ZipFile(changesFile);
-                        try {
-                            JarUtils.unzipToDirectory(zipFile, bundleFile);
-                        } finally {
-                            JarUtils.close(zipFile);
-                        }
+                        JarUtils.unzipToDirectory(zipFile, bundleFile);
                     }
                 } else {
                     // eba is an file                   
@@ -479,17 +496,52 @@ public class ApplicationUpdateHelper {
                 updateApplicationDirectory(ebaArchive, newBundleFile, bundleNameInApp);
             } else {
                 // bundle file is a directory - replace directory
-                FileUtils.recursiveDelete(bundleFile);
-                ZipFile zipFile = new ZipFile(newBundleFile);
-                try {
-                    JarUtils.unzipToDirectory(zipFile, bundleFile);
-                } finally {
-                    JarUtils.close(zipFile);
+                ZipFile zipFile;
+                               
+                // overwrite existing files
+                zipFile = new ZipFile(newBundleFile);
+                JarUtils.unzipToDirectory(zipFile, bundleFile);
+                
+                // find & remove deleted files
+                zipFile = new ZipFile(newBundleFile);
+                List<File> filesToDelete = findDeletedFiles(zipFile, bundleFile);
+                List<String> inUseFiles = new ArrayList<String>();
+                for (File file : filesToDelete) {
+                    FileUtils.recursiveDelete(file, inUseFiles);
                 }
+                if (!inUseFiles.isEmpty()) {
+                    LOG.warn("Some files could not be deleted: {}", inUseFiles);
+                }                
             }
         } else {
             // eba is a file
             updateApplicationArchive(ebaArchive, newBundleFile, bundleNameInApp);
+        }
+    }
+    
+    private List<File> findDeletedFiles(ZipFile zipFile, File directory) {
+        List<File> deletedFiles = new ArrayList<File>();
+        try {
+            collectDeletedFiles(zipFile, directory, "", deletedFiles);
+        } finally {
+            JarUtils.close(zipFile);
+        }
+        return deletedFiles;
+    }
+    
+    private void collectDeletedFiles(ZipFile zipFile, File directory, String baseName, List<File> deleted) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                String name = baseName + file.getName();
+                ZipEntry entry = zipFile.getEntry(name);
+                if (entry == null) {
+                    deleted.add(file);                 
+                } else if (file.isDirectory()) {
+                    collectDeletedFiles(zipFile, file, name + "/", deleted);
+                }
+            }
         }
     }
 
