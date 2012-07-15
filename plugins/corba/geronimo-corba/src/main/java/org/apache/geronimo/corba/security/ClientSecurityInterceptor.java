@@ -68,6 +68,7 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
             if (log.isDebugEnabled()) log.debug("Target has a security policy");
 
             ClientPolicy clientPolicy = (ClientPolicy) ri.get_request_policy(ClientPolicyFactory.POLICY_TYPE);
+            if (clientPolicy == null) return;
             CSSConfig config = clientPolicy.getConfig();
             if (config == null) return;
 
