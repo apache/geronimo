@@ -115,7 +115,7 @@ public class ApplicationUpdateHelper {
                 try {
                     updateEBA(targetBundle, bundleFile);
                 } catch (Exception e) {
-                    LOG.warn("Error updating application bundle with the new contents.", e.getMessage());
+                    LOG.warn("Error updating application bundle with the new contents.", e);
                 }
                 
                 URL url = new URL(bundleLocation);
@@ -153,7 +153,7 @@ public class ApplicationUpdateHelper {
                     updateEBA(targetBundle, bundleFile);
                 } catch (Exception e) {
                     LOG.warn("Error updating application archive with the new contents. " +
-                             "Changes made might be gone next time the application or server is restarted.", e.getMessage());
+                             "Changes made might be gone next time the application or server is restarted.", e);
                 }
             }
             
@@ -222,7 +222,7 @@ public class ApplicationUpdateHelper {
                 }
             } catch (Exception e) {
                 LOG.warn("Error updating application archive with the new contents. " +
-                         "Changes made might be gone next time the application or server is restarted.", e.getMessage());
+                         "Changes made might be gone next time the application or server is restarted.", e);
             }
         }
         
