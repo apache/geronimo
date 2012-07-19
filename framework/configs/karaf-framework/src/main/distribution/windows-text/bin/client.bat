@@ -173,7 +173,7 @@ set JAVA_AGENT_JAR=%GERONIMO_HOME%\lib\agent\transformer.jar
 set JAVA_AGENT_OPTS=
 if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" org.apache.geronimo.cli.client.ClientCLI %CMD_LINE_ARGS%
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" org.apache.geronimo.cli.client.ClientCLI %CMD_LINE_ARGS%
 goto end
 
 :end
