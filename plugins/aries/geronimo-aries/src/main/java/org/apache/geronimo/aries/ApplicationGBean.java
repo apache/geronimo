@@ -304,7 +304,7 @@ public class ApplicationGBean implements GBeanLifecycle {
                     }
                     
                     if (bundleInfo == null) {
-                        throw new ManagementException("Cound not find bundles: " + bundleSymbolicName + "_" + bundleVersion);
+                        throw new ManagementException("Could not find bundle: " + bundleSymbolicName + "_" + bundleVersion);
                     }
                         
                     contentBundle = bundleContext.installBundle(bundleInfo.getLocation());
@@ -468,7 +468,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         
         if (stack.contains(bundle)) {
             // dependency loop detected
-            LOG.warn("Bundle dependency loop detected: {}", stack.subList(stack.indexOf(bundle), stack.size()));
+            LOG.debug("Bundle dependency loop detected: {}", stack.subList(stack.indexOf(bundle), stack.size()));
             return;
         }
         stack.add(bundle);
