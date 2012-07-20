@@ -410,7 +410,7 @@ public class SocketFactory implements ConnectionHelper {
             // we have a socket factory....now get our cipher suite set based on our requirements and what's
             // available from the factory.
             if (cipherSuites == null) {
-                cipherSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, serverSocketFactory.getSupportedCipherSuites());
+                cipherSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, serverSocketFactory.getDefaultCipherSuites());
             }
             // There's a bit of a timing problem with server-side ORBs.  Part of the ORB shutdown is to
             // establish a self-connection to shutdown the acceptor threads.  This requires a client
@@ -480,7 +480,7 @@ public class SocketFactory implements ConnectionHelper {
         // get a set of cipher suites appropriate for this connections requirements.
         // We request this for each connection, since the outgoing IOR's requirements may be different from
         // our server listener requirements.
-        String[] iorSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, factory.getSupportedCipherSuites());
+        String[] iorSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, factory.getDefaultCipherSuites());
         socket.setEnabledCipherSuites(iorSuites);
         if (log.isDebugEnabled()) {
             log.debug("Created SSL socket to " + host + ":" + port);
