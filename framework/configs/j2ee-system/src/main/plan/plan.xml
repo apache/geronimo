@@ -128,8 +128,7 @@ specific services - those should be provided by children.
         <attribute name="exclusions">
              org.apache.felix/org.apache.felix.framework//,
              org.eclipse.osgi/org.eclipse.osgi//,
-             org.osgi/org.osgi.core//,
-             org.osgi/org.osgi.compendium//
+             org.osgi/org.osgi.core//
         </attribute>
     </gbean>
 
