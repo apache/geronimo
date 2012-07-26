@@ -41,13 +41,13 @@
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
 @REM Handle spaces in provided paths.  Also strips off quotes.
-if defined var JAVA_HOME(
+if defined var JAVA_HOME (
 set JAVA_HOME=###%JAVA_HOME%###
 set JAVA_HOME=%JAVA_HOME:"###=%
 set JAVA_HOME=%JAVA_HOME:###"=%
 set JAVA_HOME=%JAVA_HOME:###=%
 @)
-if defined var JRE_HOME(
+if defined var JRE_HOME (
 set JRE_HOME=###%JRE_HOME%###
 set JRE_HOME=%JRE_HOME:"###=%
 set JRE_HOME=%JRE_HOME:###"=%
