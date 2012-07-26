@@ -20,6 +20,11 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
+<script language="javascript">
+    if (window.top == window.self) {
+        window.location="/console/portal/0/Welcome?noxssShowTree=true";
+    }
+</script>
 
 <table style="width:100%" cellpadding="10"> <!-- an IE rendering fix -->
     <tr>
