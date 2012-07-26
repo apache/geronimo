@@ -29,7 +29,7 @@
         <version>3.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>client</artifactId>
+    <artifactId>clientgroup</artifactId>
     <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Client</name>
 
