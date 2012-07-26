@@ -41,7 +41,7 @@
         <!--plugin groups-->
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>clientgroup</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
