@@ -47,7 +47,7 @@ goto gotServer
 
 :resolveServer
 @REM Strip quotes from GERONIMO_SERVER which is defined by user
-if defined var GERONIMO_SERVER(
+if defined var GERONIMO_SERVER (
 set GERONIMO_HOME=###%GERONIMO_SERVER%###
 set GERONIMO_HOME=%GERONIMO_SERVER:"###=%
 set GERONIMO_HOME=%GERONIMO_SERVER:###"=%
@@ -79,13 +79,13 @@ set GERONIMO_TMPDIR=%GERONIMO_SERVER%\var\temp
 :gotTmpdir
 
 @REM Strip quotes from JRE_HOME and JAVA_HOME before using them
-if defined var JRE_HOME(
+if defined var JRE_HOME (
 set JRE_HOME=###%JRE_HOME%###
 set JRE_HOME=%JRE_HOME:"###=%
 set JRE_HOME=%JRE_HOME:###"=%
 set JRE_HOME=%JRE_HOME:###=%
 @)
-if defined var _RUNJAVA(
+if defined var _RUNJAVA (
 set _RUNJAVA=###%_RUNJAVA%###
 set _RUNJAVA=%_RUNJAVA:"###=%
 set _RUNJAVA=%_RUNJAVA:###"=%
