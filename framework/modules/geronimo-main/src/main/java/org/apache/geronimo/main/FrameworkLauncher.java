@@ -408,12 +408,15 @@ public class FrameworkLauncher {
         ArrayList<File> bundleDirs = new ArrayList<File>();
 
         String defaultRepo = System.getProperty(DEFAULT_REPO, "repository");
+        
+        File GeronimoHomeRepo = new File(geronimoHome, defaultRepo).getCanonicalFile();
+        File GeronimoBaseRepo = new File(geronimoBase, defaultRepo).getCanonicalFile();
 
-        if (geronimoBase.equals(geronimoHome)) {
-            bundleDirs.add(new File(geronimoHome, defaultRepo));
+        if (GeronimoHomeRepo.getCanonicalPath().equals(GeronimoBaseRepo.getCanonicalPath())) {
+            bundleDirs.add(GeronimoHomeRepo);
         } else {
-            bundleDirs.add(new File(geronimoBase, defaultRepo));
-            bundleDirs.add(new File(geronimoHome, defaultRepo));
+            bundleDirs.add(GeronimoHomeRepo);
+            bundleDirs.add(GeronimoBaseRepo);
         }
 
         return loadStartupProperties(startupProps, bundleDirs);
