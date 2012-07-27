@@ -821,19 +821,19 @@ public class GeronimoStandardContext extends StandardContext {
         if (wrapper.getServlet() == null || webSecurityConstraintStore.isContainerCreatedDynamicServlet(wrapper.getServlet())) {
             webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(registration, wrapper.getServletClass());
         }
-        //Special  handle for web service
-        ClassLoader cl = this.getParentClassLoader();
-        Class<?> baseServletClass;
-        Class<?> servletClass;
-        try {
-            baseServletClass = cl.loadClass(Servlet.class.getName());
-            servletClass = cl.loadClass(wrapper.getServletClass());
-            //Check if the servlet is of type Servlet class
-            if (!baseServletClass.isAssignableFrom(servletClass)) {
-                //Nope - its probably a webservice, so lets see...
-                if (webServiceMap != null) {
-                    WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
-                    if (webServiceContainer != null) {
+        // Special handling for web services
+        if (webServiceMap != null && !webServiceMap.isEmpty()) {
+            WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
+            if (webServiceContainer != null) {
+                // might be a web service
+                ClassLoader cl = getParentClassLoader();
+                Class<?> baseServletClass;
+                Class<?> servletClass;
+                try {
+                    baseServletClass = cl.loadClass(Servlet.class.getName());
+                    servletClass = cl.loadClass(wrapper.getServletClass());
+                    // ensure the class is NOT a Servlet
+                    if (!baseServletClass.isAssignableFrom(servletClass)) {
                         //Yep its a web service
                         //So swap it out with a POJOWebServiceServlet
                         wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
@@ -846,10 +846,10 @@ public class GeronimoStandardContext extends StandardContext {
                         getServletContext().setAttribute(pojoClassID, servletClass);
                         wrapper.addInitParameter(POJOWebServiceServlet.POJO_CLASS, pojoClassID);
                     }
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
         }
         return registration;
     }
