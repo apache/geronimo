@@ -39,7 +39,6 @@
     <servlet>
         <servlet-name>popUpGraph</servlet-name>
         <servlet-class>org.apache.geronimo.monitoring.console.PopUpGraphServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
