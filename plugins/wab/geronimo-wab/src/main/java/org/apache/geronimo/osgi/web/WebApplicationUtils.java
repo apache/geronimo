@@ -44,8 +44,22 @@ public class WebApplicationUtils {
         if (version != null) {
             properties.put(WABApplicationConstants.WEB_VERSION, version);
         }
-        properties.put(WABApplicationConstants.WEB_CONTEXT_PATH, context.getContextPath());
+        properties.put(WABApplicationConstants.WEB_CONTEXT_PATH, getContextPath(context.getContextPath()));
         return bundle.getBundleContext().registerService(ServletContext.class.getName(), context, properties);
+    }
+    
+    private static String getContextPath(String contextPath) {
+        if (contextPath == null) {
+            return "/";
+        }
+        contextPath = contextPath.trim();
+        if (contextPath.length() == 0) {
+            return "/";
+        } else if (!contextPath.startsWith("/")) {
+            return "/" + contextPath;
+        } else {
+            return contextPath;
+        }
     }
     
 }
