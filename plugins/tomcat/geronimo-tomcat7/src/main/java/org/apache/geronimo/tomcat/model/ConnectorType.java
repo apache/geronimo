@@ -56,8 +56,10 @@ import org.apache.xbean.recipe.Option;
  *       &lt;/sequence>
  *       &lt;attribute name="className" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="allowTrace" type="{http://www.w3.org/2001/XMLSchema}boolean" />
+ *       &lt;attribute name="asyncTimeout" type="{http://www.w3.org/2001/XMLSchema}long" />       
  *       &lt;attribute name="emptySessionPath" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="enableLookups" type="{http://www.w3.org/2001/XMLSchema}boolean" />
+ *       &lt;attribute name="maxParameterCount" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="maxPostSize" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="maxSavePostSize" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="port" type="{http://www.w3.org/2001/XMLSchema}int" />
@@ -69,6 +71,7 @@ import org.apache.xbean.recipe.Option;
  *       &lt;attribute name="scheme" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="secure" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="encoding" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="URIEncoding" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="useBodyEncodingForURI" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="xpoweredBy" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="useIPVHosts" type="{http://www.w3.org/2001/XMLSchema}boolean" />
@@ -90,6 +93,8 @@ public class ConnectorType {
     @XmlAttribute
     protected Boolean allowTrace;
     @XmlAttribute
+    protected Long asyncTimeout;
+    @XmlAttribute    
     protected Boolean emptySessionPath;
     @XmlAttribute
     protected Boolean enableLookups;
@@ -117,6 +122,8 @@ public class ConnectorType {
     protected Boolean secure;
     @XmlAttribute
     protected String encoding;
+    @XmlAttribute(name = "URIEncoding")
+    protected String uriEncoding;
     @XmlAttribute
     protected String useBodyEncodingForURI;
     @XmlAttribute
@@ -143,6 +150,8 @@ public class ConnectorType {
     private static final String X_POWERED_BY = "xPoweredBy";
     private static final String USE_IPVHOSTS = "useIPVHosts";
     private static final String ALLOW_TRACE = "allowTrace";
+    private static final String ASYNC_TIMEOUT = "asyncTimeout";
+    private static final String URI_ENCODING = "URIEncoding";
 
 
     /**
@@ -212,6 +221,30 @@ public class ConnectorType {
         this.allowTrace = value;
     }
 
+    /**
+     * Gets the value of the asyncTimeout property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Long }
+     *     
+     */
+    public Long getAsyncTimeout() {
+        return asyncTimeout;
+    }
+
+    /**
+     * Sets the value of the asyncTimeout property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Long }
+     *     
+     */
+    public void setAsyncTimeout(Long value) {
+        this.asyncTimeout = value;
+    }
+    
     /**
      * Gets the value of the emptySessionPath property.
      *
@@ -493,6 +526,30 @@ public class ConnectorType {
     }
 
     /**
+     * Gets the value of the uriEncoding property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getURIEncoding() {
+        return uriEncoding;
+    }
+
+    /**
+     * Sets the value of the uriEncoding property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setURIEncoding(String value) {
+        this.uriEncoding = value;
+    }
+    
+    /**
      * Gets the value of the useBodyEncodingForURI property.
      *
      * @return possible object is
@@ -574,6 +631,9 @@ public class ConnectorType {
         if (isAllowTrace() != null) {
             properties.put(ALLOW_TRACE, isAllowTrace());
         }
+        if (getAsyncTimeout() != null) {
+            properties.put(ASYNC_TIMEOUT, getAsyncTimeout());
+        }
         if (isEmptySessionPath() != null) {
             properties.put(EMPTY_SESSION_PATH, isEmptySessionPath());
         }
@@ -615,6 +675,9 @@ public class ConnectorType {
         }
         if (getEncoding() != null) {
             properties.put(ENCODING, getEncoding());
+        }
+        if (getURIEncoding() != null) {
+            properties.put(URI_ENCODING, getURIEncoding());
         }
         if (getUseBodyEncodingForURI() != null) {
             properties.put(USE_BODY_ENCODING_FOR_URI, getUseBodyEncodingForURI());

@@ -125,6 +125,23 @@
                     </instructions>
                 </configuration>
             </plugin>
+<!--
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packageName>org.apache.geronimo.tomcat.model.test</packageName>
+                    <extension>true</extension>
+                </configuration>
+            </plugin>
+-->
         </plugins>
     </build>
 

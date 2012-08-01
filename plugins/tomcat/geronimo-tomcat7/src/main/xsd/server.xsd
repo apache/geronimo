@@ -128,6 +128,7 @@
     </xs:sequence>
     <xs:attribute type="xs:string" name="className"/>
     <xs:attribute type="xs:boolean" name="allowTrace"/>
+    <xs:attribute type="xs:long" name="asyncTimeout"/>
     <xs:attribute type="xs:boolean" name="emptySessionPath"/>
     <xs:attribute type="xs:boolean" name="enableLookups"/>
     <xs:attribute type="xs:int" name="maxParameterCount"/>
@@ -142,6 +143,7 @@
     <xs:attribute type="xs:string" name="scheme"/>
     <xs:attribute type="xs:boolean" name="secure"/>
     <xs:attribute type="xs:string" name="encoding"/>
+    <xs:attribute type="xs:string" name="URIEncoding"/>
     <xs:attribute type="xs:string" name="useBodyEncodingForURI"/>
     <xs:attribute type="xs:string" name="xpoweredBy"/>
     <xs:attribute type="xs:boolean" name="useIPVHosts"/>
