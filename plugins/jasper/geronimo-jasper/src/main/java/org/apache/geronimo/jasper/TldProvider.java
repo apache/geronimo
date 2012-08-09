@@ -30,16 +30,32 @@ public interface TldProvider {
         private URL url;
         private Bundle bundle;
         private URL jarUrl;
+        private URL fileUrl;
         private String name;
         
         public TldEntry(Bundle bundle, URL url) {
-            this(bundle, url, null);
+            this(bundle, url, null, null);
         }
         
         public TldEntry(Bundle bundle, URL url, URL jarUrl) {
             this.bundle = bundle;
             this.url = url;            
             this.jarUrl = jarUrl;
+            this.fileUrl = null;
+            
+            String path = url.getPath();
+            if (path.startsWith("/")) {
+                name = path.substring(1);
+            } else {
+                name = path;
+            }
+        }
+        
+        public TldEntry(Bundle bundle, URL url, URL jarUrl, URL fileUrl) {
+            this.bundle = bundle;
+            this.url = url;            
+            this.jarUrl = jarUrl;
+            this.fileUrl = fileUrl;
             
             String path = url.getPath();
             if (path.startsWith("/")) {
@@ -63,6 +79,10 @@ public interface TldProvider {
         
         public String getName() {
             return name;
+        }
+
+        public URL getFileUrl() {
+            return fileUrl;
         }
 
     }

@@ -17,8 +17,10 @@
 
 package org.apache.geronimo.jasper;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -32,6 +34,9 @@ import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.jar.BundleJarFile;
+import org.apache.geronimo.kernel.osgi.FrameworkUtils;
+import org.apache.geronimo.kernel.util.UnpackedJarEntry;
+import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.JarResource;
 import org.apache.jasper.compiler.TldLocation;
@@ -297,6 +302,8 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
                 URL url = entry.getURL();
                 if (entry.getJarUrl() != null) { 
                     tldScanStream(url, new TldLocation(entry.getName(), entry.getJarUrl().toExternalForm()));
+                } else if (entry.getFileUrl() != null){
+                   tldScanStream(url, new TldLocation(entry.getName(), new UnpackedJarResource(entry.getFileUrl())));
                 } else {
                     tldScanStream(url, new TldLocation(entry.getName(), new BundleJarResource(entry.getBundle())));
                 }
@@ -366,8 +373,38 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             return url.toExternalForm();
         }
         
+        public URL getEntry(String name) {            
+            return bundle.getEntry(name);            
+        }
+    }
+    
+    private static class UnpackedJarResource implements JarResource {
+        
+        private UnpackedJarFile bundle;
+        private URL url;
+        
+        public UnpackedJarResource(URL url) {
+            this.url = url;
+            try {
+                this.bundle = new UnpackedJarFile(new File(url.getPath()));
+            } catch (IOException e) {                
+            }
+        }
+        
+        public JarFile getJarFile() throws IOException {
+            return bundle;
+        }
+        
+        public String getUrl() {
+            return url.toExternalForm();
+        }
+        
         public URL getEntry(String name) {
-            return bundle.getEntry(name);
+            try {
+                return ((UnpackedJarEntry)bundle.getEntry(name)).getFile().toURI().toURL();
+            } catch (MalformedURLException e) {
+            	return null;
+            }
         }
     }
 }

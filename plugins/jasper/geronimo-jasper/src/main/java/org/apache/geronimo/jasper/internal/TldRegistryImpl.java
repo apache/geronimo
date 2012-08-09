@@ -151,6 +151,7 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
         public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
             LOGGER.debug("Found {} TLD in bundle {}", url, bundle);
             URL jarURL = null;
+            URL fileURL = null;
             /* 
              * Try to convert to jar: url if possible. Makes life easier for Japser. 
              * See GERONIMO-6295. 
@@ -162,8 +163,14 @@ public class TldRegistryImpl implements TldRegistry, BundleTrackerCustomizer {
                 if (pos != -1) {
                     jarURL = new URL(urlString.substring(4 /* jar: */, pos));
                 }
+            } else if("file".equals(convertedURL.getProtocol())){            	 
+                String urlString = convertedURL.toExternalForm();
+                int pos = urlString.indexOf(basePath);
+                if (pos != -1) {
+                   fileURL = new URL(urlString.substring(0, pos));
+                }
             }
-            tlds.add(new TldProvider.TldEntry(bundle, url, jarURL));            
+            tlds.add(new TldProvider.TldEntry(bundle, url, jarURL, fileURL));            
             return true;
         }
 
