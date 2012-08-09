@@ -77,7 +77,7 @@
         <axis2Version>1.6.1_2</axis2Version>
         <axiomVersion>1.2.12_1</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
-        <xbeanVersion>3.11.1</xbeanVersion>
+        <xbeanVersion>3.11.2-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1.1</txmanagerVersion>
         <tranqlVersion>1.7</tranqlVersion>
@@ -2318,77 +2318,6 @@ only found in cxf
                 <enabled>false</enabled>
             </releases>
         </pluginRepository>
-        <!-- Staging repo to validate voting artifacts 
-        <pluginRepository>
-                    <id>voting_repo</id>
-                    <name>xbean 3.11 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-043/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>voting_repo2</id>
-                    <name>geronimo-jaspi 2.0.0 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-030/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>voting_repo3</id>
-                    <name>derby-all 10.8.2.2_1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-023/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>voting_repo4</id>
-                    <name>Geronimo Tomcat 7.0.27.1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-042/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>voting_repo5</id>
-                    <name>Geronimo xbean 3.11.1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-211/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>-->
     </pluginRepositories>
     
     <repositories>
@@ -2403,77 +2332,6 @@ only found in cxf
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-    <!-- Staging repo to validate voting artifacts 
-        <repository>
-                    <id>voting_repo</id>
-                    <name>xbean 3.11 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-043/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-                <repository>
-                    <id>voting_repo2</id>
-                    <name>geronimo-jaspi 2.0.0 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-030/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-                <repository>
-                    <id>voting_repo3</id>
-                    <name>derby-all 10.8.2.2_1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-023/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-                <repository>
-                    <id>voting_repo4</id>
-                    <name>Geronimo Tomcat 7.0.27.1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-042/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-                <repository>
-                    <id>voting_repo5</id>
-                    <name>Geronimo xbean 3.11.1 voting repository</name>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-211/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>-->
     </repositories>      
 
     <profiles>
