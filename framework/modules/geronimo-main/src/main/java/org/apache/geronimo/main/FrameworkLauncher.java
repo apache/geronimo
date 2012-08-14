@@ -59,6 +59,11 @@ public class FrameworkLauncher {
      * The default name used for the startup properties file.
      */
     public static final String STARTUP_PROPERTIES_FILE_NAME = "startup.properties";
+    
+    /**
+     * The flag file to detect whether server is shutdown normally or by terminating jvm.
+     */
+    public static final String SERVER_FLAG_FILE_NAME = "server.flag";
 
     /**
      * The system property for specifying the Karaf home directory.  The home directory
@@ -145,10 +150,17 @@ public class FrameworkLauncher {
         configJansiPath();
 
         setFrameworkStorage(configProps);
+        
+        
 
         if (cleanStorage) {
             configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN,
                                     Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+        }
+        
+        if(detectServerFlag()){
+           configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN,
+                    Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -347,7 +359,7 @@ public class FrameworkLauncher {
     }
 
     private void updateClassLoader(Properties configProps) throws Exception {
-    	String framework = configProps.getProperty(KARAF_FRAMEWORK);
+        String framework = configProps.getProperty(KARAF_FRAMEWORK);
         if (framework == null) {
             throw new IllegalArgumentException("Property " + KARAF_FRAMEWORK + " must be set in the etc/" + configFile + " configuration file");
         }
@@ -500,5 +512,20 @@ public class FrameworkLauncher {
         String bundleLocation;
         int startLevel;
         Bundle bundle;
+    }
+    
+    boolean detectServerFlag(){
+        File serverFlagFile = null;
+        try {
+            serverFlagFile = new File(geronimoBase, "var/" + SERVER_FLAG_FILE_NAME);
+            serverFlagFile.deleteOnExit();
+            boolean newFile = serverFlagFile.createNewFile();
+            if (!newFile){
+                return true;
+            }                
+        } catch (IOException e) {
+            System.err.println("Can not create server flag file at " + serverFlagFile.getAbsolutePath() + " ( " + e.getMessage() + " ) ");
+        }
+        return false;
     }
 }
