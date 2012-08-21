@@ -185,41 +185,8 @@ public class ApplicationUpdateHelper {
         }
         
         if (updateArchive) {
-            File ebaArchive = applicationGBean.getApplicationArchive();
-            
-            String bundleNameInApp = getBundleNameInArchive(targetBundle);
-            
-            LOG.debug("Updating {} application archive with new contents for {}", ebaArchive, bundleNameInApp);
-            
             try {
-                if (ebaArchive.isDirectory()) {
-                    // eba is a directory
-                    File bundleFile = new File(ebaArchive, bundleNameInApp);
-                    if (!bundleFile.exists()) {
-                        throw new IOException("Unable to locate " + bundleNameInApp + " in " + ebaArchive);
-                    }
-                    if (bundleFile.isFile()) {
-                        // bundle file is a file - update the jar file
-                        File updatedBundleFile = createUpdateJarFileDirectory(changesFile, ebaArchive, bundleNameInApp);
-                        try {
-                            updateApplicationDirectory(ebaArchive, updatedBundleFile, bundleNameInApp);
-                        } finally {
-                            deleteFile(updatedBundleFile);
-                        }
-                    } else {
-                        // bundle file is a directory - just update class files
-                        ZipFile zipFile = new ZipFile(changesFile);
-                        JarUtils.unzipToDirectory(zipFile, bundleFile);
-                    }
-                } else {
-                    // eba is an file                   
-                    File updatedBundleFile = createUpdateJarFileArchive(changesFile, ebaArchive, bundleNameInApp);
-                    try {
-                        updateApplicationArchive(ebaArchive, updatedBundleFile, bundleNameInApp);
-                    } finally {
-                        deleteFile(updatedBundleFile);
-                    }
-                }
+                updateEBAPartial(targetBundle, changesFile);
             } catch (Exception e) {
                 LOG.warn("Error updating application archive with the new contents. " +
                          "Changes made might be gone next time the application or server is restarted.", e);
@@ -227,6 +194,43 @@ public class ApplicationUpdateHelper {
         }
         
         return true;
+    }
+    
+    protected void updateEBAPartial(Bundle targetBundle, File changesFile) throws IOException {
+        File ebaArchive = applicationGBean.getApplicationArchive();
+            
+        String bundleNameInApp = getBundleNameInArchive(targetBundle);
+            
+        LOG.debug("Updating {} application archive with new contents for {}", ebaArchive, bundleNameInApp);
+            
+        if (ebaArchive.isDirectory()) {
+            // eba is a directory
+            File bundleFile = new File(ebaArchive, bundleNameInApp);
+            if (!bundleFile.exists()) {
+                throw new IOException("Unable to locate " + bundleNameInApp + " in " + ebaArchive);
+            }
+            if (bundleFile.isFile()) {
+                // bundle file is a file - update the jar file
+                File updatedBundleFile = createUpdateJarFileDirectory(changesFile, ebaArchive, bundleNameInApp);
+                try {
+                    updateApplicationDirectory(ebaArchive, updatedBundleFile, bundleNameInApp);
+                } finally {
+                    deleteFile(updatedBundleFile);
+                }
+            } else {
+                // bundle file is a directory - just update class files
+                ZipFile zipFile = new ZipFile(changesFile);
+                JarUtils.unzipToDirectory(zipFile, bundleFile);
+            }
+        } else {
+            // eba is an file                   
+            File updatedBundleFile = createUpdateJarFileArchive(changesFile, ebaArchive, bundleNameInApp);
+            try {
+                updateApplicationArchive(ebaArchive, updatedBundleFile, bundleNameInApp);
+            } finally {
+                deleteFile(updatedBundleFile);
+            }
+        }        
     }
     
     private boolean hotSwapClasses(Bundle bundle, File changesFile) {
@@ -478,7 +482,7 @@ public class ApplicationUpdateHelper {
         }
     }
     
-    private void updateEBA(Bundle bundle, File newBundleFile) throws IOException {
+    protected void updateEBA(Bundle bundle, File newBundleFile) throws IOException {
         File ebaArchive = applicationGBean.getApplicationArchive();
 
         String bundleNameInApp = getBundleNameInArchive(bundle);

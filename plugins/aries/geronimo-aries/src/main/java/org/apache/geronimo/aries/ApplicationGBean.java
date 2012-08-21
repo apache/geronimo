@@ -213,6 +213,32 @@ public class ApplicationGBean implements GBeanLifecycle {
         return updateHelper.updateBundleClasses(targetBundle, changesFile, updateArchive);
     }
    
+    /*
+     * Update application archive with new bundle contents.
+     * 
+     * @param bundleId id of the bundle to update.
+     * @param file file containing new contents of the bundle. The file can contain partial or full contents.
+     * @param partial true if file contains partial contents. False, otherwise.
+     */
+    public synchronized boolean updateApplicationArchive(long bundleId, File file, boolean partial) throws Exception {
+        Bundle targetBundle = findBundle(bundleId);
+        if (targetBundle == null) {
+            throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
+        }
+        try {
+            if (partial) {
+                updateHelper.updateEBAPartial(targetBundle, file);
+            } else {
+                updateHelper.updateEBA(targetBundle, file);
+            }
+            return true;
+        } catch (Exception e) {
+            LOG.warn("Error updating application archive with the new contents. " +
+                     "Changes made might be gone next time the application or server is restarted.", e);
+            return false;
+        }
+    }
+        
     protected File getApplicationArchive() throws IOException {
         File ebaArchive = installer.getApplicationLocation(configId);
         if (ebaArchive == null || !ebaArchive.exists()) {

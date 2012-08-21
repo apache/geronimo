@@ -326,6 +326,12 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
         String[] argumentTypes = new String[] {long.class.getName(), File.class.getName(), boolean.class.getName()};
         return (Boolean) kernel.invoke(applicationGBeanName, "hotSwapApplicationContent", arguments, argumentTypes);
     }
+        
+    public boolean updateEBAArchive(AbstractName applicationGBeanName, long bundleId, File file, boolean partial) throws Exception {
+        Object[] arguments = new Object[] {bundleId, file, partial};
+        String[] argumentTypes = new String[] {long.class.getName(), File.class.getName(), boolean.class.getName()};
+        return (Boolean) kernel.invoke(applicationGBeanName, "updateApplicationArchive", arguments, argumentTypes);
+    }
     
     /**
      * Returns application gbean name for the specified configuration id of the OSGi application.

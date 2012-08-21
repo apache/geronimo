@@ -204,30 +204,33 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     }
 
     @Override
-    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
-        if(!isSameMachine) {
-            throw new UnsupportedOperationException("Update EBA content operation is not supportted from a remote JMX connection");
-        }
-        
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws Exception {
+        isSameMachine("updateEBAContent");
         super.updateEBAContent(applicationGBeanName, bundleId, bundleFile);
     }
     
     @Override
-    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws GBeanNotFoundException, NoSuchOperationException, Exception{
-        if(!isSameMachine) {
-            throw new UnsupportedOperationException("Update EBA content operation is not supportted from a remote JMX connection");
-        }
-        
+    public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws Exception {
+        isSameMachine("hotSwapEBAContent");
         return super.hotSwapEBAContent(applicationGBeanName, bundleId, changesFile, updateArchive);
+    }
+        
+    @Override
+    public boolean updateEBAArchive(AbstractName applicationGBeanName, long bundleId, File file, boolean partial) throws Exception {
+        isSameMachine("updateEBAArchive");
+        return super.updateEBAArchive(applicationGBeanName, bundleId, file, partial);
     }
     
     @Override
     public long recordInstall(File bundleFile, String gourpId, int startLevel) throws IOException {
-        if(!isSameMachine) {
-            throw new UnsupportedOperationException("recordBundle operation is not supportted from a remote JMX connection.");
-        }
-        
+        isSameMachine("recordInstall");
         return super.recordInstall(bundleFile, gourpId, startLevel);
+    }
+    
+    private void isSameMachine(String operation) {
+        if (!isSameMachine) {
+            throw new UnsupportedOperationException(operation + " operation is not supported from a remote JMX connection.");
+        }
     }
     
     public static final GBeanInfo GBEAN_INFO;

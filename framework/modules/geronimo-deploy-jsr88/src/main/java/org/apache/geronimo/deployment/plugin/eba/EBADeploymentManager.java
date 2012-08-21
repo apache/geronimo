@@ -36,8 +36,24 @@ public interface EBADeploymentManager {
     
     public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws Exception;
     
+    /**
+     * Attempts to hot swap classes of a single bundle within the OSGi application.
+     *  
+     * @param bundleId id of the bundle to update.
+     * @param file file containing updated class files of the bundle.
+     * @param updateArchive indicates if the application archive file should be updated with the changes. 
+     */
     public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws Exception;
-    
+
+    /**
+     * Updates OSGi application archive with new bundle contents.
+     *  
+     * @param bundleId id of the bundle to update.
+     * @param file file containing partial or full contents of the bundle.
+     * @param partial true if file contains partial bundle contents. False, otherwise.  
+     */
+    public boolean updateEBAArchive(AbstractName applicationGBeanName, long bundleId, File file, boolean partial) throws Exception;
+
     public AbstractName getApplicationGBeanName(Artifact configurationId);
     
 }
