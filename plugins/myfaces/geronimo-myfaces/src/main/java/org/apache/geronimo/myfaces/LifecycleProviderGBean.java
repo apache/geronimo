@@ -33,14 +33,14 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.myfaces.config.annotation.LifecycleProvider;
+import org.apache.myfaces.config.annotation.LifecycleProvider2;
 import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean
-public class LifecycleProviderGBean implements LifecycleProvider {
+public class LifecycleProviderGBean implements LifecycleProvider2 {
 
     private final Holder holder;
     private final Context context;
@@ -62,7 +62,7 @@ public class LifecycleProviderGBean implements LifecycleProvider {
         if (className == null) {
             throw new InstantiationException("no class name provided");
         }
-        return holder.newInstance(className, classLoader, context);
+        return holder.newInstanceWithoutPostConstruct(className, classLoader, context);
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {
@@ -73,5 +73,18 @@ public class LifecycleProviderGBean implements LifecycleProvider {
                 Holder.apply(o, clazz, preDestroy);
             }
         }
+    }
+
+    @Override
+    public void postConstruct(Object o) throws IllegalAccessException,InvocationTargetException {
+
+        Class<?> clazz = o.getClass();
+        if (holder != null) {
+            Map<String, LifecycleMethod> postConstruct = holder.getPostConstruct();
+            if (postConstruct != null) {
+                Holder.apply(o, clazz, postConstruct);
+            }
+        }
+
     }
 }

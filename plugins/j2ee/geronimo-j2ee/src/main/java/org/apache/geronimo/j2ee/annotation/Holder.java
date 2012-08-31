@@ -156,39 +156,46 @@ public class Holder implements Serializable {
     public boolean isEmpty() {
         return (injectionMap == null || injectionMap.isEmpty()) && (postConstruct == null || postConstruct.isEmpty()) && (preDestroy == null || preDestroy.isEmpty());
     }
+    
+    public Object newInstanceWithoutPostConstruct(String className, ClassLoader classLoader, Context context) throws IllegalAccessException, InstantiationException {
+         ObjectRecipe objectRecipe = new ObjectRecipe(className);
+         objectRecipe.allow(Option.FIELD_INJECTION);
+         objectRecipe.allow(Option.PRIVATE_PROPERTIES);
+         Class<?> clazz;
+         try {
+             clazz = classLoader.loadClass(className);
+         } catch (ClassNotFoundException e) {
+             throw (InstantiationException) new InstantiationException("Can't load class " + className + " in classloader: " + classLoader).initCause(e);
+         }
+         List<NamingException> problems = new ArrayList<NamingException>();
+         while (clazz != Object.class) {
+             addInjections(clazz.getName(), context, objectRecipe, problems);
+             clazz = clazz.getSuperclass();
+         }
+         if (!problems.isEmpty()) {
+             throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
+         }
+         Object result;
+         try {
+             result = objectRecipe.create(classLoader);
+         } catch (ConstructionException e) {
+             throw (InstantiationException) new InstantiationException("Could not construct object").initCause(e);
+         }
+         InvocationContext invocationContext = new InvocationContext(context, result);
+         try {
+             for (Interceptor interceptor : interceptors) {
+                 interceptor.instancerCreated(invocationContext);
+             }
+         } catch (InterceptorException e) {
+             throw (InstantiationException) new InstantiationException("Interceptor invocation failed").initCause(e);
+         }
+         
+         return result;
+    }
 
     public Object newInstance(String className, ClassLoader classLoader, Context context) throws IllegalAccessException, InstantiationException {
-        ObjectRecipe objectRecipe = new ObjectRecipe(className);
-        objectRecipe.allow(Option.FIELD_INJECTION);
-        objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-        Class<?> clazz;
-        try {
-            clazz = classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw (InstantiationException) new InstantiationException("Can't load class " + className + " in classloader: " + classLoader).initCause(e);
-        }
-        List<NamingException> problems = new ArrayList<NamingException>();
-        while (clazz != Object.class) {
-            addInjections(clazz.getName(), context, objectRecipe, problems);
-            clazz = clazz.getSuperclass();
-        }
-        if (!problems.isEmpty()) {
-            throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
-        }
-        Object result;
-        try {
-            result = objectRecipe.create(classLoader);
-        } catch (ConstructionException e) {
-            throw (InstantiationException) new InstantiationException("Could not construct object").initCause(e);
-        }
-        InvocationContext invocationContext = new InvocationContext(context, result);
-        try {
-            for (Interceptor interceptor : interceptors) {
-                interceptor.instancerCreated(invocationContext);
-            }
-        } catch (InterceptorException e) {
-            throw (InstantiationException) new InstantiationException("Interceptor invocation failed").initCause(e);
-        }
+
+        Object result = this.newInstanceWithoutPostConstruct(className, classLoader, context);
 
         if (getPostConstruct() != null) {
             try {
