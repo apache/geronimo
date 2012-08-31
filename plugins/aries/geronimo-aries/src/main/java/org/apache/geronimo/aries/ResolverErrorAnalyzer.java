@@ -146,7 +146,13 @@ public class ResolverErrorAnalyzer {
                     }
                     break;
                 case IMPORT_PACKAGE_USES_CONFLICT:
+                    ImportPackageSpecification usesImportPackageSpecification = (ImportPackageSpecification) constraint;
+                    errorList.add("The package dependency " + versionToString(usesImportPackageSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict.");
+                    break;
                 case REQUIRE_BUNDLE_USES_CONFLICT:
+                    BundleSpecification usesBundleSpecification = (BundleSpecification) constraint;
+                    errorList.add("The bundle dependency " + versionToString(usesBundleSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict.");
+                    break;
                 default:   
                     errorList.add(error.toString());
                     break;
