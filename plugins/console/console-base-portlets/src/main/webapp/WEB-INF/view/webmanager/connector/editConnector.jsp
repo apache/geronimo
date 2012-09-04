@@ -71,10 +71,10 @@ function <portlet:namespace/>validate() {
 <!-- Current Task -->
 <c:choose>
   <c:when test="${mode eq 'add'}">
-    <fmt:message key="webmanager.connector.editConnector.addNew"/> ${connectorType}
+    <fmt:message key="webmanager.connector.editConnector.addNew"/>&nbsp;${connectorType}
   </c:when>
   <c:otherwise>
-    <fmt:message key="webmanager.connector.editConnector.editConnector"/> ${uniqueName}
+    <fmt:message key="webmanager.connector.editConnector.editConnector"/>&nbsp;${uniqueName}
   </c:otherwise>
 </c:choose>
 <p>
