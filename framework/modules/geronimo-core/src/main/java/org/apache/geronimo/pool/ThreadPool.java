@@ -139,6 +139,30 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         stats.setStartTime();
     }
 
+    public int getMinPoolSize() {
+        return executor.getCorePoolSize();
+    }
+
+    public void setMinPoolSize(int size) {
+        executor.setCorePoolSize(size);
+    }
+
+    public int getMaxPoolSize() {
+        return executor.getMaximumPoolSize();
+    }
+
+    public void setMaxPoolSize(int size) {
+        executor.setMaximumPoolSize(size);
+    }
+
+    public void setKeepAliveTime(long time) {
+        executor.setKeepAliveTime(time, TimeUnit.MILLISECONDS);
+    }
+
+    public long getKeepAliveTime() {
+        return executor.getKeepAliveTime(TimeUnit.MILLISECONDS);
+    }
+
     public static class PoolStatsImpl extends StatsImpl implements ThreadPoolStats {
         private BoundedRangeStatisticImpl threadsInUse = new BoundedRangeStatisticImpl(
                 "Threads In Use", "",
