@@ -125,6 +125,8 @@ public class ApplicationGBean implements GBeanLifecycle {
         } finally {
             bundleContext.ungetService(applicationManagerReference);
         }
+        
+        setApplicationState(ApplicationState.INSTALLED);
     }
 
     public long[] getApplicationContentBundleIds() {
@@ -355,8 +357,6 @@ public class ApplicationGBean implements GBeanLifecycle {
                 bundleContext.ungetService(packageAdminRef);
             }
         }
-
-        applicationState = ApplicationState.INSTALLED;
     }
     
     @SuppressWarnings("deprecation")
@@ -405,14 +405,10 @@ public class ApplicationGBean implements GBeanLifecycle {
     public void doStart() throws Exception {
         LOG.debug("Starting {} application.", getApplicationName());
         
-        applicationState = ApplicationState.STARTING;
         try {
             startApplicationBundles();
-            applicationState = ApplicationState.ACTIVE;
             LOG.debug("Application {} started successfully.", getApplicationName());
         } catch (BundleException be) {
-            applicationState = ApplicationState.INSTALLED;
-            
             Exception rootException = be;
             String rootMessage = be.getMessage();
             
@@ -448,6 +444,9 @@ public class ApplicationGBean implements GBeanLifecycle {
             throw new BundleException("One or more bundles in " + getApplicationName() + " application could not be resolved.");
         }
         
+        setApplicationState(ApplicationState.RESOLVED);
+        setApplicationState(ApplicationState.STARTING);
+        
         LinkedList<Bundle> bundlesWeStarted = new LinkedList<Bundle>();
         try {
             applicationBundles = getSortedBundles();
@@ -458,7 +457,9 @@ public class ApplicationGBean implements GBeanLifecycle {
                     bundlesWeStarted.addFirst(b); 
                 }
             }
+            setApplicationState(ApplicationState.ACTIVE);
         } catch (BundleException be) {
+            setApplicationState(ApplicationState.STOPPING);
             for (Bundle b : bundlesWeStarted) {
                 try {
                     b.stop();
@@ -471,6 +472,7 @@ public class ApplicationGBean implements GBeanLifecycle {
                     // stop.
                 }
             }
+            setApplicationState(ApplicationState.RESOLVED);
             throw be;
         }
     }
@@ -557,6 +559,10 @@ public class ApplicationGBean implements GBeanLifecycle {
     public void doStop() {
         LOG.debug("Stopping {} application.", getApplicationName());
         
+        if (getApplicationState() == ApplicationState.ACTIVE) {
+            setApplicationState(ApplicationState.STOPPING);
+        }
+        
         // stop bundles in reverse order
         LinkedList<Bundle> sortedList = new LinkedList<Bundle>();
         for (Bundle bundle : applicationBundles) {
@@ -573,7 +579,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
         applicationBundles.clear();
 
-        applicationState = ApplicationState.RESOLVED;
+        setApplicationState(ApplicationState.UNINSTALLED);        
     }
 
     public void doFail() {
@@ -607,7 +613,14 @@ public class ApplicationGBean implements GBeanLifecycle {
             // ignore
         }
                      
-        applicationState = ApplicationState.UNINSTALLED;
+        setApplicationState(ApplicationState.UNINSTALLED);
     }
 
+    private void setApplicationState(ApplicationState newState) {
+        if (applicationState != newState) {
+            applicationState = newState;
+            installer.fireApplicationEvent(application, newState);
+        }
+    }
+        
 }

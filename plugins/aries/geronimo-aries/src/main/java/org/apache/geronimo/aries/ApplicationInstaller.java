@@ -27,7 +27,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.aries.application.ApplicationMetadata;
 import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationListener;
 import org.apache.aries.application.management.BundleInfo;
+import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.aries.application.utils.AppConstants;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -57,6 +59,8 @@ import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +162,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             data.setReferencePattern("Installer", abstractName);
 
             context.addGBean(data);
-
+            
             return context;
         } catch (DeploymentException e) {
             throw e;
@@ -254,6 +258,31 @@ public class ApplicationInstaller implements GBeanLifecycle {
             }
         }
         return null;
+    }
+    
+    protected void fireApplicationEvent(AriesApplication application, ApplicationState state) {
+        Collection<ServiceReference<AriesApplicationListener>> references = null;
+        try {
+            references = bundleContext.getServiceReferences(AriesApplicationListener.class, null);
+        } catch (InvalidSyntaxException e) {
+            // this can't happen
+            throw new Error(e);
+        }
+        if (references != null && !references.isEmpty()) {
+            GeronimoApplicationEvent event = new GeronimoApplicationEvent(application, state);
+            for (ServiceReference<AriesApplicationListener> reference : references) {
+                AriesApplicationListener listener = bundleContext.getService(reference);
+                if (listener != null) {
+                    try {
+                        listener.applicationChanged(event);
+                    } catch (Exception e) {
+                        LOG.debug("Error calling AriesApplicationListener", e);
+                    } finally {
+                        bundleContext.ungetService(reference);
+                    }
+                }
+            }
+        }
     }
 
 }
