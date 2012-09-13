@@ -274,8 +274,8 @@ goto end
 :doDebug
 shift
 set _EXECJAVA=%_RUNJDB%
-set JDB=jdb
-set CONSOLE_OPTS=-Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=true
+set MODE=jdb
+set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true
 if not "%JDB_SRCPATH%" == "" goto gotJdbSrcPath
 set JDB_SRCPATH=%GERONIMO_HOME%\src
 :gotJdbSrcPath
@@ -308,7 +308,8 @@ set _EXECJAVA=%_RUNJAVA%
 goto setHelpEnd
 :setNonHelp
 @REM if it is not to print help information, open another window
-set _EXECJAVA=start /B "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
+set _EXECJAVA=start /B "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
+set MODE=start
 :setHelpEnd
 set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false
 goto execCmd
@@ -338,12 +339,17 @@ if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 cmd /c exit /b 0
 
 @REM Execute Java with the applicable properties
-if not "%JDB%" == "" goto doJDB
+if "%MODE%" == "jdb" goto doJDB
+if "%MODE%" == "start" goto doStart
 %_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%";"%JAVA_AGENT_JAR%" %MAINCLASS% %CMD_LINE_ARGS%
+goto end
+
+:doStart
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Dorg.apache.geronimo.server.dir="%GERONIMO_SERVER%" -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_SERVER%" -Djava.util.logging.config.file="%GERONIMO_SERVER%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS% >> "%GERONIMO_SERVER%\var\log\geronimo.out" 2>&1
 goto end
 
 :end

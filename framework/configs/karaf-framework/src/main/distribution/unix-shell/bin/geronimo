@@ -285,9 +285,10 @@ if [ "$1" = "debug" ] ; then
     echo "      in another window.  Do not use Ctrl-C as that will terminate the jdb client"
     echo "      (the debugger itself) but will not stop the Geronimo process."
     shift
+    CLASSPATH="$CLASSPATH:$JAVA_AGENT_JAR"
     exec "$_RUNJDB" $JAVA_OPTS $GERONIMO_OPTS \
       -sourcepath "$JDB_SRCPATH" \
-      -Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=true \
+      -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true \
       -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
       -Dorg.apache.geronimo.server.dir="$GERONIMO_SERVER" \
       -Dkaraf.home="$GERONIMO_HOME" \
