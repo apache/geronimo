@@ -91,7 +91,7 @@
         <yokoVersion>1.4-SNAPSHOT</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
         <javamail.version>1.8.3</javamail.version>
-        <geronimoel.version>1.0.3</geronimoel.version>
+        <geronimoel.version>1.0.4-SNAPSHOT</geronimoel.version>
         <geronimoosgiregistry.version>1.1</geronimoosgiregistry.version>
         <geronimojaxws.version>1.1</geronimojaxws.version>
         <myfacesVersion>2.0.9_1</myfacesVersion>
