@@ -162,7 +162,7 @@ public class ResolverErrorAnalyzer {
     
     private static ExportPackageDescription isSatisfied(ImportPackageSpecification importPackageSpecification, Collection<BundleDescription> bundleDescriptions) {
         for (BundleDescription b : bundleDescriptions) {
-            ExportPackageDescription[] exportedPackages = b.getExportPackages();
+            ExportPackageDescription[] exportedPackages = (b.isResolved()) ? b.getSelectedExports() : b.getExportPackages();
             if (exportedPackages != null) {
                 for (ExportPackageDescription exportedPackage : exportedPackages) {
                     if (importPackageSpecification.isSatisfiedBy(exportedPackage)) {
