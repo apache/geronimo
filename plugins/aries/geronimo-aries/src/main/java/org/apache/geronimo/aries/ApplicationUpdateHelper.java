@@ -139,7 +139,7 @@ public class ApplicationUpdateHelper {
                 
                 // check for resolver errors
                 ResolverErrorAnalyzer errorAnalyzer = new ResolverErrorAnalyzer(context);
-                String resolverErrors = errorAnalyzer.getErrorsAsString(bundles);
+                String resolverErrors = errorAnalyzer.getErrorsAsString(applicationGBean.getApplicationContent());
                 if (resolverErrors != null) {
                     builder.append(" ").append(resolverErrors);
                 }
