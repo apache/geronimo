@@ -38,19 +38,14 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.Main;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 
 /**
@@ -320,22 +315,7 @@ public class EmbeddedDaemon implements Main {
             e.printStackTrace();
             return 1;
         }
-        
-        // Because currently we start Geronimo bundles out of the osgi framework life cycle,
-        // so there might be some bundles, which depends on geronimo bundles, can not be resovled during osgi framework launch.
-        // we need re-try start it after geronimo start.
-        // This could be deleted after we smooth out geronimo life cycle with osgi.
-        for (Bundle b : bundle.getBundleContext().getBundles()) {
-            if (BundleUtils.canStart(b)) {
-                try {
-                    b.start(Bundle.START_TRANSIENT);
-                } catch (BundleException e) {
-                    log.warn("Bundle " + bundle.getBundleId() + " failed to start: " + e.getMessage());
-                }
-            }
-        }
-        
-        
+                
         return 0;
     }
 

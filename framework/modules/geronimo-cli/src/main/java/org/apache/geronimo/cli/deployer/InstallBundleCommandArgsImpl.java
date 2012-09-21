@@ -61,7 +61,7 @@ public class InstallBundleCommandArgsImpl implements InstallBundleCommandArgs {
         options.addOption(ARGUMENT_START_SHORTFORM,
                 ARGUMENT_START,
                 false,
-                "If start is provided, the bundle will be automatically started after recorded in Geronimo.");
+                "If start open is specified the bundle will be automatically started after installation.");
     }
     
     protected void addStartLevel() {

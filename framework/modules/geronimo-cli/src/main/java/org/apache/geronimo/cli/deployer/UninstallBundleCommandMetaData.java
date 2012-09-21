@@ -25,7 +25,7 @@ public class UninstallBundleCommandMetaData extends BaseCommandMetaData {
         super("uninstall-bundle", 
                 "2. Other Commands", 
                 "bundleId",
-                "Uninstall the bundle and erase its record if it appears in startup.properties."
+                "Uninstall an OSGi bundle. The uninstalled bundle will be removed from the repository."
                 );
     }
 

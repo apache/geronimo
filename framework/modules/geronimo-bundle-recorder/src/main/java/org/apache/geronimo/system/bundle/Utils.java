@@ -106,18 +106,20 @@ public class Utils {
         try {
             reader = new BufferedReader(new FileReader(file));
             String line = null;
-            while (( line = reader.readLine()) != null){
-                if (line.startsWith("#")) continue;
+            while (( line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#")) {
+                    continue;
+                }
                 
-                if (line.contains(keyword)) return line;
-            }
-            
+                if (line.startsWith(keyword)) {
+                    return line;
+                }
+            }            
         } finally {
             IOUtils.close(reader);
-        }
-        
-        return null;
-        
+        }        
+        return null;        
     }
     
    

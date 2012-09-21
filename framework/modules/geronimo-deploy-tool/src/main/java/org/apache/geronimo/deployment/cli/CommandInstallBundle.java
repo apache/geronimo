@@ -56,7 +56,7 @@ public class CommandInstallBundle extends AbstractCommand {
                 try {
                     long bundleId = mgr.recordInstall(bundleFile, groupId, startLevel);
                     if ( bundleId > 0 ){
-                        consoleReader.printString(DeployUtils.reformat("Installed and recorded bundle: " + bundleId, 4, 72));
+                        consoleReader.printString(DeployUtils.reformat("Installed bundle: " + bundleId, 4, 72));
                         
                         if (start){
                             if(mgr instanceof RemoteDeploymentManager) {

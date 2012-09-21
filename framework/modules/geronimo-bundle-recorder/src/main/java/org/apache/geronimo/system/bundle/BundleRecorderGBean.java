@@ -16,11 +16,10 @@
  */
 package org.apache.geronimo.system.bundle;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -32,8 +31,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.system.main.ServerStatus;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -43,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @GBean
-public class BundleRecorderGBean implements BundleRecorder{
+public class BundleRecorderGBean implements BundleRecorder, ServerStatus {
     
     private static final Logger log = LoggerFactory.getLogger(BundleRecorderGBean.class);
 
@@ -57,10 +58,11 @@ public class BundleRecorderGBean implements BundleRecorder{
     private File startupFile;
 
     public BundleRecorderGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-                                @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                                @ParamReference(name = "ServerInfo") final ServerInfo serverInfo,
-                                @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean installer,
-                                @ParamReference(name = "Repository", namingType = "Repository") WritableListableRepository repository) throws DeploymentException, IOException {
+                               @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+                               @ParamReference(name = "ServerInfo") final ServerInfo serverInfo,
+                               @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean installer,
+                               @ParamReference(name = "Repository", namingType = "Repository") WritableListableRepository repository) 
+        throws DeploymentException, IOException {
         
         bundleContext = bundle.getBundleContext();
         startLevelService = getStartLevelService(bundleContext);
@@ -69,39 +71,51 @@ public class BundleRecorderGBean implements BundleRecorder{
         pluginInstaller = installer;
         writeableRepo = repository;
                 
-        startupFile = serverInfo.resolveServer("etc/startup.properties");
-        if(!startupFile.exists() || !startupFile.isFile() || !startupFile.canRead()) {
-            throw new IllegalArgumentException("startup.properties file does not exist or not a normal file or not readable. " + startupFile);
-        }
-        
-        
+        startupFile = serverInfo.resolveServer("etc/installed-bundles.properties");
     }
     
     private StartLevel getStartLevelService(BundleContext bundleContext){
         ServiceReference startLevelRef = bundleContext.getServiceReference(StartLevel.class.getCanonicalName());
         return (StartLevel) bundleContext.getService(startLevelRef);
     }
-        
+               
     /**
      * install the bundle to framework
      * @param location
      * @param startLevel
      * @return the bundle object of the installed bundle. null if install failed.
      */
-    private Bundle installBundleRecord(String location, int startLevel) {
-            
+    private Bundle installBundle(String location, int startLevel) {
         try {
             // install
             Bundle installedBundle = bundleContext.installBundle(location);
             // set start level
             startLevelService.setBundleStartLevel(installedBundle, startLevel);
-            
+
             return installedBundle;
         } catch (BundleException e) {
             log.error("Bundle installation failed: " + location);
         }
         
         return null;
+    }
+    
+    private void startBundle(Bundle bundle) {
+        if (BundleUtils.canStart(bundle)) {
+            try {
+                bundle.start(Bundle.START_TRANSIENT);
+            } catch (BundleException e) {
+                log.error("Bundle " + bundle.getBundleId() + " failed to start: " + e.getMessage());
+            }          
+        }
+    }
+    
+    private void uninstallBundle(Bundle bundle) {
+        try {
+            bundle.uninstall();
+        } catch (BundleException e) {
+            log.error("Bundle " + bundle.getBundleId() + " failed to uninstall: " + e.getMessage());
+        }  
     }
     
     @Override
@@ -117,35 +131,24 @@ public class BundleRecorderGBean implements BundleRecorder{
         // 2. install the bundle
         String bundleLocation = getMvnLocationFromArtifact(artifact);
         
-        if (startLevel <= 0){
+        if (startLevel <= 0) {
             log.info("Invalid start level or no start level specified, use defalut bundle start level");
             startLevel = defaultBundleStartLevel;
         }
         
-        Bundle bundle = this.installBundleRecord(bundleLocation, startLevel);
+        Bundle bundle = installBundle(bundleLocation, startLevel);
         if (bundle == null) return -1;
         
         // 3. record in startup.properties
-        String recordKey = getRecordKey(artifact);
+        String recordKey = artifact.toString();
         
-        Properties startupBundles = new Properties();
-        InputStream is = null;
-        try{
-            is = new FileInputStream(startupFile);
-            startupBundles.load(is); 
-            if (startupBundles.containsKey(recordKey.toString())) { // check if we have recorded this
-                log.warn("This bundle has been recorded in startup.properties: "+ recordKey);
-            } else {
-                // record it
-                Utils.appendLine(startupFile, recordKey+"="+String.valueOf(startLevel));
-            }
-        }finally{
-            if (is!=null)
-                IOUtils.close(is);
+        if (!startupFile.exists() || Utils.findLineByKeyword(startupFile, recordKey) == null) {
+            Utils.appendLine(startupFile, recordKey+"="+String.valueOf(startLevel));
+        } else {
+            log.warn("The bundle has been recorded: " + recordKey);
         }
-            
+                    
         return bundle.getBundleId();
-
     }
     
     @Override
@@ -153,18 +156,20 @@ public class BundleRecorderGBean implements BundleRecorder{
         
         // uninstall bundle
         Bundle bundle = bundleContext.getBundle(bundleId);
-        String bundleLocation = bundle.getLocation();
-        try {
-            bundle.uninstall();
-        } catch (BundleException e) {
-            log.error("Bundle uninstallation failed: " + bundleLocation);
+        if (bundle == null) {
+            return;
         }
         
+        uninstallBundle(bundle);
+        
+        String bundleLocation = bundle.getLocation();        
         Artifact artifact = getArtifactFromMvnLocation(bundleLocation);
-        if (artifact == null) return;
-        String recordKey = getRecordKey(artifact);
-        if (recordKey == null) return;
-        if (Utils.findLineByKeyword(startupFile, recordKey) != null){
+        if (artifact == null) {
+            return;
+        }
+        
+        String recordKey = artifact.toString();
+        if (Utils.findLineByKeyword(startupFile, recordKey) != null) {
             // erase from startup.properties
             Utils.deleteLineByKeyword(startupFile, recordKey);
             
@@ -179,11 +184,8 @@ public class BundleRecorderGBean implements BundleRecorder{
             FileUtils.recursiveDelete(versionFolder); // try delete the version folder recursively
             
             Utils.regressiveDelete(artifactFolder); // try delete the parent folder if it is empty
-        }
-                
+        }                
     }
-    
-    
     
     private String getMvnLocationFromArtifact(Artifact artifact){
         if (artifact == null) return null;
@@ -208,21 +210,9 @@ public class BundleRecorderGBean implements BundleRecorder{
         String version = parts[2];
         String type = "jar";
         
-        return new Artifact(groupId, artifactId, version, type);
-        
+        return new Artifact(groupId, artifactId, version, type);        
     }
-    
-    private String getRecordKey(Artifact artifact) {
-        if (artifact == null) return null;
         
-        StringBuilder recordKey = new StringBuilder();
-        recordKey.append(artifact.getGroupId().replace(".", "/")).append('/').append(artifact.getArtifactId()).append('/').append(artifact.getVersion());
-        recordKey.append("/");
-        recordKey.append(artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());
-        
-        return recordKey.toString();
-    }
-    
     @Override
     public long getBundleId(String symbolicName, String version) {
         for (Bundle bundle : bundleContext.getBundles()) {
@@ -231,5 +221,58 @@ public class BundleRecorderGBean implements BundleRecorder{
             }
         }
         return -1;
+    }
+
+    @Override
+    public boolean isServerStarted() {
+        return false;
+    }
+
+    @Override
+    public void setServerStarted(boolean started) {
+        if (!startupFile.exists()) {
+            return;
+        }
+        
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(startupFile));
+            String line = null;
+            while (( line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                
+                int pos = line.indexOf("=");
+                if (pos != -1) {
+                    String name = line.substring(0, pos).trim();
+                    String startLevel = line.substring(pos + 1).trim();
+                    
+                    String mvnLocation = getMvnLocationFromArtifact(Artifact.create(name));
+                    Bundle bundle = findBundle(mvnLocation);
+                    if (bundle == null) {
+                        bundle = installBundle(mvnLocation, Integer.parseInt(startLevel));
+                        if (bundle == null) {
+                            continue;
+                        }
+                    }
+                    startBundle(bundle);                    
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error reading file", e);
+        } finally {
+            IOUtils.close(reader);
+        }
+    }
+    
+    private Bundle findBundle(String location) {
+        for (Bundle bundle : bundleContext.getBundles()) {
+            if (location.equals(bundle.getLocation())) {
+                return bundle;
+            }
+        }
+        return null;
     }
 }

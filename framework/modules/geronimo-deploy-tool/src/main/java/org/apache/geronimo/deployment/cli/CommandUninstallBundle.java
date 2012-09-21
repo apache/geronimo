@@ -36,10 +36,10 @@ public class CommandUninstallBundle extends AbstractCommand {
                 GeronimoDeploymentManager mgr = (GeronimoDeploymentManager) dmgr;
                 try {
                     mgr.eraseUninstall(bundleId);
-                    consoleReader.printString(DeployUtils.reformat("Uninstalled and erased bundle: " + bundleId, 4, 72));
+                    consoleReader.printString(DeployUtils.reformat("Uninstalled bundle: " + bundleId, 4, 72));
                     
                 } catch (Exception e) {
-                    throw new DeploymentException("Unable to erase bundle: " + bundleId, e);
+                    throw new DeploymentException("Unable to uninstall bundle: " + bundleId, e);
                 }
             } else {
                 throw new DeploymentException("Unable to uninstall bundle using " + dmgr.getClass().getName() + " deployment manager");
