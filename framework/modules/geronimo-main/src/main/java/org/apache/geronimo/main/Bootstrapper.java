@@ -65,6 +65,11 @@ public class Bootstrapper extends FrameworkLauncher {
             Thread.currentThread().setContextClassLoader(newTCCL);
             int exitCode = geronimoMain.execute(opaque);
             if (exitCode == 0) {
+                if (waitForStop) {
+                    // executing main could have installed some additional bundles 
+                    // so check and try to start any unstarted bundles.
+                    checkStartBundles();
+                }
                 destroy(waitForStop);
             } else {
                 destroy(false);

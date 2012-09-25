@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -96,6 +97,7 @@ public class FrameworkLauncher {
     private Properties configProps = null;
 
     private Framework framework = null;
+    private List<BundleInfo> startList = null;
 
     public void setLog4jConfigFile(String log4jFile) {
         this.log4jFile = log4jFile;
@@ -186,8 +188,9 @@ public class FrameworkLauncher {
         serverInfo = new ServerInfo(geronimoHome, geronimoBase);
         bundleContext.registerService(ServerInfo.class.getName(), serverInfo, null);
 
-        List<BundleInfo> startList = loadStartupProperties();
-        startBundles(bundleContext, startList);
+        startList = loadStartupProperties();
+        
+        startBundles(bundleContext);
 
         framework.start();
     }
@@ -381,7 +384,7 @@ public class FrameworkLauncher {
         mth.invoke(classLoader, bundleFile.toURI().toURL());
     }
 
-    private void startBundles(BundleContext context, List<BundleInfo> startList) throws Exception {
+    private void startBundles(BundleContext context) throws Exception {
 
         // Retrieve the Start Level service, since it will be needed
         // to set the start level of the installed bundles.
@@ -405,6 +408,23 @@ public class FrameworkLauncher {
             }
         }
 
+    }
+    
+    protected void checkStartBundles() {
+        for (BundleInfo info : startList) {
+            int state = info.bundle.getState();
+            if (state == Bundle.ACTIVE) {
+                // bundle already is active - nothing to do
+                continue; 
+            } else if ((state == Bundle.RESOLVED || state == Bundle.INSTALLED) && !isFragment(info.bundle)) {
+                // try to start the bundle again
+                try {
+                    info.bundle.start();
+                } catch (Exception e) {
+                    Logger.getLogger(FrameworkLauncher.class.getName()).warning("Error starting bundle " + info.bundle);
+                }
+            }
+        }
     }
     
     private static boolean isFragment(Bundle bundle) {
