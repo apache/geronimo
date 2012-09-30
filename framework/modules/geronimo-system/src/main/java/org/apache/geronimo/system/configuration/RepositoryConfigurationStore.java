@@ -358,17 +358,10 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         Artifact configId = configurationData.getId();
         File destination = repository.getLocation(configId);
         if (!source.equals(destination)) {
-            if (source.isFile()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("copying packed bundle from " + source + " to destination " + destination);
-                }
-                repository.copyToRepository(source, configId, null);
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Packing bundle from " + source + " to destination " + destination);
-                }
-                FileUtils.recursiveCopy(source, destination);
+            if (log.isDebugEnabled()) {
+                log.debug("Copying data from " + source + " to destination " + destination);
             }
+            repository.copyToRepository(source, configId, null); 
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("Plugin is already in location " + source);

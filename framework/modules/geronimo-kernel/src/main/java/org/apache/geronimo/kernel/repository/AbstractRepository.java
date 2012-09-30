@@ -17,20 +17,13 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
-import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.InputUtils;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,45 +60,49 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
-
-        // ensure there are no illegal chars in destination elements
-        InputUtils.validateSafeInput(Arrays.asList(destination.getGroupId(), destination.getArtifactId(), destination.getVersion().toString(), destination.getType()));
-
-        if(!destination.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
-        }
-        if (!source.exists() || !source.canRead() || source.isDirectory()) {
+        File location = verifyDestination(destination);
+        
+        if (!source.exists() || !source.canRead()) {
             throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
-        int size = 0;
-        ZipFile zip = null;
-        try {
-            zip = new ZipFile(source);
-            for (Enumeration<? extends ZipEntry> entries=zip.entries(); entries.hasMoreElements();) {
-            	ZipEntry entry = entries.nextElement();
-            	size += entry.getSize();
-            }
-        } catch (ZipException ze) {
-            size = (int)source.length();
-        } finally {
-            JarUtils.close(zip);
+        
+        ArtifactTypeHandler typeHandler = typeHandlers.get(destination.getType());
+        if (typeHandler == null) {
+            typeHandler = DEFAULT_TYPE_HANDLER;
         }
-        FileInputStream is = new FileInputStream(source);
-        try {
-            copyToRepository(is, size, destination, monitor);
-        } finally {
-            IOUtils.close(is);
+        typeHandler.install(source, destination, monitor, location);
+
+        if (destination.getType().equalsIgnoreCase("car")) {
+            log.debug("Installed module configuration; id={}; location={}", destination, location);
         }
     }
 
     public void copyToRepository(InputStream source, int size, Artifact destination, FileWriteMonitor monitor) throws IOException {
-        if(!destination.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
+        File location = verifyDestination(destination);
+        
+        ArtifactTypeHandler typeHandler = typeHandlers.get(destination.getType());
+        if (typeHandler == null) {
+            typeHandler = DEFAULT_TYPE_HANDLER;
         }
+        typeHandler.install(source, size, destination, monitor, location);
+
+        if (destination.getType().equalsIgnoreCase("car")) {
+            log.debug("Installed module configuration; id={}; location={}", destination, location);
+        }
+    }
+    
+    private File verifyDestination(Artifact destination) {
         // is this a writable repository
         if (!rootFile.canWrite()) {
-            throw new IllegalStateException("This repository is not writable: " + rootFile.getAbsolutePath() + ")");
+            throw new IllegalStateException("This repository is not writable");
         }
+                
+        if (!destination.isResolved()) {
+            throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
+        }
+        
+        // ensure there are no illegal chars in destination elements
+        InputUtils.validateSafeInput(Arrays.asList(destination.getGroupId(), destination.getArtifactId(), destination.getVersion().toString(), destination.getType()));
 
         // where are we going to install the file
         File location = getLocation(destination);
@@ -114,14 +111,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         if (location.exists()) {
             throw new IllegalArgumentException("Destination " + location.getAbsolutePath() + " already exists!");
         }
-
-        ArtifactTypeHandler typeHandler = typeHandlers.get(destination.getType());
-        if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
-        typeHandler.install(source, size, destination, monitor, location);
-
-        if (destination.getType().equalsIgnoreCase("car")) {
-            log.debug("Installed module configuration; id={}; location={}", destination, location);
-        }
+        return location;
     }
 
     public File getRootFile() {

@@ -88,19 +88,23 @@ public class FileUtils {
     }
     
     public static void copyFile(File source, File destination, int bufferSizeInBytes) throws IOException {
+        copyFile(source, destination, new byte[bufferSizeInBytes]);
+    }
+    
+    public static void copyFile(File source, File destination, byte[] buffer) throws IOException {
         if (!source.exists() || source.isDirectory()) {
             throw new IllegalArgumentException("Source does not exist or it is not a file");
         }
         File destinationDir = destination.getParentFile();
         if (!destinationDir.exists() && !destinationDir.mkdirs()) {
-            throw new java.io.IOException("Cannot create directory : " + destinationDir);
+            throw new IOException("Cannot create directory : " + destinationDir);
         }
         InputStream in = null;
         OutputStream out = null;
         try {
             in = new FileInputStream(source);
             out = new FileOutputStream(destination);
-            IOUtils.copy(in, out, bufferSizeInBytes);
+            IOUtils.copy(in, out, buffer);
         } finally {
             IOUtils.close(in);
             IOUtils.close(out);
@@ -188,6 +192,10 @@ public class FileUtils {
     }
 
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
+        recursiveCopy(srcDir, destDir, new byte[IOUtils.DEFAULT_COPY_BUFFER_SIZE]);
+    }
+    
+    public static void recursiveCopy(File srcDir, File destDir, byte[] buffer) throws IOException {
         if (srcDir == null)
             throw new NullPointerException("sourceDir is null");
         if (destDir == null)
@@ -211,9 +219,9 @@ public class FileUtils {
                 File srcFile = srcFiles[i];
                 File destFile = new File(destDir, srcFile.getName());
                 if (srcFile.isDirectory()) {
-                    recursiveCopy(srcFile, destFile);
+                    recursiveCopy(srcFile, destFile, buffer);
                 } else {
-                    copyFile(srcFile, destFile);
+                    copyFile(srcFile, destFile, buffer);
                 }
             }
         }

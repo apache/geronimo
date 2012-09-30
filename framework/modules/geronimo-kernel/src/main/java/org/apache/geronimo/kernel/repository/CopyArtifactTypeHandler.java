@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.kernel.repository;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +27,14 @@ import java.io.BufferedInputStream;
 import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
+    
     private final static int TRANSFER_NOTIFICATION_SIZE = 10240;  // announce every this many bytes
     private final static int TRANSFER_BUF_SIZE = 10240;  // try this many bytes at a time
 
@@ -72,5 +75,20 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
                 monitor.writeComplete(total);
             }
         }
+    }
+
+    @Override
+    public void install(File source, Artifact artifactId, FileWriteMonitor monitor, File target) throws IOException {
+        if (source.isFile()) {
+            long size = (monitor == null) ? -1 : source.length();
+            FileInputStream is = new FileInputStream(source);
+            try {
+                install(is, (int) size, artifactId, monitor, target);
+            } finally {
+                IOUtils.close(is);
+            }
+        } else {
+            FileUtils.recursiveCopy(source, target);
+        }        
     }
 }

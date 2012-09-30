@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.AbstractRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -103,6 +104,14 @@ public class ApplicationInstaller implements GBeanLifecycle {
     public void doStart() throws Exception {
         registration = bundleContext.registerService(ApplicationInstaller.class.getName(), this, null);
         webApplicationTracker.start();
+        
+        if (getUnpackApplicationBundles()) {
+            for (Repository repository : repositories) {
+                if (repository instanceof AbstractRepository) {
+                    ((AbstractRepository) repository).setTypeHandler("eba", new UnpackEBATypeHandler());
+                }
+            }
+        }        
     }
 
     public void doStop() {
@@ -154,7 +163,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.flush();
             context.initializeConfiguration();
 
-            storeApplication(app, tempDirectory, getUnpackApplicationBundles());
+            // UnpackEBATypeHandler will unpack the application bundles if necessary at install time 
+            storeApplication(app, tempDirectory, false);
             
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);

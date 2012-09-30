@@ -41,7 +41,10 @@ public class IOUtils {
     }
 
     public static void copy(InputStream in, OutputStream out, int bufferSizeInBytes) throws IOException {
-        byte[] buffer = new byte[bufferSizeInBytes];
+        copy(in, out, new byte[bufferSizeInBytes]);
+    }
+    
+    public static void copy(InputStream in, OutputStream out, byte[] buffer) throws IOException {
         int count;
         while ((count = in.read(buffer)) > 0) {
             out.write(buffer, 0, count);

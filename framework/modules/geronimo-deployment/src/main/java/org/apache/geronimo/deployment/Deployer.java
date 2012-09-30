@@ -112,6 +112,7 @@ public class Deployer implements GBeanLifecycle {
     public List<String> deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
+        log.debug("Deployment start: module=" + originalModuleFile + ", plan=" + planFile + ", inPlace=" + inPlace);
         if (moduleFile != null && !moduleFile.isDirectory()) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
@@ -137,9 +138,11 @@ public class Deployer implements GBeanLifecycle {
         }
 
         try {
-            return deploy(inPlace, moduleFile, planFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
+            List<String> moduleNames = deploy(inPlace, moduleFile, planFile, null, true, null, null, null, null, null, null, null, targetConfigStore);
+            log.debug("Deployment successful: module=" + originalModuleFile + ", plan=" + planFile);
+            return moduleNames;
         } catch (DeploymentException e) {
-            log.debug("Deployment failed: plan=" + planFile + ", module=" + originalModuleFile, e);
+            log.debug("Deployment failed: module=" + originalModuleFile + ", plan=" + planFile, e);
             throw e.cleanse();
         } finally {
             if (tmpDir != null) {

@@ -17,20 +17,26 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
+    
     private final static int TRANSFER_NOTIFICATION_SIZE = 10240;  // announce every this many bytes
     private final static int TRANSFER_BUF_SIZE = 10240;  // try this many bytes at a time
 
@@ -49,7 +55,6 @@ public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
         int total = 0;
         ZipInputStream in = new ZipInputStream(source);
         try {
-
             int threshold = UnpackArtifactTypeHandler.TRANSFER_NOTIFICATION_SIZE;
             byte[] buffer = new byte[TRANSFER_BUF_SIZE];
 
@@ -90,5 +95,37 @@ public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
                 monitor.writeComplete(total);
             }
         }
+    }
+
+    @Override
+    public void install(File source, Artifact artifactId, FileWriteMonitor monitor, File target) throws IOException {
+        if (source.isFile()) {
+            long size = (monitor == null) ? -1 : getJarSize(source);
+            FileInputStream is = new FileInputStream(source);
+            try {
+                install(is, (int) size, artifactId, monitor, target);
+            } finally {
+                IOUtils.close(is);
+            }
+        } else {
+            FileUtils.recursiveCopy(source, target);
+        }        
+    }
+    
+    private long getJarSize(File source) throws IOException {
+        long size = 0;
+        ZipFile zip = null;
+        try {
+            zip = new ZipFile(source);
+            for (Enumeration<? extends ZipEntry> entries=zip.entries(); entries.hasMoreElements();) {
+                ZipEntry entry = entries.nextElement();
+                size += entry.getSize();
+            }
+        } catch (ZipException ze) {
+            size = (int)source.length();
+        } finally {
+            JarUtils.close(zip);
+        }
+        return size;
     }
 }
