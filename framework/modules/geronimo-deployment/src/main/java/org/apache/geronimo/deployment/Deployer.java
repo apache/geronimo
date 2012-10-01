@@ -53,6 +53,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.Os;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.util.FileUtils;
@@ -72,8 +73,10 @@ public class Deployer implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(Deployer.class);
 
     private final int REAPER_INTERVAL = 60 * 1000;
+    public static final String USE_TEMPORARY_MODULE_FILE_KEY = "org.apache.geronimo.deployer.useTemporaryModuleFile";
+    private final boolean USE_TEMPORARY_MODULE_FILE = getUseTemporaryModuleFile();
     public static final String CLEAN_UP_ON_START_KEY = "org.apache.geronimo.deployer.cleanupOnStart";
-    private final boolean CLEAN_UP_ON_START = System.getProperty(CLEAN_UP_ON_START_KEY) == null ? true : Boolean.getBoolean(CLEAN_UP_ON_START_KEY);
+    private final boolean CLEAN_UP_ON_START = getCleanUpOnStart();
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
     private final Collection<ConfigurationBuilder> builders;
@@ -113,7 +116,7 @@ public class Deployer implements GBeanLifecycle {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         log.debug("Deployment start: module=" + originalModuleFile + ", plan=" + planFile + ", inPlace=" + inPlace);
-        if (moduleFile != null && !moduleFile.isDirectory()) {
+        if (moduleFile != null && moduleFile.isFile() && USE_TEMPORARY_MODULE_FILE) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
             // the lock on the file will prevent that being deleted properly until the URLJarFile has
@@ -135,6 +138,7 @@ public class Deployer implements GBeanLifecycle {
                     reaper.delete(tmpDir.getAbsolutePath(), "delete");
                 }
             }
+            log.debug("Using temporary file " + moduleFile + " for deployment of " + originalModuleFile + " module");
         }
 
         try {
@@ -150,6 +154,24 @@ public class Deployer implements GBeanLifecycle {
                     reaper.delete(tmpDir.getAbsolutePath(), "delete");
                 }
             }
+        }
+    }
+    
+    private static boolean getUseTemporaryModuleFile() {
+        String property = System.getProperty(USE_TEMPORARY_MODULE_FILE_KEY);
+        if (property == null) {
+            return Os.isFamily(Os.FAMILY_WINDOWS);
+        } else {
+            return Boolean.valueOf(property);
+        }
+    }
+    
+    private static boolean getCleanUpOnStart() {
+        String value = System.getProperty(CLEAN_UP_ON_START_KEY);
+        if (value == null) {
+            return true;
+        } else {
+            return Boolean.valueOf(value);
         }
     }
 
