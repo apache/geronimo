@@ -17,13 +17,14 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.bval;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.validation.Validation;
 import javax.validation.ValidationException;
+import javax.validation.Validator;
+import javax.validation.ValidatorContext;
 import javax.validation.ValidatorFactory;
 
 import org.apache.xbean.naming.reference.SimpleReference;
@@ -32,20 +33,27 @@ import org.apache.xbean.naming.reference.SimpleReference;
  * @version $Rev$ $Date$
  */
 public class DefaultValidatorReference extends SimpleReference {
+    
+    private transient ValidatorContext validatorContext;
+    
     @Override
     public Object getContent() throws NamingException {
-        ValidatorFactory factory = null;
-        
-        try {
+        if (validatorContext == null) {
             try {
-                factory = (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
-            } catch(NamingException e) {
-                factory = Validation.buildDefaultValidatorFactory();
+                ValidatorFactory factory = getValidatorFactory();
+                validatorContext = factory.usingContext();
+            } catch (ValidationException v) {
+                throw (NamingException)new NamingException("Could not create Validator instance").initCause(v);
             }
-            return factory.getValidator();
-        } catch (ValidationException v) {
-            throw (NamingException)new NamingException("Could not create Validator instance").initCause(v);
         }
-        
+        return validatorContext.getValidator();        
+    }
+    
+    private ValidatorFactory getValidatorFactory() {
+        try {
+            return (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
+        } catch(NamingException e) {
+            return Validation.buildDefaultValidatorFactory();
+        }
     }
 }
