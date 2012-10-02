@@ -60,4 +60,6 @@
         </reference>
     </gbean>
 
+    <gbean name="OpenEJBClient" class="org.apache.geronimo.corba.OpenEJBClientGBean"/>
+
 </module>
