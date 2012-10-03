@@ -2322,6 +2322,19 @@ only found in cxf
     </pluginRepositories>
     
     <repositories>
+        <!-- temporary repo -->
+        <repository>
+            <id>xbean</id>
+            <name>xbean</name>
+            <layout>default</layout>
+            <url>https://repository.apache.org/content/repositories/orgapachegeronimo-088</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
         <repository>
             <id>geronimo-svn-repo</id>
             <name>Geronimo 3rd Party libraries</name>
@@ -2352,20 +2365,6 @@ only found in cxf
             </modules>
 
             <repositories>    
-                <!-- temporary repo -->
-                <repository>
-                    <id>xbean</id>
-                    <name>xbean</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-088</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-            
                 <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
@@ -2540,17 +2539,6 @@ only found in cxf
             </modules>
 
             <repositories>
-                <repository>
-                    <id>geronimo-svn-repo</id>
-                    <name>Geronimo 3rd Party libraries</name>
-                    <url>http://svn.apache.org/repos/asf/geronimo/repo/</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
                 <repository>
                     <!-- org.ops4j routing -->
                     <id>ops4j.snapshots</id>
