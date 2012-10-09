@@ -30,6 +30,8 @@ public class Artifact implements Comparable, Serializable {
     private final String artifactId;
     private final Version version;
     private final String type;
+    
+    private transient int hashCode;
 
     public Artifact(String groupId, String artifactId, String version, String type) {
         this(groupId, artifactId, version == null ? null : new Version(version), type, true);
@@ -139,12 +141,15 @@ public class Artifact implements Comparable, Serializable {
     }
 
     public int hashCode() {
-        int result;
-        result = (groupId != null ? groupId.hashCode() : 0);
-        result = 29 * result + (artifactId != null? artifactId.hashCode() : 0);
-        result = 29 * result + (version != null ? version.hashCode() : 0);
-        result = 29 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        if (hashCode == 0) {
+            int result;
+            result = (groupId != null ? groupId.hashCode() : 0);
+            result = 29 * result + (artifactId != null? artifactId.hashCode() : 0);
+            result = 29 * result + (version != null ? version.hashCode() : 0);
+            result = 29 * result + (type != null ? type.hashCode() : 0);
+            hashCode = result;
+        }
+        return hashCode;
     }
 
     public String toString() {
