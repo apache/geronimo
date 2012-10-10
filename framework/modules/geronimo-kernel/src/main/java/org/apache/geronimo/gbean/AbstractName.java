@@ -41,14 +41,16 @@ public class AbstractName implements Serializable {
     private final Map name;
     private final ObjectName objectName;
     private final URI uri;
-
+    
+    private transient int hashCode;
+    
     public AbstractName(Artifact artifact, Map name) {
         if (artifact == null) throw new NullPointerException("artifact is null");
         if (name == null) throw new NullPointerException("name is null");
         if (name.isEmpty()) throw new IllegalArgumentException("name is empty");
 
         this.artifact = artifact;
-        this.name = name;
+        this.name = unmodifiableMap(name);
 
         this.objectName = Jsr77Naming.createObjectName(name);
 
@@ -62,7 +64,7 @@ public class AbstractName implements Serializable {
         if (objectName == null) throw new NullPointerException("objectName is null");
 
         this.artifact = artifact;
-        this.name = name;
+        this.name = unmodifiableMap(name);
         this.objectName = objectName;
 
         this.uri = createURI(artifact, name);
@@ -94,52 +96,53 @@ public class AbstractName implements Serializable {
         String artifactString = uri.getPath();
         if (artifactString == null) throw new IllegalArgumentException("uri does not contain a path part used for the artifact");
 
-        List artifactParts = split(artifactString, '/');
+        List<String> artifactParts = split(artifactString, '/');
         if (artifactParts.size() != 4) {
             throw new IllegalArgumentException("uri path must be in the form [vendorId]/artifactId/[version]/[type] : " + artifactString);
         }
 
-        String groupId = (String) artifactParts.get(0);
+        String groupId = artifactParts.get(0);
         if (groupId.length() == 0) groupId = null;
 
-        String artifactId = (String) artifactParts.get(1);
+        String artifactId = artifactParts.get(1);
         if (artifactId.length() == 0) artifactId = null;
 
-        String version = (String) artifactParts.get(2);
+        String version = artifactParts.get(2);
         if (version.length() == 0) version = null;
 
-        String type = (String) artifactParts.get(3);
+        String type = artifactParts.get(3);
         if (type.length() == 0) type = null;
 
-        artifact = new Artifact(groupId, artifactId, version, type);
+        this.artifact = new Artifact(groupId, artifactId, version, type);
 
-        //
-        // name map
-        //
-        name = new TreeMap();
         String nameString = uri.getQuery();
         if (nameString == null) {
             throw new IllegalArgumentException("uri does not contain a query part used for the name map; uri: " + uri);
         }
         
-        List nameParts = split(nameString, ',');
-        for (Iterator iterator = nameParts.iterator(); iterator.hasNext();) {
+        //
+        // name map
+        //
+        Map<String, String> nameMap = new TreeMap<String, String>();
+        List<String> nameParts = split(nameString, ',');
+        for (Iterator<String> iterator = nameParts.iterator(); iterator.hasNext();) {
             String namePart = (String) iterator.next();
-            List keyValue = split(namePart, '=');
+            List<String> keyValue = split(namePart, '=');
             if (keyValue.size() != 2) {
                 throw new IllegalArgumentException("uri query string must be in the form ?key=value[,key=value]*] : " + nameString);
             }
-            String key = (String) keyValue.get(0);
-            String value = (String) keyValue.get(1);
-            if (name.containsKey(key)) {
+            String key = keyValue.get(0);
+            String value = keyValue.get(1);
+            if (nameMap.containsKey(key)) {
                 throw new IllegalArgumentException("uri query string contains the key '"+ key + "' twice : " + nameString);
             }
-            name.put(key, value);
+            nameMap.put(key, value);
         }
-        if (name.isEmpty()) {
+        if (nameMap.isEmpty()) {
             throw new IllegalArgumentException("name is empty: " + nameString);
         }
-
+        this.name = unmodifiableMap(nameMap);
+        
         //
         // uri
         //
@@ -175,8 +178,8 @@ public class AbstractName implements Serializable {
     // why not use String.split? Because String.split works using regular expressions
     // and this should be way faster, but write a benchmark it out if you have time.
     // Also this code is way simpler.
-    private static List split(String source, char delim) {
-        List parts = new ArrayList();
+    private static List<String> split(String source, char delim) {
+        List<String> parts = new ArrayList<String>();
         for (int index = source.indexOf(delim); index >= 0; index = source.indexOf(delim)) {
             String part = source.substring(0, index);
             source = source.substring(index +  1);
@@ -191,7 +194,7 @@ public class AbstractName implements Serializable {
     }
 
     public Map getName() {
-        return Collections.unmodifiableMap(name);
+        return name;
     }
 
     public String getNameProperty(String key) {
@@ -218,14 +221,20 @@ public class AbstractName implements Serializable {
 
         if (artifact != null ? !artifact.equals(that.artifact) : that.artifact != null) return false;
         return !(name != null ? !name.equals(that.name) : that.name != null);
-
     }
 
     public int hashCode() {
-        int result;
-        result = (artifact != null ? artifact.hashCode() : 0);
-        result = 29 * result + (name != null ? name.hashCode() : 0);
-        return result;
+        if (hashCode == 0) {
+            int result;
+            result = (artifact != null ? artifact.hashCode() : 0);
+            result = 29 * result + (name != null ? name.hashCode() : 0);        
+            hashCode = result;
+        }
+        return hashCode;
+    }
+    
+    private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
+        return Collections.unmodifiableMap(map);        
     }
 
 }
