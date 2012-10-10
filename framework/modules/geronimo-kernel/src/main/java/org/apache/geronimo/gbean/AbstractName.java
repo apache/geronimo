@@ -54,7 +54,7 @@ public class AbstractName implements Serializable {
 
         this.objectName = Jsr77Naming.createObjectName(name);
 
-        this.uri = createURI(artifact, name);
+        this.uri = createURI(artifact, new TreeMap(name));
     }
 
     public AbstractName(Artifact artifact, Map name, ObjectName objectName) {
@@ -67,7 +67,7 @@ public class AbstractName implements Serializable {
         this.name = unmodifiableMap(name);
         this.objectName = objectName;
 
-        this.uri = createURI(artifact, name);
+        this.uri = createURI(artifact, new TreeMap(name));
     }
 
     /**
@@ -123,7 +123,7 @@ public class AbstractName implements Serializable {
         //
         // name map
         //
-        Map<String, String> nameMap = new TreeMap<String, String>();
+        TreeMap<String, String> nameMap = new TreeMap<String, String>();
         List<String> nameParts = split(nameString, ',');
         for (Iterator<String> iterator = nameParts.iterator(); iterator.hasNext();) {
             String namePart = (String) iterator.next();
@@ -146,7 +146,7 @@ public class AbstractName implements Serializable {
         //
         // uri
         //
-        this.uri = createURI(artifact, name);
+        this.uri = createURI(artifact, nameMap);
 
         //
         // object name
@@ -154,13 +154,12 @@ public class AbstractName implements Serializable {
         this.objectName = Jsr77Naming.createObjectName(name);
     }
 
-    private static URI createURI(Artifact artifact, Map name) {
+    private static URI createURI(Artifact artifact, TreeMap<String, String> name) {
         StringBuilder queryString = new StringBuilder();
-        TreeMap treeMap = new TreeMap(name);
-        for (Iterator iterator = treeMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
+        for (Iterator<Map.Entry<String, String>> iterator = name.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<String, String> entry = iterator.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
             queryString.append(key).append('=').append(value);
             if (iterator.hasNext()) {
                 queryString.append(',');
