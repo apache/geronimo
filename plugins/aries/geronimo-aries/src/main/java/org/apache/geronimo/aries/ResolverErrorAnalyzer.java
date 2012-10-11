@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.osgi.service.resolver.BaseDescription;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.osgi.service.resolver.ExportPackageDescription;
@@ -43,6 +44,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
 
 /*
  * Collects resolver errors for a given set of bundles and trims out any errors caused by
@@ -66,31 +68,21 @@ public class ResolverErrorAnalyzer {
     }
         
     public String getErrorsAsString(Collection<Bundle> bundles) {
-        Collection<String> errors = getErrors(bundles);
+        Collection<ErrorDetail> errors = getErrors(bundles);
         if (errors.isEmpty()) {
             return null;
         } else {
-            String LF = System.getProperty("line.separator");
-            StringBuilder builder = new StringBuilder();
-            builder.append("The following problems were detected:").append(LF);
-            Iterator<String> iterator = errors.iterator();
-            while (iterator.hasNext()) {
-                builder.append("    ");
-                builder.append(iterator.next());
-                if (iterator.hasNext()) {
-                    builder.append(LF);
-                }
-            }
-            return builder.toString();
+            ErrorDetail error = new ErrorDetail("The following problems were detected:", errors);                       
+            return error.toString();
         }
     }
     
-    public Collection<String> getErrors(Collection<Bundle> bundles) {
+    public Collection<ErrorDetail> getErrors(Collection<Bundle> bundles) {
         if (!hasPlatformAdmin()) {
             return Collections.emptyList();
         }
 
-        List<String> errors = new ArrayList<String>();
+        List<ErrorDetail> errors = new ArrayList<ErrorDetail>();
         
         ServiceReference ref = bundleContext.getServiceReference(PlatformAdmin.class.getName());
         try {
@@ -113,7 +105,7 @@ public class ResolverErrorAnalyzer {
         return errors;
     }
         
-    private void collectErrors(BundleDescription bundle, State state, List<BundleDescription> bundleDescriptions, Collection<String> errorList) {
+    private void collectErrors(BundleDescription bundle, State state, List<BundleDescription> bundleDescriptions, Collection<ErrorDetail> errorList) {
         ResolverError[] errors = state.getResolverErrors(bundle);
         for (ResolverError error : errors) {
             VersionConstraint constraint = error.getUnsatisfiedConstraint();
@@ -126,7 +118,9 @@ public class ResolverErrorAnalyzer {
                         continue;
                     }
                     if (isSatisfied(importPackageSpecification, bundleDescriptions) == null) {
-                        errorList.add("The package dependency " + versionToString(importPackageSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied.");
+                        ErrorDetail errorDetail = new ErrorDetail("The package dependency " + versionToString(importPackageSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied.");
+                        getUnsatisfiedReason(state, importPackageSpecification, errorDetail);
+                        errorList.add(errorDetail);
                     }
                     break;
                 case MISSING_REQUIRE_BUNDLE:
@@ -136,25 +130,25 @@ public class ResolverErrorAnalyzer {
                         continue;
                     }
                     if (isSatisfied(bundleSpecification, bundleDescriptions) == null) {
-                        errorList.add("The bundle dependency " + versionToString(bundleSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied.");
+                        errorList.add(new ErrorDetail("The bundle dependency " + versionToString(bundleSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied."));
                     }
                     break;
                 case MISSING_FRAGMENT_HOST:
                     HostSpecification hostSpecification = (HostSpecification) constraint;
                     if (isSatisfied(hostSpecification, bundleDescriptions) == null) {
-                        errorList.add("The host bundle dependency " + versionToString(hostSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied.");
+                        errorList.add(new ErrorDetail("The host bundle dependency " + versionToString(hostSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be satisfied."));
                     }
                     break;
                 case IMPORT_PACKAGE_USES_CONFLICT:
                     ImportPackageSpecification usesImportPackageSpecification = (ImportPackageSpecification) constraint;
-                    errorList.add("The package dependency " + versionToString(usesImportPackageSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict.");
+                    errorList.add(new ErrorDetail("The package dependency " + versionToString(usesImportPackageSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict."));
                     break;
                 case REQUIRE_BUNDLE_USES_CONFLICT:
                     BundleSpecification usesBundleSpecification = (BundleSpecification) constraint;
-                    errorList.add("The bundle dependency " + versionToString(usesBundleSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict.");
+                    errorList.add(new ErrorDetail("The bundle dependency " + versionToString(usesBundleSpecification) + " required by bundle " + bundleToString(bundle) + " cannot be resolved due to uses directive conflict."));
                     break;
                 default:   
-                    errorList.add(error.toString());
+                    errorList.add(new ErrorDetail(error.toString()));
                     break;
             }
         }
@@ -183,6 +177,59 @@ public class ResolverErrorAnalyzer {
         return null;
     }
 
+    private void getUnsatisfiedReason(State state, ImportPackageSpecification importPackage, ErrorDetail errorDetail) {
+        String packageName = importPackage.getName();
+        BundleDescription[] bundles = state.getBundles();        
+        List<ExportPackageDescription> packageExportList = new ArrayList<ExportPackageDescription>();
+        for (BundleDescription bundle : bundles) {
+            findExportPackage(packageName, bundle.getExportPackages(), packageExportList);
+        }
+        
+        int size = packageExportList.size();
+        if (size == 0) {
+            errorDetail.add("Package " + packageName + " is not exported by any bundle.");
+        } else if (size == 1) {
+            ExportPackageDescription packageExport = packageExportList.get(0);
+            BundleDescription exporter = packageExport.getExporter();
+            errorDetail.add("Bundle " + bundleToString(exporter) + " exports " + exportToString(packageExport) + " package which does not satisfy the dependency.");
+        } else {
+            for (ExportPackageDescription packageExport : packageExportList) {
+                BundleDescription exporter = packageExport.getExporter();
+                if (exporter.isResolved() && 
+                    !isSelectedExportPackage(packageExport) &&
+                    importPackage.isSatisfiedBy(packageExport)) {
+                    // export is not selected but it does satisfy the import
+                    errorDetail.add("Bundle " + bundleToString(exporter) + " exports " + exportToString(packageExport) + " package which satisfies the dependency but is unselected.");
+                } else {
+                    errorDetail.add("Bundle " + bundleToString(exporter) + " exports " + exportToString(packageExport) + " package which does not satisfy the dependency.");
+                }
+            }
+        }
+    }
+
+    private void findExportPackage(String packageName, ExportPackageDescription[] exportedPackages, List<ExportPackageDescription> list) {
+        if (exportedPackages != null) {
+            for (ExportPackageDescription exportedPackage : exportedPackages) {
+                if (packageName.equals(exportedPackage.getName())) {
+                    list.add(exportedPackage);
+                }
+            }
+        }
+    }
+    
+    private boolean isSelectedExportPackage(ExportPackageDescription exportedPackage) {
+        BundleDescription exporter = exportedPackage.getExporter();
+        ExportPackageDescription[] selectedExportPackages = exporter.getSelectedExports(); 
+        if (selectedExportPackages != null) {
+            for (ExportPackageDescription selectedExportedPackage : selectedExportPackages) {
+                if (exportedPackage.equals(selectedExportedPackage)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     private static String bundleToString(BundleDescription bundle) {
         return bundle.getSymbolicName() + " [" + bundle.getBundleId() + "]";            
     }
@@ -201,4 +248,64 @@ public class ResolverErrorAnalyzer {
             return constraint.getName() + "; " + versionAttribute;
         }
     } 
+    
+    private static String exportToString(ExportPackageDescription exportPackage) {
+        Version version = exportPackage.getVersion();
+        if (version == null) {
+            return exportPackage.getName();
+        } else {
+            String versionAttribute = "version=\"" + version + "\"";
+            return exportPackage.getName() + "; " + versionAttribute;
+        }
+    } 
+    
+    public static class ErrorDetail {
+        
+        public static final String LF = System.getProperty("line.separator");
+        
+        private String message;
+        private Collection<ErrorDetail> details;
+        
+        public ErrorDetail(String message) {
+            this.message = message;
+        }
+        
+        public ErrorDetail(String message, Collection<ErrorDetail> details) {
+            this.message = message;
+            this.details = details;
+        }
+        
+        public void add(ErrorDetail detail) {
+            if (details == null) {
+                details = new ArrayList<ErrorDetail>();
+            }
+            details.add(detail);
+        }
+        
+        public void add(String message) {
+            add(new ErrorDetail(message));
+        }
+        
+        public void toString(StringBuilder builder, String pad) {
+            builder.append(message);
+            if (details != null && !details.isEmpty()) {
+                builder.append(LF);
+                Iterator<ErrorDetail> iterator = details.iterator();
+                while (iterator.hasNext()) {
+                    builder.append(pad);
+                    iterator.next().toString(builder, pad + pad);
+                    if (iterator.hasNext()) {
+                        builder.append(LF);
+                    }
+                }
+            }
+        }
+        
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            toString(builder, "    ");
+            return builder.toString();
+        }
+        
+    }
 }
