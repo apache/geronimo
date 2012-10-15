@@ -120,6 +120,7 @@
                             </config-xml-content>
                             <config-substitution key="ActiveMQStompPort">61613</config-substitution>
                             -->
+                            <config-substitution key="ActiveMQHostname">0.0.0.0</config-substitution>
                             <config-substitution key="ActiveMQPort">61616</config-substitution>
                             <config-substitution key="activemq.brokerName">DefaultActiveMQBroker</config-substitution>
                             <config-substitution key="activemq.data">${org.apache.geronimo.server.dir}/var/activemq</config-substitution>

@@ -33,7 +33,7 @@
         <ext:default-properties>
             <ext:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
             <ext:property name="activemq.data" value="var/activemq"/>
-            <ext:property name="ServerHostname" value="0.0.0.0"/>
+            <ext:property name="ActiveMQHostname" value="0.0.0.0"/>
             <ext:property name="ActiveMQPort" value="61616"/>
             <ext:property name="PortOffset" value="0"/>
         </ext:default-properties>
@@ -183,12 +183,12 @@
             http://activemq.apache.org/configuring-transports.html 
         -->
         <amq:transportConnectors>
-            <amq:transportConnector name="openwire" uri="tcp://${ServerHostname}:${ActiveMQPort + PortOffset}"/>
+            <amq:transportConnector name="openwire" uri="tcp://${ActiveMQHostname}:${ActiveMQPort + PortOffset}"/>
             <!--
-            <transportConnector name="openwire2" uri="tcp://${ServerHostname}:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
-            <transportConnector name="ssl" uri="ssl://${ServerHostname}:${61617 + ${PortOffset}}"/>
-            <transportConnector name="stomp" uri="stomp://${ServerHostname}:${61613 + ${PortOffset}}"/>
-            <transportConnector name="xmpp" uri="xmpp://${ServerHostname}:${61222 + ${PortOffset}}"/>
+            <transportConnector name="openwire2" uri="tcp://${ActiveMQHostname}:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
+            <transportConnector name="ssl" uri="ssl://${ActiveMQHostname}:${61617 + ${PortOffset}}"/>
+            <transportConnector name="stomp" uri="stomp://${ActiveMQHostname}:${61613 + ${PortOffset}}"/>
+            <transportConnector name="xmpp" uri="xmpp://${ActiveMQHostname}:${61222 + ${PortOffset}}"/>
             -->
         </amq:transportConnectors>
 
