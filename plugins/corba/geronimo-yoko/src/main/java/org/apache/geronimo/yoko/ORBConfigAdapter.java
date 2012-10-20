@@ -16,13 +16,11 @@
   */
 package org.apache.geronimo.yoko;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-import javax.rmi.CORBA.UtilDelegate;
 import org.apache.geronimo.corba.CORBABean;
 import org.apache.geronimo.corba.CSSBean;
 import org.apache.geronimo.corba.NameService;
@@ -32,7 +30,6 @@ import org.apache.geronimo.corba.security.config.ConfigException;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
-import org.apache.geronimo.corba.util.UtilDelegateImpl;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -157,13 +154,14 @@ public class ORBConfigAdapter implements ConfigAdapter {
      * Create a transient name service instance using the
      * specified host name and port.
      *
-     * @param host   The String host name.
-     * @param port   The port number of the listener.
+     * @param host        The String host name.
+     * @param port        The port number of the listener.
+     * @param servicePort The port number of the service. 
      *
      * @return An opaque object that represents the name service.
      * @exception ConfigException
      */
-    public Object createNameService(String host, int port) throws ConfigException {
+    public Object createNameService(String host, int port, final int servicePort) throws ConfigException {
         try {
             // create a name service using the supplied host and publish under the name "NameService"
             TransientNameService service = new TransientNameService(host, port, "NameService") {
@@ -175,7 +173,12 @@ public class ORBConfigAdapter implements ConfigAdapter {
                     props.put("org.omg.CORBA.ORBServerId", "1000000" ) ;
                     props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
                     props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
-                    props.put("yoko.orb.oa.endpoint", "iiop --bind " + host  + " --host " + host + " --port " + port );
+                    props.put("yoko.orb.oa.endpoint", "iiop --bind " + host  + " --host " + host + " --port " + port);
+                    String nameServiceEndpoint = "iiop --bind " + host + " --host " + host;
+                    if (servicePort > 0) {
+                        nameServiceEndpoint += " --port " + servicePort;
+                    }
+                    props.put("yoko.orb.poamanager.TNameService.endpoint", nameServiceEndpoint);
 
                     createdOrb = ORB.init((String[])null, props) ;
 

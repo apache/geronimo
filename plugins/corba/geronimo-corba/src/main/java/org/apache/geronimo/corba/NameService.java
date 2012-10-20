@@ -47,6 +47,8 @@ public class NameService implements GBeanLifecycle {
     private Object service;
     // the name service listening port
     private final int port;
+    // the name service port
+    private final int servicePort;
     // the published port name (defaults to "localhost").
     private String host;
     // indicates whether we start and host this server locally.
@@ -56,10 +58,15 @@ public class NameService implements GBeanLifecycle {
         service = null;
         config = null;
         port = -1;
+        servicePort = 0;
         host = "localhost";
         localServer = true;
     }
 
+    public NameService(ServerInfo serverInfo, ConfigAdapter config, String host, int port) throws Exception {
+        this(serverInfo, config, host, port, 0);
+    }
+    
     /**
      * GBean constructor to create a NameService instance.
      *
@@ -73,10 +80,11 @@ public class NameService implements GBeanLifecycle {
      *
      * @exception Exception
      */
-    public NameService(ServerInfo serverInfo, ConfigAdapter config, String host, int port) throws Exception {
+    public NameService(ServerInfo serverInfo, ConfigAdapter config, String host, int port, int servicePort) throws Exception {
         this.host = host;
         this.port = port;
         this.config = config;
+        this.servicePort = servicePort;
         localServer = true;
         service = null;
         // if not specified, our default host is "localhost".
@@ -161,7 +169,7 @@ public class NameService implements GBeanLifecycle {
     public void doStart() throws Exception {
         if (localServer) {
             try {
-                service = config.createNameService(host, port);
+                service = config.createNameService(host, port, servicePort);
                 log.debug("Started transient CORBA name service on port " + port);
             } catch (NoSuchMethodError e) {
                 log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 

@@ -118,6 +118,7 @@
                                 <gbean name="NameServer">
                                     <attribute name="port">#{COSNamingPort + PortOffset}</attribute>
                                     <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="servicePort">#{COSNamingServicePort + PortOffset}</attribute>
                                 </gbean>
                                 <gbean name="Server">
                                     <attribute name="port">#{ORBSSLPort + PortOffset}</attribute>
@@ -129,6 +130,7 @@
                                 </gbean>
                              </config-xml-content>
                             <config-substitution key="COSNamingPort">1050</config-substitution>
+                            <config-substitution key="COSNamingServicePort">1055</config-substitution>
                             <config-substitution key="ORBSSLPort">2001</config-substitution>
                             <config-substitution key="ORBPort">6882</config-substitution>
                         </plugin-artifact>

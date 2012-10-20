@@ -62,13 +62,15 @@ public interface ConfigAdapter {
      * Create a transient name service instance using the
      * specified host name and port.
      *
-     * @param host   The String host name.
-     * @param port   The port number of the listener.
+     * @param host        The String host name.
+     * @param port        The port number of the listener.
+     * @param servicePort The port number of the service. 
      *
      * @return An opaque object that represents the name service.
      * @exception ConfigException
      */
-    public Object createNameService(String host, int port) throws ConfigException;
+    public Object createNameService(String host, int port, int servicePort) throws ConfigException;
+    
     /**
      * Destroy a name service instance created by a
      * prior call to createNameService().

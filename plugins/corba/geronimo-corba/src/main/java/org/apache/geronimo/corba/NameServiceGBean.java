@@ -39,9 +39,10 @@ public final class NameServiceGBean {
         infoFactory.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("servicePort", int.class, true);
         infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addAttribute("local", boolean.class, true);
-        infoFactory.setConstructor(new String[]{"ServerInfo", "ConfigAdapter", "host", "port"});
+        infoFactory.setConstructor(new String[]{"ServerInfo", "ConfigAdapter", "host", "port", "servicePort"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
