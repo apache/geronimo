@@ -70,7 +70,7 @@
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>4.0.0-beta-1</openejbVersion>
-        <openjpaVersion>2.1.1</openjpaVersion>
+        <openjpaVersion>2.2.1</openjpaVersion>
         <openwebbeansVersion>1.1.1</openwebbeansVersion>
         <derbyVersion>10.8.2.2_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
@@ -2333,6 +2333,19 @@ only found in cxf
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+		
+        <repository>
+            <id>openjpa_221_staging</id>
+            <name>openjpa_221_staging</name>
+            <url>https://repository.apache.org/content/repositories/orgapacheopenjpa-118/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>		
+		
     </repositories>      
 
     <profiles>
