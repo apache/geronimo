@@ -261,6 +261,7 @@ public class FileUploadServletClient implements FileUploadClient {
         String s = new String(Base64.encode(data));
         while(s.length() % 4 != 0) s += "=";
         con.setRequestProperty("Authorization", "Basic "+s);
+        con.setRequestProperty("Content-Type", "application/octet-stream");
         con.setDoInput(true);
         con.setDoOutput(true);
         con.connect();
