@@ -2333,19 +2333,6 @@ only found in cxf
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-		
-        <repository>
-            <id>openjpa_221_staging</id>
-            <name>openjpa_221_staging</name>
-            <url>https://repository.apache.org/content/repositories/orgapacheopenjpa-118/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>		
-		
     </repositories>      
 
     <profiles>
