@@ -32,7 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-@Path(value = "/orders")
+@Path("/orders")
 public class OrderResource {
 	private static Map<Integer, Order> orders = new ConcurrentHashMap<Integer, Order>();
 	private static AtomicInteger ids = new AtomicInteger();
