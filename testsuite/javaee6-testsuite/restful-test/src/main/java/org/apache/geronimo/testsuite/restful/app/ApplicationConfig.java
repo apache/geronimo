@@ -19,7 +19,7 @@ package org.apache.geronimo.testsuite.restful.app;
 import java.util.HashSet;
 import java.util.Set;
 
-@javax.ws.rs.ApplicationPath("resources")
+//@javax.ws.rs.ApplicationPath("resources")
 public class ApplicationConfig extends javax.ws.rs.core.Application {
     
     @Override

@@ -23,6 +23,19 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="el2.2-javaee6">
 
     <description>Restful Web Service - javaee6 Servlet Sample</description>
+    <servlet>
+        <servlet-name>WinkServletEntry</servlet-name>
+        <servlet-class>org.apache.geronimo.wink.GeronimoRestServlet</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.apache.geronimo.testsuite.restful.app.ApplicationConfig</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WinkServletEntry</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30

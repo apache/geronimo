@@ -32,10 +32,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-@Path("/orders")
+@Path(value = "/orders")
 public class OrderResource {
 	private static Map<Integer, Order> orders = new ConcurrentHashMap<Integer, Order>();
 	private static AtomicInteger ids = new AtomicInteger();
+	static String html_content =
+            "<html>" + "<head><title>Restful Services via Wink</title></head>" +
+            "<body>Restful Services via Wink!</body></html>";
+	
+	@GET
+	@Produces(value = "text/html")
+	public Response welcome() {
+		return Response.ok(html_content).header("WINK-HEAD", "text-html").build();
+	}
 	
 	@POST
 	@Consumes("application/xml")

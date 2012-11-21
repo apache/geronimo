@@ -42,7 +42,7 @@ public class TestRestful extends TestSupport {
 			+ "<quantity>1</quantity>"
 			+ "<seller>shop</seller>"
 		    + "</order>";
-		URL url = new URL(root + "/resources/orders");
+		URL url = new URL(root + "/orders");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setDoOutput(true);
 		connection.setInstanceFollowRedirects(false);
@@ -58,7 +58,7 @@ public class TestRestful extends TestSupport {
 	@Test(dependsOnMethods={"testPost"})
 	public void testGet() throws IOException {
 	    String contextroot = System.getProperty("appContext");
-		URL url = new URL(root + "/resources/orders/1");
+		URL url = new URL(root + "/orders/1");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("GET");
 		connection.setRequestProperty("Accept", "application/xml");
@@ -90,7 +90,7 @@ public class TestRestful extends TestSupport {
 			+ "<quantity>2</quantity>"
 			+ "<seller>shop</seller>"
 		    + "</order>";
-		URL url = new URL(root + "/resources/orders/1");
+		URL url = new URL(root + "/orders/1");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("PUT");
@@ -124,7 +124,7 @@ public class TestRestful extends TestSupport {
 	
 	@Test(dependsOnMethods={"testPut"})
 	public void testDelete() throws IOException {
-		URL url = new URL(root + "/resources/orders/1");
+		URL url = new URL(root + "/orders/1");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("DELETE");
 		Assert.assertEquals(connection.getResponseCode(), 204);
