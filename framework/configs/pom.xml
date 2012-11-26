@@ -79,6 +79,7 @@
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
                             <jvm-version>1.6</jvm-version>
+                            <jvm-version>1.7</jvm-version>
                             <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
                             <source-repository>${pluginSrcRepoLocal}</source-repository>
                             <source-repository>${pluginSrcRepoCentral}</source-repository>
