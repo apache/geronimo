@@ -43,16 +43,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <version>${project.version}</version>
