@@ -123,7 +123,7 @@ public class FrameworkLauncher {
         this.cleanStorage = cleanStorage;
     }
 
-    public void launch() throws Exception {
+    public void init() throws Exception {
         geronimoHome = Utils.getGeronimoHome();
         geronimoBase = Utils.getGeronimoBase(geronimoHome);
 
@@ -152,8 +152,6 @@ public class FrameworkLauncher {
         configJansiPath();
 
         setFrameworkStorage(configProps);
-        
-        
 
         if (cleanStorage) {
             configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN,
@@ -164,7 +162,9 @@ public class FrameworkLauncher {
            configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN,
                     Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         }
-
+    }
+    
+    public void launch() throws Exception {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 // wait up to 3 minutes for complete shutdown

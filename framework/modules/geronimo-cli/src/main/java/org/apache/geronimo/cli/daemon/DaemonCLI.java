@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
 import org.apache.geronimo.main.Bootstrapper;
+import org.apache.geronimo.main.ScriptLaunchListener;
 
 
 /**
@@ -49,6 +50,7 @@ public class DaemonCLI extends AbstractCLI {
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/j2ee-system//car"));
         boot.setLog4jConfigFile("var/log/server-log4j.properties");
         boot.setCleanStorage( ((DaemonCLParser) parser).isCleanCache() );
+        boot.setLaunchListener(new ScriptLaunchListener("server"));
         return boot;
     }
 }

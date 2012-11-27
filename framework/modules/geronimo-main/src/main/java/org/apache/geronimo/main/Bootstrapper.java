@@ -31,6 +31,7 @@ public class Bootstrapper extends FrameworkLauncher {
     
     private boolean waitForStop = true;    
     private List<String> bundles;
+    private LaunchListener listener;
 
     public Bootstrapper() {
     }
@@ -43,20 +44,41 @@ public class Bootstrapper extends FrameworkLauncher {
         this.bundles = bundles;
     }
         
+    public void setLaunchListener(LaunchListener listener) {
+        this.listener = listener;
+    }
+    
     public int execute(Object opaque) {
+        try {
+            init();
+        } catch (Throwable e) {
+            System.err.println("Error initializing launcher: " + e);
+            return -1;
+        }
+        if (listener != null) {
+            listener.starting();
+        }
+        int errorCode = start(opaque);
+        if (listener != null) {
+            listener.stopped(errorCode);
+        }
+        return errorCode;
+    }
+    
+    private int start(Object opaque) {
         try {
             launch();
         } catch (Throwable e) {
-            System.err.println("Error launching framework: " + e);
+            System.err.println("Error starting framework: " + e);
             destroy(false);
-            return -1;
+            return -2;
         }
                               
         Main geronimoMain = getMain();        
         if (geronimoMain == null) {
             System.err.println("Main not found");
             destroy(false);
-            return -1;
+            return -3;
         }
         
         ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
@@ -65,6 +87,9 @@ public class Bootstrapper extends FrameworkLauncher {
             Thread.currentThread().setContextClassLoader(newTCCL);
             int exitCode = geronimoMain.execute(opaque);
             if (exitCode == 0) {
+                if (listener != null) {
+                    listener.started();
+                }
                 if (waitForStop) {
                     // executing main could have installed some additional bundles 
                     // so check and try to start any unstarted bundles.
@@ -78,7 +103,7 @@ public class Bootstrapper extends FrameworkLauncher {
         } catch (Throwable e) {
             System.err.println("Error in Main: " + e);
             destroy(false);
-            return -1;
+            return -4;
         } finally {
             Thread.currentThread().setContextClassLoader(oldTCCL);
         }
