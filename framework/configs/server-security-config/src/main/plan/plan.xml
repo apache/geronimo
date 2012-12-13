@@ -59,5 +59,14 @@
         <attribute name="keyPasswords">geronimo=secret</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
+    
+    <gbean name="PropertiesLoginManager" class="org.apache.geronimo.security.login.PropertiesLoginModuleManager">
+                <reference name="ServerInfo">
+                    <name>ServerInfo</name>
+                </reference>
+                <reference name="LoginModule">
+                    <name>properties-login</name>
+                </reference>
+            </gbean>
 
 </module>

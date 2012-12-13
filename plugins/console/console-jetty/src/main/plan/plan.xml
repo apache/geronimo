@@ -48,14 +48,14 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <context-root>/console-base</context-root>
             <security-realm-name>geronimo-admin</security-realm-name>
-            <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+            <!--<gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
                 <reference name="ServerInfo">
                     <name>ServerInfo</name>
                 </reference>
                 <reference name="LoginModule">
                     <name>properties-login</name>
                 </reference>
-            </gbean>
+            </gbean>-->
             <!-- i18n support -->
             <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <reference name="ConsoleResourceRegistry">
