@@ -58,7 +58,6 @@ import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.aries.ApplicationGBean;
@@ -237,27 +236,17 @@ public class ConfigManagerPortlet extends BasePortlet {
                     ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
                     try {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                        boolean loaded = loadModule(configManager, configObjName);
                         Configuration config = configManager.getConfiguration(info.getConfigID());
                         if (config != null) {
                             for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
                                 if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
-                                    details.getContextPaths().add((String)entry.getValue().getAttribute("contextPath"));
-                                    details.setDisplayName(((WebAppInfo)entry.getValue().getAttribute("webAppInfo")).displayName);
-                                    if (null != entry.getValue().getAttribute("virtualServer")
-                                    		&& !"".equals(entry.getValue().getAttribute("virtualServer"))) {
-                                    	details.setVirtualServer((String)entry.getValue().getAttribute("virtualServer"));
-                                    }
+                                    setWebModuleDetails(details, entry.getValue());
                                 }
                             }
                         }
 
                         if (showDependencies) {
                             addDependencies(details, configObjName);
-                        }
-
-                        if (loaded) {
-                            unloadModule(configManager, configObjName);
                         }
                     } catch (InvalidConfigException ice) {
                         logger.error("Fail to load configuration", ice);
@@ -266,27 +255,20 @@ public class ConfigManagerPortlet extends BasePortlet {
                 } else if (info.getType() == ConfigurationModuleType.EAR) {
                     try {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                        boolean loaded = loadModule(configManager, configObjName);
-
                         Configuration config = configManager.getConfiguration(info.getConfigID());
                         if (config != null) {
                             for (Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
                                 if (entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
                                     ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), ConfigurationModuleType.WAR, info.getState());
                                     AbstractName webModuleAbName = entry.getKey();
-                                    GBeanData webModuleGBeanData = entry.getValue();
                                     childDetails.setComponentName(webModuleAbName.getNameProperty("name"));
-                                    childDetails.getContextPaths().add((String) webModuleGBeanData.getAttribute("contextPath"));
-                                    childDetails.setDisplayName(((WebAppInfo)webModuleGBeanData.getAttribute("webAppInfo")).displayName);
+                                    setWebModuleDetails(childDetails, entry.getValue());
                                     if (showDependencies) {
                                         addDependencies(childDetails, configObjName);
                                     }
                                     moduleDetails.add(childDetails);
                                 }
                             }
-                        }
-                        if (loaded) {
-                            unloadModule(configManager, configObjName);
                         }
                     } catch (InvalidConfigException ice) {
                         logger.error("Fail to load configuration", ice);
@@ -297,15 +279,12 @@ public class ConfigManagerPortlet extends BasePortlet {
                 ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
                 try {
                     AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                    boolean loaded = loadModule(configManager, configObjName);
-
                     if (info.getType() == ConfigurationModuleType.EAR) {
                         Configuration config = configManager.getConfiguration(info.getConfigID());
                         if(config != null){
                             for(Map.Entry<AbstractName, GBeanData> entry : config.getGBeans().entrySet()) {
                                 if(entry.getKey().getNameProperty(NameFactory.J2EE_TYPE).equals(NameFactory.WEB_MODULE)) {
-                                    details.getContextPaths().add((String)entry.getValue().getAttribute("contextPath"));
-                                    details.setDisplayName(((WebAppInfo)entry.getValue().getAttribute("webAppInfo")).displayName);
+                                    setWebModuleDetails(details, entry.getValue());
                                 }
                             }
                         }
@@ -342,9 +321,6 @@ public class ConfigManagerPortlet extends BasePortlet {
                     if (showDependencies) {
                         addDependencies(details, configObjName);
                     }
-                    if (loaded) {
-                        unloadModule(configManager, configObjName);
-                    }
                 } catch (InvalidConfigException ice) {
                     logger.error("Fail to load configuration", ice);
                 }
@@ -365,6 +341,15 @@ public class ConfigManagerPortlet extends BasePortlet {
             normalView.include(renderRequest, renderResponse);
         } else {
             maximizedView.include(renderRequest, renderResponse);
+        }
+    }
+
+    private void setWebModuleDetails(ModuleDetails details, GBeanData gbean) {
+        details.getContextPaths().add((String)gbean.getAttribute("contextPath"));
+        details.setDisplayName(((WebAppInfo)gbean.getAttribute("webAppInfo")).displayName);
+        String virtualServer = (String)gbean.getAttribute("virtualServer");
+        if (virtualServer != null && virtualServer.length() > 0) {
+            details.setVirtualServer(virtualServer);
         }
     }
 
@@ -408,28 +393,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         return null;
     }
 
-    private boolean loadModule(ConfigurationManager configManager, AbstractName configObjName) {
-        if(!kernel.isLoaded(configObjName)) {
-            try {
-                configManager.loadConfiguration(configObjName.getArtifact());
-                return true;
-            } catch (NoSuchConfigException e) {
-                // Should not occur
-                e.printStackTrace();
-            } catch (LifecycleException e) {
-                // config could not load because one or more of its dependencies
-                // has been removed. cannot load the configuration in this case,
-                // so don't rely on that technique to discover its parents or children
-                if (e.getCause() instanceof MissingDependencyException) {
-                    // do nothing
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
-
     private void addDependencies(ModuleDetails details, AbstractName configObjName) {
         DependencyManager depMgr = kernel.getDependencyManager();
         Set<AbstractName> parents = depMgr.getParents(configObjName);
@@ -445,16 +408,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
         Collections.sort(details.getParents());
         Collections.sort(details.getChildren());
-    }
-
-    private void unloadModule(ConfigurationManager configManager, AbstractName configObjName) {
-        try {
-            configManager.unloadConfiguration(configObjName.getArtifact());
-        } catch (NoSuchConfigException e) {
-            logger.error("Fail to unload module " + configObjName, e);
-        }  catch (LifecycleException e) {
-            logger.error("Fail to unload module " + configObjName, e);
-        }
     }
 
     private boolean showWebInfo() {
