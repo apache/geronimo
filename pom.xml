@@ -86,7 +86,7 @@
         <jaxbImplVersion>2.2.3-1_1</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
-        <pax.logging.version>1.6.4</pax.logging.version>
+        <pax.logging.version>1.6.5</pax.logging.version>
         <woodstoxVersion>4.1.2_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.4-SNAPSHOT</yokoVersion>
@@ -1997,6 +1997,10 @@ only found in cxf
                                 <exclusion>
                                     <groupId>org.apache.tomcat</groupId>
                                     <artifactId>jasper</artifactId>
+                                </exclusion>
+                                <exclusion>
+                                    <groupId>org.apache.tomcat</groupId>
+                                    <artifactId>servlet-api</artifactId>
                                 </exclusion>
                             </exclusions>
                         </dependency>
