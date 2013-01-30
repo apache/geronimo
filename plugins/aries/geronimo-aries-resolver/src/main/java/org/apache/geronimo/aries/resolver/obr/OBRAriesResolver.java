@@ -149,27 +149,32 @@ public class OBRAriesResolver implements AriesApplicationResolver {
         obrResolver.add(createApplicationResource(helper, appName, appVersion, appContent));
         
         boolean resolved = obrResolver.resolve();
-        Set<BundleInfo> fragments = new HashSet<BundleInfo>();
+        Set<Resource> requiredFragments = new HashSet<Resource>();
+        Set<Resource> optionalFragments = new HashSet<Resource>();
         
         if (resolved && resolveFragments) {
             for (Resource resource : obrResolver.getRequiredResources()) {
                 Resource fragmentResource = findFragmentResource(resource);
                 if (fragmentResource != null) {
-                    obrResolver.add(fragmentResource);
-                    fragments.add(toBundleInfo(fragmentResource, false));
+                    requiredFragments.add(fragmentResource);
                 }
             }
             if (returnOptionalResources) {
                 for (Resource resource : obrResolver.getOptionalResources()) {
                     Resource fragmentResource = findFragmentResource(resource);
                     if (fragmentResource != null) {
-                        obrResolver.add(fragmentResource);
-                        fragments.add(toBundleInfo(fragmentResource, true));
+                        optionalFragments.add(fragmentResource);
                     }
                 }
             }
             
-            if (!fragments.isEmpty()) {
+            if (!requiredFragments.isEmpty() || !optionalFragments.isEmpty()) {
+                for (Resource fragment : requiredFragments) {
+                    obrResolver.add(fragment);
+                }
+                for (Resource fragment : optionalFragments) {
+                    obrResolver.add(fragment);
+                }
                 resolved = obrResolver.resolve();
             }
         }
@@ -186,7 +191,14 @@ public class OBRAriesResolver implements AriesApplicationResolver {
                     result.add(bundleInfo);
                 }
             }
-            result.addAll(fragments);
+            for (Resource fragment : requiredFragments) {
+                BundleInfo bundleInfo = toBundleInfo(fragment, false);
+                result.add(bundleInfo);
+            }
+            for (Resource fragment : optionalFragments) {
+                BundleInfo bundleInfo = toBundleInfo(fragment, true);
+                result.add(bundleInfo);
+            }            
             return result;
         } else {
             Reason[] reasons = obrResolver.getUnsatisfiedRequirements();
