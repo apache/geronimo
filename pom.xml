@@ -95,7 +95,7 @@
         <geronimoel.version>1.0.4-SNAPSHOT</geronimoel.version>
         <geronimoosgiregistry.version>1.1</geronimoosgiregistry.version>
         <geronimojaxws.version>1.1</geronimojaxws.version>
-        <myfacesVersion>2.0.9_1</myfacesVersion>
+        <myfacesVersion>2.1.10</myfacesVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -2412,7 +2412,7 @@ only found in cxf
                         <enabled>true</enabled>
                     </releases>
                 </repository>
-                <repository>
+                <!--<repository>
                     <id>openqa-snapshots</id>
                     <name>Openqa Snapshot Repository</name>
                     <url>http://nexus.openqa.org/content/repositories/snapshots</url>
@@ -2425,7 +2425,7 @@ only found in cxf
                     <releases>
                         <enabled>false</enabled>
                     </releases>
-                </repository>                
+                </repository>-->                
             </repositories>
         </profile>
 

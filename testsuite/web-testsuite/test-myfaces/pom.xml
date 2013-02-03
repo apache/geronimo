@@ -48,7 +48,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-bundle</artifactId>
             <scope>provided</scope>
         </dependency>

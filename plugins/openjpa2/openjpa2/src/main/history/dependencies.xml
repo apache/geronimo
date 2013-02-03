@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
         <type>jar</type>
@@ -14,6 +19,11 @@
     <dependency>
         <groupId>commons-pool</groupId>
         <artifactId>commons-pool</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>javax.xml.stream</groupId>
+        <artifactId>stax-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
