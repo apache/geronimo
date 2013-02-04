@@ -62,15 +62,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- imports of other plugins -->
-            <dependency>
-                <groupId>org.apache.geronimo.framework</groupId>
-                <artifactId>framework</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- internal dependencies -->
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>

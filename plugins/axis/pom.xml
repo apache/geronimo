@@ -61,13 +61,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.geronimo.framework</groupId>
-                <artifactId>framework</artifactId>
-                <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis</artifactId>
                 <version>1.4_2</version>
