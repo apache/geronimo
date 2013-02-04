@@ -445,6 +445,14 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-validation_1.0_spec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.stream</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
