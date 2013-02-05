@@ -27,9 +27,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.aries.application.ApplicationMetadata;
 import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.aries.application.management.AriesApplicationListener;
 import org.apache.aries.application.management.BundleInfo;
-import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.aries.application.utils.AppConstants;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -83,7 +83,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
     private Collection<? extends Repository> repositories;
     private Collection<ConfigurationStore> configurationStores;
     private Environment defaultEnvironment;
-
+    private GeronimoApplicationManager applicationManager;
+    
     public ApplicationInstaller(@ParamReference(name = "Store", namingType = "ConfigurationStore") Collection<ConfigurationStore> configurationStores,
                                 @ParamReference(name = "Repositories", namingType = "Repository") Collection<? extends Repository> repositories,
                                 @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
@@ -99,11 +100,13 @@ public class ApplicationInstaller implements GBeanLifecycle {
         this.configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         this.defaultEnvironment = defaultEnvironment;
         this.webApplicationTracker = new WebApplicationTracker(bundleContext);
+        this.applicationManager = new GeronimoApplicationManager(bundleContext);
     }
 
     public void doStart() throws Exception {
         registration = bundleContext.registerService(ApplicationInstaller.class.getName(), this, null);
         webApplicationTracker.start();
+        applicationManager.doStart();
         
         if (getUnpackApplicationBundles()) {
             for (Repository repository : repositories) {
@@ -119,12 +122,17 @@ public class ApplicationInstaller implements GBeanLifecycle {
             registration.unregister();
         }
         webApplicationTracker.stop();
+        applicationManager.doStop();
     }
 
     public void doFail() {
         doStop();
     }
 
+    public GeronimoApplicationManager getGeronimoApplicationManager() {
+        return applicationManager;
+    }
+    
     protected ConfigurationManager getConfigurationManager() {
         return configurationManager;
     }
@@ -132,8 +140,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
     protected WebApplicationTracker getWebApplicationTracker() {
         return webApplicationTracker;
     }
-
-    public DeploymentContext startInstall(AriesApplication app, ConfigurationStore targetConfigurationStore)
+    
+    public DeploymentContext startInstall(AriesApplication app, File inPlaceLocation, ConfigurationStore targetConfigurationStore)
         throws ConfigurationAlreadyExistsException, IOException, DeploymentException {
 
         Artifact configId = getConfigId(app.getApplicationMetadata());
@@ -163,12 +171,17 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.flush();
             context.initializeConfiguration();
 
-            // UnpackEBATypeHandler will unpack the application bundles if necessary at install time 
-            storeApplication(app, tempDirectory, false);
+            if (inPlaceLocation == null) {
+                // UnpackEBATypeHandler will unpack the application bundles if necessary at install time 
+                storeApplication(app, tempDirectory, false);
+            } else {                
+                storeInPlaceApplication(app, inPlaceLocation);
+            }
             
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
             data.setAttribute("configId", configId);
+            data.setAttribute("location", inPlaceLocation);
             data.setReferencePattern("Installer", abstractName);
 
             context.addGBean(data);
@@ -227,6 +240,17 @@ public class ApplicationInstaller implements GBeanLifecycle {
           }
         }
     }
+    
+    private void storeInPlaceApplication(AriesApplication app, File inPlaceLocation) throws IOException {
+        // save DEPLOYMENT.MF if it was not there before and application is resolved
+        File deploymentMF = new File(inPlaceLocation, AppConstants.DEPLOYMENT_MF);
+        if (!deploymentMF.exists()) {
+            DeploymentMetadata deploymentMetadata = app.getDeploymentMetadata();
+            if (deploymentMetadata != null) {
+                deploymentMetadata.store(deploymentMF);
+            }
+        }
+    }
 
     public ConfigurationData finishInstall(DeploymentContext context, ConfigurationStore targetConfigurationStore)
         throws ConfigurationAlreadyExistsException, DeploymentException {
@@ -246,7 +270,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
         if (store == null) {
             throw new DeploymentException("No ConfigurationStore");
         }
-        DeploymentContext context = startInstall(app, store);
+        DeploymentContext context = startInstall(app, null, store);
         ConfigurationData configurationData = finishInstall(context, store);
 
         try {

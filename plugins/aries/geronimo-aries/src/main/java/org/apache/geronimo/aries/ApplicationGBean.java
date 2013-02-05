@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.aries.application.ApplicationMetadataFactory;
 import org.apache.aries.application.DeploymentContent;
 import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.DeploymentMetadataFactory;
@@ -82,39 +81,26 @@ public class ApplicationGBean implements GBeanLifecycle {
     public ApplicationGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                             @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                             @ParamAttribute(name="configId") Artifact configId, 
+                            @ParamAttribute(name="location") File inPlaceLocation, 
                             @ParamReference(name="Installer") ApplicationInstaller installer) 
         throws Exception {
         this.bundle = bundle;
         this.installer = installer;
         this.configId = configId;
         this.updateHelper = new ApplicationUpdateHelper(this);
-                
-        BundleContext bundleContext = bundle.getBundleContext();
 
-        DeploymentMetadataFactory deploymentFactory = null;
-        ApplicationMetadataFactory applicationFactory  = null;
-        
-        ServiceReference deploymentFactoryReference = 
-            bundleContext.getServiceReference(DeploymentMetadataFactory.class.getName());
-        ServiceReference applicationFactoryReference =
-            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
-        
-        try {
-            deploymentFactory = getService(deploymentFactoryReference, DeploymentMetadataFactory.class);
-            applicationFactory = getService(applicationFactoryReference, ApplicationMetadataFactory.class);
-        
-            this.application = new GeronimoApplication(bundle, applicationFactory, deploymentFactory);
-            
-            install(deploymentFactory);
-        } finally {
-            if (deploymentFactory != null) {
-                bundleContext.ungetService(deploymentFactoryReference);
-            }
-            if (applicationFactory != null) {
-                bundleContext.ungetService(applicationFactoryReference);
-            }
+        GeronimoApplicationManager appManager = installer.getGeronimoApplicationManager();
+                
+        if (inPlaceLocation == null) {
+            this.application = appManager.loadApplication(bundle);
+        } else {
+            this.application = appManager.loadApplication(inPlaceLocation);
         }
+            
+        DeploymentMetadataFactory deploymentFactory = appManager.getDeploymentMetadataFactory();
+        install(deploymentFactory);
                         
+        BundleContext bundleContext = bundle.getBundleContext();
         ServiceReference applicationManagerReference = 
             bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
         

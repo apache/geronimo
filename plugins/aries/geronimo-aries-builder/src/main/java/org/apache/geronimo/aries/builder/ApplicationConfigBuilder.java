@@ -18,21 +18,15 @@ package org.apache.geronimo.aries.builder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.aries.application.ApplicationMetadata;
-import org.apache.aries.application.ApplicationMetadataFactory;
-import org.apache.aries.application.filesystem.IDirectory;
-import org.apache.aries.application.filesystem.IFile;
 import org.apache.aries.application.management.AriesApplication;
-import org.apache.aries.application.management.AriesApplicationManager;
-import org.apache.aries.application.utils.AppConstants;
+import org.apache.aries.application.management.ManagementException;
 import org.apache.aries.application.utils.filesystem.FileSystem;
-import org.apache.aries.application.utils.manifest.ManifestDefaultsInjector;
-import org.apache.aries.application.utils.manifest.ManifestProcessor;
+import org.apache.geronimo.aries.ApplicationInstaller;
+import org.apache.geronimo.aries.GeronimoApplicationManager;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -48,10 +42,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.aries.ApplicationInstaller;
+
 /**
  * @version $Rev:385232 $ $Date$
  */
@@ -81,26 +74,6 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
         doStop();
     }
 
-    private AriesApplicationManager getAriesApplicationManager() {
-        ServiceReference ref =
-            bundleContext.getServiceReference(AriesApplicationManager.class.getName());
-        if (ref != null) {
-            return (AriesApplicationManager) bundleContext.getService(ref);
-        } else {
-            return null;
-        }
-    }
-
-    private ApplicationMetadataFactory getApplicationMetadataFactory() {
-        ServiceReference ref =
-            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
-        if (ref != null) {
-            return (ApplicationMetadataFactory) bundleContext.getService(ref);
-        } else {
-            return null;
-        }
-    }
-
     public Object getDeploymentPlan(File planFile,
                                     JarFile jarFile,
                                     ModuleIDBuilder idBuilder)
@@ -120,22 +93,13 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
                                        JarFile jarFile,
                                        ModuleIDBuilder idBuilder)
         throws IOException, DeploymentException {
-        ApplicationMetadataFactory factory = getApplicationMetadataFactory();
-        IDirectory ebaFile = FileSystem.getFSRoot(new File(jarFile.getName()));
-        IFile applicationManifestFile = ebaFile.getFile(AppConstants.APPLICATION_MF);
-        Manifest applicationManifest;
-        if (applicationManifestFile != null) {
-            InputStream in = applicationManifestFile.open();
-            try {
-                applicationManifest = ManifestProcessor.parseManifest(in);
-            } finally {
-                try { in.close(); } catch (IOException ignore) {}
-            }
-        } else {
-            applicationManifest = new Manifest();
+        GeronimoApplicationManager appManager = installer.getGeronimoApplicationManager();
+        ApplicationMetadata metadata;
+        try {
+            metadata = appManager.getApplicationMetadata(jarFile);
+        } catch (ManagementException e) {
+            throw new DeploymentException("Error getting Aries Application manifest", e);
         }
-        ManifestDefaultsInjector.updateManifest(applicationManifest, ebaFile.getName(), ebaFile);
-        ApplicationMetadata metadata = factory.createApplicationMetadata(applicationManifest);
         return ApplicationInstaller.getConfigId(metadata);
     }
 
@@ -153,11 +117,17 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
                                                 ConfigurationStore targetConfigurationStore)
         throws IOException, DeploymentException {
 
-        AriesApplicationManager appManager = getAriesApplicationManager();
+        GeronimoApplicationManager appManager = installer.getGeronimoApplicationManager();
 
+        File ebaFile = new File(jarFile.getName());
+        
         AriesApplication app = null;
         try {
-            app = appManager.createApplication(FileSystem.getFSRoot(new File(jarFile.getName())));
+            if (inPlaceDeployment) {
+                app = appManager.createApplication(jarFile);
+            } else {
+                app = appManager.createApplication(FileSystem.getFSRoot(ebaFile));
+            }
         } catch (Exception e) {
             throw new DeploymentException("Error creating Aries Application", e);
         }
@@ -170,7 +140,7 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
             }
         }
 
-        DeploymentContext context = installer.startInstall(app, targetConfigurationStore);
+        DeploymentContext context = installer.startInstall(app, (inPlaceDeployment) ? ebaFile : null, targetConfigurationStore);
 
         return context;
     }

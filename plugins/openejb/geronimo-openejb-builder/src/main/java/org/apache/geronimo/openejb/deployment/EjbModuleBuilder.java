@@ -405,7 +405,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             // the getResourcesMap() method was unable to find them.  In this "bad jar" scenario
             // some extra features such as the openejb.altdd.prefix functionality will not work.
 
-            String[] doubleCheck = {"ejb-jar.xml", "geronimo-openejb.xml", "openejb-jar.xml", "beans.xml", "env-entries.properties", "web.xml"};
+            String[] doubleCheck = {"ejb-jar.xml", "geronimo-openejb.xml", "openejb-jar.xml", "beans.xml", "env-entries.properties", "web.xml", "APPLICATION.MF"};
 
             for (String entry : doubleCheck) {
                 try {
@@ -1383,6 +1383,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 return false;
             }
 
+            if (descriptors.containsKey("APPLICATION.MF") || path.endsWith(".eba")) {
+                return false;
+            }
+            
             if (descriptors.containsKey("ejb-jar.xml") || descriptors.containsKey("beans.xml")) {
                 return true;
             }

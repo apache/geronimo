@@ -58,8 +58,9 @@ public class UnpackEBATypeHandler implements ArtifactTypeHandler {
                     unpack(child, destination, buffer);
                 }
             } else {               
-                ZipFile zipIn = new ZipFile(child);
+                ZipFile zipIn = null;
                 try {
+                    zipIn = new ZipFile(child);
                     JarUtils.unzipToDirectory(zipIn, destination);
                 } catch (Exception e) {
                     FileUtils.copyFile(child, destination, buffer);
