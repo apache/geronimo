@@ -88,7 +88,9 @@
       <!-- property name="openjpa.ConnectionURL" value="jdbc:derby://localhost:1527/UddiDatabase;create=false;"/-->
       <property name="openjpa.ConnectionUserName" value="app"/>
       <property name="openjpa.ConnectionPassword" value="app"/>
-      
+
+      <!-- See juddi-dev discussion from June 20th, 2012 about OpenJPA 2.2.0 --> 
+      <property name="openjpa.Compatibility" value="CheckDatabaseForCascadePersistToDetachedEntity=true"/>
       
       <!--  mysql connection properties
       <property name="openjpa.ConnectionURL" value="jdbc:mysql://localhost:3306/juddi"/>
