@@ -42,8 +42,6 @@ import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.slf4j.Logger;
@@ -162,63 +160,32 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
 
     @Override
     public Object startInstall(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password) {
-        File[] args = new File[] {carFile};
-        if (!isSameMachine) {
-            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null,
-                    null, null, false) {
-                public void run() {
-                }
-            };
-            progress.addProgressListener(new ProgressListener() {
-                public void handleProgressEvent(ProgressEvent event) {
-                    log.info(event.getDeploymentStatus().getMessage());
-                }
-            });
-            progress.setCommandContext(commandContext);
-            RemoteDeployUtil.uploadFilesToServer(args, progress);
-        }
-        // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
-        // the args argument with the filenames returned from the server
-        return super.startInstall(args[0], defaultRepository, restrictToDefaultRepository, username, password);
+        File remoteFile = getRemoteFile(carFile);
+        return super.startInstall(remoteFile, defaultRepository, restrictToDefaultRepository, username, password);
     }
 
     @Override
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
-        File[] args = new File[] {libFile};
-        if(!isSameMachine) {
-            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
-                public void run() {
-                }
-            };
-            progress.addProgressListener(new ProgressListener() {
-                public void handleProgressEvent(ProgressEvent event) {
-                    log.info(event.getDeploymentStatus().getMessage());
-                }
-            });
-            progress.setCommandContext(commandContext);
-            RemoteDeployUtil.uploadFilesToServer(args, progress);
-        }
-        // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
-        // the args argument with the filenames returned from the server
-        return super.installLibrary(args[0], groupId);
+        File remoteFile = getRemoteFile(libFile);
+        return super.installLibrary(remoteFile, groupId);
     }
 
     @Override
     public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws Exception {
-        isSameMachine("updateEBAContent");
-        super.updateEBAContent(applicationGBeanName, bundleId, bundleFile);
+        File remoteFile = getRemoteFile(bundleFile);
+        super.updateEBAContent(applicationGBeanName, bundleId, remoteFile);
     }
     
     @Override
     public boolean hotSwapEBAContent(AbstractName applicationGBeanName, long bundleId, File changesFile, boolean updateArchive) throws Exception {
-        isSameMachine("hotSwapEBAContent");
-        return super.hotSwapEBAContent(applicationGBeanName, bundleId, changesFile, updateArchive);
+        File remoteFile = getRemoteFile(changesFile);
+        return super.hotSwapEBAContent(applicationGBeanName, bundleId, remoteFile, updateArchive);
     }
         
     @Override
     public boolean updateEBAArchive(AbstractName applicationGBeanName, long bundleId, File file, boolean partial) throws Exception {
-        isSameMachine("updateEBAArchive");
-        return super.updateEBAArchive(applicationGBeanName, bundleId, file, partial);
+        File remoteFile = getRemoteFile(file);
+        return super.updateEBAArchive(applicationGBeanName, bundleId, remoteFile, partial);
     }
     
     @Override
@@ -230,6 +197,31 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     private void isSameMachine(String operation) {
         if (!isSameMachine) {
             throw new UnsupportedOperationException(operation + " operation is not supported from a remote JMX connection.");
+        }
+    }
+    
+    private File getRemoteFile(File file) {
+        if (isSameMachine) {
+            return file;
+        } else {
+            AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
+                public void run() {
+                }
+            };
+            progress.addProgressListener(new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                    log.info(event.getDeploymentStatus().getMessage());
+                }
+            });
+            progress.setCommandContext(commandContext);
+            
+            File[] args = new File[] {file};
+            
+            RemoteDeployUtil.uploadFilesToServer(args, progress);
+            
+            // RemoteDeployUtil.uploadFilesToServer updates the args parameter with the
+            // new filename on the server
+            return args[0];
         }
     }
     
