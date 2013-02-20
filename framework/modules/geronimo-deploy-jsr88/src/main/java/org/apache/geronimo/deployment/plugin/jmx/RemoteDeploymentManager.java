@@ -160,13 +160,27 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
 
     @Override
     public Object startInstall(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password) {
-        File remoteFile = getRemoteFile(carFile);
+        File remoteFile = null;
+        try {
+            remoteFile = getRemoteFile(carFile);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return super.startInstall(remoteFile, defaultRepository, restrictToDefaultRepository, username, password);
     }
 
     @Override
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
-        File remoteFile = getRemoteFile(libFile);
+        File remoteFile = null;
+        try {
+            remoteFile = getRemoteFile(libFile);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return super.installLibrary(remoteFile, groupId);
     }
 
@@ -200,7 +214,7 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
         }
     }
     
-    private File getRemoteFile(File file) {
+    private File getRemoteFile(File file) throws Exception {
         if (isSameMachine) {
             return file;
         } else {
@@ -217,7 +231,7 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
             
             File[] args = new File[] {file};
             
-            RemoteDeployUtil.uploadFilesToServer(args, progress);
+            RemoteDeployUtil.uploadFilesToServerException(args, progress);
             
             // RemoteDeployUtil.uploadFilesToServer updates the args parameter with the
             // new filename on the server

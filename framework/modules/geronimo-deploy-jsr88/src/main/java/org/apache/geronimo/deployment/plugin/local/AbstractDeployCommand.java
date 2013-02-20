@@ -142,10 +142,11 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
     }
 
-    protected void massageFileNames(File[] inputs) {
+    protected void massageFileNames(File[] inputs) throws Exception {
     }
 
     public URL getRemoteDeployUploadURL() throws Exception {
-       return new URL((String)kernel.getAttribute(deployer, "remoteDeployUploadURL"));
+        String remoteDeployURL = (String) kernel.getAttribute(deployer, "remoteDeployUploadURL");
+        return (remoteDeployURL == null) ? null : new URL(remoteDeployURL);
     }
 }

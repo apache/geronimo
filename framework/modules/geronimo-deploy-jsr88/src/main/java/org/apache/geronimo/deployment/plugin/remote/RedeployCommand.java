@@ -37,7 +37,8 @@ public class RedeployCommand extends org.apache.geronimo.deployment.plugin.local
         super(kernel, moduleIDList, moduleArchive, deploymentPlan);
     }
 
-    protected void massageFileNames(File[] inputs) {
-        RemoteDeployUtil.uploadFilesToServer(inputs, this);
+    @Override
+    protected void massageFileNames(File[] inputs) throws Exception {
+        RemoteDeployUtil.uploadFilesToServerException(inputs, this);
     }
 }

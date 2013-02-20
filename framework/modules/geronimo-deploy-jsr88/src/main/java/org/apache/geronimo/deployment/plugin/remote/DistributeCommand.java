@@ -39,8 +39,9 @@ public class DistributeCommand extends org.apache.geronimo.deployment.plugin.loc
         super(kernel, targetList, moduleType, moduleStream, deploymentStream);
     }
 
-    protected void massageFileNames(File[] inputs) {
-        RemoteDeployUtil.uploadFilesToServer(inputs, this);
+    @Override
+    protected void massageFileNames(File[] inputs) throws Exception {
+        RemoteDeployUtil.uploadFilesToServerException(inputs, this);
     }
     
     public void run() {
