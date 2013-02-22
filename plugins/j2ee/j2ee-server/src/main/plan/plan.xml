@@ -89,6 +89,7 @@
            javax.xml.soap.MetaFactory=org.apache.geronimo.webservices.saaj.GeronimoMetaFactory
            saaj.soapmessage.getsoapheader.strict=true
            java.net.preferIPv4Stack=true
+           org.apache.security.jacc.EJBMethodPermission.methodInterfaces=Timer,MessageEndpoint
          </attribute>
          <attribute name="sunSystemProperties">
              java.security.Provider=SUN
