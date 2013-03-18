@@ -92,7 +92,7 @@
         <yokoVersion>1.4-SNAPSHOT</yokoVersion>
         <juddiv3.version>3.1.0</juddiv3.version>
         <javamail.version>1.8.3</javamail.version>
-        <geronimoel.version>1.0.4-SNAPSHOT</geronimoel.version>
+        <geronimoel.version>1.0.4</geronimoel.version>
         <geronimoosgiregistry.version>1.1</geronimoosgiregistry.version>
         <geronimojaxws.version>1.1</geronimojaxws.version>
         <myfacesVersion>2.1.10</myfacesVersion>
@@ -297,7 +297,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jsp_2.2_spec</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
@@ -548,7 +548,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.6.8_2-SNAPSHOT</version>
+                <version>1.6.8_2</version>
             </dependency>
 
             <dependency>
