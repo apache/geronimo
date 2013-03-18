@@ -274,4 +274,9 @@ public class GeronimoClassLoader extends URLClassLoader implements BaseClassLoad
         String value = System.getProperty(CONVERT_RESOURCE_URLS);
         return (value == null) ? defaultValue : Boolean.parseBoolean(value);
     }
+    
+    public String toString() {
+        return "GeronimoClassLoader[" + bundle + "]";
+    }
+    
 }
