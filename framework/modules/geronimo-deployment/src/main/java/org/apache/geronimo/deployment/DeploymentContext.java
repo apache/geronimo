@@ -572,7 +572,9 @@ public class DeploymentContext {
             LinkedHashSet<String> imports = getImports(gbeans);
             addImport(imports, environment.getBundleActivator());
             environment.addImportPackages(imports);
-            environment.addDynamicImportPackage("*");
+            if (environment.getDynamicImportPackages().isEmpty()) {
+                environment.addDynamicImportPackage("*");
+            }
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
         }
 
