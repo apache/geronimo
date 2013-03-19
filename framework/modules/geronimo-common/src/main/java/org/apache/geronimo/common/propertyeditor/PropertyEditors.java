@@ -34,13 +34,14 @@ import org.osgi.framework.Bundle;
  * @version $Rev$
  */
 public class PropertyEditors {
+    private final static String GERONIMO_PROPERTYEDITORS_PACKAGE = "org.apache.geronimo.common.propertyeditor";
     /**
      * We need to register the standard register seach path and explicitly
      * register a boolean editor to make sure ours overrides.
      */
     static {
         // Append the geronimo propertyeditors package to the global search path.
-        appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
+        appendEditorSearchPath(GERONIMO_PROPERTYEDITORS_PACKAGE);
         // and explicitly register the Boolean editor.
         PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
         PropertyEditorManager.registerEditor(Integer.class, IntegerEditor.class);
@@ -59,6 +60,8 @@ public class PropertyEditors {
             throw new IllegalArgumentException("type is null");
         }
 
+        // Add Geronimo propertyeditors package if necessary.
+        addGeronimoPropertyEditorsPackage();
 
         // try to locate this directly from the editor manager first.
         PropertyEditor editor = PropertyEditorManager.findEditor(type);
@@ -321,9 +324,28 @@ public class PropertyEditors {
 
         // append to the current names list, and set ammended list back as the current
         // search order.
-        List currentPath = getEditorSearchPath();
-        currentPath.add(newName);
+        String[] paths = PropertyEditorManager.getEditorSearchPath();
+        appendEditorSearchPath(paths, newName);
+    }
 
-        setEditorSearchPath(currentPath);
+    /**
+     * Add Geronimo PropertyEditor package if necessary.
+     */
+    private static void addGeronimoPropertyEditorsPackage() {
+        String[] paths = PropertyEditorManager.getEditorSearchPath();
+        for (String path : paths) {
+            if (GERONIMO_PROPERTYEDITORS_PACKAGE.equals(path)) {
+                // it's already there - we are done
+                return;
+            }
+        }
+        appendEditorSearchPath(paths, GERONIMO_PROPERTYEDITORS_PACKAGE);
+    }
+
+    private static void appendEditorSearchPath(String[] paths, String additionalPath) {
+        String[] newPaths = new String[paths.length + 1];
+        System.arraycopy(paths, 0, newPaths, 0, paths.length);
+        newPaths[paths.length] = additionalPath;
+        PropertyEditorManager.setEditorSearchPath(newPaths);
     }
 }
