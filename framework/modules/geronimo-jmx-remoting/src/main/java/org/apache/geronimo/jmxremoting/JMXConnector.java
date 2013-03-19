@@ -192,21 +192,23 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
             String accessconfig = serverInfo.resolveServerPath("var/security/jmx_access.properties");
-	    env.put("jmx.remote.x.access.file",accessconfig);
+            env.put("jmx.remote.x.access.file", accessconfig);
             env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
         }
         RMIServerSocketFactory serverSocketFactory = new GeronimoRMIServerSocketFactory(host);
         env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, serverSocketFactory);
+        
         server = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, env, mbeanServer);
         NotificationFilterSupport filter = new NotificationFilterSupport();
         filter.enableType(JMXConnectionNotification.OPENED);
         filter.enableType(JMXConnectionNotification.CLOSED);
         filter.enableType(JMXConnectionNotification.FAILED);
         server.addNotificationListener(authenticator, filter, null);
+        
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
             server.start();
         } finally {

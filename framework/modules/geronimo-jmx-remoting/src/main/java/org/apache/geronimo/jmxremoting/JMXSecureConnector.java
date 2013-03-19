@@ -139,7 +139,7 @@ public class JMXSecureConnector extends JMXConnector {
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
             String accessconfig = serverInfo.resolveServerPath("var/security/jmx_access.properties");
-	    env.put("jmx.remote.x.access.file",accessconfig);
+            env.put("jmx.remote.x.access.file", accessconfig);
             env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
@@ -157,7 +157,14 @@ public class JMXSecureConnector extends JMXConnector {
         filter.enableType(JMXConnectionNotification.CLOSED);
         filter.enableType(JMXConnectionNotification.FAILED);
         server.addNotificationListener(authenticator, filter, null);
-        server.start();
+        
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        try {
+            server.start();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
+        }
         log.debug("Started JMXConnector " + server.getAddress());
     }
 
