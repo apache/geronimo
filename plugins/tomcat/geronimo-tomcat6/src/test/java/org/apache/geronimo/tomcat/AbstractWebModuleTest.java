@@ -89,12 +89,10 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null,
-                false,
-                null,
-                false,
                 null,
                 null,
                 null,
+                new HashMap<String, String>(),
                 null,
                 null,
                 null);

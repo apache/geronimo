@@ -56,6 +56,8 @@ import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
+import org.apache.tomcat.util.IntrospectionUtils;
+
 
 /**
  * @version $Rev$ $Date$
@@ -189,13 +191,20 @@ public class GeronimoStandardContext extends StandardContext {
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
-        this.setCrossContext(ctx.isCrossContext());
+        Map<String, String> contextAttributes = ctx.getContextAttributes();
 
-        this.setWorkDir(ctx.getWorkDir());
+        if (!ctx.getContextAttributes().containsKey("allowLinking")) {
+            contextAttributes.put("allowLinking", String.valueOf(allowLinking));
+        }
 
-        super.setAllowLinking(allowLinking);
-
-        this.setCookies(!ctx.isDisableCookies());
+        //Set context attributes via reflection
+        for (Map.Entry<String, String> entry : contextAttributes.entrySet()) {
+            if (!IntrospectionUtils.setProperty(this, entry.getKey(), entry.getValue())) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Fail to configure attribute " + entry.getKey() + " with value " + entry.getValue() + ", please check whether the attribute exists or is typo correctly");
+                }
+            }
+        }
 
         //Set the Dispatch listener
         this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");

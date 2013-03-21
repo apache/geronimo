@@ -70,6 +70,8 @@ public interface TomcatContext {
     
     List getLifecycleListenerChain();
 
+    Map<String, String> getContextAttributes();
+
     CatalinaCluster getCluster();
 
     Manager getManager();

@@ -28,6 +28,7 @@ import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -49,8 +50,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -78,6 +79,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatContextType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -99,6 +101,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -110,6 +114,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final String IS_JAVAEE = "IS_JAVAEE";
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    private static final Set<String> INGORED_CONTEXT_ATTRIBUTE_NAMES = new HashSet<String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -285,7 +290,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                     rawPlan = (XmlObject) plan;
                 } else {
                     if (plan != null) {
-                        rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
+                        rawPlan = XmlBeansUtil.parse(((File) plan).toURI().toURL(), getClass().getClassLoader());
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
                         try {
@@ -347,6 +352,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
         try {
             moduleContext.addGBean(webModuleData);
+            Map<String, String> contextAttributes = new HashMap<String, String>();
             Set<String> securityRoles = collectRoleNames(webApp);
             Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
@@ -367,14 +373,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setAttribute("virtualServer", virtualServer);
             }
             if (tomcatWebApp.isSetCrossContext()) {
-                webModuleData.setAttribute("crossContext", Boolean.TRUE);
+                //webModuleData.setAttribute("crossContext", Boolean.TRUE);
+                contextAttributes.put("crossContext", "true");
             }
             if (tomcatWebApp.isSetWorkDir()) {
                 String workDir = tomcatWebApp.getWorkDir();
-                webModuleData.setAttribute("workDir", workDir);
+                contextAttributes.put("workDir", workDir);
             }
             if (tomcatWebApp.isSetDisableCookies()) {
-                webModuleData.setAttribute("disableCookies", Boolean.TRUE);
+                contextAttributes.put("cookies", "false");
             }
             if (tomcatWebApp.isSetTomcatRealm()) {
                 String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
@@ -413,10 +420,42 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 }
             }
 
+
+            //Add context attributes and parameters
+            if (tomcatWebApp.isSetContext()) {
+                TomcatContextType context = tomcatWebApp.getContext();
+                NamedNodeMap namedNodeMap = context.getDomNode().getAttributes();
+                for (int i = 0; i < namedNodeMap.getLength(); i++) {
+                    Node node = namedNodeMap.item(i);
+                    String attributeName = node.getNodeName();
+                    if (INGORED_CONTEXT_ATTRIBUTE_NAMES.contains(attributeName.toLowerCase())) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Context attribute " + attributeName + " in the geronimo-web.xml is ignored, as it is not support or Geronimo has already configured it");
+                        }
+                        continue;
+                    }
+                    if (contextAttributes.containsKey(attributeName)) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Context attribute " + attributeName
+                                    + " on the context element in geronimo-web.xml is ignored, as it has been explicitly configured with other elements in the geronimo-web.xml file");
+                        }
+                        continue;
+                    }
+                    contextAttributes.put(node.getNodeName(), node.getNodeValue());
+                }
+
+            }
+            /**
+             * The old geronimo-web.xml also support to configure some context attributes individually,
+             * let's override them in the contextAttributes
+             */
+
+            webModuleData.setAttribute("contextAttributes", contextAttributes);
+
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
-            Class baseServletClass;
+            Class<?> baseServletClass;
             try {
                 baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
@@ -429,7 +468,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 if (servletType.isSetServletClass()) {
                     String servletName = servletType.getServletName().getStringValue().trim();
                     String servletClassName = servletType.getServletClass().getStringValue().trim();
-                    Class servletClass;
+                    Class<?> servletClass;
                     try {
                         servletClass = webClassLoader.loadClass(servletClassName);
                     } catch (ClassNotFoundException e) {

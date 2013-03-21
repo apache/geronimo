@@ -90,9 +90,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final List listenerChain;
     private final CatalinaCluster catalinaCluster;
     private final Manager manager;
-    private final boolean crossContext;
-    private final String workDir;
-    private final boolean disableCookies;
     private final UserTransaction userTransaction;
     private final javax.naming.Context componentContext;
     private final Kernel kernel;
@@ -108,7 +105,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final URL configurationBaseURL;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
-
+    private Map<String,String> contextAttributes;
     // JSR 77
     private final String j2EEServer;
     private final String j2EEApplication;
@@ -139,12 +136,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             LifecycleListenerGBean lifecycleListenerChain,
             CatalinaClusterGBean cluster,
             ObjectRetriever managerRetriever,
-            boolean crossContext,
-            String workDir,
-            boolean disableCookies,
             Map webServices,
             Holder holder,
             RuntimeCustomizer contextCustomizer,
+            Map<String,String> contextAttributes,
             J2EEServer server,
             J2EEApplication application,
             Kernel kernel)
@@ -196,6 +191,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.holder = holder == null? new Holder(): holder;
         this.contextCustomizer = contextCustomizer;
+        this.contextAttributes = contextAttributes;
 
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
@@ -245,12 +241,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             this.manager = null;
         }
-
-        this.crossContext = crossContext;
-        
-        this.workDir = workDir;
-
-        this.disableCookies = disableCookies;
 
         this.webServices = createWebServices(webServices, kernel);
 
@@ -359,7 +349,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public boolean isDisableCookies() {
-        return disableCookies;
+        String cookies = contextAttributes.get("cookies");
+        return cookies == null ? false : !Boolean.parseBoolean(cookies);
     }
 
     public Context getContext() {
@@ -420,11 +411,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public boolean isCrossContext() {
-        return crossContext;
+        String crossContext = contextAttributes.get("crossContext");
+        return crossContext == null ? false : Boolean.parseBoolean(crossContext);
     }
 
     public String getWorkDir() {
-        return workDir;
+        return contextAttributes.get("workDir");
     }
     
     public Map getWebServices(){
@@ -506,6 +498,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         reset = true;
     }
 
+    public Map<String, String> getContextAttributes() {
+        return contextAttributes;
+    }
+
     public void doStart() throws Exception {
 
         // See the note of TomcatContainer::addContext
@@ -575,12 +571,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference(GBEAN_REF_MANAGER_RETRIEVER, ObjectRetriever.class);
-        infoBuilder.addAttribute("crossContext", boolean.class, true);
-        infoBuilder.addAttribute("workDir", String.class, true);
-        infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addAttribute("holder", Holder.class, true);
         infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addAttribute("contextAttributes", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -607,12 +601,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "LifecycleListenerChain",
                 "Cluster",
                 GBEAN_REF_MANAGER_RETRIEVER,
-                "crossContext",
-                "workDir",
-                "disableCookies",
                 "webServices",
                 "holder",
                 "ContextCustomizer",
+                "contextAttributes",
                 "J2EEServer",
                 "J2EEApplication",
                 "kernel"
