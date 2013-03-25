@@ -27,17 +27,22 @@
              xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
+    <b:bean id="config-substitutions" 
+            class="org.apache.geronimo.activemq.ConfigSubstitutionsHelper"
+            factory-method="getSubstitutions">
+        <b:argument ref="blueprintBundleContext"/>
+        <b:argument>
+            <b:map>
+                <b:entry key="activemq.brokerName" value="DefaultActiveMQBroker"/>
+                <b:entry key="activemq.data" value="var/activemq"/> 
+                <b:entry key="ActiveMQHostname" value="0.0.0.0"/>
+                <b:entry key="ActiveMQPort" value="61616"/>
+                <b:entry key="PortOffset" value="0"/>
+            </b:map>   
+        </b:argument>
+    </b:bean>
 
-    <ext:property-placeholder id="property-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true">
-        <ext:default-properties>
-            <ext:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
-            <ext:property name="activemq.data" value="var/activemq"/>
-            <ext:property name="ActiveMQHostname" value="0.0.0.0"/>
-            <ext:property name="ActiveMQPort" value="61616"/>
-            <ext:property name="PortOffset" value="0"/>
-        </ext:default-properties>
-        <ext:location>file:$[karaf.base]/var/config/config-substitutions.properties</ext:location>
+    <ext:property-placeholder id="property-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true" defaults-ref="config-substitutions">
     </ext:property-placeholder>
 
     <amq:brokerService brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" schedulerSupport="false">

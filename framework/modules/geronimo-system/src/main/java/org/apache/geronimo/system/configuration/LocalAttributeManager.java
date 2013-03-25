@@ -150,6 +150,10 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         return prefix;
     }
 
+    public Map<String, Object> getConfigSubstitutionsVariables() {
+        return expressionParser.getVariables();
+    }
+    
     public synchronized Collection<GBeanData> applyOverrides(Artifact configName, Collection<GBeanData> untypedGbeanDatas, Bundle bundle) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
         Collection<GBeanData> gbeanDatas = new ArrayList<GBeanData>(untypedGbeanDatas);
