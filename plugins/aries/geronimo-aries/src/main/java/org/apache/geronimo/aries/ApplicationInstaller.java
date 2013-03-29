@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import org.apache.aries.application.ApplicationMetadata;
@@ -84,6 +87,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
     private Collection<ConfigurationStore> configurationStores;
     private Environment defaultEnvironment;
     private GeronimoApplicationManager applicationManager;
+    private Map<Artifact, AriesApplication> applicationMap;
     
     public ApplicationInstaller(@ParamReference(name = "Store", namingType = "ConfigurationStore") Collection<ConfigurationStore> configurationStores,
                                 @ParamReference(name = "Repositories", namingType = "Repository") Collection<? extends Repository> repositories,
@@ -101,6 +105,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
         this.defaultEnvironment = defaultEnvironment;
         this.webApplicationTracker = new WebApplicationTracker(bundleContext);
         this.applicationManager = new GeronimoApplicationManager(bundleContext);
+        this.applicationMap = Collections.synchronizedMap(new HashMap<Artifact, AriesApplication>());
     }
 
     public void doStart() throws Exception {
@@ -108,12 +113,10 @@ public class ApplicationInstaller implements GBeanLifecycle {
         webApplicationTracker.start();
         applicationManager.doStart();
         
-        if (getUnpackApplicationBundles()) {
-            for (Repository repository : repositories) {
-                if (repository instanceof AbstractRepository) {
-                    ((AbstractRepository) repository).setTypeHandler("eba", new UnpackEBATypeHandler());
-                }
-            }
+        for (Repository repository : repositories) {
+            if (repository instanceof AbstractRepository) {
+                ((AbstractRepository) repository).setTypeHandler("eba", new EBAArtifactTypeHandler(this));
+            }           
         }        
     }
 
@@ -141,6 +144,20 @@ public class ApplicationInstaller implements GBeanLifecycle {
         return webApplicationTracker;
     }
     
+    protected void registerApplication(Artifact id, AriesApplication app) {
+        applicationMap.put(id, app);
+    }
+    
+    protected AriesApplication unregisterApplication(Artifact id) {
+        AriesApplication app = applicationMap.remove(id);
+        return app;
+    }
+    
+    protected AriesApplication lookupApplication(Artifact id) {
+        AriesApplication app = applicationMap.get(id);
+        return app;
+    }
+    
     public DeploymentContext startInstall(AriesApplication app, File inPlaceLocation, ConfigurationStore targetConfigurationStore)
         throws ConfigurationAlreadyExistsException, IOException, DeploymentException {
 
@@ -158,7 +175,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
         //Use a temporary folder to hold the extracted files for analysis use
         File tempDirectory = FileUtils.createTempDir();
         try {
-            DeploymentContext context = new DeploymentContext(tempDirectory,
+            DeploymentContext context = new EBADeploymentContext(tempDirectory,
                             null,
                             environment,
                             moduleName,
@@ -172,8 +189,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.initializeConfiguration();
 
             if (inPlaceLocation == null) {
-                // UnpackEBATypeHandler will unpack the application bundles if necessary at install time 
-                storeApplication(app, tempDirectory, false);
+                // EBAArtifactTypeHandler will "install" the application
+                registerApplication(configId, app);
             } else {                
                 storeInPlaceApplication(app, inPlaceLocation);
             }
@@ -199,7 +216,11 @@ public class ApplicationInstaller implements GBeanLifecycle {
         return Boolean.parseBoolean(property);
     }
     
-    private void storeApplication(AriesApplication app, File directory, boolean unpack) throws IOException {
+    protected void storeApplication(AriesApplication app, File directory) throws IOException {
+        storeApplication(app, directory, getUnpackApplicationBundles());
+    }
+    
+    protected void storeApplication(AriesApplication app, File directory, boolean unpack) throws IOException {
         ApplicationMetadata appMetadata = app.getApplicationMetadata();
         appMetadata.store(new File(directory, AppConstants.APPLICATION_MF));
 
@@ -316,6 +337,28 @@ public class ApplicationInstaller implements GBeanLifecycle {
                     }
                 }
             }
+        }
+    }
+    
+    private class EBADeploymentContext extends DeploymentContext {
+
+        public EBADeploymentContext(File baseDir, 
+                                    File inPlaceConfigurationDir, 
+                                    Environment environment,
+                                    AbstractName moduleName, 
+                                    ConfigurationModuleType moduleType, 
+                                    Naming naming,
+                                    ConfigurationManager configurationManager, 
+                                    Collection<Repository> repositories,
+                                    BundleContext bundleContext) throws DeploymentException {
+            super(baseDir, inPlaceConfigurationDir, environment, moduleName, 
+                  moduleType, naming, configurationManager, repositories, bundleContext);
+        }
+
+        @Override
+        public void close() throws IOException, DeploymentException {
+            super.close();
+            unregisterApplication(moduleName.getArtifact());
         }
     }
 
