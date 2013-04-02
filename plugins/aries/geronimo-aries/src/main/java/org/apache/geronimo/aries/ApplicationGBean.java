@@ -427,9 +427,14 @@ public class ApplicationGBean implements GBeanLifecycle {
         BundleContext context = bundle.getBundleContext();
         FrameworkWiring wiring = context.getBundle(0).adapt(FrameworkWiring.class);
         if (!wiring.resolveBundles(applicationBundles)) {
-            throw new BundleException("One or more bundles in " + getApplicationName() + " application could not be resolved.");
+            LOG.debug("First resolution of application bundles failed.");
+            if (!wiring.resolveBundles(applicationBundles)) {
+                throw new BundleException("One or more bundles in " + getApplicationName() + " application could not be resolved.");
+            } else {
+                LOG.debug("Second resolution of application bundles was successful.");
+            }
         }
-        
+
         setApplicationState(ApplicationState.RESOLVED);
         setApplicationState(ApplicationState.STARTING);
         
