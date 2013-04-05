@@ -30,7 +30,6 @@ import javax.naming.Reference;
 import javax.resource.Referenceable;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.Subject;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.DataSource;
 import javax.sql.XAConnection;
@@ -252,9 +251,9 @@ public class DataSourceService implements ResourceSource<ResourceException>, Ser
         }
         
         @Override
-        protected XAConnection getPhysicalConnection(Subject subject, CredentialExtractor credentialExtractor) 
+        protected XAConnection getPhysicalConnection(CredentialExtractor credentialExtractor) 
             throws ResourceException {
-            XAConnection connection = super.getPhysicalConnection(subject, credentialExtractor);
+            XAConnection connection = super.getPhysicalConnection(credentialExtractor);
             int isolationLevel = dataSourceDescription.getIsolationLevel();
             if (isolationLevel != -1) {
                 try {

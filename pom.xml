@@ -81,8 +81,8 @@
         <xbeanBundleUtilsVersion>3.13</xbeanBundleUtilsVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1.1</txmanagerVersion>
-        <tranqlVersion>1.7</tranqlVersion>
-        <tranqlDerbyVersion>1.7</tranqlDerbyVersion>
+        <tranqlVersion>1.8</tranqlVersion>
+        <tranqlDerbyVersion>1.8</tranqlDerbyVersion>
         <jaxbImplVersion>2.2.3-1_1</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
@@ -2332,6 +2332,18 @@ only found in cxf
             <id>geronimo-svn-repo</id>
             <name>Geronimo 3rd Party libraries</name>
             <url>http://svn.apache.org/repos/asf/geronimo/repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+       <repository>
+            <id>tranql-repo</id>
+            <name>tranql repo</name>
+            <url>https://nexus.codehaus.org/content/repositories/orgtranql-016/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
