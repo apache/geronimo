@@ -29,11 +29,13 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipFile;
@@ -152,7 +154,10 @@ public class Utils {
         }
         return rc;
     }
-
+    
+    private static final String INCLUDES_PROPERTY = "${includes}";
+    private static final String OPTIONALS_PROPERTY = "${optionals}";
+    
     public static Properties loadPropertiesFile(File file, boolean critical) throws IOException {
         // Read the properties file.
         Properties configProps = new Properties();
@@ -172,8 +177,84 @@ public class Utils {
                 try { is.close(); } catch (Exception e) {}
             }
         }
+        
+        loadIncludes(INCLUDES_PROPERTY, true, file, configProps);
+        loadIncludes(OPTIONALS_PROPERTY, false, file, configProps);
+        
         return configProps;
     }
+    
+    private static void loadIncludes(String propertyName, boolean mandatory, File file, Properties configProps) throws IOException {
+        String includes = configProps.getProperty(propertyName);
+        if (includes != null) {
+            StringTokenizer st = new StringTokenizer(includes, "\" ", true);
+            if (st.countTokens() > 0) {
+                String location;
+                do {
+                    location = nextLocation(st);
+                    if (location != null) {
+                        File newLocation = new File(location);
+                        if (!newLocation.isAbsolute()) {
+                            newLocation = new File(file.getParent(), location);
+                        }
+                        Properties props = loadPropertiesFile(newLocation, true);
+                        // included properties do NOT override current values
+                        for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
+                            String name = (String) e.nextElement();
+                            if (!configProps.containsKey(name)) {
+                                configProps.put(name, props.getProperty(name));
+                            }
+                        }
+                    }
+                } while (location != null);
+            }
+        }
+        configProps.remove(propertyName);
+    }
+    
+    private static String nextLocation(StringTokenizer st) {
+        String retVal = null;
+
+        if (st.countTokens() > 0) {
+            String tokenList = "\" ";
+            StringBuffer tokBuf = new StringBuffer(10);
+            String tok;
+            boolean inQuote = false;
+            boolean tokStarted = false;
+            boolean exit = false;
+            while ((st.hasMoreTokens()) && (!exit)) {
+                tok = st.nextToken(tokenList);
+                if (tok.equals("\"")) {
+                    inQuote = !inQuote;
+                    if (inQuote) {
+                        tokenList = "\"";
+                    } else {
+                        tokenList = "\" ";
+                    }
+
+                } else if (tok.equals(" ")) {
+                    if (tokStarted) {
+                        retVal = tokBuf.toString();
+                        tokStarted = false;
+                        tokBuf = new StringBuffer(10);
+                        exit = true;
+                    }
+                } else {
+                    tokStarted = true;
+                    tokBuf.append(tok.trim());
+                }
+            }
+
+            // Handle case where end of token stream and
+            // still got data
+            if ((!exit) && (tokStarted)) {
+                retVal = tokBuf.toString();
+            }
+        }
+
+        return retVal;
+    }
+  
 
     private static final String DELIM_START = "${";
     private static final String DELIM_STOP = "}";

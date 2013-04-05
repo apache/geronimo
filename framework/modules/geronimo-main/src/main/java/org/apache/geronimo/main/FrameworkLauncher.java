@@ -86,7 +86,7 @@ public class FrameworkLauncher {
     private String log4jFile;
     private String startupFile = STARTUP_PROPERTIES_FILE_NAME;
     private String configFile = CONFIG_PROPERTIES_FILE_NAME;
-    private String additionalConfigFile = null;
+    private String systemPropertiesFile = SYSTEM_PROPERTIES_FILE_NAME;
     private boolean cleanStorage = false;
 
     private ServerInfo serverInfo;
@@ -107,8 +107,8 @@ public class FrameworkLauncher {
         this.configFile = configFile;
     }
 
-    public void setAdditionalConfigFile(String additionalConfigFile) {
-        this.additionalConfigFile = additionalConfigFile;
+    public void setSystemPropertiesFile(String systemPropertiesFile) {
+        this.systemPropertiesFile = systemPropertiesFile;
     }
 
     public void setStartupFile(String startupFile) {
@@ -316,10 +316,10 @@ public class FrameworkLauncher {
      * arbitrary URL.
      * </p>
      */
-    protected static void loadSystemProperties(File baseDir) throws IOException {
-        File file = new File(new File(baseDir, "etc"), SYSTEM_PROPERTIES_FILE_NAME);
+    protected void loadSystemProperties(File baseDir) throws IOException {
+        File file = new File(new File(baseDir, "etc"), systemPropertiesFile);
         Properties props = Utils.loadPropertiesFile(file, false);
-
+        
         // Perform variable substitution on specified properties.
         for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
@@ -331,15 +331,6 @@ public class FrameworkLauncher {
     private Properties loadConfigProperties(File baseDir) throws Exception {
         File config = new File(new File(baseDir, "etc"), configFile);
         Properties configProps = Utils.loadPropertiesFile(config, false);
-
-        // Perform config props override
-        if (additionalConfigFile != null){
-            File additionalConfig = new File(new File(baseDir, "etc"), additionalConfigFile);
-            Properties additionalProps = Utils.loadPropertiesFile(additionalConfig, false);
-            for (Entry<Object, Object> entry : additionalProps.entrySet()) {
-                configProps.setProperty((String)entry.getKey(), (String)entry.getValue());
-            }
-        }
 
         // Perform variable substitution for system properties.
         for (Enumeration<?> e = configProps.propertyNames(); e.hasMoreElements();) {
