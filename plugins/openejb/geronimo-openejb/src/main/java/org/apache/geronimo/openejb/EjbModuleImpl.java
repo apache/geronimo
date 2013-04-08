@@ -172,6 +172,17 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
+        Thread currentThread = Thread.currentThread();
+        ClassLoader oldCL = currentThread.getContextClassLoader();
+        try {
+            currentThread.setContextClassLoader(classLoader);
+            start();
+        } finally {
+            currentThread.setContextClassLoader(oldCL);
+        }
+    }
+    
+    private void start() throws Exception {
         List<BeanContext> allDeployments = appInfoGBean.getModuleBeanContexts(moduleURI);
         //start code from openejb assembler
 
