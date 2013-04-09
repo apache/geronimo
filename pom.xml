@@ -2339,18 +2339,6 @@ only found in cxf
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-
-       <repository>
-            <id>tranql-repo</id>
-            <name>tranql repo</name>
-            <url>https://nexus.codehaus.org/content/repositories/orgtranql-016/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>      
 
     <profiles>
