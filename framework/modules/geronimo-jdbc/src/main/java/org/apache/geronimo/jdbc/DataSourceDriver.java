@@ -25,7 +25,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverPropertyInfo;
 import java.sql.DriverManager;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 import javax.naming.Context;
@@ -86,5 +88,9 @@ public class DataSourceDriver implements Driver {
     public boolean jdbcCompliant() {
         //lie shamelessly
         return true;
+    }
+
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
     }
 }

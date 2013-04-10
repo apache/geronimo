@@ -23,6 +23,8 @@ import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 /**
  * @version $Rev$ $Date$
@@ -58,6 +60,10 @@ public class MockDataSource implements DataSource {
         return null;
     }
 
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     public static GBeanInfo getGBeanInfo() {

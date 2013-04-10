@@ -20,15 +20,12 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Collections;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.SourceRepository;
@@ -39,7 +36,6 @@ import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -64,18 +60,10 @@ public class InstallModulesMojo extends AbstractCarMojo {
     /**
      * The location of the target repository.
      *
-     * @parameter expression="repository"
+     * @parameter default-value="repository"
      * @required
      */
     private String targetRepositoryPath = null;
-
-    /**
-     * The location of the target config files.
-     *
-     * @parameter expression="var/config"
-     * @required
-     */
-    private String targetConfigPath = null;
 
     /**
      * ServerInstance specific in plugin configuration, to specify where config.xml and properties updates go.
@@ -101,33 +89,12 @@ public class InstallModulesMojo extends AbstractCarMojo {
     private ArtifactRepository sourceRepository = null;
 
     /**
-     * The location where the properties mapping will be generated.
-     *
-     * @parameter expression="${project.build.directory}/explicit-versions.properties"
-     * @required
-     */
-    private File explicitResolutionProperties = null;
-
-    /**
      * The location of the target config files.
      *
-     * @parameter expression="var/config/installed-plugins.properties"
+     * @parameter default-value="var/config/installed-plugins.properties"
      * @required
      */
     private String installedPluginsList;
-
-    /**
-     * The Geronimo repository artifact resolver.
-     * <p/>
-     * <p/>
-     * Using a custom name here to prevent problems that happen when Plexus
-     * injects the Maven resolver into the base-class.
-     * </p>
-     */
-    private AliasedArtifactResolver geronimoArtifactResolver;
-
-    private RepositoryConfigurationStore sourceStore;
-
 
     /**
      * @parameter expression="${project.build.directory}/classes/var/config/overrides"
@@ -139,11 +106,6 @@ public class InstallModulesMojo extends AbstractCarMojo {
      * @parameter
      */
     private List<Override> overrides;
-
-    /**
-     * Set of artifacts which have already been installed, so we can skip any processing.
-     */
-    private Set installedArtifacts = new HashSet();
 
     //TODO OSGI figure out what this might be
     private BundleContext bundleContext;

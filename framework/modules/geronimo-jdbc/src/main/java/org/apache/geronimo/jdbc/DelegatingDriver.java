@@ -22,11 +22,13 @@ package org.apache.geronimo.jdbc;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 import java.sql.Driver;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverPropertyInfo;
 import java.sql.DriverManager;
+import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * Class to sneak around idiotic classloading restrictions in DriverManager.  This basically does the same as DriverManager
@@ -90,5 +92,9 @@ public class DelegatingDriver implements Driver {
     public boolean jdbcCompliant() {
         //Lie through our teeth
         return true;
+    }
+    
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
     }
 }
