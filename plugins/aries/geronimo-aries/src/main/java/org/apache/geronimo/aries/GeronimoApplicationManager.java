@@ -17,6 +17,7 @@
 package org.apache.geronimo.aries;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -196,7 +197,7 @@ public class GeronimoApplicationManager {
         for (File file : baseDir.listFiles()) {
             if (file.isDirectory()) {
                 if (file.getName().endsWith(".jar")) {
-                    BundleManifest bm = BundleManifest.fromBundle(file);
+                    BundleManifest bm = fromBundle(file);
                     if (bm != null && bm.isValid()) {
                         bundleInfos.add(new SimpleBundleInfo(applicationMetadataFactory, bm, "reference:" + file.toURI().toString()));                
                     }
@@ -205,7 +206,7 @@ public class GeronimoApplicationManager {
                     continue;
                 }
             } else {
-                BundleManifest bm = BundleManifest.fromBundle(file);
+                BundleManifest bm = fromBundle(file);
                 if (bm != null && bm.isValid()) {
                     /*
                      * Pass file:// url instead of reference:file:// as bundle location to make sure
@@ -219,6 +220,47 @@ public class GeronimoApplicationManager {
         }
     }
     
+    private BundleManifest fromBundle(File file) {
+        if (file.isFile()) {
+            // it's a jar file
+            FileInputStream in = null;
+            try {
+                in = new FileInputStream(file);
+                return BundleManifest.fromBundle(in);
+            } catch (IOException e) {
+                LOG.debug("Error reading file: " + file, e);
+            } finally {
+                IOUtils.close(in);
+            }
+            return null;
+        } else if (file.isDirectory()) {
+            // it's a jar directory
+            File manifestFile = new File(file, JarFile.MANIFEST_NAME);
+            if (manifestFile.isFile()) {
+                FileInputStream in = null;
+                try {
+                    in = new FileInputStream(manifestFile);
+                    return new BundleManifest(in);
+                } catch (IOException e) {
+                    LOG.debug("Error reading manifest file: " + file, e);
+                } finally {
+                    IOUtils.close(in);
+                }
+            }
+            return null;
+        } else {
+            throw new IllegalArgumentException("Unsupported file type: " + file);
+        }
+    }
+    
+    private BundleManifest fromBundle(InputStream jarInputStream) {
+        try {
+            return BundleManifest.fromBundle(jarInputStream);
+        } finally {
+            IOUtils.close(jarInputStream);
+        }
+    }
+    
     private Set<BundleInfo> getBundleInfos(Bundle bundle) throws IOException, ManagementException {
         ApplicationMetadataFactory applicationMetadataFactory = getApplicationMetadataFactory();
         Set<BundleInfo> bundleInfos = new HashSet<BundleInfo>();
@@ -228,7 +270,7 @@ public class GeronimoApplicationManager {
             if (url.getPath().endsWith("/")) {
                 continue;
             }
-            BundleManifest bm = BundleManifest.fromBundle(url.openStream());
+            BundleManifest bm = fromBundle(url.openStream());
             if (bm != null && bm.isValid()) {
                 bundleInfos.add(new SimpleBundleInfo(applicationMetadataFactory, bm, url.toExternalForm()));
             }
