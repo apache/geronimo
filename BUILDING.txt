@@ -40,6 +40,22 @@ source tree:
 
     mvn clean install
 
+Building with Java 7 on Mac OS
+==============================
+
+There is an issue building Geronimo on Mac OS due to the following problem
+with the Maven JSPC Plugin:
+
+https://issues.apache.org/jira/browse/GERONIMO-6446
+https://jira.codehaus.org/browse/MJSPC-53
+
+You can work around this problem with the following:
+
+$ sudo mkdir `/usr/libexec/java_home`/Classes 
+$ sudo ln -s `/usr/libexec/java_home`/lib/tools.jar `/usr/libexec/java_home`/Classes/classes.jar
+
+Note that these commands will needed to be repeated when new versions
+of the JDK are installed.
 
 Testing the Build
 =================
