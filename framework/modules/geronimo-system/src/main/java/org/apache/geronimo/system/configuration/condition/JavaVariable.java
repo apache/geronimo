@@ -67,6 +67,10 @@ public class JavaVariable
     public boolean getIs1_6() {
         return SystemUtils.IS_JAVA_1_6;
     }
+    
+    public boolean getIs1_7() {
+        return SystemUtils.IS_JAVA_1_7;
+    }
 
     public boolean getIsVersionAtLeast(final float requiredVersion) {
         return SystemUtils.isJavaVersionAtLeast(requiredVersion);

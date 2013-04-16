@@ -31,6 +31,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.system.configuration.condition.SystemUtils;
 import org.apache.xbean.classloader.JarFileClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,9 +147,16 @@ public class JAXWSTools {
         if (this.saajImpl != null) {
             jars.add(getLocation(repositories, this.saajImpl));
         }
-        // add tools.jar to classpath except on Mac OS. On Mac OS there is classes.jar with the
-        // same contents as tools.jar and is automatically included in the classpath.
-        if (!Os.isFamily(Os.FAMILY_MAC)) {
+
+        if (Os.isFamily(Os.FAMILY_MAC)) {
+            // add tools.jar to classpath on Mac OS but only when running Java 7+.
+            // With older JVMs there is classes.jar with the same contents as tools.jar and
+            // is automatically included in the classpath.
+            if (SystemUtils.IS_JAVA_1_7) {
+                addToolsJarLocation(jars);
+            }
+        } else {
+            // add tools.jar to classpath on non- Mac OS
             addToolsJarLocation(jars);
         }
 
