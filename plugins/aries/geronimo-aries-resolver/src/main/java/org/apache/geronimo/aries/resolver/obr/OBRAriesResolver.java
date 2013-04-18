@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -144,85 +145,120 @@ public class OBRAriesResolver implements AriesApplicationResolver {
         }
 
         Resolver obrResolver = repositoryAdmin.resolver(resolveRepos.toArray(new Repository[resolveRepos.size()]));
-        // add a resource describing the requirements of the application
-        // metadata.
+        // add a resource describing the requirements of the application metadata.
         obrResolver.add(createApplicationResource(helper, appName, appVersion, appContent));
         
+        log.debug("Resolving application resources");
         boolean resolved = obrResolver.resolve();
-        Set<Resource> requiredFragments = new HashSet<Resource>();
-        Set<Resource> optionalFragments = new HashSet<Resource>();
+        log.debug("Resolution result: {}", resolved);
         
-        if (resolved && resolveFragments) {
-            for (Resource resource : obrResolver.getRequiredResources()) {
-                Resource fragmentResource = findFragmentResource(resource);
-                if (fragmentResource != null) {
-                    requiredFragments.add(fragmentResource);
-                }
-            }
-            if (returnOptionalResources) {
-                for (Resource resource : obrResolver.getOptionalResources()) {
-                    Resource fragmentResource = findFragmentResource(resource);
-                    if (fragmentResource != null) {
-                        optionalFragments.add(fragmentResource);
-                    }
-                }
-            }
-            
-            if (!requiredFragments.isEmpty() || !optionalFragments.isEmpty()) {
-                for (Resource fragment : requiredFragments) {
-                    obrResolver.add(fragment);
-                }
-                for (Resource fragment : optionalFragments) {
-                    obrResolver.add(fragment);
-                }
-                resolved = obrResolver.resolve();
-            }
-        }
-
         if (resolved) {
+            Set<BundleInfo> fragmentResult = null;
+            if (resolveFragments) {
+                fragmentResult = resolveFragments(obrResolver, resolveRepos, appName);
+            }
+
             Set<BundleInfo> result = new HashSet<BundleInfo>();
-            for (Resource resource : obrResolver.getRequiredResources()) {
-                BundleInfo bundleInfo = toBundleInfo(resource, false);
-                result.add(bundleInfo);
-            }
+            toBundleInfo(result, obrResolver.getRequiredResources(), false);
             if (returnOptionalResources) {
-                for (Resource resource : obrResolver.getOptionalResources()) {
-                    BundleInfo bundleInfo = toBundleInfo(resource, true);
-                    result.add(bundleInfo);
-                }
+                toBundleInfo(result, obrResolver.getOptionalResources(), true);
             }
-            for (Resource fragment : requiredFragments) {
-                BundleInfo bundleInfo = toBundleInfo(fragment, false);
-                result.add(bundleInfo);
-            }
-            for (Resource fragment : optionalFragments) {
-                BundleInfo bundleInfo = toBundleInfo(fragment, true);
-                result.add(bundleInfo);
-            }            
+            if (fragmentResult != null) {
+                result.addAll(fragmentResult);
+            }                        
             return result;
         } else {
-            Reason[] reasons = obrResolver.getUnsatisfiedRequirements();
-            // let's refine the list by removing the indirect unsatisfied
-            // bundles that are caused by unsatisfied packages or other bundles
-            Map<String, Set<String>> refinedReqs = refineUnsatisfiedRequirements(obrResolver, reasons);
-
-            StringBuffer reqList = new StringBuffer();
-            Map<String, String> unsatisfiedRequirements = extractConsumableMessageInfo(refinedReqs);
-            for (String reason : unsatisfiedRequirements.keySet()) {
-                reqList.append('\n');
-                reqList.append(reason);
-            }
-
-            ResolverException re = new ResolverException(MessageUtil.getMessage("RESOLVER_UNABLE_TO_RESOLVE",
-                    new Object[] { appName, reqList }));
-            List<String> list = new ArrayList<String>();
-            list.addAll(unsatisfiedRequirements.keySet());
-            re.setUnsatisfiedRequirements(list);
-
-            throw re;
+            throw createResolveException(appName, obrResolver);
         }
     }
 
+    private Set<BundleInfo> resolveFragments(Resolver obrResolver, List<Repository> resolveRepos, String appName) throws ResolverException {
+        log.debug("Searching for fragments");
+        
+        Set<Resource> requiredFragments = new HashSet<Resource>();
+        Set<Resource> optionalFragments = new HashSet<Resource>();
+        
+        for (Resource resource : obrResolver.getRequiredResources()) {
+            Resource fragmentResource = findFragmentResource(resource);
+            if (fragmentResource != null) {
+                requiredFragments.add(fragmentResource);
+            }
+        }
+        if (returnOptionalResources) {
+            for (Resource resource : obrResolver.getOptionalResources()) {
+                Resource fragmentResource = findFragmentResource(resource);
+                if (fragmentResource != null) {
+                    optionalFragments.add(fragmentResource);
+                }
+            }
+        }
+        
+        if (!requiredFragments.isEmpty() || !optionalFragments.isEmpty()) {
+            Resolver fragmentResolver = repositoryAdmin.resolver(resolveRepos.toArray(new Repository[resolveRepos.size()]));
+            for (Resource fragment : requiredFragments) {
+                fragmentResolver.add(fragment);
+            }
+            for (Resource fragment : optionalFragments) {
+                fragmentResolver.add(fragment);
+            } 
+            
+            log.debug("Resolving fragment resources, required={}, optional={}", requiredFragments, optionalFragments);
+            boolean resolved = fragmentResolver.resolve();
+            log.debug("Resolution result: {}", resolved);
+            if (resolved) {
+                Set<BundleInfo> result = new HashSet<BundleInfo>();
+                toBundleInfo(result, requiredFragments, false);
+                toBundleInfo(result, fragmentResolver.getRequiredResources(), false);
+                if (returnOptionalResources) {
+                    toBundleInfo(result, optionalFragments, true);
+                    toBundleInfo(result, fragmentResolver.getOptionalResources(), true);
+                }
+                return result;
+            } else {
+                throw createResolveException(appName, fragmentResolver);
+            }
+        } else {
+            log.debug("No fragments found");
+            return null;
+        }
+    }
+    
+    private ResolverException createResolveException(String appName, Resolver obrResolver) {
+        Reason[] reasons = obrResolver.getUnsatisfiedRequirements();
+        // let's refine the list by removing the indirect unsatisfied
+        // bundles that are caused by unsatisfied packages or other bundles
+        Map<String, Set<String>> refinedReqs = refineUnsatisfiedRequirements(obrResolver, reasons);
+
+        StringBuffer reqList = new StringBuffer();
+        Map<String, String> unsatisfiedRequirements = extractConsumableMessageInfo(refinedReqs);
+        for (String reason : unsatisfiedRequirements.keySet()) {
+            reqList.append('\n');
+            reqList.append(reason);
+        }
+
+        ResolverException re = new ResolverException(MessageUtil.getMessage("RESOLVER_UNABLE_TO_RESOLVE",
+                new Object[] { appName, reqList }));
+        List<String> list = new ArrayList<String>();
+        list.addAll(unsatisfiedRequirements.keySet());
+        re.setUnsatisfiedRequirements(list);
+
+        return re;
+    }
+
+    private void toBundleInfo(Set<BundleInfo> result, Resource[] resources, boolean optional) {
+        for (Resource resource : resources) {
+            BundleInfo bundleInfo = toBundleInfo(resource, optional);
+            result.add(bundleInfo);
+        }
+    }
+
+    private void toBundleInfo(Set<BundleInfo> result, Collection<Resource> resources, boolean optional) {
+        for (Resource resource : resources) {
+            BundleInfo bundleInfo = toBundleInfo(resource, optional);
+            result.add(bundleInfo);
+        }
+    }
+  
     private Repository getLocalRepository(RepositoryAdmin admin) {
         Repository localRepository = repositoryAdmin.getLocalRepository();
 
