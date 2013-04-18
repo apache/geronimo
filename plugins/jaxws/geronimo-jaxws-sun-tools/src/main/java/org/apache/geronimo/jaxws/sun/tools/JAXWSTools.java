@@ -152,7 +152,7 @@ public class JAXWSTools {
             // add tools.jar to classpath on Mac OS but only when running Java 7+.
             // With older JVMs there is classes.jar with the same contents as tools.jar and
             // is automatically included in the classpath.
-            if (SystemUtils.IS_JAVA_1_7) {
+            if (!SystemUtils.IS_JAVA_1_6) {
                 addToolsJarLocation(jars);
             }
         } else {
