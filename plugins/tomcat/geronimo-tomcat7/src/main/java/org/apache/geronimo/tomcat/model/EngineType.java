@@ -34,7 +34,9 @@ import javax.xml.namespace.QName;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.Pipeline;
 import org.apache.catalina.Realm;
+import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
@@ -54,6 +56,7 @@ import org.apache.xbean.recipe.Option;
  *         &lt;element name="Host" type="{}HostType" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="Cluster" type="{}ClusterType" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="Listener" type="{}ListenerType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="Valve" type="{}ValveType" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="className" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -72,7 +75,8 @@ import org.apache.xbean.recipe.Option;
     "realm",
     "host",
     "cluster",
-    "listener"
+    "listener",
+    "valve"
 })
 public class EngineType {
 
@@ -84,6 +88,8 @@ public class EngineType {
     protected ClusterType cluster;
     @XmlElement(name = "Listener")
     protected List<ListenerType> listener;
+    @XmlElement(name = "Valve")
+    protected List<ValveType> valve;
     @XmlAttribute
     protected String className = StandardEngine.class.getName();
     @XmlAttribute
@@ -181,6 +187,35 @@ public class EngineType {
             listener = new ArrayList<ListenerType>();
         }
         return this.listener;
+    }
+
+    /**
+     * Gets the value of the valve property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the valve property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getValve().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link ValveType }
+     *
+     *
+     */
+    public List<ValveType> getValve() {
+        if (valve == null) {
+            valve = new ArrayList<ValveType>();
+        }
+        return this.valve;
     }
 
     /**
@@ -359,6 +394,13 @@ public class EngineType {
         for (ListenerType listenerType : getListener()) {
             LifecycleListener listener = listenerType.getLifecycleListener(cl);
             engine.addLifecycleListener(listener);
+        }
+
+        //valve
+        Pipeline pipeline = engine.getPipeline();
+        for (ValveType valveType : getValve()) {
+            Valve valve = valveType.getValve(cl);
+            pipeline.addValve(valve);
         }
 
         return engine;
