@@ -77,7 +77,7 @@
         <axis2Version>1.6.1_2</axis2Version>
         <axiomVersion>1.2.12_1</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
-        <xbeanVersion>3.11.2-w20120810</xbeanVersion>
+        <xbeanVersion>3.11.1</xbeanVersion>
         <xbeanBundleUtilsVersion>3.13</xbeanBundleUtilsVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.1.1</txmanagerVersion>
