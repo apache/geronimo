@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v3.0.0
+Apache Geronimo v3.0.1
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-3.0.0.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-3.0.1.txt for a complete list of new features 
  available in this release. 
  
   
