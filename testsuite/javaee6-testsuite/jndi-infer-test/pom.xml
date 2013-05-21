@@ -24,7 +24,7 @@
   <parent>
     <artifactId>javaee6-testsuite</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
   </parent>
   
   <artifactId>jndi-infer-test</artifactId>
