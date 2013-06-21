@@ -74,9 +74,11 @@ public class SpnegoLoginModule implements LoginModule {
 
     public final static String SEARCH_BASE = "searchBase";
 
+    public final static String USER_SEARCH_ATTRIBUTE = "userSearchAttribute";
+
     public final static String LDAP_CONTEXT_FACTORY = "ldapContextFactory";
 
-    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(TARGET_NAME, LDAP_URL, LDAP_LOGIN_NAME, LDAP_LOGIN_PASSWORD, SEARCH_BASE, LDAP_CONTEXT_FACTORY));
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(TARGET_NAME, LDAP_URL, LDAP_LOGIN_NAME, LDAP_LOGIN_PASSWORD, SEARCH_BASE, LDAP_CONTEXT_FACTORY, USER_SEARCH_ATTRIBUTE));
 
     private String username;
 
@@ -100,6 +102,8 @@ public class SpnegoLoginModule implements LoginModule {
 
     private String searchBase;
 
+    private String userSearchAttribute;
+
     private String ldapContextFactory;
 
     private static Logger log = LoggerFactory.getLogger(SpnegoLoginModule.class);
@@ -121,6 +125,10 @@ public class SpnegoLoginModule implements LoginModule {
             this.ldapContextFactory = (String) options.get(LDAP_CONTEXT_FACTORY);
             if (ldapContextFactory == null || ldapContextFactory.length() == 0) {
                 ldapContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+            }
+            this.userSearchAttribute = (String) options.get(USER_SEARCH_ATTRIBUTE);
+            if (userSearchAttribute == null) {
+                userSearchAttribute = "sAMAccountName";
             }
         } catch (Exception e) {
             log.error("Initialization failed", e);
@@ -182,7 +190,7 @@ public class SpnegoLoginModule implements LoginModule {
                 String userName = srcName.toString().substring(0, indexOfAt);
                 SearchControls searchCtls = new SearchControls();
                 String returnedAtts[] = { "primaryGroupID", "memberOf", "objectSid;binary" };
-                String searchFilter = "(&(objectClass=user)(cn=" + userName + "))";
+                String searchFilter = "(&(objectClass=user)(" + userSearchAttribute + "=" + userName + "))";
                 String groupSearchFilter = null;
                 int totalResults = 0;
                 try {
@@ -213,10 +221,11 @@ public class SpnegoLoginModule implements LoginModule {
                                 }
                                 groupSearchFilter = "(&(objectSid=" + binaryToStringSID(groupSid) + "))";
                                 Attribute answer1 = attrs.get("memberOf");
-                                for (int i = 0; i < answer1.size(); i++) {
-                                    String str = answer1.get(i).toString();
-                                    String str1[] = str.split("CN=");
-                                    allPrincipals.add(new GeronimoGroupPrincipal(str1[1].substring(0, str1[1].indexOf(","))));
+                                if (answer1 != null) {
+                                    for (int i = 0; i < answer1.size(); i++) {
+                                        String str = answer1.get(i).toString();
+                                        allPrincipals.add(parseGroup(str));
+                                    }
                                 }
                             } catch (NullPointerException e) {
                                 throw new LoginException("Errors listing attributes: " + e);
@@ -228,8 +237,7 @@ public class SpnegoLoginModule implements LoginModule {
                     // Loop through the search results
                     while (answer2.hasMoreElements()) {
                         SearchResult sr = answer2.next();
-                        String str1[] = sr.getName().split("CN=");
-                        allPrincipals.add(new GeronimoGroupPrincipal(str1[1].substring(0, str1[1].indexOf(","))));
+                        allPrincipals.add(parseGroup(sr.getName()));
                     }
                 } catch (NamingException e) {
                     throw (LoginException) new LoginException().initCause(e);
@@ -246,6 +254,16 @@ public class SpnegoLoginModule implements LoginModule {
             }
         }
         return loginSucceeded;
+    }
+
+    private GeronimoGroupPrincipal parseGroup(String groupName) {
+        String str1[] = groupName.split("CN=");
+        int pos = str1[1].indexOf(",");
+        if (pos == -1) {
+            return new GeronimoGroupPrincipal(str1[1]);
+        } else {
+            return new GeronimoGroupPrincipal(str1[1].substring(0, pos));
+        }
     }
 
     public boolean abort() throws LoginException {
