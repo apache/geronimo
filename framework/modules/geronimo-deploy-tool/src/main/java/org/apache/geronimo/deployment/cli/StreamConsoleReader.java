@@ -46,10 +46,6 @@ public class StreamConsoleReader implements ConsoleReader {
     private boolean jlineConsoleEnabled = true;
 
     public StreamConsoleReader(InputStream in, PrintStream out) {
-        this(in, new PrintWriter(out, true));
-    }
-
-    public StreamConsoleReader(InputStream in, PrintWriter out) {
         try {
             if ("jline.UnsupportedTerminal".equals(System.getProperty("jline.terminal"))) {
                 jlineConsoleReader = new jline.console.ConsoleReader(in, out, new UnsupportedTerminal());
@@ -63,7 +59,7 @@ public class StreamConsoleReader implements ConsoleReader {
             }
             jlineConsoleEnabled = false;
             keyboard = new BufferedReader(new InputStreamReader(in));
-            console = out;
+            console = new PrintWriter(out, true);
         }
     }
 

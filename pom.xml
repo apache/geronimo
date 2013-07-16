@@ -151,8 +151,8 @@
         <!-- OSGI properties -->
         <equinox.version>3.7.1.R37x_v20110808_1106</equinox.version>    
         <felix.bundlerepository.version>1.6.6</felix.bundlerepository.version>
-        <karaf.version>2.2.1</karaf.version>
-        <karaf.osgi.version>2.2.1</karaf.osgi.version>
+        <karaf.version>2.2.11</karaf.version>
+        <karaf.osgi.version>2.2.11</karaf.osgi.version>
         <aries.blueprint.version>0.3.0.1</aries.blueprint.version>
         <aries.jmx.version>0.3</aries.jmx.version>
         <aries.util.version>0.3</aries.util.version>
@@ -1587,18 +1587,6 @@
                 <version>1.4.5</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>1.1.6</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-filter-ssl</artifactId>
-                <version>1.1.7</version>
-            </dependency>
-
             <!-- archive support -->
             <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
             <dependency>
@@ -1755,7 +1743,7 @@ only found in cxf
                         <artifactId>org.apache.felix.gogo.runtime</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.sonatype.jline</groupId>
+                        <groupId>jline</groupId>
                         <artifactId>jline</artifactId>
                     </exclusion>
                     <exclusion>
