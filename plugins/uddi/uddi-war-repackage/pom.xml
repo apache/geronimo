@@ -59,6 +59,12 @@
             <groupId>org.apache.juddi</groupId>
             <artifactId>juddi-core</artifactId>     
             <scope>provided</scope>
+	    <exclusions>
+	      <exclusion>
+		<groupId>javax.transaction</groupId>
+		<artifactId>jta</artifactId>
+	      </exclusion>
+	    </exclusions>
         </dependency>        
      </dependencies>   
      
