@@ -1079,7 +1079,7 @@ public abstract class AbstractCarMojo
         }
     }
 
-    protected void listBundles(BundleContext ctx) {
+    protected void logBundles(BundleContext ctx) {
         StringBuilder b = new StringBuilder("Bundles:");
         for (Bundle bundle: ctx.getBundles()) {
             b.append("\n   Id:").append(bundle.getBundleId()).append("  status:").append(bundle.getState()).append("  ").append(bundle.getLocation());
@@ -1106,7 +1106,7 @@ public abstract class AbstractCarMojo
                 }
             }
         }
-        listBundles(ctx);
+        logBundles(ctx);
         throw new MojoExecutionException("Cant start all the bundles");
     }
 
