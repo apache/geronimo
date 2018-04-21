@@ -252,7 +252,7 @@ public class PackageMojo extends AbstractCarMojo {
             getLog().debug("Creating kernel...");
             bundleContext = getFramework().getBundleContext();
             waitForBundles(bundleContext, 20000l);
-            listBundles(bundleContext);
+            logBundles(bundleContext);
 
             getLog().debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
 
@@ -311,7 +311,7 @@ public class PackageMojo extends AbstractCarMojo {
             invokeDeployer(deployer, null);
         } catch (Exception e) {
             getLog().info("Exception, use console to investigate ", e);
-            listBundles(bundleContext);
+            logBundles(bundleContext);
             PackageAdmin admin = (PackageAdmin) getService(bundleContext, PackageAdmin.class.getName(), null, 1000l);
 //            for (Bundle b : bundleContext.getBundles()) {
 //                int state = b.getState();
@@ -325,7 +325,7 @@ public class PackageMojo extends AbstractCarMojo {
 //                    }
 //                }
 //            }
-            listBundles(bundleContext);
+            logBundles(bundleContext);
             while (1 == 1) {
                 try {
                     Thread.sleep(1000L);
