@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -103,7 +105,7 @@ public class ConnectorPortlet extends BasePortlet {
             server = "unknown";
         }
         actionResponse.setRenderParameter(PARM_SERVER, server);
-        if(mode.equals("new")) {
+        if(Objects.equals(mode, "new")) {
             // User selected to add a new connector, need to show criteria portlet
             actionResponse.setRenderParameter(PARM_MODE, "new");
             String connectorType = actionRequest.getParameter(PARM_CONNECTOR_TYPE);
