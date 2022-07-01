@@ -1568,7 +1568,7 @@
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
-                <version>1.4.5</version>
+                <version>3.0.16</version>
             </dependency>
 
             <dependency>
