@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <jettyVersion>8.0.0.M2</jettyVersion>
+        <jettyVersion>10.0.10</jettyVersion>
         <jetty.version>8.0.0.M2</jetty.version>
     </properties>
 
