@@ -70,7 +70,7 @@
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>4.0.0-beta-1</openejbVersion>
-        <openjpaVersion>2.1.1</openjpaVersion>
+        <openjpaVersion>2.2.2</openjpaVersion>
         <openwebbeansVersion>1.1.1</openwebbeansVersion>
         <derbyVersion>10.8.2.2_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
