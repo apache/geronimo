@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <jettyVersion>8.0.0.M2</jettyVersion>
+        <jettyVersion>9.4.41.v20210516</jettyVersion>
         <jetty.version>8.0.0.M2</jetty.version>
     </properties>
 
